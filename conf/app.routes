@@ -1,0 +1,7 @@
+# microservice specific routes
+
+POST        /customs-declare-exports/notifyMovement                                  uk.gov.hmrc.exports.controllers.NotificationsController.saveMovement()
+
+POST        /save-movement-submission                                                uk.gov.hmrc.exports.controllers.SubmissionController.saveMovementSubmission()
+
+GET         /movements                                                               uk.gov.hmrc.exports.controllers.SubmissionController.getMovements()
