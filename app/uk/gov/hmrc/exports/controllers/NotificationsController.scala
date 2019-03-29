@@ -37,12 +37,12 @@ import scala.xml.NodeSeq
 
 @Singleton
 class NotificationsController @Inject()(
-                                         appConfig: AppConfig,
-                                         authConnector: AuthConnector,
-                                         headerValidator: HeaderValidator,
-                                         movementNotificationsRepository: MovementNotificationsRepository,
-                                         metrics: ExportsMetrics
-                                       ) extends ExportController(authConnector) {
+  appConfig: AppConfig,
+  authConnector: AuthConnector,
+  headerValidator: HeaderValidator,
+  movementNotificationsRepository: MovementNotificationsRepository,
+  metrics: ExportsMetrics
+) extends ExportController(authConnector) {
 
   def saveMovement(): Action[NodeSeq] = Action.async(parse.xml) { implicit request =>
     metrics.startTimer(movementMetric)
@@ -70,8 +70,8 @@ class NotificationsController @Inject()(
       }
 
   private def getMovementNotificationFromRequest(
-                                                  vhnar: MovementNotificationApiRequest
-                                                )(implicit request: Request[NodeSeq], hc: HeaderCarrier): Option[MovementNotification] = {
+    vhnar: MovementNotificationApiRequest
+  )(implicit request: Request[NodeSeq], hc: HeaderCarrier): Option[MovementNotification] = {
     val parseResult = Try[InventoryLinkingMovementResponse] {
       InventoryLinkingMovementResponse.fromXml(request.body.toString)
     }

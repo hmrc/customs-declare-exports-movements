@@ -23,15 +23,15 @@ import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolments}
 import scala.xml.Elem
 
 case class SignedInUser(
-                         credentials: Credentials,
-                         name: Name,
-                         email: Option[String],
-                         eori: String,
-                         externalId: String,
-                         internalId: Option[String],
-                         affinityGroup: Option[AffinityGroup],
-                         enrolments: Enrolments
-                       )
+  credentials: Credentials,
+  name: Name,
+  email: Option[String],
+  eori: String,
+  externalId: String,
+  internalId: Option[String],
+  affinityGroup: Option[AffinityGroup],
+  enrolments: Enrolments
+)
 
 case class NotifyResponse(code: String, message: String) {
   def toXml(): Elem = <errorResponse>
@@ -46,10 +46,10 @@ case class NotifyResponse(code: String, message: String) {
 object NotAcceptableResponse extends NotifyResponse("ACCEPT_HEADER_INVALID", "Missing or invalid Accept header")
 
 object HeaderMissingErrorResponse
-  extends NotifyResponse(
-    "INTERNAL_SERVER_ERROR",
-    "ClientId or ConversationId or EORI is missing in the request headers"
-  )
+    extends NotifyResponse(
+      "INTERNAL_SERVER_ERROR",
+      "ClientId or ConversationId or EORI is missing in the request headers"
+    )
 
 object NotificationFailedErrorResponse extends NotifyResponse("INTERNAL_SERVER_ERROR", "Failed to save notifications")
 

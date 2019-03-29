@@ -26,7 +26,6 @@ trait NotificationTestData {
     "Bearer BXQ3/Treo4kQCZvVcCqKPlwxRN4RA9Mb5RF8fFxOuwG5WSg+S+Rsp9Nq998Fgg0HeNLXL7NGwEAIzwM6vuA6YYhRQnTRFa" +
       "Bhrp+1w+kVW8g1qHGLYO48QPWuxdM87VMCZqxnCuDoNxVn76vwfgtpNj0+NwfzXV2Zc12L2QGgF9H9KwIkeIPK/mMlBESjue4V]"
 
-
   val uri = "/customs-declare-exports/notify"
   val movementUri = "/customs-declare-exports/notifyMovement"
   val submissionNotificationUri = "/customs-declare-exports/submission-notifications/1234"

@@ -28,8 +28,7 @@ class AppConfigSpec extends UnitSpec with MockitoSugar {
   val mode = PrivateMethod[Mode]('mode)
   val appNameConfiguration = PrivateMethod[Configuration]('appNameConfiguration)
   private val validAppConfig: Config =
-    ConfigFactory.parseString(
-      """
+    ConfigFactory.parseString("""
         |urls.login="http://localhost:9949/auth-login-stub/gg-sign-in"
         |microservice.services.auth.host=localhostauth
         |microservice.services.auth.port=9988
