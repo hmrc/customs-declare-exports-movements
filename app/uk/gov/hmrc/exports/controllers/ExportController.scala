@@ -29,11 +29,11 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class ExportController @Inject()(override val authConnector: AuthConnector)(implicit ec: ExecutionContext)
-  extends BaseController with AuthorisedFunctions {
+    extends BaseController with AuthorisedFunctions {
 
   def authorisedAction[A](
-                           bodyParser: BodyParser[A]
-                         )(body: AuthorizedSubmissionRequest[A] => Future[Result]): Action[A] =
+    bodyParser: BodyParser[A]
+  )(body: AuthorizedSubmissionRequest[A] => Future[Result]): Action[A] =
     Action.async(bodyParser) { implicit request =>
       authorisedWithEori.flatMap {
         case Right(authorisedRequest) =>
@@ -46,9 +46,9 @@ class ExportController @Inject()(override val authConnector: AuthConnector)(impl
     }
 
   def authorisedWithEori[A](
-                             implicit hc: HeaderCarrier,
-                             request: Request[A]
-                           ): Future[Either[ErrorResponse, AuthorizedSubmissionRequest[A]]] =
+    implicit hc: HeaderCarrier,
+    request: Request[A]
+  ): Future[Either[ErrorResponse, AuthorizedSubmissionRequest[A]]] =
     authorised(Enrolment("HMRC-CUS-ORG")).retrieve(allEnrolments) { enrolments =>
       hasEnrolment(enrolments) match {
         case Some(eori) =>

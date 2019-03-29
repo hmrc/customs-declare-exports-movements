@@ -22,7 +22,8 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.exports.base.{CustomsExportsBaseSpec, ExportsTestData}
 
-class NotificationsControllerSpec extends CustomsExportsBaseSpec with ExportsTestData with BeforeAndAfterEach with NotificationTestData {
+class NotificationsControllerSpec
+    extends CustomsExportsBaseSpec with ExportsTestData with BeforeAndAfterEach with NotificationTestData {
 
   "Notifications controller" should {
 
@@ -55,7 +56,6 @@ class NotificationsControllerSpec extends CustomsExportsBaseSpec with ExportsTes
     }
   }
 
-  override def beforeEach: Unit = {
+  override def beforeEach: Unit =
     reset(mockMovementNotificationsRepository)
-  }
 }

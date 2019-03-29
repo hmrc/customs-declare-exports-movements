@@ -56,7 +56,7 @@ class SubmissionController @Inject()(
           } else {
             Logger.error("error  saving movement submission data to DB")
             InternalServerError("failed saving movement submission")
-          }
+        }
       )
   }
 

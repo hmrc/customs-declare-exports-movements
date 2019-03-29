@@ -62,9 +62,18 @@ trait ExportsTestData {
   val now: DateTime = DateTime.now.withZone(DateTimeZone.UTC)
   val dtfOut = DateTimeFormat.forPattern("yyyyMMddHHmmss")
   val response1: Seq[Response] = Seq(
-    Response(functionCode = randomResponseFunctionCode, functionalReferenceId = Some("123"), issueDateTime = dateTimeElement(now.minusHours(6))))
+    Response(
+      functionCode = randomResponseFunctionCode,
+      functionalReferenceId = Some("123"),
+      issueDateTime = dateTimeElement(now.minusHours(6))
+    )
+  )
   val response2: Seq[Response] = Seq(
-    Response(functionCode = randomResponseFunctionCode, functionalReferenceId = Some("456"), issueDateTime = dateTimeElement(now.minusHours(5)))
+    Response(
+      functionCode = randomResponseFunctionCode,
+      functionalReferenceId = Some("456"),
+      issueDateTime = dateTimeElement(now.minusHours(5))
+    )
   )
   val movementNotification =
     MovementNotification(now, conversationId, eori, movementResponse = InventoryLinkingMovementResponse("EAA"))
@@ -80,7 +89,8 @@ trait ExportsTestData {
     VALID_MRN_HEADER
   )
 
-  def dateTimeElement(dateTimeVal: DateTime) = Some(ResponseDateTimeElement(DateTimeString("102", dateTimeVal.toString("yyyyMMdd"))))
+  def dateTimeElement(dateTimeVal: DateTime) =
+    Some(ResponseDateTimeElement(DateTimeString("102", dateTimeVal.toString("yyyyMMdd"))))
 
   def randomSubmitDeclaration: MetaData =
     MetaData(declaration = Option(WcoDeclaration(functionalReferenceId = Some(randomString(35)))))

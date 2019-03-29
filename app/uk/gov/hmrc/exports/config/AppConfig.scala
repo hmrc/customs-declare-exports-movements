@@ -23,7 +23,7 @@ import uk.gov.hmrc.play.config.{AppName, ServicesConfig}
 
 @Singleton
 class AppConfig @Inject()(override val runModeConfiguration: Configuration, val environment: Environment)
-  extends ServicesConfig with AppName {
+    extends ServicesConfig with AppName {
 
   lazy val authUrl: String = baseUrl("auth")
   lazy val loginUrl: String = loadConfig("urls.login")

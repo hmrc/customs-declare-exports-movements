@@ -29,7 +29,7 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.i18n.MessagesApi
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.inject.{Injector, bind}
+import play.api.inject.{bind, Injector}
 import play.api.libs.concurrent.Execution.Implicits
 import play.api.libs.json.JsValue
 import play.api.libs.ws.WSClient
@@ -49,7 +49,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.reflect.ClassTag
 
 trait CustomsExportsBaseSpec
-  extends PlaySpec with GuiceOneAppPerSuite with MockitoSugar with ScalaFutures with AuthTestSupport {
+    extends PlaySpec with GuiceOneAppPerSuite with MockitoSugar with ScalaFutures with AuthTestSupport {
   override lazy val app: Application =
     GuiceApplicationBuilder()
       .overrides(
@@ -85,10 +85,10 @@ trait CustomsExportsBaseSpec
     PatienceConfig(timeout = 5.seconds, interval = 50.milliseconds) // be more patient than the default
 
   protected def postRequest(
-                             uri: String,
-                             body: JsValue,
-                             headers: Map[String, String] = Map.empty
-                           ): FakeRequest[AnyContentAsJson] = {
+    uri: String,
+    body: JsValue,
+    headers: Map[String, String] = Map.empty
+  ): FakeRequest[AnyContentAsJson] = {
     val session: Map[String, String] = Map(
       SessionKeys.sessionId -> s"session-${UUID.randomUUID()}",
       SessionKeys.userId -> "Int-ba17b467-90f3-42b6-9570-73be7b78eb2b"
@@ -103,9 +103,8 @@ trait CustomsExportsBaseSpec
       .withJsonBody(body)
   }
 
-  protected def withDataSaved(ok: Boolean): OngoingStubbing[Future[Boolean]] = {
+  protected def withDataSaved(ok: Boolean): OngoingStubbing[Future[Boolean]] =
     when(mockMovementsRepository.save(any())).thenReturn(Future.successful(ok))
-  }
 
   protected def withMovements(movements: Seq[MovementSubmissions]): OngoingStubbing[Future[Seq[MovementSubmissions]]] =
     when(mockMovementsRepository.findByEori(any())).thenReturn(Future.successful(movements))

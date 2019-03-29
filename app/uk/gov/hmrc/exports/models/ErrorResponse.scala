@@ -40,13 +40,11 @@ case class ErrorResponse(httpStatusCode: Int, errorCode: String, message: String
     extends Error {
   lazy val JsonResult: Result = Status(httpStatusCode)(responseJson).as(ContentTypes.JSON)
 
-  private lazy val errorContent = JsObject(Seq(
-    "code" -> JsString(errorCode),
-    "message" -> JsString(message)))
+  private lazy val errorContent = JsObject(Seq("code" -> JsString(errorCode), "message" -> JsString(message)))
 
   private lazy val responseJson: JsValue = content match {
     case Seq() => errorContent
-    case _ => errorContent + ("errors" -> Json.toJson(content))
+    case _     => errorContent + ("errors" -> Json.toJson(content))
   }
 
   lazy val XmlResult: Result =
