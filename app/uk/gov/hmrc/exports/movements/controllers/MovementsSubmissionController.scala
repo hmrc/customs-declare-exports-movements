@@ -34,8 +34,9 @@ class MovementsSubmissionController @Inject()(
   appConfig: AppConfig,
   authConnector: AuthConnector,
   headerValidator: HeaderValidator,
-  movementsService: MovementsService
-) extends ExportController(authConnector) {
+  movementsService: MovementsService,
+  cc: ControllerComponents
+) extends ExportController(authConnector, cc) {
 
   def submitMovement(): Action[AnyContent] =
     authorisedAction(bodyParser = xmlOrEmptyBody) { implicit request =>

@@ -17,34 +17,36 @@
 package uk.gov.hmrc.exports.movements.config
 
 import com.google.inject.{Inject, Singleton}
-import play.api.Mode.Mode
+import play.api.Mode
 import play.api.{Configuration, Environment}
-import uk.gov.hmrc.play.config.{AppName, ServicesConfig}
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 @Singleton
-class AppConfig @Inject()(override val runModeConfiguration: Configuration, val environment: Environment)
-  extends ServicesConfig with AppName {
+class AppConfig @Inject()(
+  runModeConfiguration: Configuration,
+  environment: Environment,
+  servicesConfig: ServicesConfig
+) {
 
-  lazy val authUrl: String = baseUrl("auth")
-  lazy val loginUrl: String = loadConfig("urls.login")
+  lazy val authUrl: String = servicesConfig.baseUrl("auth")
 
-  lazy val customsInventoryLinkingExports = baseUrl("customs-inventory-linking-exports")
-  lazy val sendArrival = getConfString(
+  lazy val customsInventoryLinkingExports = servicesConfig.baseUrl("customs-inventory-linking-exports")
+  lazy val sendArrival = servicesConfig.getConfString(
     "customs-inventory-linking-exports.sendArrival",
     throw new IllegalStateException("Missing configuration for Customs Inventory Linking send arrival URI")
   )
-  lazy val clientIdInventory = getConfString(
+  lazy val clientIdInventory = servicesConfig.getConfString(
     "customs-inventory-linking-exports.client-id",
     throw new IllegalStateException("Missing configuration for Customs Inventory Linking Client Id")
   )
 
-  override protected def mode: Mode = environment.mode
+  def mode: Mode = environment.mode
 
-  override protected def appNameConfiguration: Configuration =
+  def appNameConfiguration: Configuration =
     runModeConfiguration
 
   private def loadConfig(key: String): String =
     runModeConfiguration
-      .getString(key)
+      .get[Option[String]](key)
       .getOrElse(throw new Exception(s"Missing configuration key: $key"))
 }

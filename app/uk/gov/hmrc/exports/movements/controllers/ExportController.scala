@@ -23,13 +23,13 @@ import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.Retrievals._
 import uk.gov.hmrc.exports.movements.models.{AuthorizedSubmissionRequest, Eori, ErrorResponse}
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.bootstrap.controller.BaseController
+import uk.gov.hmrc.play.bootstrap.controller.BackendController
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class ExportController @Inject()(override val authConnector: AuthConnector)(implicit ec: ExecutionContext)
-    extends BaseController with AuthorisedFunctions {
+class ExportController @Inject()(override val authConnector: AuthConnector, cc: ControllerComponents)(implicit ec: ExecutionContext)
+    extends BackendController(cc) with AuthorisedFunctions {
 
   def authorisedAction[A](
     bodyParser: BodyParser[A]

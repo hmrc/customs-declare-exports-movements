@@ -41,8 +41,9 @@ class NotificationsController @Inject()(
   authConnector: AuthConnector,
   headerValidator: HeaderValidator,
   movementNotificationsRepository: MovementNotificationsRepository,
-  metrics: ExportsMetrics
-) extends ExportController(authConnector) {
+  metrics: ExportsMetrics,
+  cc: ControllerComponents
+) extends ExportController(authConnector, cc) {
 
   def saveMovement(): Action[NodeSeq] = Action.async(parse.xml) { implicit request =>
     metrics.startTimer(movementMetric)

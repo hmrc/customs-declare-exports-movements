@@ -17,12 +17,14 @@
 package uk.gov.hmrc.exports.movements.models
 
 import org.joda.time.DateTime
-import play.api.libs.json.Json
+import play.api.libs.json._
 import reactivemongo.bson.BSONObjectID
 import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
 import uk.gov.hmrc.mongo.json.ReactiveMongoFormats.mongoEntity
 import uk.gov.hmrc.wco.dec.inventorylinking.common.{EntryStatus, GoodsItem, UcrBlock}
 import uk.gov.hmrc.wco.dec.inventorylinking.movement.response.InventoryLinkingMovementResponse
+import play.api.libs.json.JodaWrites._
+import play.api.libs.json.JodaReads._
 
 case class MovementNotification(
   dateTimeReceived: DateTime = DateTime.now(),
@@ -36,8 +38,7 @@ object MovementNotification {
   implicit val ucrFormat = Json.format[UcrBlock]
   implicit val goodsItemFormat = Json.format[GoodsItem]
   implicit val entryStatusFormat = Json.format[EntryStatus]
-  implicit val movementResponseFormat =
-    Json.format[InventoryLinkingMovementResponse]
+  implicit val movementResponseFormat = Json.format[InventoryLinkingMovementResponse]
   implicit val format = Json.format[MovementNotification]
 }
 

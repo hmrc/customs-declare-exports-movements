@@ -16,16 +16,15 @@
 
 package uk.gov.hmrc.exports.movements.repositories
 
-import org.scalatest.BeforeAndAfterEach
+import org.scalatest.BeforeAndAfter
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.exports.movements.base.{CustomsExportsBaseSpec, ExportsTestData}
 
-class MovementNotificationsRepositorySpec extends CustomsExportsBaseSpec with ExportsTestData with BeforeAndAfterEach {
+class MovementNotificationsRepositorySpec extends CustomsExportsBaseSpec with ExportsTestData with BeforeAndAfter {
 
-  override protected def afterEach(): Unit = {
-    super.afterEach()
-    repo.removeAll()
+  before {
+    repo.removeAll().futureValue
   }
 
   override lazy val app: Application = GuiceApplicationBuilder().build()

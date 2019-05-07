@@ -33,9 +33,9 @@ import play.api.inject.{Injector, bind}
 import play.api.libs.concurrent.Execution.Implicits
 import play.api.libs.json.JsValue
 import play.api.libs.ws.WSClient
-import play.api.mvc.{AnyContentAsJson, Result}
+import play.api.mvc.AnyContentAsJson
 import play.api.test.FakeRequest
-import play.filters.csrf.CSRF.Token
+import play.api.test.CSRFTokenHelper._
 import play.filters.csrf.{CSRFConfig, CSRFConfigProvider, CSRFFilter}
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.exports.movements.config.AppConfig
@@ -43,13 +43,11 @@ import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsCo
 import uk.gov.hmrc.exports.movements.metrics.ExportsMetrics
 import uk.gov.hmrc.exports.movements.models.{CustomsInventoryLinkingResponse, MovementSubmissions}
 import uk.gov.hmrc.exports.movements.repositories.{MovementNotificationsRepository, MovementsRepository}
-import uk.gov.hmrc.exports.movements.services.MovementsService
 import uk.gov.hmrc.http.SessionKeys
 
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
 import scala.reflect.ClassTag
-import scala.xml.NodeSeq
 
 trait CustomsExportsBaseSpec
     extends PlaySpec with GuiceOneAppPerSuite with MockitoSugar with ScalaFutures with AuthTestSupport {
@@ -88,25 +86,6 @@ trait CustomsExportsBaseSpec
 
   implicit lazy val patience: PatienceConfig =
     PatienceConfig(timeout = 5.seconds, interval = 50.milliseconds) // be more patient than the default
-
-  protected def postRequest(
-    uri: String,
-    body: JsValue,
-    headers: Map[String, String] = Map.empty
-  ): FakeRequest[AnyContentAsJson] = {
-    val session: Map[String, String] = Map(
-      SessionKeys.sessionId -> s"session-${UUID.randomUUID()}",
-      SessionKeys.userId -> "Int-ba17b467-90f3-42b6-9570-73be7b78eb2b"
-    )
-
-    val tags = Map(Token.NameRequestTag -> cfg.tokenName, Token.RequestTag -> token)
-
-    FakeRequest("POST", uri)
-      .withHeaders((Map(cfg.headerName -> token) ++ headers).toSeq: _*)
-      .withSession(session.toSeq: _*)
-      .copyFakeRequest(tags = tags)
-      .withJsonBody(body)
-  }
 
   protected def withConnectorCall(response: CustomsInventoryLinkingResponse) ={
     when(mockCustomsInventoryLinkingConnector.sendMovementRequest(any(), any())(any(), any()))
