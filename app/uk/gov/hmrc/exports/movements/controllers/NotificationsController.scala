@@ -90,13 +90,4 @@ class NotificationsController @Inject()(
     }
 
   }
-
-  private def buildStatus(responses: Seq[Response]): Option[String] =
-    responses.map { response =>
-      (response.functionCode, response.status.flatMap(_.nameCode).headOption) match {
-        case ("11", Some(nameCode)) if nameCode == "39" || nameCode == "41" =>
-          s"11$nameCode"
-        case _ => response.functionCode
-      }
-    }.headOption
 }

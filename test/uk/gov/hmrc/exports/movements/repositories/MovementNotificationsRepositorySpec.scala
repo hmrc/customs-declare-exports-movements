@@ -29,7 +29,7 @@ class MovementNotificationsRepositorySpec extends CustomsExportsBaseSpec with Ex
 
   override lazy val app: Application = GuiceApplicationBuilder().build()
 
-  val repo = component[MovementNotificationsRepository]
+  val repo = app.injector.instanceOf[MovementNotificationsRepository]
 
   // TODO: possibly split the tests, as it is too high level
   "Movement notifications repository" should {

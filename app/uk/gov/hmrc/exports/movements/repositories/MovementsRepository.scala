@@ -21,10 +21,10 @@ import play.api.Logger
 import play.api.libs.json.JsString
 import play.modules.reactivemongo.ReactiveMongoComponent
 import reactivemongo.api.indexes.{Index, IndexType}
-import reactivemongo.bson.{BSONDocument, BSONObjectID}
+import reactivemongo.bson.BSONObjectID
 import uk.gov.hmrc.exports.movements.models.MovementSubmissions
+import uk.gov.hmrc.mongo.ReactiveRepository
 import uk.gov.hmrc.mongo.json.ReactiveMongoFormats.objectIdFormats
-import uk.gov.hmrc.mongo.{AtomicUpdate, ReactiveRepository}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -35,7 +35,7 @@ class MovementsRepository @Inject()(implicit mc: ReactiveMongoComponent, ec: Exe
       mc.mongoConnector.db,
       MovementSubmissions.formats,
       objectIdFormats
-    ) with AtomicUpdate[MovementSubmissions] {
+    ){
 
   override def indexes: Seq[Index] = Seq(
     Index(Seq("eori" -> IndexType.Ascending), name = Some("eoriIdx")),
@@ -52,10 +52,7 @@ class MovementsRepository @Inject()(implicit mc: ReactiveMongoComponent, ec: Exe
   def getByEoriAndDucr(eori: String, ducr: String): Future[Option[MovementSubmissions]] =
     find("eori" -> JsString(eori), "ducr" -> JsString(ducr)).map(_.headOption)
 
-  override def isInsertion(newRecordId: BSONObjectID, oldRecord: MovementSubmissions): Boolean =
-    newRecordId.equals(oldRecord.id)
-
-  def save(movementSubmission: MovementSubmissions) =
+  def save(movementSubmission: MovementSubmissions): Future[Boolean] =
     insert(movementSubmission).map { res =>
       if (!res.ok)
         // $COVERAGE-OFF$Trivial
@@ -63,12 +60,4 @@ class MovementsRepository @Inject()(implicit mc: ReactiveMongoComponent, ec: Exe
       // $COVERAGE-ON$
       res.ok
     }
-
-  def updateMovementStatus(movementSubmission: MovementSubmissions) = {
-    val finder = BSONDocument("_id" -> movementSubmission.id, "conversationId" -> movementSubmission.conversationId)
-
-    val modifier = BSONDocument("$set" -> BSONDocument("status" -> movementSubmission.status))
-    atomicUpdate(finder, modifier).map(res => res.get.writeResult.ok)
-  }
-
 }

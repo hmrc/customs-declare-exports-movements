@@ -30,12 +30,7 @@ import play.api.Application
 import play.api.i18n.MessagesApi
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.inject.{Injector, bind}
-import play.api.libs.concurrent.Execution.Implicits
-import play.api.libs.json.JsValue
 import play.api.libs.ws.WSClient
-import play.api.mvc.AnyContentAsJson
-import play.api.test.FakeRequest
-import play.api.test.CSRFTokenHelper._
 import play.filters.csrf.{CSRFConfig, CSRFConfigProvider, CSRFFilter}
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.exports.movements.config.AppConfig
@@ -43,11 +38,9 @@ import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsCo
 import uk.gov.hmrc.exports.movements.metrics.ExportsMetrics
 import uk.gov.hmrc.exports.movements.models.{CustomsInventoryLinkingResponse, MovementSubmissions}
 import uk.gov.hmrc.exports.movements.repositories.{MovementNotificationsRepository, MovementsRepository}
-import uk.gov.hmrc.http.SessionKeys
 
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
-import scala.reflect.ClassTag
 
 trait CustomsExportsBaseSpec
     extends PlaySpec with GuiceOneAppPerSuite with MockitoSugar with ScalaFutures with AuthTestSupport {
@@ -78,11 +71,9 @@ trait CustomsExportsBaseSpec
 
   def wsClient: WSClient = injector.instanceOf[WSClient]
 
-  protected def component[T: ClassTag]: T = app.injector.instanceOf[T]
-
   implicit val mat: Materializer = app.materializer
 
-  implicit val ec: ExecutionContext = Implicits.defaultContext
+  implicit val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
 
   implicit lazy val patience: PatienceConfig =
     PatienceConfig(timeout = 5.seconds, interval = 50.milliseconds) // be more patient than the default
