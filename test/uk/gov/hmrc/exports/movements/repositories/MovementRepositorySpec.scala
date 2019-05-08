@@ -16,24 +16,18 @@
 
 package uk.gov.hmrc.exports.movements.repositories
 
-import org.scalatest.BeforeAndAfterEach
-import play.api.Application
-import org.mockito.Mockito.reset
-import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.exports.movements.base.{CustomsExportsBaseSpec, ExportsTestData}
+import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.{MustMatchers, WordSpec}
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import uk.gov.hmrc.exports.movements.base.ExportsTestData
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class MovementRepositorySpec extends CustomsExportsBaseSpec with ExportsTestData with BeforeAndAfterEach {
+class MovementRepositorySpec
+    extends WordSpec with MustMatchers with GuiceOneAppPerSuite with ExportsTestData with ScalaFutures {
 
-  override protected def afterEach(): Unit = {
-    super.afterEach()
-    repo.removeAll()
-    reset(mockMovementNotificationsRepository)
-  }
-
-  override lazy val app: Application = GuiceApplicationBuilder().build()
-  val repo = component[MovementsRepository]
+  val repo = app.injector.instanceOf[MovementsRepository]
+  repo.removeAll().futureValue
 
   // TODO: possibly split the tests, as it is too high level
   "Movements repository" should {
@@ -61,16 +55,6 @@ class MovementRepositorySpec extends CustomsExportsBaseSpec with ExportsTestData
       gotAgain.eori must be(eori)
       gotAgain.conversationId must be(conversationId)
       gotAgain.ducr must be(ducr)
-
-      // update status test
-      val movement1 = repo.getByConversationId(conversationId).futureValue
-
-      val updatedMovement = movement1.get.copy(status = Some("Accepted"))
-      val updateStatusResult = repo.updateMovementStatus(updatedMovement).futureValue
-      updateStatusResult must be(true)
-      val newMovement = repo.getByConversationId(conversationId).futureValue
-
-      newMovement.get must be(updatedMovement)
     }
   }
 }

@@ -26,8 +26,6 @@ import uk.gov.hmrc.exports.movements.models.MovementSubmissions._
 import uk.gov.hmrc.exports.movements.base.{CustomsExportsBaseSpec, ExportsTestData}
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
 
-
-
 class MovementsSubmissionControllerSpec extends CustomsExportsBaseSpec with ExportsTestData {
   val saveMovementUri = "/save-movement-submission"
 
@@ -43,7 +41,6 @@ class MovementsSubmissionControllerSpec extends CustomsExportsBaseSpec with Expo
         AUTHORIZATION -> dummyToken,
         CONTENT_TYPE -> ContentTypes.XML
       )
-
 
   def fakeRequestWithPayload(uri: String, payload: String): FakeRequest[String] =
     FakeRequest("POST", uri).withBody(payload)
@@ -73,11 +70,11 @@ class MovementsSubmissionControllerSpec extends CustomsExportsBaseSpec with Expo
       "return 400 status when non xml contentType is received" in {
         withAuthorizedUser()
 
-        val result = route(app,  fakeXmlRequest
-          .withHeaders(
-            AUTHORIZATION -> dummyToken,
-            CONTENT_TYPE -> ContentTypes.JSON
-          )).get
+        val result = route(
+          app,
+          fakeXmlRequest
+            .withHeaders(AUTHORIZATION -> dummyToken, CONTENT_TYPE -> ContentTypes.JSON)
+        ).get
 
         status(result) must be(BAD_REQUEST)
       }

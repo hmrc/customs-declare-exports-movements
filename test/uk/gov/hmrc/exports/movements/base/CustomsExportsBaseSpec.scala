@@ -29,13 +29,8 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.i18n.MessagesApi
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.inject.{Injector, bind}
-import play.api.libs.concurrent.Execution.Implicits
-import play.api.libs.json.JsValue
+import play.api.inject.{bind, Injector}
 import play.api.libs.ws.WSClient
-import play.api.mvc.{AnyContentAsJson, Result}
-import play.api.test.FakeRequest
-import play.filters.csrf.CSRF.Token
 import play.filters.csrf.{CSRFConfig, CSRFConfigProvider, CSRFFilter}
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.exports.movements.config.AppConfig
@@ -43,13 +38,9 @@ import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsCo
 import uk.gov.hmrc.exports.movements.metrics.ExportsMetrics
 import uk.gov.hmrc.exports.movements.models.{CustomsInventoryLinkingResponse, MovementSubmissions}
 import uk.gov.hmrc.exports.movements.repositories.{MovementNotificationsRepository, MovementsRepository}
-import uk.gov.hmrc.exports.movements.services.MovementsService
-import uk.gov.hmrc.http.SessionKeys
 
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
-import scala.reflect.ClassTag
-import scala.xml.NodeSeq
 
 trait CustomsExportsBaseSpec
     extends PlaySpec with GuiceOneAppPerSuite with MockitoSugar with ScalaFutures with AuthTestSupport {
@@ -65,7 +56,8 @@ trait CustomsExportsBaseSpec
       .build()
   val mockMovementNotificationsRepository: MovementNotificationsRepository = mock[MovementNotificationsRepository]
   val mockMovementsRepository: MovementsRepository = mock[MovementsRepository]
-  val mockCustomsInventoryLinkingConnector: CustomsInventoryLinkingExportsConnector = mock[CustomsInventoryLinkingExportsConnector]
+  val mockCustomsInventoryLinkingConnector: CustomsInventoryLinkingExportsConnector =
+    mock[CustomsInventoryLinkingExportsConnector]
   val mockMetrics: ExportsMetrics = mock[ExportsMetrics]
   val cfg: CSRFConfig = injector.instanceOf[CSRFConfigProvider].get
   val token: String = injector.instanceOf[CSRFFilter].tokenProvider.generateToken
@@ -80,38 +72,16 @@ trait CustomsExportsBaseSpec
 
   def wsClient: WSClient = injector.instanceOf[WSClient]
 
-  protected def component[T: ClassTag]: T = app.injector.instanceOf[T]
-
   implicit val mat: Materializer = app.materializer
 
-  implicit val ec: ExecutionContext = Implicits.defaultContext
+  implicit val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
 
   implicit lazy val patience: PatienceConfig =
     PatienceConfig(timeout = 5.seconds, interval = 50.milliseconds) // be more patient than the default
 
-  protected def postRequest(
-    uri: String,
-    body: JsValue,
-    headers: Map[String, String] = Map.empty
-  ): FakeRequest[AnyContentAsJson] = {
-    val session: Map[String, String] = Map(
-      SessionKeys.sessionId -> s"session-${UUID.randomUUID()}",
-      SessionKeys.userId -> "Int-ba17b467-90f3-42b6-9570-73be7b78eb2b"
-    )
-
-    val tags = Map(Token.NameRequestTag -> cfg.tokenName, Token.RequestTag -> token)
-
-    FakeRequest("POST", uri)
-      .withHeaders((Map(cfg.headerName -> token) ++ headers).toSeq: _*)
-      .withSession(session.toSeq: _*)
-      .copyFakeRequest(tags = tags)
-      .withJsonBody(body)
-  }
-
-  protected def withConnectorCall(response: CustomsInventoryLinkingResponse) ={
+  protected def withConnectorCall(response: CustomsInventoryLinkingResponse) =
     when(mockCustomsInventoryLinkingConnector.sendMovementRequest(any(), any())(any(), any()))
       .thenReturn(Future.successful(response))
-  }
 
   protected def withDataSaved(ok: Boolean): OngoingStubbing[Future[Boolean]] =
     when(mockMovementsRepository.save(any())).thenReturn(Future.successful(ok))

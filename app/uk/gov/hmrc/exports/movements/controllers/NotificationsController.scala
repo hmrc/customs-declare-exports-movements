@@ -24,10 +24,13 @@ import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.exports.movements.config.AppConfig
 import uk.gov.hmrc.exports.movements.metrics.ExportsMetrics
 import uk.gov.hmrc.exports.movements.metrics.MetricIdentifiers._
-import uk.gov.hmrc.exports.movements.models.{ErrorResponse, MovementNotification, MovementNotificationApiRequest, NotificationFailedErrorResponse}
+import uk.gov.hmrc.exports.movements.models.{
+  ErrorResponse,
+  MovementNotification,
+  MovementNotificationApiRequest,
+  NotificationFailedErrorResponse
+}
 import uk.gov.hmrc.exports.movements.repositories.MovementNotificationsRepository
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.wco.dec._
 import uk.gov.hmrc.wco.dec.inventorylinking.movement.response.InventoryLinkingMovementResponse
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -41,8 +44,9 @@ class NotificationsController @Inject()(
   authConnector: AuthConnector,
   headerValidator: HeaderValidator,
   movementNotificationsRepository: MovementNotificationsRepository,
-  metrics: ExportsMetrics
-) extends ExportController(authConnector) {
+  metrics: ExportsMetrics,
+  cc: ControllerComponents
+) extends ExportController(authConnector, cc) {
 
   def saveMovement(): Action[NodeSeq] = Action.async(parse.xml) { implicit request =>
     metrics.startTimer(movementMetric)
@@ -57,7 +61,7 @@ class NotificationsController @Inject()(
     }
   }
 
-  private def saveMovement(notification: MovementNotification)(implicit hc: HeaderCarrier): Future[Result] =
+  private def saveMovement(notification: MovementNotification): Future[Result] =
     movementNotificationsRepository
       .save(notification)
       .map {
@@ -71,7 +75,7 @@ class NotificationsController @Inject()(
 
   private def getMovementNotificationFromRequest(
     vhnar: MovementNotificationApiRequest
-  )(implicit request: Request[NodeSeq], hc: HeaderCarrier): Option[MovementNotification] = {
+  )(implicit request: Request[NodeSeq]): Option[MovementNotification] = {
     val parseResult = Try[InventoryLinkingMovementResponse] {
       InventoryLinkingMovementResponse.fromXml(request.body.toString)
     }
@@ -89,13 +93,4 @@ class NotificationsController @Inject()(
     }
 
   }
-
-  private def buildStatus(responses: Seq[Response]): Option[String] =
-    responses.map { response =>
-      (response.functionCode, response.status.flatMap(_.nameCode).headOption) match {
-        case ("11", Some(nameCode)) if nameCode == "39" || nameCode == "41" =>
-          s"11$nameCode"
-        case _ => response.functionCode
-      }
-    }.headOption
 }

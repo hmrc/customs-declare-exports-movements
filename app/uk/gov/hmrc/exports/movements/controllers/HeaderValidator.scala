@@ -53,10 +53,9 @@ class HeaderValidator {
         None
     }
 
-
   def validateAndExtractMovementSubmissionHeaders(
-                                           implicit headers: Map[String, String]
-                                         ): Either[ErrorResponse, ValidatedHeadersMovementsRequest] = {
+    implicit headers: Map[String, String]
+  ): Either[ErrorResponse, ValidatedHeadersMovementsRequest] = {
     val result = for {
       ducr <- extractDucrHeader(headers)
       movementType <- extractMovementTypeHeader(headers)
@@ -68,8 +67,6 @@ class HeaderValidator {
         Left(ErrorResponse.ErrorInvalidPayload)
     }
   }
-
-
 
   def validateAndExtractMovementNotificationHeaders(
     headers: Map[String, String]

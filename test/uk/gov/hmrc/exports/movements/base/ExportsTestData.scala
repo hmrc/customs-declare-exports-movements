@@ -81,7 +81,12 @@ trait ExportsTestData {
     )
   )
   val movementNotification =
-    MovementNotification(now, UUID.randomUUID().toString, eori, movementResponse = InventoryLinkingMovementResponse("EAA"))
+    MovementNotification(
+      now,
+      UUID.randomUUID().toString,
+      eori,
+      movementResponse = InventoryLinkingMovementResponse("EAA")
+    )
   val submissionMovementResponse =
     MovementResponse(eori, conversationId, ducr, Some(mucr), "Arrival", Some(GoodsHaveExitedTheCommunity.toString()))
   val ValidHeaders: Map[String, String] = Map(

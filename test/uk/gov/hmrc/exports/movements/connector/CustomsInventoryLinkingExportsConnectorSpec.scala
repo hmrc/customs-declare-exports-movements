@@ -16,8 +16,6 @@
 
 package uk.gov.hmrc.exports.movements.connector
 
-import java.util.UUID
-
 import play.api.http.Status.ACCEPTED
 import uk.gov.hmrc.exports.movements.base.{CustomsExportsBaseSpec, MockHttpClient}
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
@@ -58,7 +56,14 @@ class CustomsInventoryLinkingExportsConnectorSpec extends CustomsExportsBaseSpec
     val expectedUrl: String = s"${appConfig.customsInventoryLinkingExports}${appConfig.sendArrival}"
     val falseServerError: Boolean = false
     val expectedHeaders: Seq[(String, String)] = headers
-    val http = new MockHttpClient(expectedUrl, body, expectedHeaders, falseServerError, CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId)))
+    val http = new MockHttpClient(
+      wsClient,
+      expectedUrl,
+      body,
+      expectedHeaders,
+      falseServerError,
+      CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId))
+    )
     val client = new CustomsInventoryLinkingExportsConnector(appConfig, http)
     test(client.sendMovementRequest(eori, body)(hc, ec))
   }

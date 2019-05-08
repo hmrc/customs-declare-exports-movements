@@ -21,7 +21,6 @@ import java.util.UUID
 import org.scalatest.concurrent.ScalaFutures
 import play.api.http.ContentTypes
 import play.api.libs.json.Json
-import play.api.mvc.Results.{InternalServerError, Ok}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core._

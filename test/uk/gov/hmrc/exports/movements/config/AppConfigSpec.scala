@@ -17,15 +17,14 @@
 package uk.gov.hmrc.exports.movements.config
 
 import com.typesafe.config.{Config, ConfigFactory}
-import org.scalatest.PrivateMethodTester.{PrivateMethod, _}
+import org.scalatest.PrivateMethodTester.PrivateMethod
 import org.scalatest.mockito.MockitoSugar
-import play.api.Mode.Mode
-import play.api.{Configuration, Environment}
+import play.api.Mode.Test
+import play.api.Configuration
+import uk.gov.hmrc.play.bootstrap.config.{RunMode, ServicesConfig}
 import uk.gov.hmrc.play.test.UnitSpec
 
 class AppConfigSpec extends UnitSpec with MockitoSugar {
-  val environment = Environment.simple()
-  val mode = PrivateMethod[Mode]('mode)
   val appNameConfiguration = PrivateMethod[Configuration]('appNameConfiguration)
   private val validAppConfig: Config =
     ConfigFactory.parseString("""
@@ -42,16 +41,15 @@ class AppConfigSpec extends UnitSpec with MockitoSugar {
   private val validServicesConfiguration = Configuration(validAppConfig)
   private val emptyServicesConfiguration = Configuration(emptyAppConfig)
 
-  private def appConfig(conf: Configuration) = new AppConfig(conf, environment)
+  private def runMode(conf: Configuration): RunMode = new RunMode(conf, Test)
+  private def servicesConfig(conf: Configuration) = new ServicesConfig(conf, runMode(conf))
+  private def appConfig(conf: Configuration) = new AppConfig(conf, servicesConfig(conf))
 
   "AppConfig" should {
     "return config as object model when configuration is valid" in {
       val configService: AppConfig = appConfig(validServicesConfiguration)
 
-      configService invokePrivate mode() shouldBe environment.mode
-      configService invokePrivate appNameConfiguration() shouldBe validServicesConfiguration
       configService.authUrl shouldBe "http://localhostauth:9988"
-      configService.loginUrl shouldBe "http://localhost:9949/auth-login-stub/gg-sign-in"
       configService.customsInventoryLinkingExports shouldBe "http://localhostile:9875"
       configService.sendArrival shouldBe "/"
       configService.clientIdInventory shouldBe "xx1445"
@@ -63,17 +61,14 @@ class AppConfigSpec extends UnitSpec with MockitoSugar {
       val caught: RuntimeException = intercept[RuntimeException](configService.authUrl)
       caught.getMessage shouldBe "Could not find config auth.host"
 
-      val caught2: Exception = intercept[Exception](configService.loginUrl)
-      caught2.getMessage shouldBe "Missing configuration key: urls.login"
+      val caught2: Exception = intercept[Exception](configService.customsInventoryLinkingExports)
+      caught2.getMessage shouldBe "Could not find config customs-inventory-linking-exports.host"
 
-      val caught3: Exception = intercept[Exception](configService.customsInventoryLinkingExports)
-      caught3.getMessage shouldBe "Could not find config customs-inventory-linking-exports.host"
+      val caught3: Exception = intercept[Exception](configService.sendArrival)
+      caught3.getMessage shouldBe "Missing configuration for Customs Inventory Linking send arrival URI"
 
-      val caught4: Exception = intercept[Exception](configService.sendArrival)
-      caught4.getMessage shouldBe "Missing configuration for Customs Inventory Linking send arrival URI"
-
-      val caught5: Exception = intercept[Exception](configService.clientIdInventory)
-      caught5.getMessage shouldBe "Missing configuration for Customs Inventory Linking Client Id"
+      val caught4: Exception = intercept[Exception](configService.clientIdInventory)
+      caught4.getMessage shouldBe "Missing configuration for Customs Inventory Linking Client Id"
     }
   }
 }
