@@ -17,14 +17,12 @@
 package uk.gov.hmrc.exports.movements.config
 
 import com.google.inject.{Inject, Singleton}
-import play.api.Mode
-import play.api.{Configuration, Environment}
+import play.api.Configuration
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 @Singleton
 class AppConfig @Inject()(
   runModeConfiguration: Configuration,
-  environment: Environment,
   servicesConfig: ServicesConfig
 ) {
 
@@ -39,14 +37,4 @@ class AppConfig @Inject()(
     "customs-inventory-linking-exports.client-id",
     throw new IllegalStateException("Missing configuration for Customs Inventory Linking Client Id")
   )
-
-  def mode: Mode = environment.mode
-
-  def appNameConfiguration: Configuration =
-    runModeConfiguration
-
-  private def loadConfig(key: String): String =
-    runModeConfiguration
-      .get[Option[String]](key)
-      .getOrElse(throw new Exception(s"Missing configuration key: $key"))
 }

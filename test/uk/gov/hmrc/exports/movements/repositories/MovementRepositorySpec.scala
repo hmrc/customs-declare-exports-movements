@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.exports.movements.repositories
 
-import com.codahale.metrics.SharedMetricRegistries
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{MustMatchers, WordSpec}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -27,7 +26,6 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class MovementRepositorySpec
     extends WordSpec with MustMatchers with GuiceOneAppPerSuite with ExportsTestData with ScalaFutures {
 
-  SharedMetricRegistries.clear()
   val repo = app.injector.instanceOf[MovementsRepository]
   repo.removeAll().futureValue
 

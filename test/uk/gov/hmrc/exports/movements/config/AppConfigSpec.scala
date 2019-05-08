@@ -17,16 +17,14 @@
 package uk.gov.hmrc.exports.movements.config
 
 import com.typesafe.config.{Config, ConfigFactory}
-import org.scalatest.PrivateMethodTester.{PrivateMethod, _}
+import org.scalatest.PrivateMethodTester.PrivateMethod
 import org.scalatest.mockito.MockitoSugar
 import play.api.Mode.Test
-import play.api.{Configuration, Environment, Mode}
+import play.api.Configuration
 import uk.gov.hmrc.play.bootstrap.config.{RunMode, ServicesConfig}
 import uk.gov.hmrc.play.test.UnitSpec
 
 class AppConfigSpec extends UnitSpec with MockitoSugar {
-  val environment = Environment.simple()
-  val mode = PrivateMethod[Mode]('mode)
   val appNameConfiguration = PrivateMethod[Configuration]('appNameConfiguration)
   private val validAppConfig: Config =
     ConfigFactory.parseString("""
@@ -45,14 +43,12 @@ class AppConfigSpec extends UnitSpec with MockitoSugar {
 
   private def runMode(conf: Configuration): RunMode = new RunMode(conf, Test)
   private def servicesConfig(conf: Configuration) = new ServicesConfig(conf, runMode(conf))
-  private def appConfig(conf: Configuration) = new AppConfig(conf, environment, servicesConfig(conf))
+  private def appConfig(conf: Configuration) = new AppConfig(conf, servicesConfig(conf))
 
   "AppConfig" should {
     "return config as object model when configuration is valid" in {
       val configService: AppConfig = appConfig(validServicesConfiguration)
 
-      configService invokePrivate mode() shouldBe environment.mode
-      configService invokePrivate appNameConfiguration() shouldBe validServicesConfiguration
       configService.authUrl shouldBe "http://localhostauth:9988"
       configService.customsInventoryLinkingExports shouldBe "http://localhostile:9875"
       configService.sendArrival shouldBe "/"

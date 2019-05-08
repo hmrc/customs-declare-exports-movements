@@ -17,10 +17,10 @@
 package uk.gov.hmrc.exports.movements.services
 
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{reset, times, verify, verifyZeroInteractions, when}
+import org.mockito.Mockito._
 import org.mockito.stubbing.OngoingStubbing
 import org.scalatest.BeforeAndAfterEach
-import play.api.http.Status.{ACCEPTED, BAD_REQUEST, INTERNAL_SERVER_ERROR, OK}
+import play.api.http.Status.{ACCEPTED, BAD_REQUEST, INTERNAL_SERVER_ERROR}
 import play.api.mvc.Result
 import uk.gov.hmrc.exports.movements.base.{CustomsExportsBaseSpec, ExportsTestData}
 import uk.gov.hmrc.exports.movements.models.{CustomsInventoryLinkingResponse, MovementSubmissions}

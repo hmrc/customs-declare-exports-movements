@@ -19,7 +19,6 @@ package uk.gov.hmrc.exports.movements.controllers
 import org.scalatest.mockito.MockitoSugar
 import uk.gov.hmrc.exports.movements.base.ExportsTestData
 import uk.gov.hmrc.exports.movements.models._
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
 
 class HeaderValidatorSpec extends UnitSpec with MockitoSugar with ExportsTestData {
@@ -112,8 +111,6 @@ class HeaderValidatorSpec extends UnitSpec with MockitoSugar with ExportsTestDat
     "validateSubmissionHeaders" should {
 
       "return Right of validatedHeaderResponse when validateHeaders is called on valid headers" in new SetUp {
-        implicit val hc: HeaderCarrier = mock[HeaderCarrier]
-
         val result: Either[ErrorResponse, ValidatedHeadersMovementsRequest] =
           validator.validateAndExtractMovementSubmissionHeaders(ValidHeaders)
         result should be(
@@ -133,8 +130,6 @@ class HeaderValidatorSpec extends UnitSpec with MockitoSugar with ExportsTestDat
     "validateAndExtractMovementNotificationHeaders" should {
 
       "return Right of MovementNotificationApiRequest when validateHeaders is called on valid headers" in new SetUp {
-        implicit val hc: HeaderCarrier = mock[HeaderCarrier]
-
         val result: Either[ErrorResponse, MovementNotificationApiRequest] =
           validator.validateAndExtractMovementNotificationHeaders(ValidHeaders)
         result should be(
@@ -159,8 +154,6 @@ class HeaderValidatorSpec extends UnitSpec with MockitoSugar with ExportsTestDat
     "validateAndExtractSubmissionNotificationHeaders" should {
 
       "return Right of SubmissionNotificationApiRequest when validateHeaders is called on valid headers" in new SetUp {
-        implicit val hc: HeaderCarrier = mock[HeaderCarrier]
-
         val result: Either[ErrorResponse, SubmissionNotificationApiRequest] =
           validator.validateAndExtractSubmissionNotificationHeaders(ValidHeaders)
         result should be(Right(SubmissionNotificationApiRequest(AuthToken(dummyToken), ConversationId(conversationId))))
