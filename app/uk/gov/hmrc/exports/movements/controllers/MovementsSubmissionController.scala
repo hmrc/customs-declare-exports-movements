@@ -21,7 +21,11 @@ import play.api.Logger
 import play.api.mvc._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.exports.movements.config.AppConfig
-import uk.gov.hmrc.exports.movements.models.{AuthorizedSubmissionRequest, ErrorResponse, ValidatedHeadersMovementsRequest}
+import uk.gov.hmrc.exports.movements.models.{
+  AuthorizedSubmissionRequest,
+  ErrorResponse,
+  ValidatedHeadersMovementsRequest
+}
 import uk.gov.hmrc.exports.movements.services.MovementsService
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -62,7 +66,7 @@ class MovementsSubmissionController @Inject()(
       case Right(vhr) =>
         request.body.asXml match {
           case Some(xml) =>
-            processSave(vhr,xml).recoverWith {
+            processSave(vhr, xml).recoverWith {
               case e: Exception =>
                 Logger.error(s"problem calling declaration api ${e.getMessage}")
                 Future.successful(ErrorResponse.ErrorInternalServerError.XmlResult)
@@ -76,13 +80,12 @@ class MovementsSubmissionController @Inject()(
         Future.successful(ErrorResponse.ErrorGenericBadRequest.XmlResult)
     }
 
-  private def processSave(vhr: ValidatedHeadersMovementsRequest, xml: NodeSeq)(
-    implicit request: AuthorizedSubmissionRequest[AnyContent],
-    hc: HeaderCarrier
-  ): Future[Result] = {
+  private def processSave(
+    vhr: ValidatedHeadersMovementsRequest,
+    xml: NodeSeq
+  )(implicit request: AuthorizedSubmissionRequest[AnyContent], hc: HeaderCarrier): Future[Result] =
     movementsService
       .handleMovementSubmission(request.eori.value, vhr.ducr, vhr.mucr, vhr.movementType, xml)
-  }
 
   def getMovements: Action[AnyContent] =
     authorisedAction(BodyParsers.parse.default) { implicit authorizedRequest =>

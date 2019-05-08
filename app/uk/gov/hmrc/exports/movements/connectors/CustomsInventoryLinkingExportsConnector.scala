@@ -44,17 +44,17 @@ class CustomsInventoryLinkingExportsConnector @Inject()(appConfig: AppConfig, ht
       override def read(method: String, url: String, response: HttpResponse): CustomsInventoryLinkingResponse =
         CustomsInventoryLinkingResponse(response.status, response.header("X-Conversation-ID"))
     }
-  private[connectors] def post(eori: String,  body: String)(
-    implicit hc: HeaderCarrier,
-    ec: ExecutionContext
-  ): Future[CustomsInventoryLinkingResponse] = {
+  private[connectors] def post(
+    eori: String,
+    body: String
+  )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[CustomsInventoryLinkingResponse] = {
     Logger.debug(s"CUSTOMS_DECLARATIONS request payload is -> $body")
     httpClient
       .POSTString[CustomsInventoryLinkingResponse](
-      s"${appConfig.customsInventoryLinkingExports}${appConfig.sendArrival}",
-      body,
-      headers = headers(eori)
-    )(responseReader, hc, ec)
+        s"${appConfig.customsInventoryLinkingExports}${appConfig.sendArrival}",
+        body,
+        headers = headers(eori)
+      )(responseReader, hc, ec)
       .recover {
         case error: Throwable =>
           Logger.error(s"Error to check development environment ${error.toString}")
@@ -69,6 +69,5 @@ class CustomsInventoryLinkingExportsConnector @Inject()(appConfig: AppConfig, ht
     "X-Client-ID" -> appConfig.clientIdInventory,
     "X-EORI-Identfier" -> eori
   )
-
 
 }

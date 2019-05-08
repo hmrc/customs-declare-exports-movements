@@ -35,7 +35,7 @@ class MovementsRepository @Inject()(implicit mc: ReactiveMongoComponent, ec: Exe
       mc.mongoConnector.db,
       MovementSubmissions.formats,
       objectIdFormats
-    ){
+    ) {
 
   override def indexes: Seq[Index] = Seq(
     Index(Seq("eori" -> IndexType.Ascending), name = Some("eoriIdx")),

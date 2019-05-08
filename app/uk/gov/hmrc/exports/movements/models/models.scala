@@ -24,7 +24,6 @@ import scala.xml.Elem
 
 case class CustomsInventoryLinkingResponse(status: Int, conversationId: Option[String])
 
-
 case class SignedInUser(
   credentials: Credentials,
   name: Name,

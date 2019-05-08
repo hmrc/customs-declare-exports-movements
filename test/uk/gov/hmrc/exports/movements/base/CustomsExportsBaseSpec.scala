@@ -29,7 +29,7 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.i18n.MessagesApi
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.inject.{Injector, bind}
+import play.api.inject.{bind, Injector}
 import play.api.libs.ws.WSClient
 import play.filters.csrf.{CSRFConfig, CSRFConfigProvider, CSRFFilter}
 import uk.gov.hmrc.auth.core._
@@ -56,7 +56,8 @@ trait CustomsExportsBaseSpec
       .build()
   val mockMovementNotificationsRepository: MovementNotificationsRepository = mock[MovementNotificationsRepository]
   val mockMovementsRepository: MovementsRepository = mock[MovementsRepository]
-  val mockCustomsInventoryLinkingConnector: CustomsInventoryLinkingExportsConnector = mock[CustomsInventoryLinkingExportsConnector]
+  val mockCustomsInventoryLinkingConnector: CustomsInventoryLinkingExportsConnector =
+    mock[CustomsInventoryLinkingExportsConnector]
   val mockMetrics: ExportsMetrics = mock[ExportsMetrics]
   val cfg: CSRFConfig = injector.instanceOf[CSRFConfigProvider].get
   val token: String = injector.instanceOf[CSRFFilter].tokenProvider.generateToken
@@ -78,10 +79,9 @@ trait CustomsExportsBaseSpec
   implicit lazy val patience: PatienceConfig =
     PatienceConfig(timeout = 5.seconds, interval = 50.milliseconds) // be more patient than the default
 
-  protected def withConnectorCall(response: CustomsInventoryLinkingResponse) ={
+  protected def withConnectorCall(response: CustomsInventoryLinkingResponse) =
     when(mockCustomsInventoryLinkingConnector.sendMovementRequest(any(), any())(any(), any()))
       .thenReturn(Future.successful(response))
-  }
 
   protected def withDataSaved(ok: Boolean): OngoingStubbing[Future[Boolean]] =
     when(mockMovementsRepository.save(any())).thenReturn(Future.successful(ok))

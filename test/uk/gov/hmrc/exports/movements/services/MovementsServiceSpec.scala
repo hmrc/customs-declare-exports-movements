@@ -47,7 +47,9 @@ class MovementsServiceSpec extends CustomsExportsBaseSpec with ExportsTestData w
       withMovementSaved(true)
 
       val result: Result =
-        testObj.handleMovementSubmission(declarantEoriValue, declarantDucrValue, Some("mucr"), "movementTyope", xml).futureValue
+        testObj
+          .handleMovementSubmission(declarantEoriValue, declarantDucrValue, Some("mucr"), "movementTyope", xml)
+          .futureValue
 
       result.header.status must be(ACCEPTED)
       verify(mockCustomsInventoryLinkingConnector, times(1)).sendMovementRequest(any[String], any[String])(any(), any())
@@ -61,7 +63,9 @@ class MovementsServiceSpec extends CustomsExportsBaseSpec with ExportsTestData w
       withMovementSaved(true)
 
       val result: Result =
-        testObj.handleMovementSubmission(declarantEoriValue, declarantDucrValue, Some("mucr"), "movementTyope", xml).futureValue
+        testObj
+          .handleMovementSubmission(declarantEoriValue, declarantDucrValue, Some("mucr"), "movementTyope", xml)
+          .futureValue
 
       result.header.status must be(INTERNAL_SERVER_ERROR)
       verify(mockCustomsInventoryLinkingConnector, times(1)).sendMovementRequest(any[String], any[String])(any(), any())
@@ -74,7 +78,9 @@ class MovementsServiceSpec extends CustomsExportsBaseSpec with ExportsTestData w
       withConnectorCall(CustomsInventoryLinkingResponse(ACCEPTED, None))
 
       val result: Result =
-        testObj.handleMovementSubmission(declarantEoriValue, declarantDucrValue, Some("mucr"), "movementTyope", xml).futureValue
+        testObj
+          .handleMovementSubmission(declarantEoriValue, declarantDucrValue, Some("mucr"), "movementTyope", xml)
+          .futureValue
 
       result.header.status must be(INTERNAL_SERVER_ERROR)
       verify(mockCustomsInventoryLinkingConnector, times(1)).sendMovementRequest(any[String], any[String])(any(), any())
@@ -88,7 +94,9 @@ class MovementsServiceSpec extends CustomsExportsBaseSpec with ExportsTestData w
       withMovementSaved(false)
 
       val result: Result =
-        testObj.handleMovementSubmission(declarantEoriValue, declarantDucrValue, Some("mucr"), "movementTyope", xml).futureValue
+        testObj
+          .handleMovementSubmission(declarantEoriValue, declarantDucrValue, Some("mucr"), "movementTyope", xml)
+          .futureValue
 
       result.header.status must be(INTERNAL_SERVER_ERROR)
       verify(mockCustomsInventoryLinkingConnector, times(1)).sendMovementRequest(any[String], any[String])(any(), any())
@@ -96,9 +104,7 @@ class MovementsServiceSpec extends CustomsExportsBaseSpec with ExportsTestData w
     }
   }
 
-  private def withMovementSaved(result: Boolean): OngoingStubbing[Future[Boolean]] = {
+  private def withMovementSaved(result: Boolean): OngoingStubbing[Future[Boolean]] =
     when(mockMovementsRepository.save(any())).thenReturn(Future.successful(result))
-  }
-
 
 }

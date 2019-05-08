@@ -29,7 +29,6 @@ class MovementRepositorySpec
   val repo = app.injector.instanceOf[MovementsRepository]
   repo.removeAll().futureValue
 
-
   // TODO: possibly split the tests, as it is too high level
   "Movements repository" should {
     "save movement with EORI, DUCR and timestamp" in {

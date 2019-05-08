@@ -24,7 +24,12 @@ import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.exports.movements.config.AppConfig
 import uk.gov.hmrc.exports.movements.metrics.ExportsMetrics
 import uk.gov.hmrc.exports.movements.metrics.MetricIdentifiers._
-import uk.gov.hmrc.exports.movements.models.{ErrorResponse, MovementNotification, MovementNotificationApiRequest, NotificationFailedErrorResponse}
+import uk.gov.hmrc.exports.movements.models.{
+  ErrorResponse,
+  MovementNotification,
+  MovementNotificationApiRequest,
+  NotificationFailedErrorResponse
+}
 import uk.gov.hmrc.exports.movements.repositories.MovementNotificationsRepository
 import uk.gov.hmrc.wco.dec.inventorylinking.movement.response.InventoryLinkingMovementResponse
 

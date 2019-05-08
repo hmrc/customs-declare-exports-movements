@@ -126,7 +126,6 @@ class HeaderValidatorSpec extends UnitSpec with MockitoSugar with ExportsTestDat
 
     }
 
-
     "validateAndExtractMovementNotificationHeaders" should {
 
       "return Right of MovementNotificationApiRequest when validateHeaders is called on valid headers" in new SetUp {

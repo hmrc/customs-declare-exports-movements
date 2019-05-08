@@ -20,7 +20,7 @@ import javax.inject.{Inject, Singleton}
 import play.api.Logger
 import play.api.libs.json.Json
 import play.api.mvc.Result
-import play.api.mvc.Results.{InternalServerError, Accepted, Ok}
+import play.api.mvc.Results.{Accepted, InternalServerError, Ok}
 import play.mvc.Http.Status.ACCEPTED
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
 import uk.gov.hmrc.exports.movements.models.MovementSubmissions

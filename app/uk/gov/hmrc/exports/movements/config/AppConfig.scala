@@ -21,10 +21,7 @@ import play.api.Configuration
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 @Singleton
-class AppConfig @Inject()(
-  runModeConfiguration: Configuration,
-  servicesConfig: ServicesConfig
-) {
+class AppConfig @Inject()(runModeConfiguration: Configuration, servicesConfig: ServicesConfig) {
 
   lazy val authUrl: String = servicesConfig.baseUrl("auth")
 

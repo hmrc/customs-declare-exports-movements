@@ -28,8 +28,9 @@ import uk.gov.hmrc.play.bootstrap.controller.BackendController
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class ExportController @Inject()(override val authConnector: AuthConnector, cc: ControllerComponents)(implicit ec: ExecutionContext)
-    extends BackendController(cc) with AuthorisedFunctions {
+class ExportController @Inject()(override val authConnector: AuthConnector, cc: ControllerComponents)(
+  implicit ec: ExecutionContext
+) extends BackendController(cc) with AuthorisedFunctions {
 
   def authorisedAction[A](
     bodyParser: BodyParser[A]

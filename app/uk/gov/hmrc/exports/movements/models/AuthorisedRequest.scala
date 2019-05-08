@@ -38,9 +38,7 @@ case class AuthToken(value: String) extends AnyVal
 case class AuthorizedSubmissionRequest[A](eori: Eori, request: Request[A])
     extends WrappedRequest[A](request) with HasEori
 
-
 case class ValidatedHeadersMovementsRequest(ducr: String, mucr: Option[String], movementType: String)
-
 
 case class MovementNotificationApiRequest(authToken: AuthToken, conversationId: ConversationId, eori: Eori)
     extends HasEori with HasConversationId with HasAuthToken
