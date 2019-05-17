@@ -35,16 +35,10 @@ class HeaderValidatorSpec extends UnitSpec with MockitoSugar with ExportsTestDat
       extractedLrn shouldBe Some(declarantLrnValue)
     }
 
-    "return ducr from header when extract is called and header is present" in new SetUp {
-      val extractedDucr: Option[String] =
-        validator.extractDucrHeader(ValidHeaders)
-      extractedDucr shouldBe Some(declarantDucrValue)
-    }
-
-    "return mucr from header when extract is called and header is present" in new SetUp {
-      val extractedMucr: Option[String] =
-        validator.extractOptionalMucrHeader(ValidHeaders)
-      extractedMucr shouldBe Some(declarantMucrValue)
+    "return ucr from header when extract is called and header is present" in new SetUp {
+      val extractedUcr: Option[String] =
+        validator.extractUcrHeader(ValidHeaders)
+      extractedUcr shouldBe Some(declarantUcrValue)
     }
 
     "return movementType from header when extract is called and header is present" in new SetUp {
@@ -77,18 +71,13 @@ class HeaderValidatorSpec extends UnitSpec with MockitoSugar with ExportsTestDat
     }
 
     "return None from header when extract is called and DUCR header not present" in new SetUp {
-      val extractedDucr: Option[String] = validator.extractDucrHeader(Map.empty)
+      val extractedDucr: Option[String] = validator.extractUcrHeader(Map.empty)
       extractedDucr shouldBe None
     }
 
     "return None from header when extract is called and MovementType header not present" in new SetUp {
       val extractedMovementType: Option[String] = validator.extractMovementTypeHeader(Map.empty)
       extractedMovementType shouldBe None
-    }
-
-    "return None from header when extract is called and MUCR header not present" in new SetUp {
-      val extractedMucr: Option[String] = validator.extractOptionalMucrHeader(Map.empty)
-      extractedMucr shouldBe None
     }
 
     "return None from header when extract is called and EORI header not present" in new SetUp {
@@ -113,9 +102,7 @@ class HeaderValidatorSpec extends UnitSpec with MockitoSugar with ExportsTestDat
       "return Right of validatedHeaderResponse when validateHeaders is called on valid headers" in new SetUp {
         val result: Either[ErrorResponse, ValidatedHeadersMovementsRequest] =
           validator.validateAndExtractMovementSubmissionHeaders(ValidHeaders)
-        result should be(
-          Right(ValidatedHeadersMovementsRequest(declarantDucrValue, Some(declarantMucrValue), "Arrival"))
-        )
+        result should be(Right(ValidatedHeadersMovementsRequest(declarantUcrValue, "Arrival")))
       }
 
       "return Left ErrorResponse when validateHeaders is called with invalid headers" in new SetUp {

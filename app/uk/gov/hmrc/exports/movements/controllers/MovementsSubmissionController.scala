@@ -85,7 +85,7 @@ class MovementsSubmissionController @Inject()(
     xml: NodeSeq
   )(implicit request: AuthorizedSubmissionRequest[AnyContent], hc: HeaderCarrier): Future[Result] =
     movementsService
-      .handleMovementSubmission(request.eori.value, vhr.ducr, vhr.mucr, vhr.movementType, xml)
+      .handleMovementSubmission(request.eori.value, vhr.ducr, vhr.movementType, xml)
 
   def getMovements: Action[AnyContent] =
     authorisedAction(BodyParsers.parse.default) { implicit authorizedRequest =>

@@ -27,14 +27,11 @@ class HeaderValidator {
   def extractLrnHeader(headers: Map[String, String]): Option[String] =
     extractHeader(CustomsHeaderNames.XLrnHeaderName, headers)
 
-  def extractDucrHeader(headers: Map[String, String]): Option[String] =
-    extractHeader(CustomsHeaderNames.XDucrHeaderName, headers)
+  def extractUcrHeader(headers: Map[String, String]): Option[String] =
+    extractHeader(CustomsHeaderNames.XUcrHeaderName, headers)
 
   def extractMovementTypeHeader(headers: Map[String, String]): Option[String] =
     extractHeader(CustomsHeaderNames.XMovementTypeHeaderName, headers)
-
-  def extractOptionalMucrHeader(headers: Map[String, String]): Option[String] =
-    headers.get(CustomsHeaderNames.XMucrHeaderName)
 
   def extractAuthTokenHeader(headers: Map[String, String]): Option[String] =
     extractHeader(HeaderNames.AUTHORIZATION, headers)
@@ -57,9 +54,9 @@ class HeaderValidator {
     implicit headers: Map[String, String]
   ): Either[ErrorResponse, ValidatedHeadersMovementsRequest] = {
     val result = for {
-      ducr <- extractDucrHeader(headers)
+      ucr <- extractUcrHeader(headers)
       movementType <- extractMovementTypeHeader(headers)
-    } yield ValidatedHeadersMovementsRequest(ducr, extractOptionalMucrHeader(headers), movementType)
+    } yield ValidatedHeadersMovementsRequest(ucr, movementType)
     result match {
       case Some(request) => Right(request)
       case None =>

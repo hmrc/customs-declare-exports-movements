@@ -37,7 +37,7 @@ class MovementsService @Inject()(
   movementsRepo: MovementsRepository
 ) {
 
-  def handleMovementSubmission(eori: String, ducr: String, mucr: Option[String], movementType: String, xml: NodeSeq)(
+  def handleMovementSubmission(eori: String, ucr: String, movementType: String, xml: NodeSeq)(
     implicit hc: HeaderCarrier
   ): Future[Result] =
     linkingExportsConnector
@@ -50,7 +50,7 @@ class MovementsService @Inject()(
                 Logger.info(s"No ConversationID returned for submission with Eori: $eori")
                 Future.successful(InternalServerError("No conversation Id Returned"))
               }) { conversationId =>
-                persistMovementsData(eori, conversationId, ducr, mucr, movementType).map(
+                persistMovementsData(eori, conversationId, ucr, movementType).map(
                   result =>
                     if (result) {
                       Accepted("Movement Submission submitted and persisted ok")
@@ -74,11 +74,10 @@ class MovementsService @Inject()(
   private def persistMovementsData(
     eori: String,
     conversationId: String,
-    ducr: String,
-    mucr: Option[String],
+    ucr: String,
     movementType: String
   ): Future[Boolean] = {
-    val movementSubmission = MovementSubmissions(eori, conversationId, ducr, mucr, movementType)
+    val movementSubmission = MovementSubmissions(eori, conversationId, ucr, movementType)
     movementsRepo
       .save(movementSubmission)
       .map(res => {

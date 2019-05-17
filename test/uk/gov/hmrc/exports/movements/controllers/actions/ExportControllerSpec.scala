@@ -35,8 +35,7 @@ class ExportControllerSpec extends CustomsExportsBaseSpec with ExportsTestData w
   val fakeXmlRequestWithHeaders: FakeRequest[String] =
     fakeXmlRequest
       .withHeaders(
-        CustomsHeaderNames.XMucrHeaderName -> declarantMucrValue,
-        CustomsHeaderNames.XDucrHeaderName -> declarantDucrValue,
+        CustomsHeaderNames.XUcrHeaderName -> declarantUcrValue,
         CustomsHeaderNames.XMovementTypeHeaderName -> "Arrival",
         AUTHORIZATION -> dummyToken,
         CONTENT_TYPE -> ContentTypes.XML
@@ -48,7 +47,7 @@ class ExportControllerSpec extends CustomsExportsBaseSpec with ExportsTestData w
     fakeJsonRequest
       .withHeaders(
         CustomsHeaderNames.XLrnHeaderName -> declarantLrnValue,
-        CustomsHeaderNames.XDucrHeaderName -> declarantDucrValue,
+        CustomsHeaderNames.XUcrHeaderName -> declarantUcrValue,
         AUTHORIZATION -> dummyToken,
         CONTENT_TYPE -> ContentTypes.JSON
       )
