@@ -45,8 +45,7 @@ object MovementNotification {
 case class MovementSubmissions(
   eori: String,
   conversationId: String,
-  ducr: String,
-  mucr: Option[String] = None,
+  ucr: String,
   movementType: String,
   id: BSONObjectID = BSONObjectID.generate(),
   submittedTimestamp: Long = System.currentTimeMillis(),
@@ -63,8 +62,7 @@ object MovementSubmissions {
 case class MovementResponse(
   eori: String,
   conversationId: String,
-  ducr: String,
-  mucr: Option[String] = None,
+  ucr: String,
   movementType: String,
   status: Option[String] = Some("Pending")
 )

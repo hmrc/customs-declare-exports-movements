@@ -40,7 +40,7 @@ class MovementsRepository @Inject()(implicit mc: ReactiveMongoComponent, ec: Exe
   override def indexes: Seq[Index] = Seq(
     Index(Seq("eori" -> IndexType.Ascending), name = Some("eoriIdx")),
     Index(Seq("conversationId" -> IndexType.Ascending), unique = true, name = Some("conversationIdIdx")),
-    Index(Seq("ducr" -> IndexType.Ascending), unique = true, name = Some("ducrIdx"))
+    Index(Seq("ucr" -> IndexType.Ascending), unique = true, name = Some("ucrIdx"))
   )
 
   def findByEori(eori: String): Future[Seq[MovementSubmissions]] =
@@ -50,7 +50,7 @@ class MovementsRepository @Inject()(implicit mc: ReactiveMongoComponent, ec: Exe
     find("conversationId" -> JsString(conversationId)).map(_.headOption)
 
   def getByEoriAndDucr(eori: String, ducr: String): Future[Option[MovementSubmissions]] =
-    find("eori" -> JsString(eori), "ducr" -> JsString(ducr)).map(_.headOption)
+    find("eori" -> JsString(eori), "ucr" -> JsString(ducr)).map(_.headOption)
 
   def save(movementSubmission: MovementSubmissions): Future[Boolean] =
     insert(movementSubmission).map { res =>

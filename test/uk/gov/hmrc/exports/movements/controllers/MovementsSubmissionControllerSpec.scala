@@ -35,8 +35,7 @@ class MovementsSubmissionControllerSpec extends CustomsExportsBaseSpec with Expo
   val fakeXmlRequestWithHeaders: FakeRequest[String] =
     fakeXmlRequest
       .withHeaders(
-        CustomsHeaderNames.XMucrHeaderName -> declarantMucrValue,
-        CustomsHeaderNames.XDucrHeaderName -> declarantDucrValue,
+        CustomsHeaderNames.XUcrHeaderName -> declarantUcrValue,
         CustomsHeaderNames.XMovementTypeHeaderName -> "Arrival",
         AUTHORIZATION -> dummyToken,
         CONTENT_TYPE -> ContentTypes.XML

@@ -43,25 +43,22 @@ trait ExportsTestData {
   val randomEori: String = randomString(8)
   val lrn: Option[String] = Some(randomString(22))
   val mrn: String = "MRN87878797"
-  val mucr: String = randomString(16)
   val conversationId: String = "b1c09f1b-7c94-4e90-b754-7c5c71c44e11"
-  val ducr: String = randomString(16)
+  val ucr: String = randomString(16)
   val before: Long = System.currentTimeMillis()
   val dummyToken: String =
     "Bearer BXQ3/Treo4kQCZvVcCqKPlwxRN4RA9Mb5RF8fFxOuwG5WSg+S+Rsp9Nq998Fgg0HeNLXL7NGwEAIzwM6vuA6YYhRQnTRFaBhrp+1w+kVW8g1qHGLYO48QPWuxdM87VMCZqxnCuDoNxVn76vwfgtpNj0+NwfzXV2Zc12L2QGgF9H9KwIkeIPK/mMlBESjue4V]"
   val declarantEoriValue: String = "ZZ123456789000"
   val declarantLrnValue: String = "MyLrnValue1234"
-  val declarantDucrValue: String = "MyDucrValue1234"
-  val declarantMucrValue: String = "MyMucrValue1234"
+  val declarantUcrValue: String = "MyDucrValue1234"
   val declarantMrnValue: String = "MyMucrValue1234"
-  val movement: MovementSubmissions = MovementSubmissions(eori, conversationId, ducr, None, "Arrival")
+  val movement: MovementSubmissions = MovementSubmissions(eori, conversationId, ucr, "Arrival")
   val contentTypeHeader: (String, String) = CONTENT_TYPE -> ContentTypes.XML(Codec.utf_8)
   val Valid_X_EORI_IDENTIFIER_HEADER: (String, String) = XEoriIdentifierHeaderName -> declarantEoriValue
   val Valid_LRN_HEADER: (String, String) = XLrnHeaderName -> declarantLrnValue
   val Valid_AUTHORIZATION_HEADER: (String, String) = HeaderNames.AUTHORIZATION -> dummyToken
   val VALID_CONVERSATIONID_HEADER: (String, String) = XConversationIdName -> conversationId
-  val VALID_DUCR_HEADER: (String, String) = XDucrHeaderName -> declarantDucrValue
-  val VALID_MUCR_HEADER: (String, String) = XMucrHeaderName -> declarantMucrValue
+  val VALID_UCR_HEADER: (String, String) = XUcrHeaderName -> declarantUcrValue
   val VALID_MOVEMENT_TYPE_HEADER: (String, String) = XMovementTypeHeaderName -> "Arrival"
 
   val now: DateTime = DateTime.now.withZone(DateTimeZone.UTC)
@@ -88,16 +85,15 @@ trait ExportsTestData {
       movementResponse = InventoryLinkingMovementResponse("EAA")
     )
   val submissionMovementResponse =
-    MovementResponse(eori, conversationId, ducr, Some(mucr), "Arrival", Some(GoodsHaveExitedTheCommunity.toString()))
+    MovementResponse(eori, conversationId, ucr, "Arrival", Some(GoodsHaveExitedTheCommunity.toString()))
   val ValidHeaders: Map[String, String] = Map(
     contentTypeHeader,
     Valid_AUTHORIZATION_HEADER,
     VALID_CONVERSATIONID_HEADER,
     Valid_X_EORI_IDENTIFIER_HEADER,
     Valid_LRN_HEADER,
-    VALID_DUCR_HEADER,
-    VALID_MOVEMENT_TYPE_HEADER,
-    VALID_MUCR_HEADER
+    VALID_UCR_HEADER,
+    VALID_MOVEMENT_TYPE_HEADER
   )
 
   def dateTimeElement(dateTimeVal: DateTime) =

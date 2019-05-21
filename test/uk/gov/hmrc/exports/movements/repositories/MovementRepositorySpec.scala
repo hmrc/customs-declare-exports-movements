@@ -31,7 +31,7 @@ class MovementRepositorySpec
 
   // TODO: possibly split the tests, as it is too high level
   "Movements repository" should {
-    "save movement with EORI, DUCR and timestamp" in {
+    "save movement with EORI, UCR and timestamp" in {
       repo.save(movement).futureValue must be(true)
 
       // we can now display a list of all the movements belonging to the current user, searching by EORI
@@ -39,7 +39,7 @@ class MovementRepositorySpec
       found.length must be(1)
       found.head.eori must be(eori)
       found.head.conversationId must be(conversationId)
-      found.head.ducr must be(ducr)
+      found.head.ucr must be(ucr)
 
       // a timestamp has been generated representing "creation time" of case class instance
       found.head.submittedTimestamp must (be >= before).and(be <= System.currentTimeMillis())
@@ -48,13 +48,13 @@ class MovementRepositorySpec
       val gotMovement = repo.getByConversationId(conversationId).futureValue.get
       gotMovement.eori must be(eori)
       gotMovement.conversationId must be(conversationId)
-      gotMovement.ducr must be(ducr)
+      gotMovement.ucr must be(ucr)
 
       // or we can retrieve it by eori and MRN
-      val gotAgain = repo.getByEoriAndDucr(eori, ducr).futureValue.get
+      val gotAgain = repo.getByEoriAndDucr(eori, ucr).futureValue.get
       gotAgain.eori must be(eori)
       gotAgain.conversationId must be(conversationId)
-      gotAgain.ducr must be(ducr)
+      gotAgain.ucr must be(ucr)
     }
   }
 }

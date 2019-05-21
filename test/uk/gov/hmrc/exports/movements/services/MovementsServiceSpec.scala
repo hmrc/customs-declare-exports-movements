@@ -48,7 +48,7 @@ class MovementsServiceSpec extends CustomsExportsBaseSpec with ExportsTestData w
 
       val result: Result =
         testObj
-          .handleMovementSubmission(declarantEoriValue, declarantDucrValue, Some("mucr"), "movementTyope", xml)
+          .handleMovementSubmission(declarantEoriValue, declarantUcrValue, "movementTyope", xml)
           .futureValue
 
       result.header.status must be(ACCEPTED)
@@ -64,7 +64,7 @@ class MovementsServiceSpec extends CustomsExportsBaseSpec with ExportsTestData w
 
       val result: Result =
         testObj
-          .handleMovementSubmission(declarantEoriValue, declarantDucrValue, Some("mucr"), "movementTyope", xml)
+          .handleMovementSubmission(declarantEoriValue, declarantUcrValue, "movementTyope", xml)
           .futureValue
 
       result.header.status must be(INTERNAL_SERVER_ERROR)
@@ -79,7 +79,7 @@ class MovementsServiceSpec extends CustomsExportsBaseSpec with ExportsTestData w
 
       val result: Result =
         testObj
-          .handleMovementSubmission(declarantEoriValue, declarantDucrValue, Some("mucr"), "movementTyope", xml)
+          .handleMovementSubmission(declarantEoriValue, declarantUcrValue, "movementTyope", xml)
           .futureValue
 
       result.header.status must be(INTERNAL_SERVER_ERROR)
@@ -95,7 +95,7 @@ class MovementsServiceSpec extends CustomsExportsBaseSpec with ExportsTestData w
 
       val result: Result =
         testObj
-          .handleMovementSubmission(declarantEoriValue, declarantDucrValue, Some("mucr"), "movementTyope", xml)
+          .handleMovementSubmission(declarantEoriValue, declarantUcrValue, "movementTyope", xml)
           .futureValue
 
       result.header.status must be(INTERNAL_SERVER_ERROR)
