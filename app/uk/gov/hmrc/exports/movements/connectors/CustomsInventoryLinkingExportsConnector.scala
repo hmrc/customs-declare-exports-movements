@@ -69,5 +69,4 @@ class CustomsInventoryLinkingExportsConnector @Inject()(appConfig: AppConfig, ht
     "X-Client-ID" -> appConfig.clientIdInventory,
     "X-EORI-Identfier" -> eori
   )
-
 }

@@ -39,8 +39,7 @@ class MovementsRepository @Inject()(implicit mc: ReactiveMongoComponent, ec: Exe
 
   override def indexes: Seq[Index] = Seq(
     Index(Seq("eori" -> IndexType.Ascending), name = Some("eoriIdx")),
-    Index(Seq("conversationId" -> IndexType.Ascending), unique = true, name = Some("conversationIdIdx")),
-    Index(Seq("ucr" -> IndexType.Ascending), unique = true, name = Some("ucrIdx"))
+    Index(Seq("conversationId" -> IndexType.Ascending), unique = true, name = Some("conversationIdIdx"))
   )
 
   def findByEori(eori: String): Future[Seq[MovementSubmissions]] =
