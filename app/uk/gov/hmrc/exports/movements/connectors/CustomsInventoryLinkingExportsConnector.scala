@@ -27,12 +27,14 @@ import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class CustomsInventoryLinkingExportsConnector @Inject()(appConfig: AppConfig, httpClient: HttpClient) {
+class CustomsInventoryLinkingExportsConnector @Inject()(appConfig: AppConfig, httpClient: HttpClient)(
+  implicit ec: ExecutionContext
+) {
 
   def sendMovementRequest(
     eori: String,
     body: String
-  )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[CustomsInventoryLinkingResponse] =
+  )(implicit hc: HeaderCarrier): Future[CustomsInventoryLinkingResponse] =
     post(eori, body).map { response =>
       Logger.debug(s"CUSTOMS_INVENTORY_LINKING_EXPORTS response is --> ${response.toString}")
       response
@@ -47,7 +49,7 @@ class CustomsInventoryLinkingExportsConnector @Inject()(appConfig: AppConfig, ht
   private[connectors] def post(
     eori: String,
     body: String
-  )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[CustomsInventoryLinkingResponse] = {
+  )(implicit hc: HeaderCarrier): Future[CustomsInventoryLinkingResponse] = {
     Logger.debug(s"CUSTOMS_DECLARATIONS request payload is -> $body")
     httpClient
       .POSTString[CustomsInventoryLinkingResponse](

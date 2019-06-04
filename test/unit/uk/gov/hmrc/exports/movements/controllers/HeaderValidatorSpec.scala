@@ -20,9 +20,9 @@ import org.scalatest.mockito.MockitoSugar
 import uk.gov.hmrc.exports.movements.controllers.HeaderValidator
 import uk.gov.hmrc.exports.movements.models._
 import uk.gov.hmrc.play.test.UnitSpec
-import utils.ExportsTestData
+import utils.MovementsTestData
 
-class HeaderValidatorSpec extends UnitSpec with MockitoSugar with ExportsTestData {
+class HeaderValidatorSpec extends UnitSpec with MockitoSugar with MovementsTestData {
 
   trait SetUp {
     val validator = new HeaderValidator

@@ -22,9 +22,9 @@ import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.exports.movements.repositories.MovementNotificationsRepository
 import unit.uk.gov.hmrc.exports.movements.base.CustomsExportsBaseSpec
-import utils.ExportsTestData
+import utils.MovementsTestData
 
-class MovementNotificationsRepositorySpec extends CustomsExportsBaseSpec with ExportsTestData with BeforeAndAfter {
+class MovementNotificationsRepositorySpec extends CustomsExportsBaseSpec with MovementsTestData with BeforeAndAfter {
 
   before {
     repo.removeAll().futureValue
@@ -41,21 +41,21 @@ class MovementNotificationsRepositorySpec extends CustomsExportsBaseSpec with Ex
       repo.save(movementNotification).futureValue must be(true)
 
       // we can now display a list of all the declarations belonging to the current user, searching by EORI
-      val found = repo.findByEori(eori).futureValue
+      val found = repo.findByEori(validEori).futureValue
       found.length must be(1)
-      found.head.eori must be(eori)
+      found.head.eori must be(validEori)
       found.head.conversationId must be(movementNotification.conversationId)
 
       found.head.dateTimeReceived.compareTo(now) must be(0)
 
       // we can also retrieve the submission individually by conversation Id
       val got = repo.getByConversationId(movementNotification.conversationId).futureValue.get
-      got.eori must be(eori)
+      got.eori must be(validEori)
       got.conversationId must be(movementNotification.conversationId)
 
       // or we can retrieve it by eori and conversationId
-      val gotAgain = repo.getByEoriAndConversationId(eori, movementNotification.conversationId).futureValue.get
-      gotAgain.eori must be(eori)
+      val gotAgain = repo.getByEoriAndConversationId(validEori, movementNotification.conversationId).futureValue.get
+      gotAgain.eori must be(validEori)
       gotAgain.conversationId must be(movementNotification.conversationId)
     }
   }

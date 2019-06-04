@@ -21,12 +21,12 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{BeforeAndAfter, MustMatchers, WordSpec}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import uk.gov.hmrc.exports.movements.repositories.MovementsRepository
-import utils.ExportsTestData
+import utils.MovementsTestData
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class MovementRepositorySpec
-    extends WordSpec with MustMatchers with GuiceOneAppPerSuite with ExportsTestData with ScalaFutures with BeforeAndAfter {
+    extends WordSpec with MustMatchers with GuiceOneAppPerSuite with MovementsTestData with ScalaFutures with BeforeAndAfter {
 
   val repo = app.injector.instanceOf[MovementsRepository]
 
@@ -41,9 +41,9 @@ class MovementRepositorySpec
       repo.save(movement).futureValue must be(true)
 
       // we can now display a list of all the movements belonging to the current user, searching by EORI
-      val found = repo.findByEori(eori).futureValue
+      val found = repo.findByEori(validEori).futureValue
       found.length must be(1)
-      found.head.eori must be(eori)
+      found.head.eori must be(validEori)
       found.head.conversationId must be(conversationId)
       found.head.ucr must be(ucr)
 
@@ -52,13 +52,13 @@ class MovementRepositorySpec
 
       // we can also retrieve the movement individually by conversation ID
       val gotMovement = repo.getByConversationId(conversationId).futureValue.get
-      gotMovement.eori must be(eori)
+      gotMovement.eori must be(validEori)
       gotMovement.conversationId must be(conversationId)
       gotMovement.ucr must be(ucr)
 
       // or we can retrieve it by eori and MRN
-      val gotAgain = repo.getByEoriAndDucr(eori, ucr).futureValue.get
-      gotAgain.eori must be(eori)
+      val gotAgain = repo.getByEoriAndDucr(validEori, ucr).futureValue.get
+      gotAgain.eori must be(validEori)
       gotAgain.conversationId must be(conversationId)
       gotAgain.ucr must be(ucr)
     }

@@ -26,12 +26,12 @@ import uk.gov.hmrc.exports.movements.models.{CustomsInventoryLinkingResponse, Mo
 import uk.gov.hmrc.exports.movements.services.MovementsService
 import uk.gov.hmrc.http.HeaderCarrier
 import unit.uk.gov.hmrc.exports.movements.base.CustomsExportsBaseSpec
-import utils.ExportsTestData
+import utils.MovementsTestData
 
 import scala.concurrent.Future
 import scala.xml.NodeSeq
 
-class MovementsServiceSpec extends CustomsExportsBaseSpec with ExportsTestData with BeforeAndAfterEach {
+class MovementsServiceSpec extends CustomsExportsBaseSpec with MovementsTestData with BeforeAndAfterEach {
 
   override def beforeEach: Unit =
     reset(mockCustomsInventoryLinkingConnector, mockMovementsRepository)
@@ -54,7 +54,7 @@ class MovementsServiceSpec extends CustomsExportsBaseSpec with ExportsTestData w
           .futureValue
 
       result.header.status must be(ACCEPTED)
-      verify(mockCustomsInventoryLinkingConnector, times(1)).sendMovementRequest(any[String], any[String])(any(), any())
+      verify(mockCustomsInventoryLinkingConnector, times(1)).sendMovementRequest(any[String], any[String])(any())
       verify(mockMovementsRepository, times(1)).save(any[MovementSubmissions])
     }
 
@@ -70,7 +70,7 @@ class MovementsServiceSpec extends CustomsExportsBaseSpec with ExportsTestData w
           .futureValue
 
       result.header.status must be(INTERNAL_SERVER_ERROR)
-      verify(mockCustomsInventoryLinkingConnector, times(1)).sendMovementRequest(any[String], any[String])(any(), any())
+      verify(mockCustomsInventoryLinkingConnector, times(1)).sendMovementRequest(any[String], any[String])(any())
       verifyZeroInteractions(mockMovementsRepository)
     }
 
@@ -85,7 +85,7 @@ class MovementsServiceSpec extends CustomsExportsBaseSpec with ExportsTestData w
           .futureValue
 
       result.header.status must be(INTERNAL_SERVER_ERROR)
-      verify(mockCustomsInventoryLinkingConnector, times(1)).sendMovementRequest(any[String], any[String])(any(), any())
+      verify(mockCustomsInventoryLinkingConnector, times(1)).sendMovementRequest(any[String], any[String])(any())
       verifyZeroInteractions(mockMovementsRepository)
     }
 
@@ -101,7 +101,7 @@ class MovementsServiceSpec extends CustomsExportsBaseSpec with ExportsTestData w
           .futureValue
 
       result.header.status must be(INTERNAL_SERVER_ERROR)
-      verify(mockCustomsInventoryLinkingConnector, times(1)).sendMovementRequest(any[String], any[String])(any(), any())
+      verify(mockCustomsInventoryLinkingConnector, times(1)).sendMovementRequest(any[String], any[String])(any())
       verify(mockMovementsRepository, times(1)).save(any[MovementSubmissions])
     }
   }

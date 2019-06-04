@@ -65,6 +65,6 @@ class CustomsInventoryLinkingExportsConnectorSpec extends CustomsExportsBaseSpec
       CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId))
     )
     val client = new CustomsInventoryLinkingExportsConnector(appConfig, http)
-    test(client.sendMovementRequest(eori, body)(hc, ec))
+    test(client.sendMovementRequest(eori, body)(hc))
   }
 }
