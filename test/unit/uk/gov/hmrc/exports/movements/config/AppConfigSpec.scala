@@ -26,7 +26,9 @@ import uk.gov.hmrc.play.bootstrap.config.{RunMode, ServicesConfig}
 import uk.gov.hmrc.play.test.UnitSpec
 
 class AppConfigSpec extends UnitSpec with MockitoSugar {
-  val appNameConfiguration = PrivateMethod[Configuration]('appNameConfiguration)
+
+  private val appNameConfiguration = PrivateMethod[Configuration]('appNameConfiguration)
+
   private val validAppConfig: Config =
     ConfigFactory.parseString("""
         |urls.login="http://localhost:9949/auth-login-stub/gg-sign-in"
@@ -47,6 +49,7 @@ class AppConfigSpec extends UnitSpec with MockitoSugar {
   private def appConfig(conf: Configuration) = new AppConfig(conf, servicesConfig(conf))
 
   "AppConfig" should {
+
     "return config as object model when configuration is valid" in {
       val configService: AppConfig = appConfig(validServicesConfiguration)
 

@@ -80,7 +80,7 @@ trait CustomsExportsBaseSpec
     PatienceConfig(timeout = 5.seconds, interval = 50.milliseconds) // be more patient than the default
 
   protected def withConnectorCall(response: CustomsInventoryLinkingResponse) =
-    when(mockCustomsInventoryLinkingConnector.sendMovementRequest(any(), any())(any(), any()))
+    when(mockCustomsInventoryLinkingConnector.sendMovementRequest(any(), any())(any()))
       .thenReturn(Future.successful(response))
 
   protected def withDataSaved(ok: Boolean): OngoingStubbing[Future[Boolean]] =

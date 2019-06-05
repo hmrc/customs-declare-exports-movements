@@ -25,6 +25,7 @@ class ErrorResponseSpec extends WordSpec with MustMatchers {
   val errorMessage = "Custom error message"
 
   "Error Response" should {
+
     "generates correct Unauthorized error" in {
       val errorResponse = ErrorResponse.errorUnauthorized(errorMessage)
 

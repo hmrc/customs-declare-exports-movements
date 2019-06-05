@@ -20,138 +20,144 @@ import org.scalatest.mockito.MockitoSugar
 import uk.gov.hmrc.exports.movements.controllers.HeaderValidator
 import uk.gov.hmrc.exports.movements.models._
 import uk.gov.hmrc.play.test.UnitSpec
-import utils.ExportsTestData
+import utils.MovementsTestData
 
-class HeaderValidatorSpec extends UnitSpec with MockitoSugar with ExportsTestData {
+class HeaderValidatorSpec extends UnitSpec with MockitoSugar with MovementsTestData {
 
   trait SetUp {
     val validator = new HeaderValidator
   }
 
-  "HeaderValidator" should {
+  "Header Validator" when {
 
-    "return lrn from header when extract is called and header is present" in new SetUp {
-      val extractedLrn: Option[String] =
-        validator.extractLrnHeader(ValidHeaders)
-      extractedLrn shouldBe Some(declarantLrnValue)
-    }
+    "header is present" should {
 
-    "return ucr from header when extract is called and header is present" in new SetUp {
-      val extractedUcr: Option[String] =
-        validator.extractUcrHeader(ValidHeaders)
-      extractedUcr shouldBe Some(declarantUcrValue)
-    }
-
-    "return movementType from header when extract is called and header is present" in new SetUp {
-      val extractedMovementType: Option[String] =
-        validator.extractMovementTypeHeader(ValidHeaders)
-      extractedMovementType shouldBe Some("Arrival")
-    }
-
-    "return eori from header when extract is called and header is present" in new SetUp {
-      val extractedEori: Option[String] =
-        validator.extractEoriHeader(ValidHeaders)
-      extractedEori shouldBe Some(declarantEoriValue)
-    }
-
-    "return authToken from header when extract is called and header is present" in new SetUp {
-      val extractedAuthToken: Option[String] =
-        validator.extractAuthTokenHeader(ValidHeaders)
-      extractedAuthToken shouldBe Some(dummyToken)
-    }
-
-    "return conversationId from header when extract is called and header is present" in new SetUp {
-      val extractedConversationId: Option[String] =
-        validator.extractConversationIdHeader(ValidHeaders)
-      extractedConversationId shouldBe Some(conversationId)
-    }
-
-    "return None from header when extract is called and LRN header not present" in new SetUp {
-      val extractedLrn: Option[String] = validator.extractLrnHeader(Map.empty)
-      extractedLrn shouldBe None
-    }
-
-    "return None from header when extract is called and DUCR header not present" in new SetUp {
-      val extractedDucr: Option[String] = validator.extractUcrHeader(Map.empty)
-      extractedDucr shouldBe None
-    }
-
-    "return None from header when extract is called and MovementType header not present" in new SetUp {
-      val extractedMovementType: Option[String] = validator.extractMovementTypeHeader(Map.empty)
-      extractedMovementType shouldBe None
-    }
-
-    "return None from header when extract is called and EORI header not present" in new SetUp {
-      val extractedEori: Option[String] = validator.extractEoriHeader(Map.empty)
-      extractedEori shouldBe None
-    }
-
-    "return None from header when extract is called and AuthToken header not present" in new SetUp {
-      val extractedAuthToken: Option[String] =
-        validator.extractAuthTokenHeader(Map.empty)
-      extractedAuthToken shouldBe None
-    }
-
-    "return None from header when extract is called and conversationId header not present" in new SetUp {
-      val extractedConversationId: Option[String] =
-        validator.extractConversationIdHeader(Map.empty)
-      extractedConversationId shouldBe None
-    }
-
-    "validateSubmissionHeaders" should {
-
-      "return Right of validatedHeaderResponse when validateHeaders is called on valid headers" in new SetUp {
-        val result: Either[ErrorResponse, ValidatedHeadersMovementsRequest] =
-          validator.validateAndExtractMovementSubmissionHeaders(ValidHeaders)
-        result should be(Right(ValidatedHeadersMovementsRequest(declarantUcrValue, "Arrival")))
+      "return LRN from header when extract is called" in new SetUp {
+        val extractedLrn: Option[String] =
+          validator.extractLrnHeader(ValidHeaders)
+        extractedLrn shouldBe Some(declarantLrnValue)
       }
 
-      "return Left ErrorResponse when validateHeaders is called with invalid headers" in new SetUp {
-        val result: Either[ErrorResponse, ValidatedHeadersMovementsRequest] =
-          validator.validateAndExtractMovementSubmissionHeaders(Map.empty)
-        result shouldBe Left(ErrorResponse.ErrorInvalidPayload)
+      "return UCR from header when extract is called" in new SetUp {
+        val extractedUcr: Option[String] =
+          validator.extractUcrHeader(ValidHeaders)
+        extractedUcr shouldBe Some(declarantUcrValue)
       }
 
+      "return movementType from header when extract is called" in new SetUp {
+        val extractedMovementType: Option[String] =
+          validator.extractMovementTypeHeader(ValidHeaders)
+        extractedMovementType shouldBe Some("Arrival")
+      }
+
+      "return EORI from header when extract is called" in new SetUp {
+        val extractedEori: Option[String] =
+          validator.extractEoriHeader(ValidHeaders)
+        extractedEori shouldBe Some(declarantEoriValue)
+      }
+
+      "return authToken from header when extract is called" in new SetUp {
+        val extractedAuthToken: Option[String] =
+          validator.extractAuthTokenHeader(ValidHeaders)
+        extractedAuthToken shouldBe Some(dummyToken)
+      }
+
+      "return conversationId from header when extract is called" in new SetUp {
+        val extractedConversationId: Option[String] =
+          validator.extractConversationIdHeader(ValidHeaders)
+        extractedConversationId shouldBe Some(conversationId)
+      }
     }
 
-    "validateAndExtractMovementNotificationHeaders" should {
+    "header is not present" should {
 
-      "return Right of MovementNotificationApiRequest when validateHeaders is called on valid headers" in new SetUp {
-        val result: Either[ErrorResponse, MovementNotificationApiRequest] =
-          validator.validateAndExtractMovementNotificationHeaders(ValidHeaders)
-        result should be(
-          Right(
-            MovementNotificationApiRequest(
-              AuthToken(dummyToken),
-              ConversationId(conversationId),
-              Eori(declarantEoriValue)
-            )
+      "return None from header when extract is called (no LRN)" in new SetUp {
+        val extractedLrn: Option[String] = validator.extractLrnHeader(Map.empty)
+        extractedLrn shouldBe None
+      }
+
+      "return None from header when extract is called (no DUCR)" in new SetUp {
+        val extractedDucr: Option[String] = validator.extractUcrHeader(Map.empty)
+        extractedDucr shouldBe None
+      }
+
+      "return None from header when extract is called (no MovementType)" in new SetUp {
+        val extractedMovementType: Option[String] = validator.extractMovementTypeHeader(Map.empty)
+        extractedMovementType shouldBe None
+      }
+
+      "return None from header when extract is called (no EORI)" in new SetUp {
+        val extractedEori: Option[String] = validator.extractEoriHeader(Map.empty)
+        extractedEori shouldBe None
+      }
+
+      "return None from header when extract is called (no AuthToken)" in new SetUp {
+        val extractedAuthToken: Option[String] =
+          validator.extractAuthTokenHeader(Map.empty)
+        extractedAuthToken shouldBe None
+      }
+
+      "return None from header when extract is called (no ConversationId)" in new SetUp {
+        val extractedConversationId: Option[String] =
+          validator.extractConversationIdHeader(Map.empty)
+        extractedConversationId shouldBe None
+      }
+    }
+  }
+
+  "Validate Submission Headers" should {
+
+    "return Right of validatedHeaderResponse when validateHeaders is called on valid headers" in new SetUp {
+      val result: Either[ErrorResponse, ValidatedHeadersMovementsRequest] =
+        validator.validateAndExtractMovementSubmissionHeaders(ValidHeaders)
+      result should be(Right(ValidatedHeadersMovementsRequest(declarantUcrValue, "Arrival")))
+    }
+
+    "return Left ErrorResponse when validateHeaders is called with invalid headers" in new SetUp {
+      val result: Either[ErrorResponse, ValidatedHeadersMovementsRequest] =
+        validator.validateAndExtractMovementSubmissionHeaders(Map.empty)
+      result shouldBe Left(ErrorResponse.ErrorInvalidPayload)
+    }
+
+  }
+
+  "Validate And Extract Movement Notification Headers" should {
+
+    "return Right of MovementNotificationApiRequest when validateHeaders is called on valid headers" in new SetUp {
+      val result: Either[ErrorResponse, MovementNotificationApiRequest] =
+        validator.validateAndExtractMovementNotificationHeaders(ValidHeaders)
+      result should be(
+        Right(
+          MovementNotificationApiRequest(
+            AuthToken(dummyToken),
+            ConversationId(conversationId),
+            Eori(declarantEoriValue)
           )
         )
-      }
-
-      "return Left ErrorResponse when validateHeaders is called with invalid headers" in new SetUp {
-        val result: Either[ErrorResponse, MovementNotificationApiRequest] =
-          validator.validateAndExtractMovementNotificationHeaders(Map.empty)
-        result should be(Left(ErrorResponse.ErrorInvalidPayload))
-      }
-
+      )
     }
 
-    "validateAndExtractSubmissionNotificationHeaders" should {
-
-      "return Right of SubmissionNotificationApiRequest when validateHeaders is called on valid headers" in new SetUp {
-        val result: Either[ErrorResponse, SubmissionNotificationApiRequest] =
-          validator.validateAndExtractSubmissionNotificationHeaders(ValidHeaders)
-        result should be(Right(SubmissionNotificationApiRequest(AuthToken(dummyToken), ConversationId(conversationId))))
-      }
-
-      "return Left ErrorResponse when validateHeaders is called with invalid headers" in new SetUp {
-        val result: Either[ErrorResponse, SubmissionNotificationApiRequest] =
-          validator.validateAndExtractSubmissionNotificationHeaders(Map.empty)
-        result should be(Left(ErrorResponse.ErrorInvalidPayload))
-      }
-
+    "return Left ErrorResponse when validateHeaders is called with invalid headers" in new SetUp {
+      val result: Either[ErrorResponse, MovementNotificationApiRequest] =
+        validator.validateAndExtractMovementNotificationHeaders(Map.empty)
+      result should be(Left(ErrorResponse.ErrorInvalidPayload))
     }
+
+  }
+
+  "Validate And Extract Submission Notification Headers" should {
+
+    "return Right of SubmissionNotificationApiRequest when validateHeaders is called on valid headers" in new SetUp {
+      val result: Either[ErrorResponse, SubmissionNotificationApiRequest] =
+        validator.validateAndExtractSubmissionNotificationHeaders(ValidHeaders)
+      result should be(Right(SubmissionNotificationApiRequest(AuthToken(dummyToken), ConversationId(conversationId))))
+    }
+
+    "return Left ErrorResponse when validateHeaders is called with invalid headers" in new SetUp {
+      val result: Either[ErrorResponse, SubmissionNotificationApiRequest] =
+        validator.validateAndExtractSubmissionNotificationHeaders(Map.empty)
+      result should be(Left(ErrorResponse.ErrorInvalidPayload))
+    }
+
   }
 }
