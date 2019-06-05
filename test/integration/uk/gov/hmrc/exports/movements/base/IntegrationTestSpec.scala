@@ -27,9 +27,9 @@ object IntegrationTestModule extends AbstractModule {
 
   def asGuiceableModule: GuiceableModule = GuiceableModule.guiceable(this)
 }
-// TODO: moved the before/after here
-trait IntegrationTestSpec extends UnitSpec
-  with BeforeAndAfterEach with BeforeAndAfterAll with WireMockRunner with Eventually {
+
+trait IntegrationTestSpec
+    extends UnitSpec with BeforeAndAfterEach with BeforeAndAfterAll with WireMockRunner with Eventually {
 
   override protected def beforeAll() {
     startMockServer()

@@ -24,7 +24,7 @@ import play.api.http.HeaderNames.CONTENT_TYPE
 import play.api.http.{ContentTypes, HeaderNames}
 import play.api.mvc.Codec
 import uk.gov.hmrc.exports.movements.controllers.CustomsHeaderNames._
-import uk.gov.hmrc.exports.movements.models.{GoodsHaveExitedTheCommunity, MovementNotification, MovementResponse, MovementSubmissions}
+import uk.gov.hmrc.exports.movements.models._
 import uk.gov.hmrc.wco.dec.inventorylinking.common.{AgentDetails, TransportDetails, UcrBlock}
 import uk.gov.hmrc.wco.dec.inventorylinking.movement.request.InventoryLinkingMovementRequest
 import uk.gov.hmrc.wco.dec.inventorylinking.movement.response.InventoryLinkingMovementResponse
@@ -55,7 +55,6 @@ trait MovementsTestData {
   val declarantLrnValue: String = "MyLrnValue1234"
   val declarantUcrValue: String = "MyDucrValue1234"
   val declarantMrnValue: String = "MyMucrValue1234"
-  val movement: MovementSubmissions = MovementSubmissions(validEori, conversationId, ucr, "Arrival")
   val contentTypeHeader: (String, String) = CONTENT_TYPE -> ContentTypes.XML(Codec.utf_8)
   val Valid_X_EORI_IDENTIFIER_HEADER: (String, String) = XEoriIdentifierHeaderName -> declarantEoriValue
   val Valid_LRN_HEADER: (String, String) = XLrnHeaderName -> declarantLrnValue
@@ -66,6 +65,7 @@ trait MovementsTestData {
 
   val now: DateTime = DateTime.now.withZone(DateTimeZone.UTC)
   val dtfOut = DateTimeFormat.forPattern("yyyyMMddHHmmss")
+
   val response1: Seq[Response] = Seq(
     Response(
       functionCode = randomResponseFunctionCode,
@@ -80,15 +80,25 @@ trait MovementsTestData {
       issueDateTime = dateTimeElement(now.minusHours(5))
     )
   )
-  val movementNotification =
+
+  def movementSubmission(
+    eori: String = validEori,
+    convoId: String = conversationId,
+    subUcr: String = ucr
+  ): MovementSubmissions =
+    MovementSubmissions(eori, convoId, subUcr, "Arrival")
+
+  def movementNotification(eori: String = validEori) =
     MovementNotification(
       now,
       UUID.randomUUID().toString,
-      validEori,
+      eori,
       movementResponse = InventoryLinkingMovementResponse("EAA")
     )
+
   val submissionMovementResponse =
     MovementResponse(validEori, conversationId, ucr, "Arrival", Some(GoodsHaveExitedTheCommunity.toString()))
+
   val ValidHeaders: Map[String, String] = Map(
     contentTypeHeader,
     Valid_AUTHORIZATION_HEADER,
@@ -102,18 +112,15 @@ trait MovementsTestData {
   def dateTimeElement(dateTimeVal: DateTime) =
     Some(ResponseDateTimeElement(DateTimeString("102", dateTimeVal.toString("yyyyMMdd"))))
 
-
-  def validInventoryLinkingExportRequest =  InventoryLinkingMovementRequest(
+  def validInventoryLinkingExportRequest = InventoryLinkingMovementRequest(
     messageCode = "11",
     agentDetails = Some(AgentDetails(eori = Some(declarantEoriValue), agentLocation = Some("location"))),
     ucrBlock = UcrBlock(ucr = declarantUcrValue, ucrType = "type"),
     goodsLocation = "goodsLocation",
     goodsArrivalDateTime = Some(now.toString),
     goodsDepartureDateTime = Some(now.toString),
-    transportDetails = Some(TransportDetails(transportID = Some("transportId"),
-      transportMode = Some("mode")))
+    transportDetails = Some(TransportDetails(transportID = Some("transportId"), transportMode = Some("mode")))
   )
-
 
   def randomSubmitDeclaration: MetaData =
     MetaData(declaration = Option(WcoDeclaration(functionalReferenceId = Some(randomString(35)))))

@@ -32,11 +32,10 @@ trait WireMockRunner {
   }
 
   def stopMockServer() {
-    wireMockServer.stop()
+    if(wireMockServer.isRunning) wireMockServer.stop()
   }
 
   def resetMockServer() {
     wireMockServer.resetAll()
   }
-
 }

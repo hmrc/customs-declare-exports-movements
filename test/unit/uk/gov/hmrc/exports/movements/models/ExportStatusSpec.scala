@@ -24,6 +24,7 @@ import uk.gov.hmrc.wco.dec.{Response, ResponseStatus}
 class ExportStatusSpec extends WordSpec with MustMatchers {
 
   "Reads for status" should {
+
     "correctly read a value for every scenario" in {
       ExportStatus.StatusFormat.reads(JsString("Pending")) must be(JsSuccess(Pending))
       ExportStatus.StatusFormat.reads(JsString("Cancellation Requested")) must be(JsSuccess(RequestedCancellation))
@@ -67,6 +68,7 @@ class ExportStatusSpec extends WordSpec with MustMatchers {
   }
 
   "Retrieve from Response method" should {
+
     "correctly retrieve Accepted status" in {
       val acceptedResponse = Response("01")
 
@@ -161,6 +163,7 @@ class ExportStatusSpec extends WordSpec with MustMatchers {
   }
 
   "Exports Statuses" should {
+
     "return a correct status as String" in {
       UndergoingPhysicalCheck.toString must be("Undergoing Physical Check")
       AdditionalDocumentsRequired.toString must be("Additional Documents Required")

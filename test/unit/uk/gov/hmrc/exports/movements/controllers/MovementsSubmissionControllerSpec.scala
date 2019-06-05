@@ -60,7 +60,7 @@ class MovementsSubmissionControllerSpec extends CustomsExportsBaseSpec with Move
         status(result) must be(ACCEPTED)
       }
 
-      "return 400 status when non xml is received" in {
+      "return 400 status when non XML is received" in {
         withAuthorizedUser()
 
         val result = route(app, fakeXmlRequestWithHeaders.withBody("{json}")).get
@@ -68,7 +68,7 @@ class MovementsSubmissionControllerSpec extends CustomsExportsBaseSpec with Move
         status(result) must be(BAD_REQUEST)
       }
 
-      "return 400 status when non xml contentType is received" in {
+      "return 400 status when non XML contentType is received" in {
         withAuthorizedUser()
 
         val result = route(
@@ -88,19 +88,20 @@ class MovementsSubmissionControllerSpec extends CustomsExportsBaseSpec with Move
 
         status(failedResult) must be(INTERNAL_SERVER_ERROR)
       }
-
     }
 
     "GET from /movements/:eori" should {
 
       "return 200 status with movements as response body" in {
+        val submission = movementSubmission()
+
         withAuthorizedUser()
-        withMovements(Seq(movement))
+        withMovements(Seq(submission))
 
         val result = route(app, FakeRequest("GET", "/movements")).get
 
         status(result) must be(OK)
-        contentAsJson(result) must be(Json.toJson(Seq(movement)))
+        contentAsJson(result) must be(Json.toJson(Seq(submission)))
       }
 
       // TODO: 204 is safe response

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package unit.uk.gov.hmrc.exports.movements.repositories
+package integration.uk.gov.hmrc.exports.movements.repositories
 
 import com.codahale.metrics.SharedMetricRegistries
 import org.scalatest.BeforeAndAfter
@@ -32,33 +32,66 @@ class MovementNotificationsRepositorySpec extends CustomsExportsBaseSpec with Mo
   }
 
   override lazy val app: Application = GuiceApplicationBuilder().build()
+  private val repo = app.injector.instanceOf[MovementNotificationsRepository]
 
-  val repo = app.injector.instanceOf[MovementNotificationsRepository]
-
-  // TODO: possibly split the tests, as it is too high level
   "Movement notifications repository" should {
-    "save notification with EORI, conversationID and timestamp" in {
-      repo.save(movementNotification).futureValue must be(true)
 
-      // we can now display a list of all the declarations belonging to the current user, searching by EORI
+    "save notification and retrieve it by EORI" in {
+
+      val notification = movementNotification()
+
+      repo.save(notification).futureValue must be(true)
       val found = repo.findByEori(validEori).futureValue
+
       found.length must be(1)
       found.head.eori must be(validEori)
-      found.head.conversationId must be(movementNotification.conversationId)
-
+      found.head.conversationId must be(notification.conversationId)
       found.head.dateTimeReceived.compareTo(now) must be(0)
+    }
 
-      // we can also retrieve the submission individually by conversation Id
-      val got = repo.getByConversationId(movementNotification.conversationId).futureValue.get
-      got.eori must be(validEori)
-      got.conversationId must be(movementNotification.conversationId)
+    "save notification and retrieve it by conversationID" in {
 
-      // or we can retrieve it by eori and conversationId
-      val gotAgain = repo.getByEoriAndConversationId(validEori, movementNotification.conversationId).futureValue.get
-      gotAgain.eori must be(validEori)
-      gotAgain.conversationId must be(movementNotification.conversationId)
+      val notification = movementNotification()
+
+      repo.save(notification).futureValue must be(true)
+      val found = repo.getByConversationId(notification.conversationId).futureValue.get
+
+      found.eori must be(validEori)
+      found.conversationId must be(notification.conversationId)
+      found.dateTimeReceived.compareTo(now) must be(0)
+    }
+
+    "save notification and retrieve it by both EORI and conversationID" in {
+
+      val notification = movementNotification()
+
+      repo.save(notification).futureValue must be(true)
+      val found = repo.getByEoriAndConversationId(validEori, notification.conversationId).futureValue.get
+
+      found.eori must be(validEori)
+      found.conversationId must be(notification.conversationId)
+      found.dateTimeReceived.compareTo(now) must be(0)
+    }
+
+    "save two notifications and retrieve them by EORI (1) and conversationID (2)" in {
+
+      val notificationOne = movementNotification("GB123")
+      val notificationTwo = movementNotification("GB456")
+
+      repo.save(notificationOne).futureValue must be(true)
+      repo.save(notificationTwo).futureValue must be(true)
+
+      val findFirst = repo.findByEori("GB123").futureValue
+
+      findFirst.head.eori must be("GB123")
+      findFirst.head.conversationId must be(notificationOne.conversationId)
+      findFirst.head.dateTimeReceived.compareTo(now) must be(0)
+
+      val findSecond = repo.getByConversationId(notificationTwo.conversationId).futureValue.get
+
+      findSecond.eori must be("GB456")
+      findSecond.conversationId must be(notificationTwo.conversationId)
+      findSecond.dateTimeReceived.compareTo(now) must be(0)
     }
   }
-
-
 }

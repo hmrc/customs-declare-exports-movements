@@ -36,7 +36,7 @@ case class SignedInUser(
 )
 
 case class NotifyResponse(code: String, message: String) {
-  def toXml(): Elem = <errorResponse>
+  def toXml: Elem = <errorResponse>
     <code>
       {code}
     </code> <message>

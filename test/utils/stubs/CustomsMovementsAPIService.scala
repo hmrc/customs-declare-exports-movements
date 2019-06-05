@@ -18,27 +18,26 @@ package utils.stubs
 
 import java.util.UUID
 
-import com.github.tomakehurst.wiremock.client.WireMock.{status, _}
+import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.http.Fault
 import com.github.tomakehurst.wiremock.matching.UrlPattern
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import integration.uk.gov.hmrc.exports.movements.base.WireMockRunner
 import play.api.http.ContentTypes
 import play.api.mvc.Codec
-import play.api.test.Helpers.{ACCEPT, ACCEPTED, CONTENT_TYPE}
+import play.api.test.Helpers.{ACCEPTED, CONTENT_TYPE}
 import uk.gov.hmrc.exports.movements.controllers.CustomsHeaderNames
-import utils.{CustomsDeclarationsAPIConfig, MovementsTestData}
+import utils.{CustomsMovementsAPIConfig, MovementsTestData}
 
+trait CustomsMovementsAPIService extends WireMockRunner with MovementsTestData {
 
-trait CustomsDeclarationsAPIService extends WireMockRunner with MovementsTestData {
+  private val movementsURL = urlMatching(CustomsMovementsAPIConfig.submitMovementServiceContext)
 
-  private val submissionURL = urlMatching(CustomsDeclarationsAPIConfig.submitDeclarationServiceContext)
-  private val cancellationURL = urlMatching(CustomsDeclarationsAPIConfig.cancelDeclarationServiceContext)
+  def startInventoryLinkingService(status: Int = ACCEPTED, conversationId: Boolean = true): Unit =
+    startService(status, movementsURL, conversationId)
 
-  def startSubmissionService(status: Int = ACCEPTED, conversationId: Boolean = true): Unit =
-    startService(status, submissionURL, conversationId)
-
-  def startCancellationService(status: Int = ACCEPTED, conversationId: Boolean = true): Unit =
-    startService(status, cancellationURL, conversationId)
+  def startFaultyInventoryLinkingService(fault: Fault): Unit =
+    stubFor(post(movementsURL).willReturn(aResponse().withFault(fault)))
 
   private def startService(status: Int, url: UrlPattern, conversationId: Boolean): StubMapping =
     if (conversationId) {
@@ -60,38 +59,22 @@ trait CustomsDeclarationsAPIService extends WireMockRunner with MovementsTestDat
       )
     }
 
-  def verifyDecServiceWasCalledCorrectly(
-    requestBody: String,
-    expectedAuthToken: String = authToken,
-    expectedEori: String,
-    expectedApiVersion: String
-  ) {
+  def verifyILEServiceWasCalled(requestBody: String, expectedEori: String) {
 
-    verifyDecServiceWasCalledWith(
-      CustomsDeclarationsAPIConfig.submitDeclarationServiceContext,
-      requestBody,
-      expectedAuthToken,
-      expectedEori,
-      expectedApiVersion
-    )
+    verifyILEServiceWasCalledWith(CustomsMovementsAPIConfig.submitMovementServiceContext, requestBody, expectedEori)
   }
 
-  def verifyDecServiceWasNotCalled(): Unit =
-    verify(exactly(0), postRequestedFor(urlMatching(CustomsDeclarationsAPIConfig.submitDeclarationServiceContext)))
+  def verifyILEServiceWasNotCalled(): Unit =
+    verify(exactly(0), postRequestedFor(urlMatching(CustomsMovementsAPIConfig.submitMovementServiceContext)))
 
-  private def verifyDecServiceWasCalledWith(
-    requestPath: String,
-    requestBody: String,
-    expectedAuthToken: String,
-    expectedEori: String,
-    expectedVersion: String
-  ) {
+  private def verifyILEServiceWasCalledWith(requestPath: String, requestBody: String, expectedEori: String) {
+
     verify(
       1,
       postRequestedFor(urlMatching(requestPath))
         .withHeader(CONTENT_TYPE, equalTo(ContentTypes.XML(Codec.utf_8)))
-        .withHeader(ACCEPT, equalTo(s"application/vnd.hmrc.$expectedVersion+xml"))
         .withHeader(CustomsHeaderNames.XEoriIdentifierHeaderName, equalTo(expectedEori))
+        .withHeader(CustomsHeaderNames.XClientIdName, equalTo(CustomsMovementsAPIConfig.clientId))
         .withRequestBody(equalToXml(requestBody))
     )
   }

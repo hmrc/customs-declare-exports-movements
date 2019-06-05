@@ -16,24 +16,25 @@
 
 package integration.uk.gov.hmrc.exports.movements.connector
 
+import com.github.tomakehurst.wiremock.http.Fault
 import integration.uk.gov.hmrc.exports.movements.base.IntegrationTestSpec
-import utils.ExternalServicesConfig.{Host, Port}
 import integration.uk.gov.hmrc.exports.movements.util.TestModule
 import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.test.Helpers.INTERNAL_SERVER_ERROR
+import play.api.test.Helpers._
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
 import uk.gov.hmrc.http.HeaderCarrier
-import utils.CustomsDeclarationsAPIConfig
-import utils.stubs.CustomsDeclarationsAPIService
+import utils.CustomsMovementsAPIConfig
+import utils.ExternalServicesConfig.{Host, Port}
+import utils.stubs.CustomsMovementsAPIService
 
 import scala.concurrent.Future
 
-
-class CustomsInventoryLinkingMovementsConnectorSpec  extends IntegrationTestSpec with GuiceOneAppPerSuite with MockitoSugar with CustomsDeclarationsAPIService {
+class CustomsInventoryLinkingMovementsConnectorSpec
+    extends IntegrationTestSpec with GuiceOneAppPerSuite with MockitoSugar with CustomsMovementsAPIService {
 
   private lazy val connector = app.injector.instanceOf[CustomsInventoryLinkingExportsConnector]
   private implicit val hc: HeaderCarrier = HeaderCarrier()
@@ -42,11 +43,10 @@ class CustomsInventoryLinkingMovementsConnectorSpec  extends IntegrationTestSpec
     GuiceApplicationBuilder(overrides = Seq(TestModule.asGuiceableModule))
       .configure(
         Map(
-          "microservice.services.customs-declarations.host" -> Host,
-          "microservice.services.customs-declarations.port" -> Port,
-          "microservice.services.customs-declarations.submit-uri" -> CustomsDeclarationsAPIConfig.submitDeclarationServiceContext,
-          "microservice.services.customs-declarations.bearer-token" -> authToken,
-          "microservice.services.customs-declarations.api-version" -> CustomsDeclarationsAPIConfig.apiVersion
+          "microservice.services.customs-inventory-linking-exports.host" -> Host,
+          "microservice.services.customs-inventory-linking-exports.port" -> Port,
+          "microservice.services.customs-inventory-linking-exports.sendArrival" -> CustomsMovementsAPIConfig.submitMovementServiceContext,
+          "microservice.services.customs-inventory-linking-exports.client-id" -> CustomsMovementsAPIConfig.clientId
         )
       )
       .build()
@@ -60,11 +60,122 @@ class CustomsInventoryLinkingMovementsConnectorSpec  extends IntegrationTestSpec
         stopMockServer()
 
         val response = await(sendValidXml(validInventoryLinkingExportRequest.toXml))
+
         response.status should be(INTERNAL_SERVER_ERROR)
+        response.conversationId should be(None)
 
         startMockServer()
       }
 
+      "request is processed successfully - 202" in {
+
+        startInventoryLinkingService(ACCEPTED)
+
+        val response = await(sendValidXml(validInventoryLinkingExportRequest.toXml))
+
+        response.status should be(ACCEPTED)
+        response.conversationId should not be empty
+
+        verifyILEServiceWasCalled(
+          requestBody = validInventoryLinkingExportRequest.toXml,
+          expectedEori = declarantEoriValue
+        )
+      }
+
+      "request is processed successfully - 202 (without conversationId)" in {
+
+        startInventoryLinkingService(ACCEPTED, conversationId = false)
+        val response = await(sendValidXml(validInventoryLinkingExportRequest.toXml))
+
+        response.status should be(ACCEPTED)
+        response.conversationId should be(None)
+
+        verifyILEServiceWasCalled(
+          requestBody = validInventoryLinkingExportRequest.toXml,
+          expectedEori = declarantEoriValue
+        )
+      }
+
+      "request is not processed - 500" in {
+
+        startInventoryLinkingService(INTERNAL_SERVER_ERROR)
+        val response = await(sendValidXml(validInventoryLinkingExportRequest.toXml))
+
+        response.status should be(INTERNAL_SERVER_ERROR)
+        response.conversationId should not be empty
+      }
+
+      "request is not processed - 401" in {
+
+        startInventoryLinkingService(UNAUTHORIZED)
+        val response = await(sendValidXml(validInventoryLinkingExportRequest.toXml))
+
+        response.status should be(UNAUTHORIZED)
+        response.conversationId should not be empty
+      }
+
+      "request is not processed - 404" in {
+
+        startInventoryLinkingService(NOT_FOUND)
+        val response = await(sendValidXml(validInventoryLinkingExportRequest.toXml))
+
+        response.status should be(NOT_FOUND)
+        response.conversationId should not be empty
+      }
+
+      "request is not processed - 400 (without conversationId)" in {
+
+        startInventoryLinkingService(BAD_REQUEST, conversationId = false)
+        val response = await(sendValidXml("<xml><element>test</element></xml>"))
+
+        response.status should be(BAD_REQUEST)
+        response.conversationId should be(None)
+      }
+
+      "request is not processed - 400 (with conversationId)" in {
+
+        startInventoryLinkingService(BAD_REQUEST)
+        val response = await(sendValidXml("<xml><element>test</element></xml>"))
+
+        response.status should be(BAD_REQUEST)
+        response.conversationId should not be empty
+      }
+
+      "request is not processed - fault(CONNECTION_RESET_BY_PEER)" in {
+
+        startFaultyInventoryLinkingService(Fault.CONNECTION_RESET_BY_PEER)
+        val response = sendValidXml(validInventoryLinkingExportRequest.toXml)
+
+        response.status should be(INTERNAL_SERVER_ERROR)
+        response.conversationId should be(None)
+      }
+
+      "request is not processed - fault(EMPTY_RESPONSE)" in {
+
+        startFaultyInventoryLinkingService(Fault.EMPTY_RESPONSE)
+        val response = sendValidXml(validInventoryLinkingExportRequest.toXml)
+
+        response.status should be(INTERNAL_SERVER_ERROR)
+        response.conversationId should be(None)
+      }
+
+      "request is not processed - fault(MALFORMED_RESPONSE_CHUNK)" in {
+
+        startFaultyInventoryLinkingService(Fault.MALFORMED_RESPONSE_CHUNK)
+        val response = sendValidXml(validInventoryLinkingExportRequest.toXml)
+
+        response.status should be(INTERNAL_SERVER_ERROR)
+        response.conversationId should be(None)
+      }
+
+      "request is not processed - fault(RANDOM_DATA_THEN_CLOSE)" in {
+
+        startFaultyInventoryLinkingService(Fault.RANDOM_DATA_THEN_CLOSE)
+        val response = sendValidXml(validInventoryLinkingExportRequest.toXml)
+
+        response.status should be(INTERNAL_SERVER_ERROR)
+        response.conversationId should be(None)
+      }
     }
   }
 

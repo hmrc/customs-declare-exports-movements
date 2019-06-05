@@ -16,10 +16,8 @@
 
 package utils
 
-object CustomsDeclarationsAPIConfig {
-  val apiVersion: String = "1.0"
+object CustomsMovementsAPIConfig {
 
-
-  val submitDeclarationServiceContext = "/"
-  val cancelDeclarationServiceContext = "/cancellation-requests"
+  val submitMovementServiceContext = "/"
+  val clientId = "5c68d3b5-d8a7-4212-8688-6b67f18bbce7"
 }

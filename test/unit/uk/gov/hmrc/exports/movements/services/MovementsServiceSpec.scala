@@ -42,7 +42,8 @@ class MovementsServiceSpec extends CustomsExportsBaseSpec with MovementsTestData
   }
 
   "MovementsService" should {
-    "return accepted when connector and persist movements successful  " in new SetUp() {
+
+    "return accepted when connector and persist movements successful" in new SetUp() {
       val xml: NodeSeq = <xmlval><a><b></b></a><a><b></b></a></xmlval>
 
       withConnectorCall(CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId)))
@@ -50,7 +51,7 @@ class MovementsServiceSpec extends CustomsExportsBaseSpec with MovementsTestData
 
       val result: Result =
         testObj
-          .handleMovementSubmission(declarantEoriValue, declarantUcrValue, "movementTyope", xml)
+          .handleMovementSubmission(declarantEoriValue, declarantUcrValue, "movementType", xml)
           .futureValue
 
       result.header.status must be(ACCEPTED)
@@ -58,7 +59,7 @@ class MovementsServiceSpec extends CustomsExportsBaseSpec with MovementsTestData
       verify(mockMovementsRepository, times(1)).save(any[MovementSubmissions])
     }
 
-    "return internal server error when connector succeeds but persist movements fails  " in new SetUp() {
+    "return internal server error when connector succeeds but persist movements fails" in new SetUp() {
       val xml: NodeSeq = <xmlval><a><b></b></a><a><b></b></a></xmlval>
 
       withConnectorCall(CustomsInventoryLinkingResponse(BAD_REQUEST, None))
@@ -66,7 +67,7 @@ class MovementsServiceSpec extends CustomsExportsBaseSpec with MovementsTestData
 
       val result: Result =
         testObj
-          .handleMovementSubmission(declarantEoriValue, declarantUcrValue, "movementTyope", xml)
+          .handleMovementSubmission(declarantEoriValue, declarantUcrValue, "movementType", xml)
           .futureValue
 
       result.header.status must be(INTERNAL_SERVER_ERROR)
@@ -74,14 +75,14 @@ class MovementsServiceSpec extends CustomsExportsBaseSpec with MovementsTestData
       verifyZeroInteractions(mockMovementsRepository)
     }
 
-    "return internal server error when connector succeeds but return no conversation id  " in new SetUp() {
+    "return internal server error when connector succeeds but return no conversation id" in new SetUp() {
       val xml: NodeSeq = <xmlval><a><b></b></a><a><b></b></a></xmlval>
 
       withConnectorCall(CustomsInventoryLinkingResponse(ACCEPTED, None))
 
       val result: Result =
         testObj
-          .handleMovementSubmission(declarantEoriValue, declarantUcrValue, "movementTyope", xml)
+          .handleMovementSubmission(declarantEoriValue, declarantUcrValue, "movementType", xml)
           .futureValue
 
       result.header.status must be(INTERNAL_SERVER_ERROR)
@@ -89,7 +90,7 @@ class MovementsServiceSpec extends CustomsExportsBaseSpec with MovementsTestData
       verifyZeroInteractions(mockMovementsRepository)
     }
 
-    "return internal server error when connector fails, persist should not be attempted  " in new SetUp() {
+    "return internal server error when connector fails, persist should not be attempted" in new SetUp() {
       val xml: NodeSeq = <xmlval><a><b></b></a><a><b></b></a></xmlval>
 
       withConnectorCall(CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId)))
@@ -97,7 +98,7 @@ class MovementsServiceSpec extends CustomsExportsBaseSpec with MovementsTestData
 
       val result: Result =
         testObj
-          .handleMovementSubmission(declarantEoriValue, declarantUcrValue, "movementTyope", xml)
+          .handleMovementSubmission(declarantEoriValue, declarantUcrValue, "movementType", xml)
           .futureValue
 
       result.header.status must be(INTERNAL_SERVER_ERROR)

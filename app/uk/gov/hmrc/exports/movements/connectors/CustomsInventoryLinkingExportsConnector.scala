@@ -18,8 +18,11 @@ package uk.gov.hmrc.exports.movements.connectors
 
 import javax.inject.{Inject, Singleton}
 import play.api.Logger
+import play.api.http.{ContentTypes, HeaderNames}
+import play.api.mvc.Codec
 import play.mvc.Http.Status
 import uk.gov.hmrc.exports.movements.config.AppConfig
+import uk.gov.hmrc.exports.movements.controllers.CustomsHeaderNames
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
@@ -31,10 +34,9 @@ class CustomsInventoryLinkingExportsConnector @Inject()(appConfig: AppConfig, ht
   implicit ec: ExecutionContext
 ) {
 
-  def sendMovementRequest(
-    eori: String,
-    body: String
-  )(implicit hc: HeaderCarrier): Future[CustomsInventoryLinkingResponse] =
+  def sendMovementRequest(eori: String, body: String)(
+    implicit hc: HeaderCarrier
+  ): Future[CustomsInventoryLinkingResponse] =
     post(eori, body).map { response =>
       Logger.debug(s"CUSTOMS_INVENTORY_LINKING_EXPORTS response is --> ${response.toString}")
       response
@@ -46,11 +48,10 @@ class CustomsInventoryLinkingExportsConnector @Inject()(appConfig: AppConfig, ht
       override def read(method: String, url: String, response: HttpResponse): CustomsInventoryLinkingResponse =
         CustomsInventoryLinkingResponse(response.status, response.header("X-Conversation-ID"))
     }
-  private[connectors] def post(
-    eori: String,
-    body: String
-  )(implicit hc: HeaderCarrier): Future[CustomsInventoryLinkingResponse] = {
-    Logger.debug(s"CUSTOMS_DECLARATIONS request payload is -> $body")
+  private[connectors] def post(eori: String, body: String)(
+    implicit hc: HeaderCarrier
+  ): Future[CustomsInventoryLinkingResponse] = {
+    Logger.debug(s"CUSTOMS_INVENTORY_LINKING_EXPORTS request payload is -> $body")
     httpClient
       .POSTString[CustomsInventoryLinkingResponse](
         s"${appConfig.customsInventoryLinkingExports}${appConfig.sendArrival}",
@@ -65,10 +66,11 @@ class CustomsInventoryLinkingExportsConnector @Inject()(appConfig: AppConfig, ht
       }
   }
 
+  // TODO: changed from hardcoded values to the ones from object, as it was before set to "Identfier"
   private def headers(eori: String): Seq[(String, String)] = Seq(
-    "Accept" -> "application/vnd.hmrc.1.0+xml",
-    "Content-Type" -> "application/xml;charset=utf-8",
-    "X-Client-ID" -> appConfig.clientIdInventory,
-    "X-EORI-Identfier" -> eori
+    HeaderNames.ACCEPT -> "application/vnd.hmrc.1.0+xml",
+    HeaderNames.CONTENT_TYPE -> ContentTypes.XML(Codec.utf_8),
+    CustomsHeaderNames.XClientIdName -> appConfig.clientIdInventory,
+    CustomsHeaderNames.XEoriIdentifierHeaderName -> eori
   )
 }

@@ -16,8 +16,12 @@
 
 package unit.uk.gov.hmrc.exports.movements.connector
 
+import play.api.http.ContentTypes
 import play.api.http.Status.ACCEPTED
+import play.api.mvc.Codec
+import play.mvc.Http.HeaderNames
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
+import uk.gov.hmrc.exports.movements.controllers.CustomsHeaderNames
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.logging.Authorization
@@ -33,17 +37,19 @@ class CustomsInventoryLinkingExportsConnectorSpec extends CustomsExportsBaseSpec
 
   val conversationId = "48bba359-7ba9-4cf1-85ba-95db2994638e"
 
+  // TODO: updated the headers to match ones in connector
   val headers: Seq[(String, String)] = Seq(
-    "Accept" -> "application/vnd.hmrc.1.0+xml",
-    "Content-Type" -> "application/xml;charset=utf-8",
-    "X-Client-ID" -> "5c68d3b5-d8a7-4212-8688-6b67f18bbce7",
-    "X-EORI-Identfier" -> "eori1"
+    HeaderNames.ACCEPT -> "application/vnd.hmrc.1.0+xml",
+    HeaderNames.CONTENT_TYPE -> ContentTypes.XML(Codec.utf_8),
+    CustomsHeaderNames.XClientIdName -> "5c68d3b5-d8a7-4212-8688-6b67f18bbce7",
+    CustomsHeaderNames.XEoriIdentifierHeaderName -> "eori1"
   )
 
   "Customs Inventory Linking Exports Connector" should {
-    "POST arrival to Customs Inventory Linking Exports endpoint" in sendArrival(eori, xml) { response =>
-      response.futureValue.status must be(ACCEPTED)
 
+    "POST arrival to Customs Inventory Linking Exports endpoint" in sendArrival(eori, xml) { response =>
+
+      response.futureValue.status must be(ACCEPTED)
       response.futureValue.conversationId must be(Some(conversationId))
     }
   }

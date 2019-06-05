@@ -55,7 +55,7 @@ class NotificationsController @Inject()(
       case Right(extractedHeaders) =>
         getMovementNotificationFromRequest(extractedHeaders)
           .fold(Future.successful(ErrorResponse.ErrorInvalidPayload.XmlResult)) {
-            saveMovement(_)
+            saveMovement
           }
       case Left(errorResponse) => Future.successful(errorResponse.XmlResult)
     }
@@ -70,7 +70,7 @@ class NotificationsController @Inject()(
           Accepted
         case _ =>
           metrics.incrementCounter(movementMetric)
-          InternalServerError(NotificationFailedErrorResponse.toXml())
+          InternalServerError(NotificationFailedErrorResponse.toXml)
       }
 
   private def getMovementNotificationFromRequest(

@@ -42,7 +42,7 @@ class ExportControllerSpec extends CustomsExportsBaseSpec with MovementsTestData
         CONTENT_TYPE -> ContentTypes.XML
       )
 
-  val jsonBody: String = Json.toJson(movement).toString()
+  val jsonBody: String = Json.toJson(movementSubmission()).toString()
   val fakeJsonRequest: FakeRequest[String] = FakeRequest("POST", uri).withBody(jsonBody)
   val fakeJsonRequestWithHeaders: FakeRequest[String] =
     fakeJsonRequest
