@@ -23,7 +23,6 @@ import play.api.test.Helpers._
 import unit.uk.gov.hmrc.exports.movements.base.CustomsExportsBaseSpec
 import utils.MovementsTestData
 
-
 class NotificationsControllerSpec
     extends CustomsExportsBaseSpec with MovementsTestData with BeforeAndAfterEach with NotificationTestData {
 

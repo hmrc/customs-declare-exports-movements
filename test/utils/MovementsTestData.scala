@@ -52,6 +52,7 @@ trait MovementsTestData {
     "BXQ3/Treo4kQCZvVcCqKPlwxRN4RA9Mb5RF8fFxOuwG5WSg+S+Rsp9Nq998Fgg0HeNLXL7NGwEAIzwM6vuA6YYhRQnTRFaBhrp+1w+kVW8g1qHGLYO48QPWuxdM87VMCZqxnCuDoNxVn76vwfgtpNj0+NwfzXV2Zc12L2QGgF9H9KwIkeIPK/mMlBESjue4V]"
   val dummyToken: String = s"Bearer $authToken"
   val declarantEoriValue: String = "ZZ123456789000"
+  val declarantEori: Eori = Eori(declarantEoriValue)
   val declarantLrnValue: String = "MyLrnValue1234"
   val declarantUcrValue: String = "MyDucrValue1234"
   val declarantMrnValue: String = "MyMucrValue1234"

@@ -26,13 +26,17 @@ import utils.MovementsTestData
 
 class MovementNotificationsRepositorySpec extends CustomsExportsBaseSpec with MovementsTestData with BeforeAndAfter {
 
+  override lazy val app: Application = GuiceApplicationBuilder().build()
+  private val repo = app.injector.instanceOf[MovementNotificationsRepository]
+
   before {
     repo.removeAll().futureValue
     SharedMetricRegistries.clear()
   }
 
-  override lazy val app: Application = GuiceApplicationBuilder().build()
-  private val repo = app.injector.instanceOf[MovementNotificationsRepository]
+  after {
+    repo.removeAll().futureValue
+  }
 
   "Movement notifications repository" should {
 

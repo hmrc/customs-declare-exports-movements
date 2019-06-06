@@ -17,23 +17,25 @@
 package integration.uk.gov.hmrc.exports.movements.repositories
 
 import com.codahale.metrics.SharedMetricRegistries
-import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{BeforeAndAfter, MustMatchers, WordSpec}
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import org.scalatest.BeforeAndAfter
+import play.api.Application
+import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.exports.movements.repositories.MovementsRepository
+import unit.uk.gov.hmrc.exports.movements.base.CustomsExportsBaseSpec
 import utils.MovementsTestData
 
-import scala.concurrent.ExecutionContext.Implicits.global
+class MovementRepositorySpec extends CustomsExportsBaseSpec with MovementsTestData with BeforeAndAfter {
 
-class MovementRepositorySpec
-    extends WordSpec with MustMatchers with GuiceOneAppPerSuite with MovementsTestData with ScalaFutures
-    with BeforeAndAfter {
-
+  override lazy val app: Application = GuiceApplicationBuilder().build()
   private val repo = app.injector.instanceOf[MovementsRepository]
 
   before {
     repo.removeAll().futureValue
     SharedMetricRegistries.clear()
+  }
+
+  after {
+    repo.removeAll().futureValue
   }
 
   "Movements repository" should {
