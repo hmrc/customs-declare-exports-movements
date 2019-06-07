@@ -21,8 +21,7 @@ import org.scalatest.BeforeAndAfterEach
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import unit.uk.gov.hmrc.exports.movements.base.CustomsExportsBaseSpec
-import utils.MovementsTestData
-
+import utils.{MovementsTestData, NotificationTestData}
 
 class NotificationsControllerSpec
     extends CustomsExportsBaseSpec with MovementsTestData with BeforeAndAfterEach with NotificationTestData {

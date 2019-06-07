@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package unit.uk.gov.hmrc.exports.movements.controllers
+package utils
 
 import play.api.http.{ContentTypes, HeaderNames}
 import play.api.mvc.Codec
