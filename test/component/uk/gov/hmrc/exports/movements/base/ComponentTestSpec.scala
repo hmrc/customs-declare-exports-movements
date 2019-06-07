@@ -27,19 +27,17 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.exports.movements.models.{MovementNotification, MovementSubmissions}
+import uk.gov.hmrc.exports.movements.models.MovementSubmissions
 import uk.gov.hmrc.exports.movements.repositories.{MovementNotificationsRepository, MovementsRepository}
-import unit.uk.gov.hmrc.exports.movements.controllers.NotificationTestData
 import utils.ExternalServicesConfig.{Host, Port}
 import utils.stubs.CustomsMovementsAPIService
-import utils.{AuthService, CustomsMovementsAPIConfig, MovementsTestData}
+import utils.{AuthService, CustomsMovementsAPIConfig}
 
 import scala.concurrent.Future
 
 trait ComponentTestSpec
     extends FeatureSpec with GivenWhenThen with GuiceOneAppPerSuite with BeforeAndAfterAll with BeforeAndAfterEach
-    with Eventually with MockitoSugar with Matchers with MovementsTestData with NotificationTestData with OptionValues
-    with AuthService with CustomsMovementsAPIService {
+    with Eventually with MockitoSugar with Matchers with OptionValues with AuthService with CustomsMovementsAPIService {
 
   private val mockMovementNotificationsRepository = mock[MovementNotificationsRepository]
   private val mockMovementSubmissionsRepository = mock[MovementsRepository]
@@ -73,20 +71,6 @@ trait ComponentTestSpec
 
   def verifyMovementSubmissionRepositoryWasNotCalled(): Unit =
     verifyZeroInteractions(mockMovementSubmissionsRepository)
-
-  // movement notifications
-  def withMovementNotificationRepository(saveResponse: Boolean): OngoingStubbing[Future[Boolean]] =
-    when(mockMovementNotificationsRepository.save(any())).thenReturn(Future.successful(saveResponse))
-
-  def verifyMovementNotificationRepositoryIsCorrectlyCalled(eoriValue: String) {
-    val notificationCaptor: ArgumentCaptor[MovementNotification] =
-      ArgumentCaptor.forClass(classOf[MovementNotification])
-    verify(mockMovementNotificationsRepository).save(notificationCaptor.capture())
-    notificationCaptor.getValue.eori shouldBe eoriValue
-  }
-
-  def verifyMovementNotificationRepositoryWasNotCalled(): Unit =
-    verifyZeroInteractions(mockMovementNotificationsRepository)
 
   override implicit lazy val app: Application =
     GuiceApplicationBuilder()
