@@ -19,6 +19,7 @@ package integration.uk.gov.hmrc.exports.movements.services
 import integration.uk.gov.hmrc.exports.movements.base.IntegrationTestSpec
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
+import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
@@ -38,7 +39,7 @@ import scala.xml.XML
 
 class MovementsServiceSpec
     extends IntegrationTestSpec with GuiceOneAppPerSuite with MockitoSugar with CustomsMovementsAPIService
-    with MovementsTestData {
+    with MovementsTestData with ScalaFutures {
 
   val mockMovementsRepository: MovementsRepository = mock[MovementsRepository]
 
@@ -74,17 +75,16 @@ class MovementsServiceSpec
         startInventoryLinkingService(ACCEPTED)
         withMovementSubmissionPersisted(true)
 
-        val result: Result = await(
+        val result: Future[Result] =
           movementsService.handleMovementSubmission(
             declarantEoriValue,
             declarantUcrValue,
             "Arrival",
             XML.loadString(validInventoryLinkingExportRequest.toXml)
           )
-        )
 
         contentAsString(result) should be("Movement Submission submitted and persisted ok")
-        result.header.status should be(ACCEPTED)
+        result.futureValue.header.status should be(ACCEPTED)
       }
 
       "Departure is persisted" in {
@@ -92,17 +92,16 @@ class MovementsServiceSpec
         startInventoryLinkingService(ACCEPTED)
         withMovementSubmissionPersisted(true)
 
-        val result: Result = await(
+        val result: Future[Result] =
           movementsService.handleMovementSubmission(
             declarantEoriValue,
             declarantUcrValue,
             "Departure",
             XML.loadString(validInventoryLinkingExportRequest.toXml)
           )
-        )
 
         contentAsString(result) should be("Movement Submission submitted and persisted ok")
-        result.header.status should be(ACCEPTED)
+        result.futureValue.header.status should be(ACCEPTED)
       }
     }
 
@@ -113,17 +112,16 @@ class MovementsServiceSpec
         startInventoryLinkingService(ACCEPTED)
         withMovementSubmissionPersisted(false)
 
-        val result: Result = await(
+        val result: Future[Result] =
           movementsService.handleMovementSubmission(
             declarantEoriValue,
             declarantUcrValue,
             "Arrival",
             XML.loadString(validInventoryLinkingExportRequest.toXml)
           )
-        )
 
         contentAsString(result) should be("Unable to persist data something bad happened")
-        result.header.status should be(INTERNAL_SERVER_ERROR)
+        result.futureValue.header.status should be(INTERNAL_SERVER_ERROR)
       }
 
       "Departure is not persisted" in {
@@ -131,17 +129,16 @@ class MovementsServiceSpec
         startInventoryLinkingService(ACCEPTED)
         withMovementSubmissionPersisted(false)
 
-        val result: Result = await(
+        val result: Future[Result] =
           movementsService.handleMovementSubmission(
             declarantEoriValue,
             declarantUcrValue,
             "Departure",
             XML.loadString(validInventoryLinkingExportRequest.toXml)
           )
-        )
 
         contentAsString(result) should be("Unable to persist data something bad happened")
-        result.header.status should be(INTERNAL_SERVER_ERROR)
+        result.futureValue.header.status should be(INTERNAL_SERVER_ERROR)
       }
 
       "Arrival is not persisted (ACCEPTED but, no conversationID)" in {
@@ -149,17 +146,16 @@ class MovementsServiceSpec
         startInventoryLinkingService(ACCEPTED, conversationId = false)
         withMovementSubmissionPersisted(false)
 
-        val result: Result = await(
+        val result: Future[Result] =
           movementsService.handleMovementSubmission(
             declarantEoriValue,
             declarantUcrValue,
             "Arrival",
             XML.loadString(validInventoryLinkingExportRequest.toXml)
           )
-        )
 
         contentAsString(result) should be("No conversation Id Returned")
-        result.header.status should be(INTERNAL_SERVER_ERROR)
+        result.futureValue.header.status should be(INTERNAL_SERVER_ERROR)
       }
 
       "Departure is not persisted (ACCEPTED but, no conversationID)" in {
@@ -167,17 +163,16 @@ class MovementsServiceSpec
         startInventoryLinkingService(ACCEPTED, conversationId = false)
         withMovementSubmissionPersisted(false)
 
-        val result: Result = await(
+        val result: Future[Result] =
           movementsService.handleMovementSubmission(
             declarantEoriValue,
             declarantUcrValue,
             "Departure",
             XML.loadString(validInventoryLinkingExportRequest.toXml)
           )
-        )
 
         contentAsString(result) should be("No conversation Id Returned")
-        result.header.status should be(INTERNAL_SERVER_ERROR)
+        result.futureValue.header.status should be(INTERNAL_SERVER_ERROR)
       }
 
       "it is Not Accepted (BAD_REQUEST)" in {
@@ -185,17 +180,16 @@ class MovementsServiceSpec
         startInventoryLinkingService(BAD_REQUEST)
         withMovementSubmissionPersisted(false)
 
-        val result: Result = await(
+        val result: Future[Result] =
           movementsService.handleMovementSubmission(
             declarantEoriValue,
             declarantUcrValue,
             "Arrival",
             XML.loadString(validInventoryLinkingExportRequest.toXml)
           )
-        )
 
         contentAsString(result) should be("Non Accepted status returned by Customs Declaration Service")
-        result.header.status should be(INTERNAL_SERVER_ERROR)
+        result.futureValue.header.status should be(INTERNAL_SERVER_ERROR)
       }
 
       "it is Not Accepted (NOT_FOUND)" in {
@@ -203,17 +197,16 @@ class MovementsServiceSpec
         startInventoryLinkingService(NOT_FOUND)
         withMovementSubmissionPersisted(false)
 
-        val result: Result = await(
+        val result: Future[Result] =
           movementsService.handleMovementSubmission(
             declarantEoriValue,
             declarantUcrValue,
             "Arrival",
             XML.loadString(validInventoryLinkingExportRequest.toXml)
           )
-        )
 
         contentAsString(result) should be("Non Accepted status returned by Customs Declaration Service")
-        result.header.status should be(INTERNAL_SERVER_ERROR)
+        result.futureValue.header.status should be(INTERNAL_SERVER_ERROR)
       }
 
       "it is Not Accepted (UNAUTHORIZED)" in {
@@ -221,17 +214,16 @@ class MovementsServiceSpec
         startInventoryLinkingService(UNAUTHORIZED)
         withMovementSubmissionPersisted(false)
 
-        val result: Result = await(
+        val result: Future[Result] =
           movementsService.handleMovementSubmission(
             declarantEoriValue,
             declarantUcrValue,
             "Arrival",
             XML.loadString(validInventoryLinkingExportRequest.toXml)
           )
-        )
 
         contentAsString(result) should be("Non Accepted status returned by Customs Declaration Service")
-        result.header.status should be(INTERNAL_SERVER_ERROR)
+        result.futureValue.header.status should be(INTERNAL_SERVER_ERROR)
       }
 
       "it is Not Accepted (INTERNAL_SERVER_ERROR)" in {
@@ -239,17 +231,16 @@ class MovementsServiceSpec
         startInventoryLinkingService(INTERNAL_SERVER_ERROR)
         withMovementSubmissionPersisted(false)
 
-        val result: Result = await(
+        val result: Future[Result] =
           movementsService.handleMovementSubmission(
             declarantEoriValue,
             declarantUcrValue,
             "Arrival",
             XML.loadString(validInventoryLinkingExportRequest.toXml)
           )
-        )
 
         contentAsString(result) should be("Non Accepted status returned by Customs Declaration Service")
-        result.header.status should be(INTERNAL_SERVER_ERROR)
+        result.futureValue.header.status should be(INTERNAL_SERVER_ERROR)
       }
     }
   }

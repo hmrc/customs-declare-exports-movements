@@ -17,8 +17,6 @@ object AppDependencies {
   )
 
   def test(scope: String = "test") = Seq(
-    // TODO hmrctest library is deprecated
-    "uk.gov.hmrc" %% "hmrctest" % "3.9.0-play-26" % scope,
     "org.scalatest" %% "scalatest" % "3.0.5" % scope,
     "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % "test",
     "org.pegdown" % "pegdown" % "1.6.0" % scope,
