@@ -18,9 +18,9 @@ package integration.uk.gov.hmrc.exports.movements.base
 
 import com.google.inject.AbstractModule
 import org.scalatest.concurrent.Eventually
-import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
+import org.scalatest._
 import play.api.inject.guice.GuiceableModule
-import uk.gov.hmrc.play.test.UnitSpec
+import unit.uk.gov.hmrc.exports.movements.base.UnitSpec
 
 object IntegrationTestModule extends AbstractModule {
   def configure(): Unit = ()

@@ -88,7 +88,7 @@ class MovementsSubmissionController @Inject()(
       .handleMovementSubmission(request.eori.value, vhr.ducr, vhr.movementType, xml)
 
   def getMovements: Action[AnyContent] =
-    authorisedAction(BodyParsers.parse.default) { implicit authorizedRequest =>
+    authorisedAction(parse.default) { implicit authorizedRequest =>
       movementsService.getMovementsByEori(authorizedRequest.eori.value)
     }
 }

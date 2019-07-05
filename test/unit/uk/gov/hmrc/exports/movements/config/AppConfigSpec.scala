@@ -23,7 +23,7 @@ import play.api.Mode.Test
 import play.api.Configuration
 import uk.gov.hmrc.exports.movements.config.AppConfig
 import uk.gov.hmrc.play.bootstrap.config.{RunMode, ServicesConfig}
-import uk.gov.hmrc.play.test.UnitSpec
+import unit.uk.gov.hmrc.exports.movements.base.UnitSpec
 
 class AppConfigSpec extends UnitSpec with MockitoSugar {
 
