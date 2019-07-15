@@ -18,7 +18,7 @@ package utils
 
 import play.api.http.{ContentTypes, HeaderNames}
 import play.api.mvc.Codec
-import uk.gov.hmrc.exports.movements.controllers.CustomsHeaderNames
+import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames
 
 import scala.xml.Elem
 

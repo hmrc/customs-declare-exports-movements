@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.exports.movements.controllers
+package uk.gov.hmrc.exports.movements.controllers.actions
 
 import javax.inject.{Inject, Singleton}
 import play.api.Logger
@@ -28,7 +28,7 @@ import uk.gov.hmrc.play.bootstrap.controller.BackendController
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class ExportController @Inject()(override val authConnector: AuthConnector, cc: ControllerComponents)(
+class Authenticator @Inject()(override val authConnector: AuthConnector, cc: ControllerComponents)(
   implicit ec: ExecutionContext
 ) extends BackendController(cc) with AuthorisedFunctions {
 

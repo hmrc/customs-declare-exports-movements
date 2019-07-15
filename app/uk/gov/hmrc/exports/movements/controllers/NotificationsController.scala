@@ -22,15 +22,12 @@ import play.api.Logger
 import play.api.mvc._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.exports.movements.config.AppConfig
+import uk.gov.hmrc.exports.movements.controllers.actions.Authenticator
+import uk.gov.hmrc.exports.movements.controllers.util.HeaderValidator
 import uk.gov.hmrc.exports.movements.metrics.ExportsMetrics
 import uk.gov.hmrc.exports.movements.metrics.MetricIdentifiers._
-import uk.gov.hmrc.exports.movements.models.{
-  ErrorResponse,
-  MovementNotification,
-  MovementNotificationApiRequest,
-  NotificationFailedErrorResponse
-}
-import uk.gov.hmrc.exports.movements.repositories.MovementNotificationsRepository
+import uk.gov.hmrc.exports.movements.models.{ErrorResponse, MovementNotification, MovementNotificationApiRequest, NotificationFailedErrorResponse}
+import uk.gov.hmrc.exports.movements.repositories.NotificationsRepository
 import uk.gov.hmrc.wco.dec.inventorylinking.movement.response.InventoryLinkingMovementResponse
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -43,12 +40,12 @@ class NotificationsController @Inject()(
   appConfig: AppConfig,
   authConnector: AuthConnector,
   headerValidator: HeaderValidator,
-  movementNotificationsRepository: MovementNotificationsRepository,
+  movementNotificationsRepository: NotificationsRepository,
   metrics: ExportsMetrics,
   cc: ControllerComponents
-) extends ExportController(authConnector, cc) {
+) extends Authenticator(authConnector, cc) {
 
-  def saveMovement(): Action[NodeSeq] = Action.async(parse.xml) { implicit request =>
+  def saveNotification(): Action[NodeSeq] = Action.async(parse.xml) { implicit request =>
     metrics.startTimer(movementMetric)
     headerValidator
       .validateAndExtractMovementNotificationHeaders(request.headers.toSimpleMap) match {

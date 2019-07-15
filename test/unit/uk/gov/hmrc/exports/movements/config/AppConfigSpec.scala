@@ -19,8 +19,8 @@ package unit.uk.gov.hmrc.exports.movements.config
 import com.typesafe.config.{Config, ConfigFactory}
 import org.scalatest.PrivateMethodTester.PrivateMethod
 import org.scalatest.mockito.MockitoSugar
-import play.api.Mode.Test
 import play.api.Configuration
+import play.api.Mode.Test
 import uk.gov.hmrc.exports.movements.config.AppConfig
 import uk.gov.hmrc.play.bootstrap.config.{RunMode, ServicesConfig}
 import unit.uk.gov.hmrc.exports.movements.base.UnitSpec
@@ -73,6 +73,12 @@ class AppConfigSpec extends UnitSpec with MockitoSugar {
 
       val caught4: Exception = intercept[Exception](configService.clientIdInventory)
       caught4.getMessage shouldBe "Missing configuration for Customs Inventory Linking Client Id"
+    }
+
+    "contain correct Inventory Linking url" in {
+      val serviceConfig: AppConfig = appConfig(validServicesConfiguration)
+
+      println(s"${serviceConfig.sendArrival}")
     }
   }
 }

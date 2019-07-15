@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.exports.movements.controllers
+package uk.gov.hmrc.exports.movements.controllers.util
 
 import javax.inject.Singleton
 import play.api.Logger
@@ -73,21 +73,6 @@ class HeaderValidator {
       authToken <- extractAuthTokenHeader(headers)
       conversationId <- extractConversationIdHeader(headers)
     } yield MovementNotificationApiRequest(AuthToken(authToken), ConversationId(conversationId), Eori(eori))
-    result match {
-      case Some(request) => Right(request)
-      case _ =>
-        Logger.debug("Error validating and extracting headers")
-        Left(ErrorResponse.ErrorInvalidPayload)
-    }
-  }
-
-  def validateAndExtractSubmissionNotificationHeaders(
-    headers: Map[String, String]
-  ): Either[ErrorResponse, SubmissionNotificationApiRequest] = {
-    val result = for {
-      authToken <- extractAuthTokenHeader(headers)
-      conversationId <- extractConversationIdHeader(headers)
-    } yield SubmissionNotificationApiRequest(AuthToken(authToken), ConversationId(conversationId))
     result match {
       case Some(request) => Right(request)
       case _ =>

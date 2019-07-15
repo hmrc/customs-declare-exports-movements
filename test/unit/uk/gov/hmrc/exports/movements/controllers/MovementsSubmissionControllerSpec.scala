@@ -22,9 +22,9 @@ import play.api.http.ContentTypes
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.exports.movements.controllers.CustomsHeaderNames
-import uk.gov.hmrc.exports.movements.models.MovementSubmissions._
+import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
+import uk.gov.hmrc.exports.movements.models.MovementSubmissions._
 import unit.uk.gov.hmrc.exports.movements.base.CustomsExportsBaseSpec
 import utils.MovementsTestData
 

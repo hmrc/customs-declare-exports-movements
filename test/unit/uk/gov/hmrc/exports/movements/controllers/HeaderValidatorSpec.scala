@@ -17,7 +17,7 @@
 package unit.uk.gov.hmrc.exports.movements.controllers
 
 import org.scalatest.mockito.MockitoSugar
-import uk.gov.hmrc.exports.movements.controllers.HeaderValidator
+import uk.gov.hmrc.exports.movements.controllers.util.HeaderValidator
 import uk.gov.hmrc.exports.movements.models._
 import unit.uk.gov.hmrc.exports.movements.base.UnitSpec
 import utils.MovementsTestData
@@ -140,22 +140,6 @@ class HeaderValidatorSpec extends UnitSpec with MockitoSugar with MovementsTestD
     "return Left ErrorResponse when validateHeaders is called with invalid headers" in new SetUp {
       val result: Either[ErrorResponse, MovementNotificationApiRequest] =
         validator.validateAndExtractMovementNotificationHeaders(Map.empty)
-      result should be(Left(ErrorResponse.ErrorInvalidPayload))
-    }
-
-  }
-
-  "Validate And Extract Submission Notification Headers" should {
-
-    "return Right of SubmissionNotificationApiRequest when validateHeaders is called on valid headers" in new SetUp {
-      val result: Either[ErrorResponse, SubmissionNotificationApiRequest] =
-        validator.validateAndExtractSubmissionNotificationHeaders(ValidHeaders)
-      result should be(Right(SubmissionNotificationApiRequest(AuthToken(dummyToken), ConversationId(conversationId))))
-    }
-
-    "return Left ErrorResponse when validateHeaders is called with invalid headers" in new SetUp {
-      val result: Either[ErrorResponse, SubmissionNotificationApiRequest] =
-        validator.validateAndExtractSubmissionNotificationHeaders(Map.empty)
       result should be(Left(ErrorResponse.ErrorInvalidPayload))
     }
 

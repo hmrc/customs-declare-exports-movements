@@ -17,24 +17,26 @@
 package integration.uk.gov.hmrc.exports.movements.repositories
 
 import com.codahale.metrics.SharedMetricRegistries
-import org.scalatest.BeforeAndAfter
+import org.scalatest.BeforeAndAfterEach
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.exports.movements.repositories.MovementNotificationsRepository
+import uk.gov.hmrc.exports.movements.repositories.NotificationsRepository
 import unit.uk.gov.hmrc.exports.movements.base.CustomsExportsBaseSpec
 import utils.MovementsTestData
 
-class MovementNotificationsRepositorySpec extends CustomsExportsBaseSpec with MovementsTestData with BeforeAndAfter {
+class NotificationsRepositorySpec extends CustomsExportsBaseSpec with MovementsTestData with BeforeAndAfterEach {
 
   override lazy val app: Application = GuiceApplicationBuilder().build()
-  private val repo = app.injector.instanceOf[MovementNotificationsRepository]
+  private val repo = app.injector.instanceOf[NotificationsRepository]
 
-  before {
+  override def beforeEach(): Unit = {
+    super.beforeEach()
     repo.removeAll().futureValue
     SharedMetricRegistries.clear()
   }
 
-  after {
+  override def afterEach(): Unit = {
+    super.beforeEach()
     repo.removeAll().futureValue
   }
 

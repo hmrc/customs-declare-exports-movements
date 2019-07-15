@@ -29,7 +29,7 @@ import uk.gov.hmrc.mongo.json.ReactiveMongoFormats.objectIdFormats
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class MovementNotificationsRepository @Inject()(mc: ReactiveMongoComponent)(implicit ec: ExecutionContext)
+class NotificationsRepository @Inject()(mc: ReactiveMongoComponent)(implicit ec: ExecutionContext)
     extends ReactiveRepository[MovementNotification, BSONObjectID](
       "movementNotifications",
       mc.mongoConnector.db,

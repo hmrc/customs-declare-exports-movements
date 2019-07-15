@@ -23,7 +23,7 @@ import org.joda.time.{DateTime, DateTimeZone}
 import play.api.http.HeaderNames.CONTENT_TYPE
 import play.api.http.{ContentTypes, HeaderNames}
 import play.api.mvc.Codec
-import uk.gov.hmrc.exports.movements.controllers.CustomsHeaderNames._
+import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames._
 import uk.gov.hmrc.exports.movements.models._
 import uk.gov.hmrc.wco.dec.inventorylinking.common.{AgentDetails, TransportDetails, UcrBlock}
 import uk.gov.hmrc.wco.dec.inventorylinking.movement.request.InventoryLinkingMovementRequest
@@ -96,9 +96,6 @@ trait MovementsTestData {
       eori,
       movementResponse = InventoryLinkingMovementResponse("EAA")
     )
-
-  val submissionMovementResponse =
-    MovementResponse(validEori, conversationId, ucr, "Arrival", Some(GoodsHaveExitedTheCommunity.toString()))
 
   val ValidHeaders: Map[String, String] = Map(
     contentTypeHeader,
