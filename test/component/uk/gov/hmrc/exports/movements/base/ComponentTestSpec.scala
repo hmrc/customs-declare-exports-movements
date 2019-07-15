@@ -28,7 +28,7 @@ import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.exports.movements.models.MovementSubmissions
-import uk.gov.hmrc.exports.movements.repositories.{MovementsRepository, NotificationsRepository}
+import uk.gov.hmrc.exports.movements.repositories.{MovementSubmissionRepository, NotificationRepository}
 import utils.ExternalServicesConfig.{Host, Port}
 import utils.stubs.CustomsMovementsAPIService
 import utils.{AuthService, CustomsMovementsAPIConfig}
@@ -39,8 +39,8 @@ trait ComponentTestSpec
     extends FeatureSpec with GivenWhenThen with GuiceOneAppPerSuite with BeforeAndAfterAll with BeforeAndAfterEach
     with Eventually with MockitoSugar with Matchers with OptionValues with AuthService with CustomsMovementsAPIService {
 
-  private val mockMovementNotificationsRepository = mock[NotificationsRepository]
-  private val mockMovementSubmissionsRepository = mock[MovementsRepository]
+  private val mockMovementNotificationsRepository = mock[NotificationRepository]
+  private val mockMovementSubmissionsRepository = mock[MovementSubmissionRepository]
 
   override protected def beforeAll() {
 
@@ -74,8 +74,8 @@ trait ComponentTestSpec
 
   override implicit lazy val app: Application =
     GuiceApplicationBuilder()
-      .overrides(bind[MovementsRepository].toInstance(mockMovementSubmissionsRepository))
-      .overrides(bind[NotificationsRepository].toInstance(mockMovementNotificationsRepository))
+      .overrides(bind[MovementSubmissionRepository].toInstance(mockMovementSubmissionsRepository))
+      .overrides(bind[NotificationRepository].toInstance(mockMovementNotificationsRepository))
       .configure(
         Map(
           "microservice.services.auth.host" -> Host,

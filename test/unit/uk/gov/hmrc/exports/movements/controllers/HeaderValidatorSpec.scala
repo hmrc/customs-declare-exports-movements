@@ -124,11 +124,11 @@ class HeaderValidatorSpec extends UnitSpec with MockitoSugar with MovementsTestD
   "Validate And Extract Movement Notification Headers" should {
 
     "return Right of MovementNotificationApiRequest when validateHeaders is called on valid headers" in new SetUp {
-      val result: Either[ErrorResponse, MovementNotificationApiRequest] =
+      val result: Either[ErrorResponse, MovementNotificationApiRequestHeaders] =
         validator.validateAndExtractMovementNotificationHeaders(ValidHeaders)
       result should be(
         Right(
-          MovementNotificationApiRequest(
+          MovementNotificationApiRequestHeaders(
             AuthToken(dummyToken),
             ConversationId(conversationId),
             Eori(declarantEoriValue)
@@ -138,7 +138,7 @@ class HeaderValidatorSpec extends UnitSpec with MockitoSugar with MovementsTestD
     }
 
     "return Left ErrorResponse when validateHeaders is called with invalid headers" in new SetUp {
-      val result: Either[ErrorResponse, MovementNotificationApiRequest] =
+      val result: Either[ErrorResponse, MovementNotificationApiRequestHeaders] =
         validator.validateAndExtractMovementNotificationHeaders(Map.empty)
       result should be(Left(ErrorResponse.ErrorInvalidPayload))
     }

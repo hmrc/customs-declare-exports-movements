@@ -67,12 +67,12 @@ class HeaderValidator {
 
   def validateAndExtractMovementNotificationHeaders(
     headers: Map[String, String]
-  ): Either[ErrorResponse, MovementNotificationApiRequest] = {
+  ): Either[ErrorResponse, MovementNotificationApiRequestHeaders] = {
     val result = for {
       eori <- extractEoriHeader(headers)
       authToken <- extractAuthTokenHeader(headers)
       conversationId <- extractConversationIdHeader(headers)
-    } yield MovementNotificationApiRequest(AuthToken(authToken), ConversationId(conversationId), Eori(eori))
+    } yield MovementNotificationApiRequestHeaders(AuthToken(authToken), ConversationId(conversationId), Eori(eori))
     result match {
       case Some(request) => Right(request)
       case _ =>

@@ -16,31 +16,11 @@
 
 package uk.gov.hmrc.exports.movements.models
 
-import org.joda.time.DateTime
 import play.api.libs.json._
 import reactivemongo.bson.BSONObjectID
 import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
 import uk.gov.hmrc.mongo.json.ReactiveMongoFormats.mongoEntity
-import uk.gov.hmrc.wco.dec.inventorylinking.common.{EntryStatus, GoodsItem, UcrBlock}
-import uk.gov.hmrc.wco.dec.inventorylinking.movement.response.InventoryLinkingMovementResponse
-import play.api.libs.json.JodaWrites._
-import play.api.libs.json.JodaReads._
 
-case class MovementNotification(
-  dateTimeReceived: DateTime = DateTime.now(),
-  conversationId: String,
-  eori: String,
-  badgeId: Option[String] = None,
-  movementResponse: InventoryLinkingMovementResponse
-)
-
-object MovementNotification {
-  implicit val ucrFormat = Json.format[UcrBlock]
-  implicit val goodsItemFormat = Json.format[GoodsItem]
-  implicit val entryStatusFormat = Json.format[EntryStatus]
-  implicit val movementResponseFormat = Json.format[InventoryLinkingMovementResponse]
-  implicit val format = Json.format[MovementNotification]
-}
 
 case class MovementSubmissions(
   eori: String,
@@ -57,16 +37,4 @@ object MovementSubmissions {
   implicit val formats = mongoEntity {
     Json.format[MovementSubmissions]
   }
-}
-
-case class MovementResponse(
-  eori: String,
-  conversationId: String,
-  ucr: String,
-  movementType: String,
-  status: Option[String] = Some("Pending")
-)
-
-object MovementResponse {
-  implicit val format = Json.format[MovementResponse]
 }

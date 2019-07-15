@@ -19,30 +19,76 @@ package utils
 import play.api.http.{ContentTypes, HeaderNames}
 import play.api.mvc.Codec
 import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames
+import uk.gov.hmrc.exports.movements.models.notifications.{MovementNotification, NotificationError}
 
 import scala.xml.Elem
 
-trait NotificationTestData {
+object NotificationTestData extends MovementsTestData {
+
   val dummyAuthToken: String =
     "Bearer BXQ3/Treo4kQCZvVcCqKPlwxRN4RA9Mb5RF8fFxOuwG5WSg+S+Rsp9Nq998Fgg0HeNLXL7NGwEAIzwM6vuA6YYhRQnTRFa" +
       "Bhrp+1w+kVW8g1qHGLYO48QPWuxdM87VMCZqxnCuDoNxVn76vwfgtpNj0+NwfzXV2Zc12L2QGgF9H9KwIkeIPK/mMlBESjue4V]"
 
-  val uri = "/customs-declare-exports/notify"
   val movementUri = "/customs-declare-exports/notifyMovement"
-  val submissionNotificationUri = "/customs-declare-exports/submission-notifications/1234"
 
-  val getNotificationUri = "/customs-declare-exports/notifications"
-  val postNotificationUri = "/customs-declare-exports/notify"
-  val validXML: Elem = <MetaData xmlns="urn:wco:datamodel:WCO:DocumentMetaData-DMS:2">
-    <wstxns1:Response xmlns:wstxns1="urn:wco:datamodel:WCO:RES-DMS:2"></wstxns1:Response>
-  </MetaData>
+  val exampleRejectInventoryLinkingControlResponseNotification: MovementNotification = MovementNotification(
+    conversationId = conversationId,
+    errors = Seq(NotificationError("01"), NotificationError("21")),
+    payload = exampleRejectInventoryLinkingControlResponseXML.toString()
+  )
 
-  val movementXml: Elem = <inventoryLinkingMovementRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
-    <messageCode>EAL</messageCode>
-  </inventoryLinkingMovementRequest>
+  def exampleRejectInventoryLinkingControlResponseXML: Elem =
+    <inventoryLinkingControlResponse>
+      <messageCode>CST</messageCode>
+      <actionCode>3</actionCode>
+      <ucr>
+        <ucr>5GB123456789000-123ABC456DEFIIIII</ucr>
+        <ucrType>M</ucrType>
+      </ucr>
+      <movementReference/>
+      <error>
+        <errorCode>01</errorCode>
+      </error>
+      <error>
+        <errorCode>21</errorCode>
+      </error>
+    </inventoryLinkingControlResponse>
+
+  val exampleInventoryLinkingMovementTotalsResponseNotification: MovementNotification = MovementNotification(
+    conversationId = conversationId,
+    errors = Seq.empty,
+    payload = exampleInventoryLinkingMovementTotalsResponseXML.toString()
+  )
+
+  def exampleInventoryLinkingMovementTotalsResponseXML: Elem =
+    <inventoryLinkingMovementTotalsResponse>
+      <messageCode>ERS</messageCode>
+      <goodsLocation>GBAULGWLGWLGW</goodsLocation>
+      <goodsArrivalDateTime>2019-07-12T13:14:54.000Z</goodsArrivalDateTime>
+      <movementReference>JVG0MBQ1DQQBSWS1UEU6LFXFK</movementReference>
+      <entry>
+        <ucrBlock>
+          <ucr>9GB025115188654-IAZ1</ucr>
+          <ucrType>D</ucrType>
+        </ucrBlock>
+        <entryStatus>
+          <roe>6</roe>
+          <soe>3</soe>
+        </entryStatus>
+      </entry>
+    </inventoryLinkingMovementTotalsResponse>
+
+  def unknownFormatResponseXML: Elem =
+    <UnknownFormat>
+      <ATag>
+        <AndAnInnerTag>Inner tag value</AndAnInnerTag>
+      </ATag>
+      <AnotherTag>With another value</AnotherTag>
+    </UnknownFormat>
+
   val validHeaders: Map[String, String] = Map(
     "X-CDS-Client-ID" -> "1234",
-    CustomsHeaderNames.XConversationIdName -> "XConv1",
+    CustomsHeaderNames.XConversationIdName -> conversationId,
     CustomsHeaderNames.Authorization -> dummyAuthToken,
     "X-EORI-Identifier" -> "eori1",
     HeaderNames.ACCEPT -> s"application/vnd.hmrc.${2.0}+xml",
@@ -50,7 +96,7 @@ trait NotificationTestData {
   )
   val noEoriHeaders: Map[String, String] = Map(
     "X-CDS-Client-ID" -> "1234",
-    CustomsHeaderNames.XConversationIdName -> "XConv1",
+    CustomsHeaderNames.XConversationIdName -> conversationId,
     CustomsHeaderNames.Authorization -> dummyAuthToken,
     HeaderNames.ACCEPT -> s"application/vnd.hmrc.${2.0}+xml",
     HeaderNames.CONTENT_TYPE -> ContentTypes.XML(Codec.utf_8),
@@ -58,77 +104,27 @@ trait NotificationTestData {
   )
   val noAcceptHeader: Map[String, String] = Map(
     "X-CDS-Client-ID" -> "1234",
-    "X-Conversation-ID" -> "XConv1",
+    "X-Conversation-ID" -> conversationId,
     HeaderNames.ACCEPT -> "",
     HeaderNames.CONTENT_TYPE -> ContentTypes.XML(Codec.utf_8),
     "X-Badge-Identifier" -> "badgeIdentifier1"
   )
   val noContentTypeHeader: Map[String, String] = Map(
     "X-CDS-Client-ID" -> "1234",
-    "X-Conversation-ID" -> "XConv1",
+    "X-Conversation-ID" -> conversationId,
     HeaderNames.ACCEPT -> s"application/vnd.hmrc.${2.0}+xml",
     HeaderNames.CONTENT_TYPE -> "",
     "X-Badge-Identifier" -> "badgeIdentifier1"
   )
 
-  def notificationXML(mrn: String) =
-    <MetaData xmlns="urn:wco:datamodel:WCO:DocumentMetaData-DMS:2">
-      <WCODataModelVersionCode>02</WCODataModelVersionCode>
-      <WCOTypeName>RES</WCOTypeName>
-      <Response>
-        <FunctionCode>02</FunctionCode>
-        <FunctionalReferenceID>1234555</FunctionalReferenceID>
-        <IssueDateTime>
-          <DateTimeString formatCode="304">20190226085021Z</DateTimeString>
-        </IssueDateTime>
-        <Declaration>
-          <ID>
-            {mrn}
-          </ID>
-        </Declaration>
-      </Response>
-    </MetaData>
+  val errors = Seq(NotificationError(errorCode = "01"))
 
-  def exampleRejectNotification(mrn: String) = <MetaData>
-    <WCODataModelVersionCode>3.6</WCODataModelVersionCode>
-    <WCOTypeName>RES</WCOTypeName>
-    <ResponsibleCountryCode/>
-    <ResponsibleAgencyName/>
-    <AgencyAssignedCustomizationCode/>
-    <AgencyAssignedCustomizationVersionCode/>
-    <Response>
-      <FunctionCode>03</FunctionCode>
-      <FunctionalReferenceID>6be6c6f61f0346748016b823eeda669d</FunctionalReferenceID>
-      <IssueDateTime>
-        <DateTimeString formatCode="304">20190328092916Z</DateTimeString>
-      </IssueDateTime>
-      <Error>
-        <ValidationCode>CDS12050</ValidationCode>
-        <Pointer>
-          <DocumentSectionCode>42A</DocumentSectionCode>
-        </Pointer>
-        <Pointer>
-          <DocumentSectionCode>67A</DocumentSectionCode>
-        </Pointer>
-        <Pointer>
-          <SequenceNumeric>1</SequenceNumeric>
-          <DocumentSectionCode>68A</DocumentSectionCode>
-        </Pointer>
-        <Pointer>
-          <DocumentSectionCode>70A</DocumentSectionCode>
-          <TagID>166</TagID>
-        </Pointer>
-      </Error>
-      <Declaration>
-        <FunctionalReferenceID>NotificationTest</FunctionalReferenceID>
-        <ID>
-          {mrn}
-        </ID>
-        <RejectionDateTime>
-          <DateTimeString formatCode="304">20190328092916Z</DateTimeString>
-        </RejectionDateTime>
-        <VersionID>1</VersionID>
-      </Declaration>
-    </Response>
-  </MetaData>
+  private val payloadExemplaryLength = 300
+  val payload_1 = TestDataHelper.randomAlphanumericString(payloadExemplaryLength)
+  val payload_2 = TestDataHelper.randomAlphanumericString(payloadExemplaryLength)
+
+  val notification_1: MovementNotification =
+    MovementNotification(conversationId = conversationId, errors = errors, payload = payload_1)
+  val notification_2: MovementNotification =
+    MovementNotification(conversationId = conversationId, errors = errors, payload = payload_2)
 }

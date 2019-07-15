@@ -24,7 +24,7 @@ import uk.gov.hmrc.exports.movements.config.AppConfig
 import uk.gov.hmrc.exports.movements.controllers.actions.Authenticator
 import uk.gov.hmrc.exports.movements.controllers.util.HeaderValidator
 import uk.gov.hmrc.exports.movements.models.{AuthorizedSubmissionRequest, ErrorResponse, ValidatedHeadersMovementsRequest}
-import uk.gov.hmrc.exports.movements.services.MovementsService
+import uk.gov.hmrc.exports.movements.services.MovementSubmissionService
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -32,11 +32,11 @@ import scala.concurrent.Future
 import scala.xml.NodeSeq
 
 @Singleton
-class MovementsSubmissionController @Inject()(
+class MovementSubmissionController @Inject()(
   appConfig: AppConfig,
   authConnector: AuthConnector,
   headerValidator: HeaderValidator,
-  movementsService: MovementsService,
+  movementsService: MovementSubmissionService,
   cc: ControllerComponents
 ) extends Authenticator(authConnector, cc) {
 
