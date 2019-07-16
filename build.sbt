@@ -2,8 +2,8 @@ import sbt.Tests.{Group, SubProcess}
 import sbt._
 import uk.gov.hmrc.DefaultBuildSettings._
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin.publishingSettings
-import uk.gov.hmrc.{SbtArtifactory, SbtAutoBuildPlugin}
 import uk.gov.hmrc.versioning.SbtGitVersioning
+import uk.gov.hmrc.{SbtArtifactory, SbtAutoBuildPlugin}
 
 val appName = "customs-declare-exports-movements"
 
@@ -82,7 +82,7 @@ lazy val scoverageSettings: Seq[Setting[_]] = Seq(
     ,"metrics\\..*"
     ,".*(BuildInfo|Routes|Options).*"
   ).mkString(";"),
-  coverageMinimum := 95,
+  coverageMinimum := 90,
   coverageFailOnMinimum := true,
   coverageHighlighting := true,
   parallelExecution in Test := false
