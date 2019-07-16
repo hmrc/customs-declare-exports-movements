@@ -22,11 +22,11 @@ import play.api.Logger
 import play.api.mvc._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.exports.movements.config.AppConfig
-import uk.gov.hmrc.exports.movements.controllers.actions.Authenticator
+import uk.gov.hmrc.exports.movements.controllers.actions.AuthenticatedController
 import uk.gov.hmrc.exports.movements.controllers.util.HeaderValidator
 import uk.gov.hmrc.exports.movements.metrics.ExportsMetrics
 import uk.gov.hmrc.exports.movements.metrics.MetricIdentifiers._
-import uk.gov.hmrc.exports.movements.models.notifications.MovementNotificationFactory
+import uk.gov.hmrc.exports.movements.models.notifications.{MovementNotification, MovementNotificationFactory}
 import uk.gov.hmrc.exports.movements.services.NotificationService
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -42,38 +42,48 @@ class NotificationController @Inject()(
   notificationService: NotificationService,
   notificationFactory: MovementNotificationFactory,
   cc: ControllerComponents
-) extends Authenticator(authConnector, cc) {
+) extends AuthenticatedController(authConnector, cc) {
 
   val logger = Logger(this.getClass)
 
   def saveNotification(): Action[NodeSeq] = Action.async(parse.xml) { implicit request =>
     val timer = metrics.startTimer(movementMetric)
-    headerValidator.validateAndExtractMovementNotificationHeaders(request.headers.toSimpleMap) match {
-
-      case Right(extractedHeaders) =>
-        Future(
-            notificationFactory
-              .buildMovementNotification(extractedHeaders.conversationId.value, request.body)
-          )
-          .flatMap { notificationToSave =>
-            notificationService.save(notificationToSave)
-          }
-          .map {
-            case Right(_) =>
-              metrics.incrementCounter(movementMetric)
-              timer.stop()
-              Accepted
-            case Left(_) =>
-              InternalServerError
-          }
-          .recover {
-            case exc: IllegalArgumentException =>
-              logger.error(s"There is a problem during parsing notification with exception: ${exc.getMessage}")
-              Accepted
-          }
-
-      case Left(errorResponse) => Future.successful(errorResponse.XmlResult)
+    saveNotification(request).map { res =>
+      timer.stop()
+      res
     }
   }
+
+  private def saveNotification(request: Request[NodeSeq]): Future[Status] =
+    headerValidator.validateAndExtractMovementNotificationHeaders(request.headers.toSimpleMap) match {
+      case Right(extractedHeaders) =>
+        val savingNotificationResult = for {
+          notificationToSave <- buildNotificationFromResponse(extractedHeaders.conversationId.value, request.body)
+          serviceResponse <- notificationService.save(notificationToSave)
+        } yield handleServiceResponse(serviceResponse)
+
+        savingNotificationResult.recover {
+          case exc: IllegalArgumentException =>
+            logger.error(s"There is a problem during parsing notification with exception: ${exc.getMessage}")
+            Accepted
+        }
+
+      case Left(_) => Future.successful(Accepted)
+    }
+
+  private def buildNotificationFromResponse(
+    conversationId: String,
+    responseXml: NodeSeq
+  ): Future[MovementNotification] =
+    Future(notificationFactory.buildMovementNotification(conversationId, responseXml))
+
+  private def handleServiceResponse(serviceResponse: Either[String, Unit]): Status =
+    serviceResponse match {
+      case Right(_) =>
+        metrics.incrementCounter(movementMetric)
+        Accepted
+      case Left(_) =>
+        InternalServerError
+    }
 
 }

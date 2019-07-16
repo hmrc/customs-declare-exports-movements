@@ -76,7 +76,7 @@ class HeaderValidator {
     result match {
       case Some(request) => Right(request)
       case _ =>
-        Logger.debug("Error validating and extracting headers")
+        Logger.debug("Error validating and extracting movement notification headers")
         Left(ErrorResponse.ErrorInvalidPayload)
     }
   }

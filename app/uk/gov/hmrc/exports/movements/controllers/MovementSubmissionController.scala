@@ -21,7 +21,7 @@ import play.api.Logger
 import play.api.mvc._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.exports.movements.config.AppConfig
-import uk.gov.hmrc.exports.movements.controllers.actions.Authenticator
+import uk.gov.hmrc.exports.movements.controllers.actions.AuthenticatedController
 import uk.gov.hmrc.exports.movements.controllers.util.HeaderValidator
 import uk.gov.hmrc.exports.movements.models.{AuthorizedSubmissionRequest, ErrorResponse, ValidatedHeadersMovementsRequest}
 import uk.gov.hmrc.exports.movements.services.MovementSubmissionService
@@ -38,7 +38,7 @@ class MovementSubmissionController @Inject()(
   headerValidator: HeaderValidator,
   movementsService: MovementSubmissionService,
   cc: ControllerComponents
-) extends Authenticator(authConnector, cc) {
+) extends AuthenticatedController(authConnector, cc) {
 
   def submitMovement(): Action[AnyContent] =
     authorisedAction(bodyParser = xmlOrEmptyBody) { implicit request =>

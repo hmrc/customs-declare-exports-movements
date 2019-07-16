@@ -202,14 +202,12 @@ class NotificationControllerSpec
 
     "there is no EORI number in movement notification header" should {
 
-      "return BadRequest" in {
+      "return Accepted" in {
         withAuthorizedUser()
 
         val result = routePostSaveNotification(headers = noEoriHeaders)
 
-        status(result) must be(BAD_REQUEST)
-        contentAsString(result) must include("<code>BAD_REQUEST</code>")
-        contentAsString(result) must include("<message>Invalid payload</message>")
+        status(result) must be(ACCEPTED)
       }
     }
 

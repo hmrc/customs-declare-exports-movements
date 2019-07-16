@@ -67,7 +67,6 @@ class CustomsInventoryLinkingExportsConnector @Inject()(appConfig: AppConfig, ht
       }
   }
 
-  // TODO: changed from hardcoded values to the ones from object, as it was before set to "Identifier"
   private def headers(eori: String): Seq[(String, String)] = Seq(
     HeaderNames.ACCEPT -> "application/vnd.hmrc.1.0+xml",
     HeaderNames.CONTENT_TYPE -> ContentTypes.XML(Codec.utf_8),

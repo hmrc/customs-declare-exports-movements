@@ -17,7 +17,7 @@
 package unit.uk.gov.hmrc.exports.movements.models.notifications
 
 import org.scalatest.{MustMatchers, WordSpec}
-import uk.gov.hmrc.exports.movements.models.notifications.MovementNotificationFactory
+import uk.gov.hmrc.exports.movements.models.notifications.{MovementNotification, MovementNotificationFactory}
 import utils.MovementsTestData
 import utils.NotificationTestData._
 
@@ -35,7 +35,7 @@ class MovementNotificationFactorySpec extends WordSpec with MustMatchers with Mo
         val resultNotification = notificationFactory.buildMovementNotification(conversationId, xml)
 
         val expectedNotification = exampleRejectInventoryLinkingControlResponseNotification
-        resultNotification must equal(expectedNotification)
+        assertNotificationsEquality(resultNotification, expectedNotification)
       }
     }
 
@@ -45,7 +45,7 @@ class MovementNotificationFactorySpec extends WordSpec with MustMatchers with Mo
         val resultNotification = notificationFactory.buildMovementNotification(conversationId, xml)
 
         val expectedNotification = exampleInventoryLinkingMovementTotalsResponseNotification
-        resultNotification must equal(expectedNotification)
+        assertNotificationsEquality(resultNotification, expectedNotification)
       }
     }
 
@@ -66,9 +66,15 @@ class MovementNotificationFactorySpec extends WordSpec with MustMatchers with Mo
         val resultNotification = notificationFactory.buildMovementNotification("", xml)
 
         val expectedNotification = exampleRejectInventoryLinkingControlResponseNotification.copy(conversationId = "")
-        resultNotification must equal(expectedNotification)
+        assertNotificationsEquality(resultNotification, expectedNotification)
       }
     }
+  }
+
+  private def assertNotificationsEquality(actual: MovementNotification, expected: MovementNotification): Unit = {
+    actual.conversationId must equal(expected.conversationId)
+    actual.errors must equal(expected.errors)
+    actual.payload must equal(expected.payload)
   }
 
 }

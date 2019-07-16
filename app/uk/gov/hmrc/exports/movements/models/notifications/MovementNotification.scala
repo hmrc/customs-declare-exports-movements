@@ -25,27 +25,7 @@ final case class MovementNotification(
   conversationId: String,
   errors: Seq[NotificationError],
   payload: String
-) {
-
-  override def equals(other: Any): Boolean = other match {
-    case other: MovementNotification =>
-      other.canEqual(this) &&
-        this.conversationId == other.conversationId &&
-        this.errors == other.errors &&
-        this.payload == other.payload
-    case _ => false
-  }
-
-  override def hashCode(): Int = {
-    val prime = 31
-    var result = 1
-    result = prime * result + conversationId.hashCode
-    result = prime * result + errors.hashCode
-    result = prime * result + payload.hashCode
-    result
-  }
-
-}
+)
 
 object MovementNotification {
   implicit val format = Json.format[MovementNotification]

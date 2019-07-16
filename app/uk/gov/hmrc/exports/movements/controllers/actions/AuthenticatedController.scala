@@ -28,7 +28,7 @@ import uk.gov.hmrc.play.bootstrap.controller.BackendController
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class Authenticator @Inject()(override val authConnector: AuthConnector, cc: ControllerComponents)(
+class AuthenticatedController @Inject()(override val authConnector: AuthConnector, cc: ControllerComponents)(
   implicit ec: ExecutionContext
 ) extends BackendController(cc) with AuthorisedFunctions {
 
