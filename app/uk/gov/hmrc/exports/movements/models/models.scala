@@ -16,13 +16,10 @@
 
 package uk.gov.hmrc.exports.movements.models
 
-import play.api.libs.json.Json
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
 import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolments}
 
 import scala.xml.Elem
-
-case class CustomsInventoryLinkingResponse(status: Int, conversationId: Option[String])
 
 case class SignedInUser(
   credentials: Credentials,
@@ -54,9 +51,3 @@ object HeaderMissingErrorResponse
     )
 
 object NotificationFailedErrorResponse extends NotifyResponse("INTERNAL_SERVER_ERROR", "Failed to save notifications")
-
-case class ExportsResponse(status: Int, message: String)
-
-object ExportsResponse {
-  implicit val formats = Json.format[ExportsResponse]
-}

@@ -24,12 +24,12 @@ import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core._
-import uk.gov.hmrc.exports.movements.controllers.CustomsHeaderNames
+import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
 import unit.uk.gov.hmrc.exports.movements.base.CustomsExportsBaseSpec
 import utils.MovementsTestData
 
-class ExportControllerSpec extends CustomsExportsBaseSpec with MovementsTestData with ScalaFutures {
+class AuthenticatedControllerSpec extends CustomsExportsBaseSpec with MovementsTestData with ScalaFutures {
   val uri = "/save-movement-submission"
   val xmlBody: String = "<iamXml></iamXml>"
   val fakeXmlRequest: FakeRequest[String] = FakeRequest("POST", uri).withBody(xmlBody)

@@ -22,7 +22,7 @@ import play.api.http.{ContentTypes, HeaderNames}
 import play.api.mvc.Codec
 import play.mvc.Http.Status
 import uk.gov.hmrc.exports.movements.config.AppConfig
-import uk.gov.hmrc.exports.movements.controllers.CustomsHeaderNames
+import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
@@ -43,11 +43,12 @@ class CustomsInventoryLinkingExportsConnector @Inject()(appConfig: AppConfig, ht
     }
 
   //noinspection ConvertExpressionToSAM
-  val responseReader: HttpReads[CustomsInventoryLinkingResponse] =
+  private val responseReader: HttpReads[CustomsInventoryLinkingResponse] =
     new HttpReads[CustomsInventoryLinkingResponse] {
       override def read(method: String, url: String, response: HttpResponse): CustomsInventoryLinkingResponse =
         CustomsInventoryLinkingResponse(response.status, response.header("X-Conversation-ID"))
     }
+
   private[connectors] def post(eori: String, body: String)(
     implicit hc: HeaderCarrier
   ): Future[CustomsInventoryLinkingResponse] = {
@@ -66,7 +67,6 @@ class CustomsInventoryLinkingExportsConnector @Inject()(appConfig: AppConfig, ht
       }
   }
 
-  // TODO: changed from hardcoded values to the ones from object, as it was before set to "Identfier"
   private def headers(eori: String): Seq[(String, String)] = Seq(
     HeaderNames.ACCEPT -> "application/vnd.hmrc.1.0+xml",
     HeaderNames.CONTENT_TYPE -> ContentTypes.XML(Codec.utf_8),

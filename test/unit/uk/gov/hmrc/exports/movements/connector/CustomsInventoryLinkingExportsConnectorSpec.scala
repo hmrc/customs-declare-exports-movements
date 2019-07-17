@@ -21,7 +21,7 @@ import play.api.http.Status.ACCEPTED
 import play.api.mvc.Codec
 import play.mvc.Http.HeaderNames
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
-import uk.gov.hmrc.exports.movements.controllers.CustomsHeaderNames
+import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.logging.Authorization

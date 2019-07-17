@@ -40,7 +40,7 @@ case class AuthorizedSubmissionRequest[A](eori: Eori, request: Request[A])
 
 case class ValidatedHeadersMovementsRequest(ducr: String, movementType: String)
 
-case class MovementNotificationApiRequest(authToken: AuthToken, conversationId: ConversationId, eori: Eori)
+case class MovementNotificationApiRequestHeaders(authToken: AuthToken, conversationId: ConversationId, eori: Eori)
     extends HasEori with HasConversationId with HasAuthToken
 
 case class SubmissionNotificationApiRequest(authToken: AuthToken, conversationId: ConversationId)

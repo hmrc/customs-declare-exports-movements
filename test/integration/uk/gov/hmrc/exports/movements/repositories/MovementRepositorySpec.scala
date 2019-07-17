@@ -20,14 +20,14 @@ import com.codahale.metrics.SharedMetricRegistries
 import org.scalatest.BeforeAndAfter
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.exports.movements.repositories.MovementsRepository
+import uk.gov.hmrc.exports.movements.repositories.MovementSubmissionRepository
 import unit.uk.gov.hmrc.exports.movements.base.CustomsExportsBaseSpec
 import utils.MovementsTestData
 
 class MovementRepositorySpec extends CustomsExportsBaseSpec with MovementsTestData with BeforeAndAfter {
 
   override lazy val app: Application = GuiceApplicationBuilder().build()
-  private val repo = app.injector.instanceOf[MovementsRepository]
+  private val repo = app.injector.instanceOf[MovementSubmissionRepository]
 
   before {
     repo.removeAll().futureValue

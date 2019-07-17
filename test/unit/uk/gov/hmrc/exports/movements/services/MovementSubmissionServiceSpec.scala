@@ -23,7 +23,7 @@ import org.scalatest.BeforeAndAfterEach
 import play.api.http.Status.{ACCEPTED, BAD_REQUEST, INTERNAL_SERVER_ERROR}
 import play.api.mvc.Result
 import uk.gov.hmrc.exports.movements.models.{CustomsInventoryLinkingResponse, MovementSubmissions}
-import uk.gov.hmrc.exports.movements.services.MovementsService
+import uk.gov.hmrc.exports.movements.services.MovementSubmissionService
 import uk.gov.hmrc.http.HeaderCarrier
 import unit.uk.gov.hmrc.exports.movements.base.CustomsExportsBaseSpec
 import utils.MovementsTestData
@@ -31,13 +31,13 @@ import utils.MovementsTestData
 import scala.concurrent.Future
 import scala.xml.NodeSeq
 
-class MovementsServiceSpec extends CustomsExportsBaseSpec with MovementsTestData with BeforeAndAfterEach {
+class MovementSubmissionServiceSpec extends CustomsExportsBaseSpec with MovementsTestData with BeforeAndAfterEach {
 
   override def beforeEach: Unit =
     reset(mockCustomsInventoryLinkingConnector, mockMovementsRepository)
 
   trait SetUp {
-    val testObj = new MovementsService(mockCustomsInventoryLinkingConnector, mockMovementsRepository)
+    val testObj = new MovementSubmissionService(mockCustomsInventoryLinkingConnector, mockMovementsRepository)
     implicit val hc: HeaderCarrier = mock[HeaderCarrier]
   }
 

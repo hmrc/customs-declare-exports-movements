@@ -29,7 +29,7 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.i18n.MessagesApi
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.inject.{bind, Injector}
+import play.api.inject.{Injector, bind}
 import play.api.libs.ws.WSClient
 import play.filters.csrf.{CSRFConfig, CSRFConfigProvider, CSRFFilter}
 import uk.gov.hmrc.auth.core._
@@ -37,7 +37,7 @@ import uk.gov.hmrc.exports.movements.config.AppConfig
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
 import uk.gov.hmrc.exports.movements.metrics.ExportsMetrics
 import uk.gov.hmrc.exports.movements.models.{CustomsInventoryLinkingResponse, MovementSubmissions}
-import uk.gov.hmrc.exports.movements.repositories.{MovementNotificationsRepository, MovementsRepository}
+import uk.gov.hmrc.exports.movements.repositories.{MovementSubmissionRepository, NotificationRepository}
 
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
@@ -48,14 +48,14 @@ trait CustomsExportsBaseSpec
     GuiceApplicationBuilder()
       .overrides(
         bind[AuthConnector].to(mockAuthConnector),
-        bind[MovementNotificationsRepository].to(mockMovementNotificationsRepository),
-        bind[MovementsRepository].to(mockMovementsRepository),
+        bind[NotificationRepository].to(mockMovementNotificationsRepository),
+        bind[MovementSubmissionRepository].to(mockMovementsRepository),
         bind[CustomsInventoryLinkingExportsConnector].to(mockCustomsInventoryLinkingConnector),
         bind[ExportsMetrics].to(mockMetrics)
       )
       .build()
-  val mockMovementNotificationsRepository: MovementNotificationsRepository = mock[MovementNotificationsRepository]
-  val mockMovementsRepository: MovementsRepository = mock[MovementsRepository]
+  val mockMovementNotificationsRepository: NotificationRepository = mock[NotificationRepository]
+  val mockMovementsRepository: MovementSubmissionRepository = mock[MovementSubmissionRepository]
   val mockCustomsInventoryLinkingConnector: CustomsInventoryLinkingExportsConnector =
     mock[CustomsInventoryLinkingExportsConnector]
   val mockMetrics: ExportsMetrics = mock[ExportsMetrics]
@@ -88,8 +88,5 @@ trait CustomsExportsBaseSpec
 
   protected def withMovements(movements: Seq[MovementSubmissions]): OngoingStubbing[Future[Seq[MovementSubmissions]]] =
     when(mockMovementsRepository.findByEori(any())).thenReturn(Future.successful(movements))
-
-  protected def withMovementNotificationSaved(ok: Boolean): OngoingStubbing[Future[Boolean]] =
-    when(mockMovementNotificationsRepository.save(any())).thenReturn(Future.successful(ok))
 
 }

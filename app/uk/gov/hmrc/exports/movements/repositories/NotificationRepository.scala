@@ -17,19 +17,18 @@
 package uk.gov.hmrc.exports.movements.repositories
 
 import javax.inject.{Inject, Singleton}
-import play.api.Logger
 import play.api.libs.json.JsString
 import play.modules.reactivemongo.ReactiveMongoComponent
 import reactivemongo.api.indexes.{Index, IndexType}
 import reactivemongo.bson.BSONObjectID
-import uk.gov.hmrc.exports.movements.models.MovementNotification
+import uk.gov.hmrc.exports.movements.models.notifications.MovementNotification
 import uk.gov.hmrc.mongo.ReactiveRepository
 import uk.gov.hmrc.mongo.json.ReactiveMongoFormats.objectIdFormats
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class MovementNotificationsRepository @Inject()(mc: ReactiveMongoComponent)(implicit ec: ExecutionContext)
+class NotificationRepository @Inject()(mc: ReactiveMongoComponent)(implicit ec: ExecutionContext)
     extends ReactiveRepository[MovementNotification, BSONObjectID](
       "movementNotifications",
       mc.mongoConnector.db,
@@ -38,29 +37,11 @@ class MovementNotificationsRepository @Inject()(mc: ReactiveMongoComponent)(impl
     ) {
 
   override def indexes: Seq[Index] = Seq(
-    Index(Seq("eori" -> IndexType.Ascending), name = Some("eoriIdx")),
-    Index(Seq("conversationId" -> IndexType.Ascending), unique = true, name = Some("conversationIdIdx"))
+    Index(Seq("dateTimeReceived" -> IndexType.Ascending), name = Some("dateTimeReceivedIdx")),
+    Index(Seq("conversationId" -> IndexType.Ascending), name = Some("conversationIdIdx"))
   )
 
-  def findByEori(eori: String): Future[Seq[MovementNotification]] =
-    find("eori" -> JsString(eori))
+  def findNotificationsByConversationId(conversationId: String): Future[Seq[MovementNotification]] =
+    find("conversationId" -> JsString(conversationId))
 
-  def getByConversationId(conversationId: String): Future[Option[MovementNotification]] =
-    find("conversationId" -> JsString(conversationId)).map(_.headOption)
-
-  def getByEoriAndConversationId(eori: String, conversationId: String): Future[Option[MovementNotification]] =
-    find("eori" -> JsString(eori), "conversationId" -> JsString(conversationId))
-      .map(_.headOption)
-
-  def save(movementNotification: MovementNotification): Future[Boolean] =
-    insert(movementNotification).map { res =>
-      if (!res.ok)
-        // $COVERAGE-OFF$Trivial
-        Logger.error(
-          "Error during inserting movement notification " + res.writeErrors
-            .mkString("--")
-        )
-      // $COVERAGE-ON$
-      res.ok
-    }
 }
