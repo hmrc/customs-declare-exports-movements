@@ -20,6 +20,7 @@ import component.uk.gov.hmrc.exports.movements.base.ComponentTestSpec
 import play.api.mvc.{AnyContentAsXml, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import utils.MovementsTestData._
 
 import scala.concurrent.Future
 import scala.xml.XML

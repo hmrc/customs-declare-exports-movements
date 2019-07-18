@@ -30,6 +30,7 @@ import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.CustomsMovementsAPIConfig
 import utils.ExternalServicesConfig.{Host, Port}
+import utils.MovementsTestData._
 import utils.stubs.CustomsMovementsAPIService
 
 import scala.concurrent.Future

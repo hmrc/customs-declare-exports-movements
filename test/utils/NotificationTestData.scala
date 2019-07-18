@@ -20,10 +20,11 @@ import play.api.http.{ContentTypes, HeaderNames}
 import play.api.mvc.Codec
 import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames
 import uk.gov.hmrc.exports.movements.models.notifications.{MovementNotification, NotificationError}
+import utils.MovementsTestData._
 
 import scala.xml.Elem
 
-object NotificationTestData extends MovementsTestData {
+object NotificationTestData {
 
   val dummyAuthToken: String =
     "Bearer BXQ3/Treo4kQCZvVcCqKPlwxRN4RA9Mb5RF8fFxOuwG5WSg+S+Rsp9Nq998Fgg0HeNLXL7NGwEAIzwM6vuA6YYhRQnTRFa" +

@@ -27,9 +27,9 @@ import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
 import unit.uk.gov.hmrc.exports.movements.base.CustomsExportsBaseSpec
-import utils.MovementsTestData
+import utils.MovementsTestData._
 
-class AuthenticatedControllerSpec extends CustomsExportsBaseSpec with MovementsTestData with ScalaFutures {
+class AuthenticatedControllerSpec extends CustomsExportsBaseSpec with ScalaFutures {
   val uri = "/save-movement-submission"
   val xmlBody: String = "<iamXml></iamXml>"
   val fakeXmlRequest: FakeRequest[String] = FakeRequest("POST", uri).withBody(xmlBody)

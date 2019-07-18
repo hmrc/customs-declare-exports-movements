@@ -29,12 +29,7 @@ import uk.gov.hmrc.wco.dec.{DateTimeString, MetaData, Response, ResponseDateTime
 
 import scala.util.Random
 
-trait MovementsTestData {
-  /*
-    The first time an declaration is submitted, we save it with the user's EORI, their LRN (if provided)
-    and the conversation ID we received from the customs-declarations API response, generating a timestamp to record
-    when this occurred.
-   */
+object MovementsTestData {
 
   private lazy val responseFunctionCodes: Seq[String] =
     Seq("01", "02", "03", "05", "06", "07", "08", "09", "10", "11", "16", "17", "18")

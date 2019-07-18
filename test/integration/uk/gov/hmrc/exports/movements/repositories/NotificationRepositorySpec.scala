@@ -23,6 +23,7 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.exports.movements.repositories.NotificationRepository
+import utils.MovementsTestData._
 import utils.NotificationTestData._
 
 import scala.concurrent.ExecutionContext.Implicits.global

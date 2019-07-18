@@ -35,14 +35,13 @@ import uk.gov.hmrc.exports.movements.models.notifications.{MovementNotification,
 import uk.gov.hmrc.exports.movements.services.NotificationService
 import unit.uk.gov.hmrc.exports.movements.base.AuthTestSupport
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
-import utils.MovementsTestData
 import utils.NotificationTestData._
 
 import scala.concurrent.Future
 import scala.xml.Elem
 
 class NotificationControllerSpec
-    extends WordSpec with GuiceOneAppPerSuite with AuthTestSupport with MovementsTestData with BeforeAndAfterEach
+    extends WordSpec with GuiceOneAppPerSuite with AuthTestSupport with BeforeAndAfterEach
     with ScalaFutures with MustMatchers {
 
   val saveMovementNotificationUri = "/customs-declare-exports/notifyMovement"

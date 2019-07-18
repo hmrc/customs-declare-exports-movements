@@ -26,12 +26,12 @@ import uk.gov.hmrc.exports.movements.models.{CustomsInventoryLinkingResponse, Mo
 import uk.gov.hmrc.exports.movements.services.MovementSubmissionService
 import uk.gov.hmrc.http.HeaderCarrier
 import unit.uk.gov.hmrc.exports.movements.base.CustomsExportsBaseSpec
-import utils.MovementsTestData
+import utils.MovementsTestData._
 
 import scala.concurrent.Future
 import scala.xml.NodeSeq
 
-class MovementSubmissionServiceSpec extends CustomsExportsBaseSpec with MovementsTestData with BeforeAndAfterEach {
+class MovementSubmissionServiceSpec extends CustomsExportsBaseSpec with BeforeAndAfterEach {
 
   override def beforeEach: Unit =
     reset(mockCustomsInventoryLinkingConnector, mockMovementsRepository)
