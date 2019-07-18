@@ -28,7 +28,8 @@ import utils.NotificationTestData._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class NotificationRepositorySpec extends WordSpec with GuiceOneAppPerSuite with BeforeAndAfterEach with ScalaFutures with MustMatchers {
+class NotificationRepositorySpec
+    extends WordSpec with GuiceOneAppPerSuite with BeforeAndAfterEach with ScalaFutures with MustMatchers {
 
   override lazy val app: Application = GuiceApplicationBuilder().build()
   private val repo = app.injector.instanceOf[NotificationRepository]

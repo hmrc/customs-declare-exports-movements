@@ -24,7 +24,6 @@ import reactivemongo.api.indexes.{Index, IndexType}
 import reactivemongo.bson.BSONObjectID
 import uk.gov.hmrc.exports.movements.models.MovementSubmissions
 import uk.gov.hmrc.mongo.ReactiveRepository
-import uk.gov.hmrc.mongo.json.ReactiveMongoFormats.objectIdFormats
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -33,8 +32,7 @@ class MovementSubmissionRepository @Inject()(implicit mc: ReactiveMongoComponent
     extends ReactiveRepository[MovementSubmissions, BSONObjectID](
       "movements",
       mc.mongoConnector.db,
-      MovementSubmissions.formats,
-      objectIdFormats
+      MovementSubmissions.formats
     ) {
 
   override def indexes: Seq[Index] = Seq(

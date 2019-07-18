@@ -52,7 +52,7 @@ class MovementRepositorySpec extends CustomsExportsBaseSpec with BeforeAndAfterE
       found.length must be(1)
       found.head.eori must be(validEori)
       found.head.conversationId must be(conversationId)
-      found.head.ucr must be(ucr)
+      found.head.ucr must be(randomUcr)
       // a timestamp has been generated representing "creation time" of case class instance
       found.head.submittedTimestamp must (be >= before).and(be <= System.currentTimeMillis())
     }
@@ -66,7 +66,7 @@ class MovementRepositorySpec extends CustomsExportsBaseSpec with BeforeAndAfterE
 
       found.eori must be(validEori)
       found.conversationId must be(conversationId)
-      found.ucr must be(ucr)
+      found.ucr must be(randomUcr)
       found.submittedTimestamp must (be >= before).and(be <= System.currentTimeMillis())
     }
 
@@ -75,11 +75,11 @@ class MovementRepositorySpec extends CustomsExportsBaseSpec with BeforeAndAfterE
       val submission = movementSubmission()
       repo.save(submission).futureValue must be(true)
 
-      val found = repo.getByEoriAndDucr(validEori, ucr).futureValue.get
+      val found = repo.getByEoriAndDucr(validEori, randomUcr).futureValue.get
 
       found.eori must be(validEori)
       found.conversationId must be(conversationId)
-      found.ucr must be(ucr)
+      found.ucr must be(randomUcr)
       found.submittedTimestamp must (be >= before).and(be <= System.currentTimeMillis())
     }
 
