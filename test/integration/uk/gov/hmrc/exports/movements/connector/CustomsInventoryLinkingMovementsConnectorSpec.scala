@@ -183,5 +183,5 @@ class CustomsInventoryLinkingMovementsConnectorSpec
   }
 
   private def sendValidXml(xml: String): Future[CustomsInventoryLinkingResponse] =
-    connector.sendMovementRequest(declarantEoriValue, xml)
+    connector.sendInventoryLinkingRequest(declarantEoriValue, scala.xml.XML.loadString(xml))
 }

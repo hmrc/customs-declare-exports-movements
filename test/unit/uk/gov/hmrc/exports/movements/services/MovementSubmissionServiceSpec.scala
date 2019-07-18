@@ -55,8 +55,8 @@ class MovementSubmissionServiceSpec extends CustomsExportsBaseSpec with BeforeAn
           .futureValue
 
       result.header.status must be(ACCEPTED)
-      verify(mockCustomsInventoryLinkingConnector, times(1)).sendMovementRequest(any[String], any[String])(any())
-      verify(mockMovementsRepository, times(1)).save(any[MovementSubmissions])
+      verify(mockCustomsInventoryLinkingConnector).sendInventoryLinkingRequest(any[String], any[NodeSeq])(any())
+      verify(mockMovementsRepository).save(any[MovementSubmissions])
     }
 
     "return internal server error when connector succeeds but persist movements fails" in new SetUp() {
@@ -71,7 +71,7 @@ class MovementSubmissionServiceSpec extends CustomsExportsBaseSpec with BeforeAn
           .futureValue
 
       result.header.status must be(INTERNAL_SERVER_ERROR)
-      verify(mockCustomsInventoryLinkingConnector, times(1)).sendMovementRequest(any[String], any[String])(any())
+      verify(mockCustomsInventoryLinkingConnector).sendInventoryLinkingRequest(any[String], any[NodeSeq])(any())
       verifyZeroInteractions(mockMovementsRepository)
     }
 
@@ -86,7 +86,7 @@ class MovementSubmissionServiceSpec extends CustomsExportsBaseSpec with BeforeAn
           .futureValue
 
       result.header.status must be(INTERNAL_SERVER_ERROR)
-      verify(mockCustomsInventoryLinkingConnector, times(1)).sendMovementRequest(any[String], any[String])(any())
+      verify(mockCustomsInventoryLinkingConnector).sendInventoryLinkingRequest(any[String], any[NodeSeq])(any())
       verifyZeroInteractions(mockMovementsRepository)
     }
 
@@ -102,8 +102,8 @@ class MovementSubmissionServiceSpec extends CustomsExportsBaseSpec with BeforeAn
           .futureValue
 
       result.header.status must be(INTERNAL_SERVER_ERROR)
-      verify(mockCustomsInventoryLinkingConnector, times(1)).sendMovementRequest(any[String], any[String])(any())
-      verify(mockMovementsRepository, times(1)).save(any[MovementSubmissions])
+      verify(mockCustomsInventoryLinkingConnector).sendInventoryLinkingRequest(any[String], any[NodeSeq])(any())
+      verify(mockMovementsRepository).save(any[MovementSubmissions])
     }
   }
 

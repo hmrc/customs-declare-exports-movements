@@ -20,9 +20,11 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatest.mockito.MockitoSugar
 import reactivemongo.api.commands.{DefaultWriteResult, WriteResult}
+import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
+import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
 import uk.gov.hmrc.exports.movements.models.notifications.{MovementNotification, MovementNotificationFactory}
-import uk.gov.hmrc.exports.movements.repositories.NotificationRepository
-import uk.gov.hmrc.exports.movements.services.NotificationService
+import uk.gov.hmrc.exports.movements.repositories.{ConsolidationRepository, NotificationRepository}
+import uk.gov.hmrc.exports.movements.services.{ConsolidationService, NotificationService}
 
 import scala.concurrent.Future
 import scala.xml.NodeSeq
@@ -43,15 +45,35 @@ object UnitTestMockBuilder extends MockitoSugar {
     notificationRepositoryMock
   }
 
+  def buildConsolidationRepositoryMock: ConsolidationRepository = {
+    val consolidationRepositoryMock = mock[ConsolidationRepository]
+    when(consolidationRepositoryMock.insert(any())(any())).thenReturn(Future.successful(dummyWriteResultFailure))
+    consolidationRepositoryMock
+  }
+
   def buildNotificationServiceMock: NotificationService = {
     val notificationServiceMock = mock[NotificationService]
     when(notificationServiceMock.save(any[MovementNotification])).thenReturn(Future.successful(Left("")))
     notificationServiceMock
   }
 
+  def buildConsolidationServiceMock: ConsolidationService = {
+    val consolidationServiceMock = mock[ConsolidationService]
+    when(consolidationServiceMock.submitConsolidationRequest(any(), any())(any())).thenReturn(Future.successful(Left("")))
+    consolidationServiceMock
+  }
+
   def buildMovementNotificationFactoryMock: MovementNotificationFactory = {
     val movementNotificationFactoryMock = mock[MovementNotificationFactory]
-    when(movementNotificationFactoryMock.buildMovementNotification(any[String], any[NodeSeq])).thenReturn(MovementNotification.empty)
+    when(movementNotificationFactoryMock.buildMovementNotification(any[String], any[NodeSeq]))
+      .thenReturn(MovementNotification.empty)
     movementNotificationFactoryMock
+  }
+
+  def buildCustomsInventoryLinkingExportsConnectorMock: CustomsInventoryLinkingExportsConnector = {
+    val customsInventoryLinkingExportsConnectorMock = mock[CustomsInventoryLinkingExportsConnector]
+    when(customsInventoryLinkingExportsConnectorMock.sendInventoryLinkingRequest(any(), any())(any()))
+      .thenReturn(Future.successful(CustomsInventoryLinkingResponse.empty))
+    customsInventoryLinkingExportsConnectorMock
   }
 }

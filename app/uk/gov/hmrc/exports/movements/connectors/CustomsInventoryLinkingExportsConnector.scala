@@ -28,16 +28,17 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.xml.NodeSeq
 
 @Singleton
 class CustomsInventoryLinkingExportsConnector @Inject()(appConfig: AppConfig, httpClient: HttpClient)(
   implicit ec: ExecutionContext
 ) {
 
-  def sendMovementRequest(eori: String, body: String)(
+  def sendInventoryLinkingRequest(eori: String, body: NodeSeq)(
     implicit hc: HeaderCarrier
   ): Future[CustomsInventoryLinkingResponse] =
-    post(eori, body).map { response =>
+    post(eori, body.toString).map { response =>
       Logger.debug(s"CUSTOMS_INVENTORY_LINKING_EXPORTS response is --> ${response.toString}")
       response
     }
@@ -46,7 +47,7 @@ class CustomsInventoryLinkingExportsConnector @Inject()(appConfig: AppConfig, ht
   private val responseReader: HttpReads[CustomsInventoryLinkingResponse] =
     new HttpReads[CustomsInventoryLinkingResponse] {
       override def read(method: String, url: String, response: HttpResponse): CustomsInventoryLinkingResponse =
-        CustomsInventoryLinkingResponse(response.status, response.header("X-Conversation-ID"))
+        CustomsInventoryLinkingResponse(response.status, response.header(CustomsHeaderNames.XConversationIdName))
     }
 
   private[connectors] def post(eori: String, body: String)(

@@ -17,3 +17,7 @@
 package uk.gov.hmrc.exports.movements.models
 
 case class CustomsInventoryLinkingResponse(status: Int, conversationId: Option[String])
+
+object CustomsInventoryLinkingResponse {
+  def empty: CustomsInventoryLinkingResponse = CustomsInventoryLinkingResponse(0, None)
+}

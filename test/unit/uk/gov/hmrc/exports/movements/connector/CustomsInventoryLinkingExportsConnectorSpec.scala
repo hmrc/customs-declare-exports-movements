@@ -29,11 +29,12 @@ import unit.uk.gov.hmrc.exports.movements.base.{CustomsExportsBaseSpec, MockHttp
 
 import scala.concurrent.Future
 import scala.util.Random
+import scala.xml.{Elem, NodeSeq}
 
 class CustomsInventoryLinkingExportsConnectorSpec extends CustomsExportsBaseSpec {
 
   val eori = "eori1"
-  val xml = "Xml"
+  val xml: Elem = <Xml></Xml>
 
   val conversationId = "48bba359-7ba9-4cf1-85ba-95db2994638e"
 
@@ -55,7 +56,7 @@ class CustomsInventoryLinkingExportsConnectorSpec extends CustomsExportsBaseSpec
 
   def sendArrival(
     eori: String,
-    body: String,
+    body: NodeSeq,
     hc: HeaderCarrier = HeaderCarrier(authorization = Some(Authorization(Random.alphanumeric.take(255).mkString)))
   )(test: Future[CustomsInventoryLinkingResponse] => Unit): Unit = {
     val expectedUrl: String = s"${appConfig.customsInventoryLinkingExports}${appConfig.sendArrival}"
@@ -70,6 +71,6 @@ class CustomsInventoryLinkingExportsConnectorSpec extends CustomsExportsBaseSpec
       CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId))
     )
     val client = new CustomsInventoryLinkingExportsConnector(appConfig, http)
-    test(client.sendMovementRequest(eori, body)(hc))
+    test(client.sendInventoryLinkingRequest(eori, body)(hc))
   }
 }

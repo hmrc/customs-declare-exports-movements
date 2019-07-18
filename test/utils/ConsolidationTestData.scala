@@ -19,6 +19,8 @@ package utils
 import uk.gov.hmrc.exports.movements.models.consolidations.ConsolidationSubmission
 import utils.MovementsTestData._
 
+import scala.xml.Elem
+
 object ConsolidationTestData {
 
   val consolidationSubmission = ConsolidationSubmission(
@@ -26,5 +28,15 @@ object ConsolidationTestData {
     conversationId = conversationId,
     ucr = randomUcr
   )
+
+  val exampleShutMucrConsolidationRequest: Elem =
+    <inventoryLinkingConsolidationRequest>
+      <messageCode>CST</messageCode>
+      <masterUCR>5GB123456789000-123ABC456DEFIIIII</masterUCR>
+      <ucrBlock>
+        <ucr>4GB123456789000-123ABC456DEFIIIII</ucr>
+        <ucrType>D</ucrType>
+      </ucrBlock>
+    </inventoryLinkingConsolidationRequest>
 
 }
