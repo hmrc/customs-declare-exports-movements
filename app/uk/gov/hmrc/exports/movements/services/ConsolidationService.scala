@@ -27,7 +27,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.util.Try
+import scala.util.{Failure, Try}
 import scala.xml.NodeSeq
 
 @Singleton
@@ -65,6 +65,10 @@ class ConsolidationService @Inject()(
     }
 
   private def extractUcrFromRequest(request: NodeSeq): Option[String] =
-    Try((request \ "ucrBlock" \ "ucr").text).toOption
+    Try((request \ "ucrBlock" \ "ucr").text).recoverWith {
+      case exc =>
+        logger.error(s"Exception thrown during UCR extraction from request: ${exc.getMessage}")
+        Failure(exc)
+    }.toOption
 
 }

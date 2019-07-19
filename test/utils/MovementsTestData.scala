@@ -49,13 +49,13 @@ object MovementsTestData {
   val declarantLrnValue: String = "MyLrnValue1234"
   val declarantUcrValue: String = "MyDucrValue1234"
   val declarantMrnValue: String = "MyMucrValue1234"
-  val contentTypeHeader: (String, String) = CONTENT_TYPE -> ContentTypes.XML(Codec.utf_8)
-  val Valid_X_EORI_IDENTIFIER_HEADER: (String, String) = XEoriIdentifierHeaderName -> declarantEoriValue
-  val Valid_LRN_HEADER: (String, String) = XLrnHeaderName -> declarantLrnValue
-  val Valid_AUTHORIZATION_HEADER: (String, String) = HeaderNames.AUTHORIZATION -> dummyToken
-  val VALID_CONVERSATIONID_HEADER: (String, String) = XConversationIdName -> conversationId
-  val VALID_UCR_HEADER: (String, String) = XUcrHeaderName -> declarantUcrValue
-  val VALID_MOVEMENT_TYPE_HEADER: (String, String) = XMovementTypeHeaderName -> "Arrival"
+  val ContentTypeHeader: (String, String) = CONTENT_TYPE -> ContentTypes.XML(Codec.utf_8)
+  val ValidXEoriIdentifierHeader: (String, String) = XEoriIdentifierHeaderName -> declarantEoriValue
+  val ValidLrnHeader: (String, String) = XLrnHeaderName -> declarantLrnValue
+  val ValidAuthorizationHeader: (String, String) = HeaderNames.AUTHORIZATION -> dummyToken
+  val ValidConversationIdHeader: (String, String) = XConversationIdName -> conversationId
+  val ValidUcrHeader: (String, String) = XUcrHeaderName -> declarantUcrValue
+  val ValidMovementTypeHeader: (String, String) = XMovementTypeHeaderName -> "Arrival"
 
   val now: DateTime = DateTime.now.withZone(DateTimeZone.UTC)
   val dtfOut = DateTimeFormat.forPattern("yyyyMMddHHmmss")
@@ -84,13 +84,14 @@ object MovementsTestData {
 
 
   val ValidHeaders: Map[String, String] = Map(
-    contentTypeHeader,
-    Valid_AUTHORIZATION_HEADER,
-    VALID_CONVERSATIONID_HEADER,
-    Valid_X_EORI_IDENTIFIER_HEADER,
-    Valid_LRN_HEADER,
-    VALID_UCR_HEADER,
-    VALID_MOVEMENT_TYPE_HEADER
+    ContentTypeHeader,
+    ValidAuthorizationHeader,
+    ValidConversationIdHeader,
+    ValidXEoriIdentifierHeader,
+    // This is not needed
+    ValidLrnHeader,
+    ValidUcrHeader,
+    ValidMovementTypeHeader
   )
 
   def dateTimeElement(dateTimeVal: DateTime) =

@@ -15,6 +15,7 @@
  */
 
 package uk.gov.hmrc.exports.movements.models
+
 import play.api.http.ContentTypes
 import play.api.libs.json._
 import play.api.mvc.Result
@@ -38,7 +39,6 @@ object ResponseContents {
 
 case class ErrorResponse(httpStatusCode: Int, errorCode: String, message: String, content: ResponseContents*)
     extends Error {
-  lazy val JsonResult: Result = Status(httpStatusCode)(responseJson).as(ContentTypes.JSON)
 
   private lazy val errorContent = JsObject(Seq("code" -> JsString(errorCode), "message" -> JsString(message)))
 
@@ -47,8 +47,9 @@ case class ErrorResponse(httpStatusCode: Int, errorCode: String, message: String
     case _     => errorContent + ("errors" -> Json.toJson(content))
   }
 
-  lazy val XmlResult: Result =
-    Status(httpStatusCode)(responseXml).as(ContentTypes.XML)
+  lazy val JsonResult: Result = Status(httpStatusCode)(responseJson).as(ContentTypes.JSON)
+
+  lazy val XmlResult: Result = Status(httpStatusCode)(responseXml).as(ContentTypes.XML)
 
   private lazy val responseXml: String =
     "<?xml version='1.0' encoding='UTF-8'?>\n" +
@@ -69,8 +70,7 @@ object ErrorResponse extends HttpStatusCodeShortDescriptions {
   def errorInternalServerError(errorMessage: String): ErrorResponse =
     ErrorResponse(INTERNAL_SERVER_ERROR, InternalServerErrorCode, errorMessage)
 
-  val ErrorUnauthorized =
-    ErrorResponse(UNAUTHORIZED, UnauthorizedCode, "Insufficient Enrolments")
+  val ErrorUnauthorized = ErrorResponse(UNAUTHORIZED, UnauthorizedCode, "Insufficient Enrolments")
 
   val ErrorGenericBadRequest: ErrorResponse = errorBadRequest("Bad Request")
 

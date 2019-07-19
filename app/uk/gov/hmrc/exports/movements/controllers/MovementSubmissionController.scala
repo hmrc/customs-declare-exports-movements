@@ -74,7 +74,7 @@ class MovementSubmissionController @Inject()(
                 Future.successful(ErrorResponse.ErrorInternalServerError.XmlResult)
             }
           case None =>
-            logger.error("body is not xml")
+            logger.error("Body is not xml")
             Future.successful(ErrorResponse.ErrorInvalidPayload.XmlResult)
         }
       case Left(_) =>
