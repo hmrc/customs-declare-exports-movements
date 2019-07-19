@@ -25,6 +25,7 @@ import play.mvc.Http.Status._
 import uk.gov.hmrc.auth.core.Enrolment
 import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.exports.movements.models.Eori
+import utils.MovementsTestData._
 
 trait AuditService extends WireMockRunner {
 
@@ -44,7 +45,7 @@ trait AuditService extends WireMockRunner {
   def verifyNoAuditWrite(): Unit = verify(0, postRequestedFor(urlEqualTo(AuditWriteUrl)))
 }
 
-trait AuthService extends WireMockRunner with MovementsTestData {
+trait AuthService extends WireMockRunner {
   val authUrl = "/auth/authorise"
   private val authUrlMatcher = urlEqualTo(authUrl)
 

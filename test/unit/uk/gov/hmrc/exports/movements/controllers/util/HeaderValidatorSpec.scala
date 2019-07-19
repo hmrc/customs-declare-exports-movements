@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package unit.uk.gov.hmrc.exports.movements.controllers
+package unit.uk.gov.hmrc.exports.movements.controllers.util
 
 import org.scalatest.mockito.MockitoSugar
 import uk.gov.hmrc.exports.movements.controllers.util.HeaderValidator
 import uk.gov.hmrc.exports.movements.models._
 import unit.uk.gov.hmrc.exports.movements.base.UnitSpec
-import utils.MovementsTestData
+import utils.MovementsTestData._
 
-class HeaderValidatorSpec extends UnitSpec with MockitoSugar with MovementsTestData {
+class HeaderValidatorSpec extends UnitSpec with MockitoSugar {
 
   trait SetUp {
     val validator = new HeaderValidator

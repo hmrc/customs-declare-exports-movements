@@ -56,16 +56,11 @@ class NotificationController @Inject()(
 
   private def saveNotification(request: Request[NodeSeq]): Future[Status] =
     headerValidator.validateAndExtractMovementNotificationHeaders(request.headers.toSimpleMap) match {
-      case Right(extractedHeaders) =>
-        val savingNotificationResult = for {
-          notificationToSave <- buildNotificationFromResponse(extractedHeaders.conversationId.value, request.body)
-          serviceResponse <- notificationService.save(notificationToSave)
-        } yield handleServiceResponse(serviceResponse)
 
-        savingNotificationResult.recover {
-          case exc: IllegalArgumentException =>
-            logger.error(s"There is a problem during parsing notification with exception: ${exc.getMessage}")
-            Accepted
+      case Right(extractedHeaders) =>
+        buildNotificationFromResponse(extractedHeaders.conversationId.value, request.body) match {
+          case Some(notificationToSave) => forwardNotificationToService(notificationToSave)
+          case None                     => Future.successful(Accepted)
         }
 
       case Left(_) => Future.successful(Accepted)
@@ -74,11 +69,17 @@ class NotificationController @Inject()(
   private def buildNotificationFromResponse(
     conversationId: String,
     responseXml: NodeSeq
-  ): Future[MovementNotification] =
-    Future(notificationFactory.buildMovementNotification(conversationId, responseXml))
+  ): Option[MovementNotification] =
+    try {
+      Some(notificationFactory.buildMovementNotification(conversationId, responseXml))
+    } catch {
+      case exc: IllegalArgumentException =>
+        logger.error(s"There is a problem during parsing notification with exception: ${exc.getMessage}")
+        None
+    }
 
-  private def handleServiceResponse(serviceResponse: Either[String, Unit]): Status =
-    serviceResponse match {
+  private def forwardNotificationToService(notification: MovementNotification): Future[Status] =
+    notificationService.save(notification).map {
       case Right(_) =>
         metrics.incrementCounter(movementMetric)
         Accepted

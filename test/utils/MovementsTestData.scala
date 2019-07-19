@@ -29,12 +29,7 @@ import uk.gov.hmrc.wco.dec.{DateTimeString, MetaData, Response, ResponseDateTime
 
 import scala.util.Random
 
-trait MovementsTestData {
-  /*
-    The first time an declaration is submitted, we save it with the user's EORI, their LRN (if provided)
-    and the conversation ID we received from the customs-declarations API response, generating a timestamp to record
-    when this occurred.
-   */
+object MovementsTestData {
 
   private lazy val responseFunctionCodes: Seq[String] =
     Seq("01", "02", "03", "05", "06", "07", "08", "09", "10", "11", "16", "17", "18")
@@ -43,7 +38,8 @@ trait MovementsTestData {
   val lrn: Option[String] = Some(randomString(22))
   val mrn: String = "MRN87878797"
   val conversationId: String = "b1c09f1b-7c94-4e90-b754-7c5c71c44e11"
-  val ucr: String = randomString(16)
+  val conversationId_2: String = "b1c09f1b-7c94-4e90-b754-7c5c71c44e22"
+  val randomUcr: String = randomString(16)
   val before: Long = System.currentTimeMillis()
   val authToken: String =
     "BXQ3/Treo4kQCZvVcCqKPlwxRN4RA9Mb5RF8fFxOuwG5WSg+S+Rsp9Nq998Fgg0HeNLXL7NGwEAIzwM6vuA6YYhRQnTRFaBhrp+1w+kVW8g1qHGLYO48QPWuxdM87VMCZqxnCuDoNxVn76vwfgtpNj0+NwfzXV2Zc12L2QGgF9H9KwIkeIPK/mMlBESjue4V]"
@@ -53,13 +49,13 @@ trait MovementsTestData {
   val declarantLrnValue: String = "MyLrnValue1234"
   val declarantUcrValue: String = "MyDucrValue1234"
   val declarantMrnValue: String = "MyMucrValue1234"
-  val contentTypeHeader: (String, String) = CONTENT_TYPE -> ContentTypes.XML(Codec.utf_8)
-  val Valid_X_EORI_IDENTIFIER_HEADER: (String, String) = XEoriIdentifierHeaderName -> declarantEoriValue
-  val Valid_LRN_HEADER: (String, String) = XLrnHeaderName -> declarantLrnValue
-  val Valid_AUTHORIZATION_HEADER: (String, String) = HeaderNames.AUTHORIZATION -> dummyToken
-  val VALID_CONVERSATIONID_HEADER: (String, String) = XConversationIdName -> conversationId
-  val VALID_UCR_HEADER: (String, String) = XUcrHeaderName -> declarantUcrValue
-  val VALID_MOVEMENT_TYPE_HEADER: (String, String) = XMovementTypeHeaderName -> "Arrival"
+  val ContentTypeHeader: (String, String) = CONTENT_TYPE -> ContentTypes.XML(Codec.utf_8)
+  val ValidXEoriIdentifierHeader: (String, String) = XEoriIdentifierHeaderName -> declarantEoriValue
+  val ValidLrnHeader: (String, String) = XLrnHeaderName -> declarantLrnValue
+  val ValidAuthorizationHeader: (String, String) = HeaderNames.AUTHORIZATION -> dummyToken
+  val ValidConversationIdHeader: (String, String) = XConversationIdName -> conversationId
+  val ValidUcrHeader: (String, String) = XUcrHeaderName -> declarantUcrValue
+  val ValidMovementTypeHeader: (String, String) = XMovementTypeHeaderName -> "Arrival"
 
   val now: DateTime = DateTime.now.withZone(DateTimeZone.UTC)
   val dtfOut = DateTimeFormat.forPattern("yyyyMMddHHmmss")
@@ -82,19 +78,20 @@ trait MovementsTestData {
   def movementSubmission(
     eori: String = validEori,
     convoId: String = conversationId,
-    subUcr: String = ucr
+    subUcr: String = randomUcr
   ): MovementSubmissions =
     MovementSubmissions(eori, convoId, subUcr, "Arrival")
 
 
   val ValidHeaders: Map[String, String] = Map(
-    contentTypeHeader,
-    Valid_AUTHORIZATION_HEADER,
-    VALID_CONVERSATIONID_HEADER,
-    Valid_X_EORI_IDENTIFIER_HEADER,
-    Valid_LRN_HEADER,
-    VALID_UCR_HEADER,
-    VALID_MOVEMENT_TYPE_HEADER
+    ContentTypeHeader,
+    ValidAuthorizationHeader,
+    ValidConversationIdHeader,
+    ValidXEoriIdentifierHeader,
+    // This is not needed
+    ValidLrnHeader,
+    ValidUcrHeader,
+    ValidMovementTypeHeader
   )
 
   def dateTimeElement(dateTimeVal: DateTime) =

@@ -18,10 +18,10 @@ package unit.uk.gov.hmrc.exports.movements.models.notifications
 
 import org.scalatest.{MustMatchers, WordSpec}
 import uk.gov.hmrc.exports.movements.models.notifications.{MovementNotification, MovementNotificationFactory}
-import utils.MovementsTestData
+import utils.MovementsTestData._
 import utils.NotificationTestData._
 
-class MovementNotificationFactorySpec extends WordSpec with MustMatchers with MovementsTestData {
+class MovementNotificationFactorySpec extends WordSpec with MustMatchers {
 
   private trait Test {
     val notificationFactory = new MovementNotificationFactory

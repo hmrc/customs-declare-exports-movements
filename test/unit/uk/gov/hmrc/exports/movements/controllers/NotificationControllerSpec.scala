@@ -35,14 +35,13 @@ import uk.gov.hmrc.exports.movements.models.notifications.{MovementNotification,
 import uk.gov.hmrc.exports.movements.services.NotificationService
 import unit.uk.gov.hmrc.exports.movements.base.AuthTestSupport
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
-import utils.MovementsTestData
 import utils.NotificationTestData._
 
 import scala.concurrent.Future
-import scala.xml.Elem
+import scala.xml.{Elem, NodeSeq}
 
 class NotificationControllerSpec
-    extends WordSpec with GuiceOneAppPerSuite with AuthTestSupport with MovementsTestData with BeforeAndAfterEach
+    extends WordSpec with GuiceOneAppPerSuite with AuthTestSupport with BeforeAndAfterEach
     with ScalaFutures with MustMatchers {
 
   val saveMovementNotificationUri = "/customs-declare-exports/notifyMovement"
@@ -91,9 +90,10 @@ class NotificationControllerSpec
         routePostSaveNotification().futureValue
 
         val conversationIdCaptor: ArgumentCaptor[String] = ArgumentCaptor.forClass(classOf[String])
-        val requestBodyCaptor: ArgumentCaptor[Elem] = ArgumentCaptor.forClass(classOf[Elem])
+        val requestBodyCaptor: ArgumentCaptor[NodeSeq] = ArgumentCaptor.forClass(classOf[NodeSeq])
         verify(movementNotificationFactoryMock, times(1))
           .buildMovementNotification(conversationIdCaptor.capture(), requestBodyCaptor.capture())
+
         conversationIdCaptor.getValue must equal(validHeaders(CustomsHeaderNames.XConversationIdName))
         requestBodyCaptor.getValue must equal(exampleRejectInventoryLinkingControlResponseXML)
       }

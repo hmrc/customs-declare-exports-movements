@@ -30,6 +30,7 @@ import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.CustomsMovementsAPIConfig
 import utils.ExternalServicesConfig.{Host, Port}
+import utils.MovementsTestData._
 import utils.stubs.CustomsMovementsAPIService
 
 import scala.concurrent.Future
@@ -182,5 +183,5 @@ class CustomsInventoryLinkingMovementsConnectorSpec
   }
 
   private def sendValidXml(xml: String): Future[CustomsInventoryLinkingResponse] =
-    connector.sendMovementRequest(declarantEoriValue, xml)
+    connector.sendInventoryLinkingRequest(declarantEoriValue, scala.xml.XML.loadString(xml))
 }

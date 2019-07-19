@@ -40,6 +40,8 @@ class MovementSubmissionController @Inject()(
   cc: ControllerComponents
 ) extends AuthenticatedController(authConnector, cc) {
 
+  private val logger = Logger(this.getClass)
+
   def submitMovement(): Action[AnyContent] =
     authorisedAction(bodyParser = xmlOrEmptyBody) { implicit request =>
       implicit val headers: Map[String, String] = request.headers.toSimpleMap
@@ -51,7 +53,9 @@ class MovementSubmissionController @Inject()(
       rq =>
         parse.tolerantXml(rq).map {
           case Right(xml) => Right(AnyContentAsXml(xml))
-          case _          => Left(ErrorResponse.ErrorInvalidPayload.XmlResult)
+          case _          =>
+            logger.error("Invalid xml payload")
+            Left(ErrorResponse.ErrorInvalidPayload.XmlResult)
       }
     )
 
@@ -66,15 +70,15 @@ class MovementSubmissionController @Inject()(
           case Some(xml) =>
             processSave(vhr, xml).recoverWith {
               case e: Exception =>
-                Logger.error(s"problem calling declaration api ${e.getMessage}")
+                logger.error(s"problem calling declaration api ${e.getMessage}")
                 Future.successful(ErrorResponse.ErrorInternalServerError.XmlResult)
             }
           case None =>
-            Logger.error("body is not xml")
+            logger.error("Body is not xml")
             Future.successful(ErrorResponse.ErrorInvalidPayload.XmlResult)
         }
       case Left(_) =>
-        Logger.error("Invalid Headers found")
+        logger.error("Invalid Headers found")
         Future.successful(ErrorResponse.ErrorGenericBadRequest.XmlResult)
     }
 

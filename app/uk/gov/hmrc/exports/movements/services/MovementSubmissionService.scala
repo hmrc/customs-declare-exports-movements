@@ -41,7 +41,7 @@ class MovementSubmissionService @Inject()(
     implicit hc: HeaderCarrier
   ): Future[Result] =
     linkingExportsConnector
-      .sendMovementRequest(eori, xml.toString())
+      .sendInventoryLinkingRequest(eori, xml)
       .flatMap(
         response =>
           response.status match {

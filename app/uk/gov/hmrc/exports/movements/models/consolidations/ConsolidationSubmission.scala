@@ -14,10 +14,19 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.exports.movements.models
+package uk.gov.hmrc.exports.movements.models.consolidations
 
-case class CustomsInventoryLinkingResponse(status: Int, conversationId: Option[String])
+import java.util.UUID
 
-object CustomsInventoryLinkingResponse {
-  def empty: CustomsInventoryLinkingResponse = CustomsInventoryLinkingResponse(0, None)
+import play.api.libs.json.Json
+
+case class ConsolidationSubmission(
+  uuid: String = UUID.randomUUID().toString,
+  eori: String,
+  conversationId: String,
+  ucr: String
+)
+
+object ConsolidationSubmission {
+  implicit val format = Json.format[ConsolidationSubmission]
 }

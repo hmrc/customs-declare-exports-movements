@@ -30,16 +30,17 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.exports.movements.repositories.MovementSubmissionRepository
 import uk.gov.hmrc.exports.movements.services.MovementSubmissionService
 import uk.gov.hmrc.http.HeaderCarrier
+import utils.CustomsMovementsAPIConfig
 import utils.ExternalServicesConfig.{Host, Port}
+import utils.MovementsTestData._
 import utils.stubs.CustomsMovementsAPIService
-import utils.{CustomsMovementsAPIConfig, MovementsTestData}
 
 import scala.concurrent.Future
 import scala.xml.XML
 
 class MovementSubmissionServiceSpec
     extends IntegrationTestSpec with GuiceOneAppPerSuite with MockitoSugar with CustomsMovementsAPIService
-    with MovementsTestData with ScalaFutures {
+    with ScalaFutures {
 
   val mockMovementsRepository: MovementSubmissionRepository = mock[MovementSubmissionRepository]
 

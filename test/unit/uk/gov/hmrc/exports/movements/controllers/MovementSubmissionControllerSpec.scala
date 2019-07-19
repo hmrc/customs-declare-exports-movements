@@ -26,9 +26,9 @@ import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
 import uk.gov.hmrc.exports.movements.models.MovementSubmissions._
 import unit.uk.gov.hmrc.exports.movements.base.CustomsExportsBaseSpec
-import utils.MovementsTestData
+import utils.MovementsTestData._
 
-class MovementSubmissionControllerSpec extends CustomsExportsBaseSpec with MovementsTestData {
+class MovementSubmissionControllerSpec extends CustomsExportsBaseSpec {
   val saveMovementUri = "/save-movement-submission"
 
   val xmlBody: String = randomSubmitDeclaration.toXml
