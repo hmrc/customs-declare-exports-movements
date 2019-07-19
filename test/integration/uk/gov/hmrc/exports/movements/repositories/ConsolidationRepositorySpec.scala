@@ -41,7 +41,7 @@ class ConsolidationRepositorySpec
   }
 
   override def afterEach(): Unit = {
-    super.beforeEach()
+    super.afterEach()
     repo.removeAll().futureValue
   }
 
