@@ -30,9 +30,5 @@ final case class MovementNotification(
 object MovementNotification {
   implicit val format = Json.format[MovementNotification]
 
-  def empty = MovementNotification(
-    conversationId = "",
-    errors = Seq.empty,
-    payload = ""
-  )
+  def empty = MovementNotification(conversationId = "", errors = Seq.empty, payload = "")
 }

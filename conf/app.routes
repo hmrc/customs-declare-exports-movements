@@ -6,6 +6,8 @@ POST        /save-movement-submission                       uk.gov.hmrc.exports.
 
 GET         /movements                                      uk.gov.hmrc.exports.movements.controllers.MovementSubmissionController.getMovements()
 
+GET         /notifications                                  uk.gov.hmrc.exports.movements.controllers.NotificationController.listOfNotifications()
+
 # Movements Consolidations
 
 POST        /consolidations/submit                          uk.gov.hmrc.exports.movements.controllers.MovementConsolidationController.submitMovementConsolidation()

@@ -22,7 +22,9 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{MustMatchers, WordSpec}
 import reactivemongo.api.commands.WriteResult
-import uk.gov.hmrc.exports.movements.repositories.NotificationRepository
+import uk.gov.hmrc.exports.movements.models.{Eori, MovementSubmissions}
+import uk.gov.hmrc.exports.movements.models.notifications.MovementNotification
+import uk.gov.hmrc.exports.movements.repositories.{MovementSubmissionRepository, NotificationRepository}
 import uk.gov.hmrc.exports.movements.services.NotificationService
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
 import utils.NotificationTestData._
@@ -32,27 +34,28 @@ import scala.util.control.NoStackTrace
 
 class NotificationServiceSpec extends WordSpec with MockitoSugar with ScalaFutures with MustMatchers {
 
-  private trait Test {
+  trait Test {
     val notificationRepositoryMock: NotificationRepository = buildNotificationRepositoryMock
-    val notificationService = new NotificationService(notificationRepository = notificationRepositoryMock)
+    val submissionRepositoryMock: MovementSubmissionRepository = mock[MovementSubmissionRepository]
+    val notificationService = new NotificationService(notificationRepositoryMock, submissionRepositoryMock)
   }
 
   "NotificationService on save" when {
 
     "everything works correctly" should {
 
-      "return Either.Right" in new SaveHappyPathTest {
+      "return Either.Right" in new Test {
+        when(notificationRepositoryMock.insert(any())(any())).thenReturn(Future.successful(dummyWriteResultSuccess))
+
         notificationService.save(notification_1).futureValue must equal(Right((): Unit))
       }
 
-      "call NotificationRepository, passing Notification provided" in new SaveHappyPathTest {
+      "call NotificationRepository, passing Notification provided" in new Test {
+        when(notificationRepositoryMock.insert(any())(any())).thenReturn(Future.successful(dummyWriteResultSuccess))
+
         notificationService.save(notification_1).futureValue
 
         verify(notificationRepositoryMock, times(1)).insert(meq(notification_1))(any())
-      }
-
-      trait SaveHappyPathTest extends Test {
-        when(notificationRepositoryMock.insert(any())(any())).thenReturn(Future.successful(dummyWriteResultSuccess))
       }
     }
 
@@ -68,6 +71,29 @@ class NotificationServiceSpec extends WordSpec with MockitoSugar with ScalaFutur
         saveResult must equal(Left(exceptionMsg))
       }
     }
-  }
 
+    "Notification Service" should {
+
+      "return list of notifications" in new Test {
+
+        val firstSubmission = MovementSubmissions("eori1", "convId1", "ucr1", "arrival")
+        val firstNotification =
+          MovementNotification(conversationId = "convId1", errors = Seq.empty, payload = "payload")
+        val secondSubmission = MovementSubmissions("eori1", "convId2", "ucr2", "arrival")
+        val secondNotification =
+          MovementNotification(conversationId = "convId2", errors = Seq.empty, payload = "payload")
+
+        when(submissionRepositoryMock.findByEori(any()))
+          .thenReturn(Future.successful(Seq(firstSubmission, secondSubmission)))
+        when(notificationRepositoryMock.findNotificationsByConversationId("convId1"))
+          .thenReturn(Future.successful(Seq(firstNotification)))
+        when(notificationRepositoryMock.findNotificationsByConversationId("convId2"))
+          .thenReturn(Future.successful(Seq(secondNotification)))
+
+        val notifications = notificationService.getAllNotifications(Eori("eori1")).futureValue
+
+        notifications must be(Seq(firstNotification, secondNotification))
+      }
+    }
+  }
 }

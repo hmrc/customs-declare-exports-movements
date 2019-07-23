@@ -37,6 +37,7 @@ class MovementSubmissionService @Inject()(
   movementsRepo: MovementSubmissionRepository
 ) {
 
+  // TODO return Option[String] as conversation ID and handle result in Controller
   def handleMovementSubmission(eori: String, ucr: String, movementType: String, xml: NodeSeq)(
     implicit hc: HeaderCarrier
   ): Future[Result] =
@@ -66,10 +67,7 @@ class MovementSubmissionService @Inject()(
         }
       )
 
-  def getMovementsByEori(eori: String): Future[Result] =
-    movementsRepo.findByEori(eori).map { movements =>
-      Ok(Json.toJson(movements))
-    }
+  def getMovementsByEori(eori: String): Future[Seq[MovementSubmissions]] = movementsRepo.findByEori(eori)
 
   private def persistMovementsData(
     eori: String,

@@ -18,14 +18,18 @@ package uk.gov.hmrc.exports.movements.services
 
 import javax.inject.{Inject, Singleton}
 import play.api.Logger
+import uk.gov.hmrc.exports.movements.models.Eori
 import uk.gov.hmrc.exports.movements.models.notifications.MovementNotification
-import uk.gov.hmrc.exports.movements.repositories.NotificationRepository
+import uk.gov.hmrc.exports.movements.repositories.{MovementSubmissionRepository, NotificationRepository}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 @Singleton
-class NotificationService @Inject()(notificationRepository: NotificationRepository) {
+class NotificationService @Inject()(
+  notificationRepository: NotificationRepository,
+  submissionRepository: MovementSubmissionRepository
+) {
 
   private val logger = Logger(this.getClass)
 
@@ -39,4 +43,13 @@ class NotificationService @Inject()(notificationRepository: NotificationReposito
           Left(exc.getMessage)
       }
 
+  def getAllNotifications(eori: Eori): Future[Seq[MovementNotification]] =
+    for {
+      submissions <- submissionRepository.findByEori(eori.value)
+      convIds = submissions.map(_.conversationId)
+      notifications <- getNotificationByConversationIds(convIds)
+    } yield notifications
+
+  def getNotificationByConversationIds(conversationIds: Seq[String]): Future[Seq[MovementNotification]] =
+    Future.sequence(conversationIds.map(notificationRepository.findNotificationsByConversationId(_))).map(_.flatten)
 }

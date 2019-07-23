@@ -17,14 +17,12 @@
 package uk.gov.hmrc.exports.movements.models.notifications
 
 import javax.inject.Singleton
-import play.api.Logger
 
 import scala.xml.NodeSeq
 
+//TODO This should be an object. There is not point to need to inject this or have it as class. Changing to object will break a lot of code, so be careful
 @Singleton
 class MovementNotificationFactory {
-
-  private val logger = Logger(this.getClass)
 
   private val inventoryLinkingControlResponseLabel = "inventoryLinkingControlResponse"
   private val inventoryLinkingMovementTotalsResponse = "inventoryLinkingMovementTotalsResponse"
@@ -32,7 +30,7 @@ class MovementNotificationFactory {
   def buildMovementNotification(conversationId: String, xml: NodeSeq): MovementNotification =
     if (xml.nonEmpty) {
       xml.head.label match {
-        case `inventoryLinkingControlResponseLabel` => buildFromKnownResponse(conversationId, xml)
+        case `inventoryLinkingControlResponseLabel`   => buildFromKnownResponse(conversationId, xml)
         case `inventoryLinkingMovementTotalsResponse` => buildFromKnownResponse(conversationId, xml)
         case unknownLabel =>
           throw new IllegalArgumentException(s"Unknown Inventory Linking Response: $unknownLabel")

@@ -82,7 +82,6 @@ object MovementsTestData {
   ): MovementSubmissions =
     MovementSubmissions(eori, convoId, subUcr, "Arrival")
 
-
   val ValidHeaders: Map[String, String] = Map(
     ContentTypeHeader,
     ValidAuthorizationHeader,

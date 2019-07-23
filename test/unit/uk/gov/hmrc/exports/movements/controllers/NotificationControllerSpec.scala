@@ -41,8 +41,8 @@ import scala.concurrent.Future
 import scala.xml.{Elem, NodeSeq}
 
 class NotificationControllerSpec
-    extends WordSpec with GuiceOneAppPerSuite with AuthTestSupport with BeforeAndAfterEach
-    with ScalaFutures with MustMatchers {
+    extends WordSpec with GuiceOneAppPerSuite with AuthTestSupport with BeforeAndAfterEach with ScalaFutures
+    with MustMatchers {
 
   val saveMovementNotificationUri = "/customs-declare-exports/notifyMovement"
 
@@ -210,7 +210,6 @@ class NotificationControllerSpec
         status(result) must be(ACCEPTED)
       }
     }
-
   }
 
   def routePostSaveNotification(
