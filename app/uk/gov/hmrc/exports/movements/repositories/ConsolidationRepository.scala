@@ -27,11 +27,11 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class ConsolidationRepository @Inject()(implicit mc: ReactiveMongoComponent, ec: ExecutionContext)
-  extends ReactiveRepository[ConsolidationSubmission, BSONObjectID](
-    "movementsConsolidations",
-    mc.mongoConnector.db,
-    ConsolidationSubmission.format
-  ) {
+    extends ReactiveRepository[ConsolidationSubmission, BSONObjectID](
+      "movementsConsolidations",
+      mc.mongoConnector.db,
+      ConsolidationSubmission.format
+    ) {
 
   override def indexes: Seq[Index] = Seq(
     Index(Seq("eori" -> IndexType.Ascending), name = Some("eoriIdx")),

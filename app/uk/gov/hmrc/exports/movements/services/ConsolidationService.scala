@@ -50,13 +50,14 @@ class ConsolidationService @Inject()(
           ucr = extractUcrFromRequest(requestXml).getOrElse("")
         )
 
-        consolidationRepository.insert(newSubmission)
+        consolidationRepository
+          .insert(newSubmission)
           .map(_ => Right((): Unit))
           .recover {
-          case exc: Throwable =>
-            logger.error(exc.getMessage)
-            Left(exc.getMessage)
-        }
+            case exc: Throwable =>
+              logger.error(exc.getMessage)
+              Left(exc.getMessage)
+          }
 
       case CustomsInventoryLinkingResponse(status, _) =>
         logger

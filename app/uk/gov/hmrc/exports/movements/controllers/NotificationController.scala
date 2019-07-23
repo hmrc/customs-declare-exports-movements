@@ -19,9 +19,9 @@ package uk.gov.hmrc.exports.movements.controllers
 import com.google.inject.Singleton
 import javax.inject.Inject
 import play.api.Logger
+import play.api.libs.json.Json
 import play.api.mvc._
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.exports.movements.config.AppConfig
 import uk.gov.hmrc.exports.movements.controllers.actions.AuthenticatedController
 import uk.gov.hmrc.exports.movements.controllers.util.HeaderValidator
 import uk.gov.hmrc.exports.movements.metrics.ExportsMetrics
@@ -35,7 +35,6 @@ import scala.xml.NodeSeq
 
 @Singleton
 class NotificationController @Inject()(
-  appConfig: AppConfig,
   authConnector: AuthConnector,
   headerValidator: HeaderValidator,
   metrics: ExportsMetrics,
@@ -86,5 +85,9 @@ class NotificationController @Inject()(
       case Left(_) =>
         InternalServerError
     }
+
+  def listOfNotifications(): Action[AnyContent] = authorisedAction(parse.default) { implicit request =>
+    notificationService.getAllNotifications(request.eori).map(notifications => Ok(Json.toJson(notifications)))
+  }
 
 }

@@ -21,7 +21,6 @@ import reactivemongo.bson.BSONObjectID
 import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
 import uk.gov.hmrc.mongo.json.ReactiveMongoFormats.mongoEntity
 
-
 case class MovementSubmissions(
   eori: String,
   conversationId: String,

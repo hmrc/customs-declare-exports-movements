@@ -18,12 +18,17 @@ package uk.gov.hmrc.exports.movements.controllers
 
 import javax.inject.{Inject, Singleton}
 import play.api.Logger
+import play.api.libs.json.Json
 import play.api.mvc._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.exports.movements.config.AppConfig
 import uk.gov.hmrc.exports.movements.controllers.actions.AuthenticatedController
 import uk.gov.hmrc.exports.movements.controllers.util.HeaderValidator
-import uk.gov.hmrc.exports.movements.models.{AuthorizedSubmissionRequest, ErrorResponse, ValidatedHeadersMovementsRequest}
+import uk.gov.hmrc.exports.movements.models.{
+  AuthorizedSubmissionRequest,
+  ErrorResponse,
+  ValidatedHeadersMovementsRequest
+}
 import uk.gov.hmrc.exports.movements.services.MovementSubmissionService
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -53,7 +58,7 @@ class MovementSubmissionController @Inject()(
       rq =>
         parse.tolerantXml(rq).map {
           case Right(xml) => Right(AnyContentAsXml(xml))
-          case _          =>
+          case _ =>
             logger.error("Invalid xml payload")
             Left(ErrorResponse.ErrorInvalidPayload.XmlResult)
       }
@@ -91,6 +96,6 @@ class MovementSubmissionController @Inject()(
 
   def getMovements: Action[AnyContent] =
     authorisedAction(parse.default) { implicit authorizedRequest =>
-      movementsService.getMovementsByEori(authorizedRequest.eori.value)
+      movementsService.getMovementsByEori(authorizedRequest.eori.value).map(movements => Ok(Json.toJson(movements)))
     }
 }
