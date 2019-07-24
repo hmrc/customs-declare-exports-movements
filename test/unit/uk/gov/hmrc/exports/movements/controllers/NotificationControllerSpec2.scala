@@ -16,6 +16,8 @@
 
 package unit.uk.gov.hmrc.exports.movements.controllers
 
+import akka.actor.ActorSystem
+import akka.stream.ActorMaterializer
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatest.concurrent.ScalaFutures
@@ -52,6 +54,9 @@ class NotificationControllerSpec2
       mockNotificationFactory,
       stubControllerComponents()
     )
+
+    implicit val actorSystem: ActorSystem = ActorSystem()
+    implicit val materializer: ActorMaterializer = ActorMaterializer()
   }
 
   "Notification Controller" should {
@@ -59,11 +64,10 @@ class NotificationControllerSpec2
     "return list of notifications" in new SetUp {
       withAuthorizedUser()
 
-      when(mockSubmissionRepository.findByEori(any())).thenReturn(Future.successful(Seq.empty))
       when(mockNotificationRepository.findNotificationsByConversationId(any())).thenReturn(Future.successful(Seq.empty))
 
       val result =
-        controller.listOfNotifications()(FakeRequest(POST, "").withHeaders(validHeaders.toSeq: _*))
+        controller.listOfNotifications("convId")(FakeRequest(POST, "").withHeaders(validHeaders.toSeq: _*))
 
       status(result) must be(OK)
     }

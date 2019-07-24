@@ -23,7 +23,7 @@ import play.api.mvc.Result
 import play.api.mvc.Results.{Accepted, InternalServerError, Ok}
 import play.mvc.Http.Status.ACCEPTED
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
-import uk.gov.hmrc.exports.movements.models.MovementSubmissions
+import uk.gov.hmrc.exports.movements.models.Submission
 import uk.gov.hmrc.exports.movements.repositories.SubmissionRepository
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -67,7 +67,7 @@ class SubmissionService @Inject()(
         }
       )
 
-  def getMovementsByEori(eori: String): Future[Seq[MovementSubmissions]] = movementsRepo.findByEori(eori)
+  def getMovementsByEori(eori: String): Future[Seq[Submission]] = movementsRepo.findByEori(eori)
 
   private def persistMovementsData(
     eori: String,
@@ -75,7 +75,7 @@ class SubmissionService @Inject()(
     ucr: String,
     movementType: String
   ): Future[Boolean] = {
-    val movementSubmission = MovementSubmissions(eori, conversationId, ucr, movementType)
+    val movementSubmission = Submission(eori, conversationId, ucr, movementType)
     movementsRepo
       .save(movementSubmission)
       .map(res => {

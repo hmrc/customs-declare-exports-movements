@@ -22,7 +22,7 @@ import org.mockito.stubbing.OngoingStubbing
 import org.scalatest.BeforeAndAfterEach
 import play.api.http.Status.{ACCEPTED, BAD_REQUEST, INTERNAL_SERVER_ERROR}
 import play.api.mvc.Result
-import uk.gov.hmrc.exports.movements.models.{CustomsInventoryLinkingResponse, MovementSubmissions}
+import uk.gov.hmrc.exports.movements.models.{CustomsInventoryLinkingResponse, Submission}
 import uk.gov.hmrc.exports.movements.services.SubmissionService
 import uk.gov.hmrc.http.HeaderCarrier
 import unit.uk.gov.hmrc.exports.movements.base.CustomsExportsBaseSpec
@@ -56,7 +56,7 @@ class SubmissionServiceSpec extends CustomsExportsBaseSpec with BeforeAndAfterEa
 
       result.header.status must be(ACCEPTED)
       verify(mockCustomsInventoryLinkingConnector).sendInventoryLinkingRequest(any[String], any[NodeSeq])(any())
-      verify(mockMovementsRepository).save(any[MovementSubmissions])
+      verify(mockMovementsRepository).save(any[Submission])
     }
 
     "return internal server error when connector succeeds but persist movements fails" in new SetUp() {
@@ -103,7 +103,7 @@ class SubmissionServiceSpec extends CustomsExportsBaseSpec with BeforeAndAfterEa
 
       result.header.status must be(INTERNAL_SERVER_ERROR)
       verify(mockCustomsInventoryLinkingConnector).sendInventoryLinkingRequest(any[String], any[NodeSeq])(any())
-      verify(mockMovementsRepository).save(any[MovementSubmissions])
+      verify(mockMovementsRepository).save(any[Submission])
     }
   }
 

@@ -27,7 +27,7 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.exports.movements.models.MovementSubmissions
+import uk.gov.hmrc.exports.movements.models.Submission
 import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, SubmissionRepository}
 import utils.ExternalServicesConfig.{Host, Port}
 import utils.stubs.CustomsMovementsAPIService
@@ -64,7 +64,7 @@ trait ComponentTestSpec
     when(mockMovementSubmissionsRepository.save(any())).thenReturn(Future.successful(saveResponse))
 
   def verifyMovementSubmissionRepositoryIsCorrectlyCalled(eoriValue: String) {
-    val submissionCaptor: ArgumentCaptor[MovementSubmissions] = ArgumentCaptor.forClass(classOf[MovementSubmissions])
+    val submissionCaptor: ArgumentCaptor[Submission] = ArgumentCaptor.forClass(classOf[Submission])
     verify(mockMovementSubmissionsRepository).save(submissionCaptor.capture())
     submissionCaptor.getValue.eori shouldBe eoriValue
   }
