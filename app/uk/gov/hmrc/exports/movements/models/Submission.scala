@@ -21,7 +21,7 @@ import reactivemongo.bson.BSONObjectID
 import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
 import uk.gov.hmrc.mongo.json.ReactiveMongoFormats.mongoEntity
 
-case class MovementSubmissions(
+case class Submission(
   eori: String,
   conversationId: String,
   ucr: String,
@@ -31,9 +31,9 @@ case class MovementSubmissions(
   status: Option[String] = Some("Pending")
 )
 
-object MovementSubmissions {
+object Submission {
   implicit val objectIdFormats = ReactiveMongoFormats.objectIdFormats
   implicit val formats = mongoEntity {
-    Json.format[MovementSubmissions]
+    Json.format[Submission]
   }
 }

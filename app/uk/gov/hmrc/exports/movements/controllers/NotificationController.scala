@@ -83,8 +83,7 @@ class NotificationController @Inject()(
         InternalServerError
     }
 
-  def listOfNotifications(): Action[AnyContent] = authorisedAction(parse.default) { implicit request =>
-    notificationService.getAllNotifications(request.eori).map(notifications => Ok(Json.toJson(notifications)))
+  def listOfNotifications(conversationId: String): Action[AnyContent] = authorisedAction(parse.default) { implicit request =>
+    notificationService.getAllNotifications(conversationId).map(notifications => Ok(Json.toJson(notifications)))
   }
-
 }

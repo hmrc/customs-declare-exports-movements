@@ -22,7 +22,7 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{MustMatchers, WordSpec}
 import reactivemongo.api.commands.WriteResult
-import uk.gov.hmrc.exports.movements.models.{Eori, MovementSubmissions}
+import uk.gov.hmrc.exports.movements.models.{Eori, Submission}
 import uk.gov.hmrc.exports.movements.models.notifications.Notification
 import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, SubmissionRepository}
 import uk.gov.hmrc.exports.movements.services.NotificationService
@@ -74,23 +74,17 @@ class NotificationServiceSpec extends WordSpec with MockitoSugar with ScalaFutur
 
     "Notification Service" should {
 
-      "return list of notifications" in new Test {
+      "return list of notifications for specific conversation id" in new Test {
 
-        val firstSubmission = MovementSubmissions("eori1", "convId1", "ucr1", "arrival")
         val firstNotification =
-          Notification(conversationId = "convId1", errors = Seq.empty, payload = "payload")
-        val secondSubmission = MovementSubmissions("eori1", "convId2", "ucr2", "arrival")
+          Notification(conversationId = "convId", errors = Seq.empty, payload = "first payload")
         val secondNotification =
-          Notification(conversationId = "convId2", errors = Seq.empty, payload = "payload")
+          Notification(conversationId = "convId", errors = Seq.empty, payload = "second payload")
 
-        when(submissionRepositoryMock.findByEori(any()))
-          .thenReturn(Future.successful(Seq(firstSubmission, secondSubmission)))
-        when(notificationRepositoryMock.findNotificationsByConversationId("convId1"))
-          .thenReturn(Future.successful(Seq(firstNotification)))
-        when(notificationRepositoryMock.findNotificationsByConversationId("convId2"))
-          .thenReturn(Future.successful(Seq(secondNotification)))
+        when(notificationRepositoryMock.findNotificationsByConversationId("convId"))
+          .thenReturn(Future.successful(Seq(firstNotification, secondNotification)))
 
-        val notifications = notificationService.getAllNotifications(Eori("eori1")).futureValue
+        val notifications = notificationService.getAllNotifications("convId").futureValue
 
         notifications must be(Seq(firstNotification, secondNotification))
       }

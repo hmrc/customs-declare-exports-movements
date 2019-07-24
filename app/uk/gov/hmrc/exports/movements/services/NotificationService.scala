@@ -18,7 +18,6 @@ package uk.gov.hmrc.exports.movements.services
 
 import javax.inject.{Inject, Singleton}
 import play.api.Logger
-import uk.gov.hmrc.exports.movements.models.Eori
 import uk.gov.hmrc.exports.movements.models.notifications.Notification
 import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, SubmissionRepository}
 
@@ -43,13 +42,6 @@ class NotificationService @Inject()(
           Left(exc.getMessage)
       }
 
-  def getAllNotifications(eori: Eori): Future[Seq[Notification]] =
-    for {
-      submissions <- submissionRepository.findByEori(eori.value)
-      convIds = submissions.map(_.conversationId)
-      notifications <- getNotificationByConversationIds(convIds)
-    } yield notifications
-
-  def getNotificationByConversationIds(conversationIds: Seq[String]): Future[Seq[Notification]] =
-    Future.sequence(conversationIds.map(notificationRepository.findNotificationsByConversationId(_))).map(_.flatten)
+  def getAllNotifications(conversationId: String): Future[Seq[Notification]] =
+    notificationRepository.findNotificationsByConversationId(conversationId)
 }

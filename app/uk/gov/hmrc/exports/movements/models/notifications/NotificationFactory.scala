@@ -32,8 +32,7 @@ class NotificationFactory {
       xml.head.label match {
         case `inventoryLinkingControlResponseLabel`   => buildFromKnownResponse(conversationId, xml)
         case `inventoryLinkingMovementTotalsResponse` => buildFromKnownResponse(conversationId, xml)
-        case unknownLabel =>
-          throw new IllegalArgumentException(s"Unknown Inventory Linking Response: $unknownLabel")
+        case unknownLabel => throw new IllegalArgumentException(s"Unknown Inventory Linking Response: $unknownLabel")
       }
     } else throw new IllegalArgumentException(s"Cannot find root element in: $xml")
 

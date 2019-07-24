@@ -79,8 +79,8 @@ object MovementsTestData {
     eori: String = validEori,
     convoId: String = conversationId,
     subUcr: String = randomUcr
-  ): MovementSubmissions =
-    MovementSubmissions(eori, convoId, subUcr, "Arrival")
+  ): Submission =
+    Submission(eori, convoId, subUcr, "Arrival")
 
   val ValidHeaders: Map[String, String] = Map(
     ContentTypeHeader,

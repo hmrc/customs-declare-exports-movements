@@ -22,17 +22,17 @@ import play.api.libs.json.JsString
 import play.modules.reactivemongo.ReactiveMongoComponent
 import reactivemongo.api.indexes.{Index, IndexType}
 import reactivemongo.bson.BSONObjectID
-import uk.gov.hmrc.exports.movements.models.MovementSubmissions
+import uk.gov.hmrc.exports.movements.models.Submission
 import uk.gov.hmrc.mongo.ReactiveRepository
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class SubmissionRepository @Inject()(implicit mc: ReactiveMongoComponent, ec: ExecutionContext)
-    extends ReactiveRepository[MovementSubmissions, BSONObjectID](
+    extends ReactiveRepository[Submission, BSONObjectID](
       "movements",
       mc.mongoConnector.db,
-      MovementSubmissions.formats
+      Submission.formats
     ) {
 
   override def indexes: Seq[Index] = Seq(
@@ -40,16 +40,16 @@ class SubmissionRepository @Inject()(implicit mc: ReactiveMongoComponent, ec: Ex
     Index(Seq("conversationId" -> IndexType.Ascending), unique = true, name = Some("conversationIdIdx"))
   )
 
-  def findByEori(eori: String): Future[Seq[MovementSubmissions]] =
+  def findByEori(eori: String): Future[Seq[Submission]] =
     find("eori" -> JsString(eori))
 
-  def getByConversationId(conversationId: String): Future[Option[MovementSubmissions]] =
+  def getByConversationId(conversationId: String): Future[Option[Submission]] =
     find("conversationId" -> JsString(conversationId)).map(_.headOption)
 
-  def getByEoriAndDucr(eori: String, ducr: String): Future[Option[MovementSubmissions]] =
+  def getByEoriAndDucr(eori: String, ducr: String): Future[Option[Submission]] =
     find("eori" -> JsString(eori), "ucr" -> JsString(ducr)).map(_.headOption)
 
-  def save(movementSubmission: MovementSubmissions): Future[Boolean] =
+  def save(movementSubmission: Submission): Future[Boolean] =
     insert(movementSubmission).map { res =>
       if (!res.ok)
         // $COVERAGE-OFF$Trivial

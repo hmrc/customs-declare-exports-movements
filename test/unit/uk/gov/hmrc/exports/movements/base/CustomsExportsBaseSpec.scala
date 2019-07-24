@@ -36,7 +36,7 @@ import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.exports.movements.config.AppConfig
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
 import uk.gov.hmrc.exports.movements.metrics.ExportsMetrics
-import uk.gov.hmrc.exports.movements.models.{CustomsInventoryLinkingResponse, MovementSubmissions}
+import uk.gov.hmrc.exports.movements.models.{CustomsInventoryLinkingResponse, Submission}
 import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, SubmissionRepository}
 
 import scala.concurrent.duration._
@@ -86,7 +86,7 @@ trait CustomsExportsBaseSpec
   protected def withDataSaved(ok: Boolean): OngoingStubbing[Future[Boolean]] =
     when(mockMovementsRepository.save(any())).thenReturn(Future.successful(ok))
 
-  protected def withMovements(movements: Seq[MovementSubmissions]): OngoingStubbing[Future[Seq[MovementSubmissions]]] =
+  protected def withMovements(movements: Seq[Submission]): OngoingStubbing[Future[Seq[Submission]]] =
     when(mockMovementsRepository.findByEori(any())).thenReturn(Future.successful(movements))
 
 }
