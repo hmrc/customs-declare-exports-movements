@@ -22,11 +22,11 @@ import org.scalatest.mockito.MockitoSugar
 import reactivemongo.api.commands.{DefaultWriteResult, WriteResult}
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
 import uk.gov.hmrc.exports.movements.models.{CustomsInventoryLinkingResponse, Eori}
-import uk.gov.hmrc.exports.movements.models.notifications.{MovementNotification, MovementNotificationFactory}
+import uk.gov.hmrc.exports.movements.models.notifications.{Notification, NotificationFactory}
 import uk.gov.hmrc.exports.movements.repositories.{
   ConsolidationRepository,
-  MovementSubmissionRepository,
-  NotificationRepository
+  NotificationRepository,
+  SubmissionRepository
 }
 import uk.gov.hmrc.exports.movements.services.{ConsolidationService, NotificationService}
 
@@ -43,7 +43,7 @@ object UnitTestMockBuilder extends MockitoSugar {
   def buildNotificationRepositoryMock: NotificationRepository = {
     val notificationRepositoryMock = mock[NotificationRepository]
 
-    when(notificationRepositoryMock.insert(any[MovementNotification])(any()))
+    when(notificationRepositoryMock.insert(any[Notification])(any()))
       .thenReturn(Future.successful(dummyWriteResultFailure))
     when(notificationRepositoryMock.findNotificationsByConversationId(any[String]))
       .thenReturn(Future.successful(Seq.empty))
@@ -62,7 +62,7 @@ object UnitTestMockBuilder extends MockitoSugar {
   def buildNotificationServiceMock: NotificationService = {
     val notificationServiceMock = mock[NotificationService]
 
-    when(notificationServiceMock.save(any[MovementNotification])).thenReturn(Future.successful(Left("")))
+    when(notificationServiceMock.save(any[Notification])).thenReturn(Future.successful(Left("")))
 
     notificationServiceMock
   }
@@ -76,11 +76,11 @@ object UnitTestMockBuilder extends MockitoSugar {
     consolidationServiceMock
   }
 
-  def buildMovementNotificationFactoryMock: MovementNotificationFactory = {
-    val movementNotificationFactoryMock = mock[MovementNotificationFactory]
+  def buildMovementNotificationFactoryMock: NotificationFactory = {
+    val movementNotificationFactoryMock = mock[NotificationFactory]
 
     when(movementNotificationFactoryMock.buildMovementNotification(any[String], any[NodeSeq]))
-      .thenReturn(MovementNotification.empty)
+      .thenReturn(Notification.empty)
 
     movementNotificationFactoryMock
   }

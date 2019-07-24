@@ -40,7 +40,7 @@ import utils.ConsolidationTestData._
 import scala.concurrent.Future
 import scala.xml.{Elem, NodeSeq}
 
-class MovementConsolidationControllerSpec
+class ConsolidationControllerSpec
     extends WordSpec with GuiceOneAppPerSuite with AuthTestSupport with BeforeAndAfterEach with ScalaFutures
     with MustMatchers {
 

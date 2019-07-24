@@ -21,7 +21,7 @@ import play.api.libs.json.JsString
 import play.modules.reactivemongo.ReactiveMongoComponent
 import reactivemongo.api.indexes.{Index, IndexType}
 import reactivemongo.bson.BSONObjectID
-import uk.gov.hmrc.exports.movements.models.notifications.MovementNotification
+import uk.gov.hmrc.exports.movements.models.notifications.Notification
 import uk.gov.hmrc.mongo.ReactiveRepository
 import uk.gov.hmrc.mongo.json.ReactiveMongoFormats.objectIdFormats
 
@@ -29,10 +29,10 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class NotificationRepository @Inject()(mc: ReactiveMongoComponent)(implicit ec: ExecutionContext)
-    extends ReactiveRepository[MovementNotification, BSONObjectID](
+    extends ReactiveRepository[Notification, BSONObjectID](
       "movementNotifications",
       mc.mongoConnector.db,
-      MovementNotification.format,
+      Notification.format,
       objectIdFormats
     ) {
 
@@ -41,7 +41,7 @@ class NotificationRepository @Inject()(mc: ReactiveMongoComponent)(implicit ec: 
     Index(Seq("conversationId" -> IndexType.Ascending), name = Some("conversationIdIdx"))
   )
 
-  def findNotificationsByConversationId(conversationId: String): Future[Seq[MovementNotification]] =
+  def findNotificationsByConversationId(conversationId: String): Future[Seq[Notification]] =
     find("conversationId" -> JsString(conversationId))
 
 }

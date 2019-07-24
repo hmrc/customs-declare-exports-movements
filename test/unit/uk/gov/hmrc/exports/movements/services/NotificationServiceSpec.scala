@@ -23,8 +23,8 @@ import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{MustMatchers, WordSpec}
 import reactivemongo.api.commands.WriteResult
 import uk.gov.hmrc.exports.movements.models.{Eori, MovementSubmissions}
-import uk.gov.hmrc.exports.movements.models.notifications.MovementNotification
-import uk.gov.hmrc.exports.movements.repositories.{MovementSubmissionRepository, NotificationRepository}
+import uk.gov.hmrc.exports.movements.models.notifications.Notification
+import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, SubmissionRepository}
 import uk.gov.hmrc.exports.movements.services.NotificationService
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
 import utils.NotificationTestData._
@@ -36,7 +36,7 @@ class NotificationServiceSpec extends WordSpec with MockitoSugar with ScalaFutur
 
   trait Test {
     val notificationRepositoryMock: NotificationRepository = buildNotificationRepositoryMock
-    val submissionRepositoryMock: MovementSubmissionRepository = mock[MovementSubmissionRepository]
+    val submissionRepositoryMock: SubmissionRepository = mock[SubmissionRepository]
     val notificationService = new NotificationService(notificationRepositoryMock, submissionRepositoryMock)
   }
 
@@ -78,10 +78,10 @@ class NotificationServiceSpec extends WordSpec with MockitoSugar with ScalaFutur
 
         val firstSubmission = MovementSubmissions("eori1", "convId1", "ucr1", "arrival")
         val firstNotification =
-          MovementNotification(conversationId = "convId1", errors = Seq.empty, payload = "payload")
+          Notification(conversationId = "convId1", errors = Seq.empty, payload = "payload")
         val secondSubmission = MovementSubmissions("eori1", "convId2", "ucr2", "arrival")
         val secondNotification =
-          MovementNotification(conversationId = "convId2", errors = Seq.empty, payload = "payload")
+          Notification(conversationId = "convId2", errors = Seq.empty, payload = "payload")
 
         when(submissionRepositoryMock.findByEori(any()))
           .thenReturn(Future.successful(Seq(firstSubmission, secondSubmission)))

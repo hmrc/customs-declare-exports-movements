@@ -25,8 +25,8 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.exports.movements.controllers.NotificationController
 import uk.gov.hmrc.exports.movements.controllers.util.HeaderValidator
-import uk.gov.hmrc.exports.movements.models.notifications.MovementNotificationFactory
-import uk.gov.hmrc.exports.movements.repositories.{MovementSubmissionRepository, NotificationRepository}
+import uk.gov.hmrc.exports.movements.models.notifications.NotificationFactory
+import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, SubmissionRepository}
 import uk.gov.hmrc.exports.movements.services.NotificationService
 import unit.uk.gov.hmrc.exports.movements.MockMetrics
 import unit.uk.gov.hmrc.exports.movements.base.AuthTestSupport
@@ -40,9 +40,9 @@ class NotificationControllerSpec2
   trait SetUp {
     val mockHeaderValidator = mock[HeaderValidator]
     val mockNotificationRepository = mock[NotificationRepository]
-    val mockSubmissionRepository = mock[MovementSubmissionRepository]
+    val mockSubmissionRepository = mock[SubmissionRepository]
     val mockNotificationService = new NotificationService(mockNotificationRepository, mockSubmissionRepository)
-    val mockNotificationFactory = mock[MovementNotificationFactory]
+    val mockNotificationFactory = mock[NotificationFactory]
 
     val controller = new NotificationController(
       mockAuthConnector,

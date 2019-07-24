@@ -17,14 +17,14 @@
 package unit.uk.gov.hmrc.exports.movements.models.notifications
 
 import org.scalatest.{MustMatchers, WordSpec}
-import uk.gov.hmrc.exports.movements.models.notifications.{MovementNotification, MovementNotificationFactory}
+import uk.gov.hmrc.exports.movements.models.notifications.{Notification, NotificationFactory}
 import utils.MovementsTestData._
 import utils.NotificationTestData._
 
-class MovementNotificationFactorySpec extends WordSpec with MustMatchers {
+class NotificationFactorySpec extends WordSpec with MustMatchers {
 
   private trait Test {
-    val notificationFactory = new MovementNotificationFactory
+    val notificationFactory = new NotificationFactory
   }
 
   "MovementNotificationFactory on buildMovementNotification(ConversationId, NodeSeq)" when {
@@ -71,7 +71,7 @@ class MovementNotificationFactorySpec extends WordSpec with MustMatchers {
     }
   }
 
-  private def assertNotificationsEquality(actual: MovementNotification, expected: MovementNotification): Unit = {
+  private def assertNotificationsEquality(actual: Notification, expected: Notification): Unit = {
     actual.conversationId must equal(expected.conversationId)
     actual.errors must equal(expected.errors)
     actual.payload must equal(expected.payload)

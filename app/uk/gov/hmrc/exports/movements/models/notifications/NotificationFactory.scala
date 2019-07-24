@@ -22,12 +22,12 @@ import scala.xml.NodeSeq
 
 //TODO This should be an object. There is not point to need to inject this or have it as class. Changing to object will break a lot of code, so be careful
 @Singleton
-class MovementNotificationFactory {
+class NotificationFactory {
 
   private val inventoryLinkingControlResponseLabel = "inventoryLinkingControlResponse"
   private val inventoryLinkingMovementTotalsResponse = "inventoryLinkingMovementTotalsResponse"
 
-  def buildMovementNotification(conversationId: String, xml: NodeSeq): MovementNotification =
+  def buildMovementNotification(conversationId: String, xml: NodeSeq): Notification =
     if (xml.nonEmpty) {
       xml.head.label match {
         case `inventoryLinkingControlResponseLabel`   => buildFromKnownResponse(conversationId, xml)
@@ -37,8 +37,8 @@ class MovementNotificationFactory {
       }
     } else throw new IllegalArgumentException(s"Cannot find root element in: $xml")
 
-  private def buildFromKnownResponse(conversationId: String, xml: NodeSeq): MovementNotification =
-    MovementNotification(conversationId = conversationId, errors = buildErrors(xml), payload = xml.toString)
+  private def buildFromKnownResponse(conversationId: String, xml: NodeSeq): Notification =
+    Notification(conversationId = conversationId, errors = buildErrors(xml), payload = xml.toString)
 
   private def buildErrors(responseXml: NodeSeq): Seq[NotificationError] =
     if ((responseXml \ "error").nonEmpty) {

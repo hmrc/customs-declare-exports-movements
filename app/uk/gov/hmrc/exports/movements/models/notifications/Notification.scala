@@ -20,15 +20,15 @@ import java.time.LocalDateTime
 
 import play.api.libs.json.Json
 
-final case class MovementNotification(
+final case class Notification(
   dateTimeReceived: LocalDateTime = LocalDateTime.now(),
   conversationId: String,
   errors: Seq[NotificationError],
   payload: String
 )
 
-object MovementNotification {
-  implicit val format = Json.format[MovementNotification]
+object Notification {
+  implicit val format = Json.format[Notification]
 
-  def empty = MovementNotification(conversationId = "", errors = Seq.empty, payload = "")
+  def empty = Notification(conversationId = "", errors = Seq.empty, payload = "")
 }

@@ -19,7 +19,7 @@ package utils
 import play.api.http.{ContentTypes, HeaderNames}
 import play.api.mvc.Codec
 import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames
-import uk.gov.hmrc.exports.movements.models.notifications.{MovementNotification, NotificationError}
+import uk.gov.hmrc.exports.movements.models.notifications.{Notification, NotificationError}
 import utils.MovementsTestData._
 
 import scala.xml.Elem
@@ -32,7 +32,7 @@ object NotificationTestData {
 
   val movementUri = "/customs-declare-exports/notifyMovement"
 
-  val exampleRejectInventoryLinkingControlResponseNotification: MovementNotification = MovementNotification(
+  val exampleRejectInventoryLinkingControlResponseNotification: Notification = Notification(
     conversationId = conversationId,
     errors = Seq(NotificationError("01"), NotificationError("21")),
     payload = exampleRejectInventoryLinkingControlResponseXML.toString()
@@ -55,7 +55,7 @@ object NotificationTestData {
       </error>
     </inventoryLinkingControlResponse>
 
-  val exampleInventoryLinkingMovementTotalsResponseNotification: MovementNotification = MovementNotification(
+  val exampleInventoryLinkingMovementTotalsResponseNotification: Notification = Notification(
     conversationId = conversationId,
     errors = Seq.empty,
     payload = exampleInventoryLinkingMovementTotalsResponseXML.toString()
@@ -124,8 +124,8 @@ object NotificationTestData {
   val payload_1 = TestDataHelper.randomAlphanumericString(payloadExemplaryLength)
   val payload_2 = TestDataHelper.randomAlphanumericString(payloadExemplaryLength)
 
-  val notification_1: MovementNotification =
-    MovementNotification(conversationId = conversationId, errors = errors, payload = payload_1)
-  val notification_2: MovementNotification =
-    MovementNotification(conversationId = conversationId, errors = errors, payload = payload_2)
+  val notification_1: Notification =
+    Notification(conversationId = conversationId, errors = errors, payload = payload_1)
+  val notification_2: Notification =
+    Notification(conversationId = conversationId, errors = errors, payload = payload_2)
 }

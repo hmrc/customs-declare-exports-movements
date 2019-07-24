@@ -28,7 +28,7 @@ import uk.gov.hmrc.mongo.ReactiveRepository
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class MovementSubmissionRepository @Inject()(implicit mc: ReactiveMongoComponent, ec: ExecutionContext)
+class SubmissionRepository @Inject()(implicit mc: ReactiveMongoComponent, ec: ExecutionContext)
     extends ReactiveRepository[MovementSubmissions, BSONObjectID](
       "movements",
       mc.mongoConnector.db,
