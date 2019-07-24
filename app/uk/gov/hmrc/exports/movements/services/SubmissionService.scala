@@ -24,7 +24,7 @@ import play.api.mvc.Results.{Accepted, InternalServerError, Ok}
 import play.mvc.Http.Status.ACCEPTED
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
 import uk.gov.hmrc.exports.movements.models.MovementSubmissions
-import uk.gov.hmrc.exports.movements.repositories.MovementSubmissionRepository
+import uk.gov.hmrc.exports.movements.repositories.SubmissionRepository
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -32,9 +32,9 @@ import scala.concurrent.Future
 import scala.xml.NodeSeq
 
 @Singleton
-class MovementSubmissionService @Inject()(
+class SubmissionService @Inject()(
   linkingExportsConnector: CustomsInventoryLinkingExportsConnector,
-  movementsRepo: MovementSubmissionRepository
+  movementsRepo: SubmissionRepository
 ) {
 
   // TODO return Option[String] as conversation ID and handle result in Controller

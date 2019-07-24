@@ -32,7 +32,7 @@ import scala.concurrent.Future
 import scala.xml.NodeSeq
 
 @Singleton
-class MovementConsolidationController @Inject()(
+class ConsolidationController @Inject()(
   appConfig: AppConfig,
   authConnector: AuthConnector,
   headerValidator: HeaderValidator,

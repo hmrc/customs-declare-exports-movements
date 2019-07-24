@@ -20,14 +20,14 @@ import com.codahale.metrics.SharedMetricRegistries
 import org.scalatest.{BeforeAndAfterEach, MustMatchers}
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.exports.movements.repositories.MovementSubmissionRepository
+import uk.gov.hmrc.exports.movements.repositories.SubmissionRepository
 import unit.uk.gov.hmrc.exports.movements.base.CustomsExportsBaseSpec
 import utils.MovementsTestData._
 
 class MovementRepositorySpec extends CustomsExportsBaseSpec with BeforeAndAfterEach with MustMatchers {
 
   override lazy val app: Application = GuiceApplicationBuilder().build()
-  private val repo = app.injector.instanceOf[MovementSubmissionRepository]
+  private val repo = app.injector.instanceOf[SubmissionRepository]
 
   override def beforeEach(): Unit = {
     super.beforeEach()

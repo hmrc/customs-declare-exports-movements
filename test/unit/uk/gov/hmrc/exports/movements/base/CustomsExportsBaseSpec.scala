@@ -37,7 +37,7 @@ import uk.gov.hmrc.exports.movements.config.AppConfig
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
 import uk.gov.hmrc.exports.movements.metrics.ExportsMetrics
 import uk.gov.hmrc.exports.movements.models.{CustomsInventoryLinkingResponse, MovementSubmissions}
-import uk.gov.hmrc.exports.movements.repositories.{MovementSubmissionRepository, NotificationRepository}
+import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, SubmissionRepository}
 
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
@@ -49,13 +49,13 @@ trait CustomsExportsBaseSpec
       .overrides(
         bind[AuthConnector].to(mockAuthConnector),
         bind[NotificationRepository].to(mockMovementNotificationsRepository),
-        bind[MovementSubmissionRepository].to(mockMovementsRepository),
+        bind[SubmissionRepository].to(mockMovementsRepository),
         bind[CustomsInventoryLinkingExportsConnector].to(mockCustomsInventoryLinkingConnector),
         bind[ExportsMetrics].to(mockMetrics)
       )
       .build()
   val mockMovementNotificationsRepository: NotificationRepository = mock[NotificationRepository]
-  val mockMovementsRepository: MovementSubmissionRepository = mock[MovementSubmissionRepository]
+  val mockMovementsRepository: SubmissionRepository = mock[SubmissionRepository]
   val mockCustomsInventoryLinkingConnector: CustomsInventoryLinkingExportsConnector =
     mock[CustomsInventoryLinkingExportsConnector]
   val mockMetrics: ExportsMetrics = mock[ExportsMetrics]

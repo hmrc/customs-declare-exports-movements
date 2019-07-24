@@ -27,8 +27,8 @@ import play.api.inject.bind
 import play.api.inject.guice.{GuiceApplicationBuilder, GuiceableModule}
 import play.api.mvc.Result
 import play.api.test.Helpers._
-import uk.gov.hmrc.exports.movements.repositories.MovementSubmissionRepository
-import uk.gov.hmrc.exports.movements.services.MovementSubmissionService
+import uk.gov.hmrc.exports.movements.repositories.SubmissionRepository
+import uk.gov.hmrc.exports.movements.services.SubmissionService
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.CustomsMovementsAPIConfig
 import utils.ExternalServicesConfig.{Host, Port}
@@ -38,18 +38,18 @@ import utils.stubs.CustomsMovementsAPIService
 import scala.concurrent.Future
 import scala.xml.XML
 
-class MovementSubmissionServiceSpec
+class SubmissionServiceSpec
     extends IntegrationTestSpec with GuiceOneAppPerSuite with MockitoSugar with CustomsMovementsAPIService
     with ScalaFutures {
 
-  val mockMovementsRepository: MovementSubmissionRepository = mock[MovementSubmissionRepository]
+  val mockMovementsRepository: SubmissionRepository = mock[SubmissionRepository]
 
   def overrideModules: Seq[GuiceableModule] = Nil
 
   override implicit lazy val app: Application =
     GuiceApplicationBuilder()
       .overrides(overrideModules: _*)
-      .overrides(bind[MovementSubmissionRepository].to(mockMovementsRepository))
+      .overrides(bind[SubmissionRepository].to(mockMovementsRepository))
       .configure(
         Map(
           "microservice.services.customs-inventory-linking-exports.host" -> Host,
@@ -60,7 +60,7 @@ class MovementSubmissionServiceSpec
       )
       .build()
 
-  private lazy val movementsService = app.injector.instanceOf[MovementSubmissionService]
+  private lazy val movementsService = app.injector.instanceOf[SubmissionService]
 
   private implicit val hc: HeaderCarrier = HeaderCarrier()
 

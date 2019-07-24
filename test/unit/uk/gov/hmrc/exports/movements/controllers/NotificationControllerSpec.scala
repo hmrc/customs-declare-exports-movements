@@ -31,7 +31,7 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.exports.movements.controllers.util.{CustomsHeaderNames, HeaderValidator}
 import uk.gov.hmrc.exports.movements.metrics.ExportsMetrics
-import uk.gov.hmrc.exports.movements.models.notifications.{MovementNotification, MovementNotificationFactory}
+import uk.gov.hmrc.exports.movements.models.notifications.{Notification, NotificationFactory}
 import uk.gov.hmrc.exports.movements.services.NotificationService
 import unit.uk.gov.hmrc.exports.movements.base.AuthTestSupport
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
@@ -47,12 +47,12 @@ class NotificationControllerSpec
   val saveMovementNotificationUri = "/customs-declare-exports/notifyMovement"
 
   private val notificationServiceMock: NotificationService = buildNotificationServiceMock
-  private val movementNotificationFactoryMock: MovementNotificationFactory = buildMovementNotificationFactoryMock
+  private val movementNotificationFactoryMock: NotificationFactory = buildMovementNotificationFactoryMock
   override lazy val app: Application = GuiceApplicationBuilder()
     .overrides(
       bind[AuthConnector].to(mockAuthConnector),
       bind[NotificationService].to(notificationServiceMock),
-      bind[MovementNotificationFactory].to(movementNotificationFactoryMock)
+      bind[NotificationFactory].to(movementNotificationFactoryMock)
     )
     .build()
 
@@ -102,8 +102,8 @@ class NotificationControllerSpec
 
         routePostSaveNotification().futureValue
 
-        val notificationCaptor: ArgumentCaptor[MovementNotification] =
-          ArgumentCaptor.forClass(classOf[MovementNotification])
+        val notificationCaptor: ArgumentCaptor[Notification] =
+          ArgumentCaptor.forClass(classOf[Notification])
         verify(notificationServiceMock, times(1)).save(notificationCaptor.capture())
         notificationCaptor.getValue must equal(exampleRejectInventoryLinkingControlResponseNotification)
       }
@@ -151,8 +151,8 @@ class NotificationControllerSpec
 
         routePostSaveNotification(xmlBody = exampleInventoryLinkingMovementTotalsResponseXML).futureValue
 
-        val notificationCaptor: ArgumentCaptor[MovementNotification] =
-          ArgumentCaptor.forClass(classOf[MovementNotification])
+        val notificationCaptor: ArgumentCaptor[Notification] =
+          ArgumentCaptor.forClass(classOf[Notification])
         verify(notificationServiceMock, times(1)).save(notificationCaptor.capture())
         notificationCaptor.getValue must equal(exampleInventoryLinkingMovementTotalsResponseNotification)
       }

@@ -26,7 +26,7 @@ import uk.gov.hmrc.exports.movements.controllers.actions.AuthenticatedController
 import uk.gov.hmrc.exports.movements.controllers.util.HeaderValidator
 import uk.gov.hmrc.exports.movements.metrics.ExportsMetrics
 import uk.gov.hmrc.exports.movements.metrics.MetricIdentifiers._
-import uk.gov.hmrc.exports.movements.models.notifications.{MovementNotification, MovementNotificationFactory}
+import uk.gov.hmrc.exports.movements.models.notifications.{Notification, NotificationFactory}
 import uk.gov.hmrc.exports.movements.services.NotificationService
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -39,7 +39,7 @@ class NotificationController @Inject()(
   headerValidator: HeaderValidator,
   metrics: ExportsMetrics,
   notificationService: NotificationService,
-  notificationFactory: MovementNotificationFactory,
+  notificationFactory: NotificationFactory,
   cc: ControllerComponents
 ) extends AuthenticatedController(authConnector, cc) {
 
@@ -65,10 +65,7 @@ class NotificationController @Inject()(
       case Left(_) => Future.successful(Accepted)
     }
 
-  private def buildNotificationFromResponse(
-    conversationId: String,
-    responseXml: NodeSeq
-  ): Option[MovementNotification] =
+  private def buildNotificationFromResponse(conversationId: String, responseXml: NodeSeq): Option[Notification] =
     try {
       Some(notificationFactory.buildMovementNotification(conversationId, responseXml))
     } catch {
@@ -77,7 +74,7 @@ class NotificationController @Inject()(
         None
     }
 
-  private def forwardNotificationToService(notification: MovementNotification): Future[Status] =
+  private def forwardNotificationToService(notification: Notification): Future[Status] =
     notificationService.save(notification).map {
       case Right(_) =>
         metrics.incrementCounter(movementMetric)
