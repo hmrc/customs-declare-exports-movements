@@ -54,15 +54,15 @@ class NotificationController @Inject()(
   }
 
   private def saveNotification(request: Request[NodeSeq]): Future[Status] =
-    headerValidator.validateAndExtractMovementNotificationHeaders(request.headers.toSimpleMap) match {
+    headerValidator.extractConversationIdHeader(request.headers.toSimpleMap) match {
 
-      case Right(extractedHeaders) =>
-        buildNotificationFromResponse(extractedHeaders.conversationId.value, request.body) match {
+      case Some(conversationId) =>
+        buildNotificationFromResponse(conversationId, request.body) match {
           case Some(notificationToSave) => forwardNotificationToService(notificationToSave)
           case None                     => Future.successful(Accepted)
         }
 
-      case Left(_) => Future.successful(Accepted)
+      case None => Future.successful(Accepted)
     }
 
   private def buildNotificationFromResponse(conversationId: String, responseXml: NodeSeq): Option[Notification] =
@@ -83,7 +83,8 @@ class NotificationController @Inject()(
         InternalServerError
     }
 
-  def listOfNotifications(conversationId: String): Action[AnyContent] = authorisedAction(parse.default) { implicit request =>
-    notificationService.getAllNotifications(conversationId).map(notifications => Ok(Json.toJson(notifications)))
+  def listOfNotifications(conversationId: String): Action[AnyContent] = authorisedAction(parse.default) {
+    implicit request =>
+      notificationService.getAllNotifications(conversationId).map(notifications => Ok(Json.toJson(notifications)))
   }
 }

@@ -26,13 +26,15 @@ class NotificationFactory {
 
   private val inventoryLinkingControlResponseLabel = "inventoryLinkingControlResponse"
   private val inventoryLinkingMovementTotalsResponse = "inventoryLinkingMovementTotalsResponse"
+  private val inventoryLinkingMovementResponse = "inventoryLinkingMovementResponse"
 
   def buildMovementNotification(conversationId: String, xml: NodeSeq): Notification =
     if (xml.nonEmpty) {
       xml.head.label match {
         case `inventoryLinkingControlResponseLabel`   => buildFromKnownResponse(conversationId, xml)
         case `inventoryLinkingMovementTotalsResponse` => buildFromKnownResponse(conversationId, xml)
-        case unknownLabel => throw new IllegalArgumentException(s"Unknown Inventory Linking Response: $unknownLabel")
+        case `inventoryLinkingMovementResponse`       => buildFromKnownResponse(conversationId, xml)
+        case unknownLabel                             => throw new IllegalArgumentException(s"Unknown Inventory Linking Response: $unknownLabel")
       }
     } else throw new IllegalArgumentException(s"Cannot find root element in: $xml")
 
