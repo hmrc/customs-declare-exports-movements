@@ -56,9 +56,6 @@ class NotificationControllerSpec
     )
     .build()
 
-  private val metrics: ExportsMetrics = app.injector.instanceOf[ExportsMetrics]
-  private val headerValidator: HeaderValidator = app.injector.instanceOf[HeaderValidator]
-
   override def beforeEach(): Unit = {
     super.beforeEach()
     reset(mockAuthConnector, notificationServiceMock, movementNotificationFactoryMock)
@@ -197,17 +194,6 @@ class NotificationControllerSpec
         routePostSaveNotification(xmlBody = unknownFormatResponseXML).futureValue
 
         verifyZeroInteractions(notificationServiceMock)
-      }
-    }
-
-    "there is no EORI number in movement notification header" should {
-
-      "return Accepted" in {
-        withAuthorizedUser()
-
-        val result = routePostSaveNotification(headers = noEoriHeaders)
-
-        status(result) must be(ACCEPTED)
       }
     }
   }

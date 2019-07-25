@@ -24,11 +24,7 @@ import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.exports.movements.config.AppConfig
 import uk.gov.hmrc.exports.movements.controllers.actions.AuthenticatedController
 import uk.gov.hmrc.exports.movements.controllers.util.HeaderValidator
-import uk.gov.hmrc.exports.movements.models.{
-  AuthorizedSubmissionRequest,
-  ErrorResponse,
-  ValidatedHeadersMovementsRequest
-}
+import uk.gov.hmrc.exports.movements.models.{AuthorizedSubmissionRequest, ErrorResponse, ValidatedHeadersRequest}
 import uk.gov.hmrc.exports.movements.services.SubmissionService
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -88,7 +84,7 @@ class SubmissionController @Inject()(
     }
 
   private def processSave(
-    vhr: ValidatedHeadersMovementsRequest,
+    vhr: ValidatedHeadersRequest,
     xml: NodeSeq
   )(implicit request: AuthorizedSubmissionRequest[AnyContent], hc: HeaderCarrier): Future[Result] =
     movementsService

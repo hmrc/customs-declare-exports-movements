@@ -26,22 +26,12 @@ trait HasConversationId {
   val conversationId: ConversationId
 }
 
-trait HasAuthToken {
-  val authToken: AuthToken
-}
-
-case class Mrn(value: String) extends AnyVal
 case class Eori(value: String) extends AnyVal
 case class ConversationId(value: String) extends AnyVal
-case class AuthToken(value: String) extends AnyVal
 
 case class AuthorizedSubmissionRequest[A](eori: Eori, request: Request[A])
     extends WrappedRequest[A](request) with HasEori
 
-case class ValidatedHeadersMovementsRequest(ducr: String, movementType: String)
+case class ValidatedHeadersRequest(ducr: String, movementType: String)
 
-case class MovementNotificationApiRequestHeaders(authToken: AuthToken, conversationId: ConversationId, eori: Eori)
-    extends HasEori with HasConversationId with HasAuthToken
-
-case class SubmissionNotificationApiRequest(authToken: AuthToken, conversationId: ConversationId)
-    extends HasConversationId with HasAuthToken
+case class NotificationApiRequestHeaders(conversationId: ConversationId) extends HasConversationId
