@@ -22,8 +22,6 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{MustMatchers, WordSpec}
 import reactivemongo.api.commands.WriteResult
-import uk.gov.hmrc.exports.movements.models.{Eori, Submission}
-import uk.gov.hmrc.exports.movements.models.notifications.Notification
 import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, SubmissionRepository}
 import uk.gov.hmrc.exports.movements.services.NotificationService
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
@@ -76,10 +74,8 @@ class NotificationServiceSpec extends WordSpec with MockitoSugar with ScalaFutur
 
       "return list of notifications for specific conversation id" in new Test {
 
-        val firstNotification =
-          Notification(conversationId = "convId", errors = Seq.empty, payload = "first payload")
-        val secondNotification =
-          Notification(conversationId = "convId", errors = Seq.empty, payload = "second payload")
+        val firstNotification = notification_1.copy(conversationId = "convId")
+        val secondNotification = notification_2.copy(conversationId = "convId")
 
         when(notificationRepositoryMock.findNotificationsByConversationId("convId"))
           .thenReturn(Future.successful(Seq(firstNotification, secondNotification)))

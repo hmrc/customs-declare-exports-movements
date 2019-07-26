@@ -16,18 +16,16 @@
 
 package unit.uk.gov.hmrc.exports.movements.base
 
+import com.codahale.metrics.Timer
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatest.mockito.MockitoSugar
 import reactivemongo.api.commands.{DefaultWriteResult, WriteResult}
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
-import uk.gov.hmrc.exports.movements.models.{CustomsInventoryLinkingResponse, Eori}
+import uk.gov.hmrc.exports.movements.metrics.ExportsMetrics
+import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
 import uk.gov.hmrc.exports.movements.models.notifications.{Notification, NotificationFactory}
-import uk.gov.hmrc.exports.movements.repositories.{
-  ConsolidationRepository,
-  NotificationRepository,
-  SubmissionRepository
-}
+import uk.gov.hmrc.exports.movements.repositories.{ConsolidationRepository, NotificationRepository, SubmissionRepository}
 import uk.gov.hmrc.exports.movements.services.{ConsolidationService, NotificationService}
 
 import scala.concurrent.Future
@@ -51,6 +49,17 @@ object UnitTestMockBuilder extends MockitoSugar {
     notificationRepositoryMock
   }
 
+  def buildSubmissionRepositoryMock: SubmissionRepository = {
+    val submissionRepositoryMock = mock[SubmissionRepository]
+
+    when(submissionRepositoryMock.findByEori(any())).thenReturn(Future.successful(Seq.empty))
+    when(submissionRepositoryMock.getByConversationId(any())).thenReturn(Future.successful(None))
+    when(submissionRepositoryMock.getByEoriAndDucr(any(), any())).thenReturn(Future.successful(None))
+    when(submissionRepositoryMock.save(any())).thenReturn(Future.successful(false))
+
+    submissionRepositoryMock
+  }
+
   def buildConsolidationRepositoryMock: ConsolidationRepository = {
     val consolidationRepositoryMock = mock[ConsolidationRepository]
 
@@ -63,6 +72,7 @@ object UnitTestMockBuilder extends MockitoSugar {
     val notificationServiceMock = mock[NotificationService]
 
     when(notificationServiceMock.save(any[Notification])).thenReturn(Future.successful(Left("")))
+    when(notificationServiceMock.getAllNotifications(any())).thenReturn(Future.successful(Seq.empty))
 
     notificationServiceMock
   }
@@ -92,5 +102,13 @@ object UnitTestMockBuilder extends MockitoSugar {
       .thenReturn(Future.successful(CustomsInventoryLinkingResponse.empty))
 
     customsInventoryLinkingExportsConnectorMock
+  }
+
+  def buildMovementsMetricsMock: ExportsMetrics = {
+    val movementsMetricsMock = mock[ExportsMetrics]
+
+    when(movementsMetricsMock.startTimer(any())).thenReturn(new Timer().time())
+
+    movementsMetricsMock
   }
 }

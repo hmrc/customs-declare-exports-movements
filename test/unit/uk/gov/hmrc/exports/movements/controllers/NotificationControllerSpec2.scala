@@ -27,31 +27,29 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.exports.movements.controllers.NotificationController
 import uk.gov.hmrc.exports.movements.controllers.util.HeaderValidator
-import uk.gov.hmrc.exports.movements.models.notifications.NotificationFactory
-import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, SubmissionRepository}
-import uk.gov.hmrc.exports.movements.services.NotificationService
-import unit.uk.gov.hmrc.exports.movements.MockMetrics
 import unit.uk.gov.hmrc.exports.movements.base.AuthTestSupport
+import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
 import utils.NotificationTestData._
 
 import scala.concurrent.Future
 
 class NotificationControllerSpec2
-    extends WordSpec with MustMatchers with MockitoSugar with ScalaFutures with AuthTestSupport with MockMetrics {
+    extends WordSpec with MustMatchers with MockitoSugar with ScalaFutures with AuthTestSupport {
 
   trait SetUp {
-    val mockHeaderValidator = mock[HeaderValidator]
-    val mockNotificationRepository = mock[NotificationRepository]
-    val mockSubmissionRepository = mock[SubmissionRepository]
-    val mockNotificationService = new NotificationService(mockNotificationRepository, mockSubmissionRepository)
-    val mockNotificationFactory = mock[NotificationFactory]
+    val headerValidatorMock = mock[HeaderValidator]
+    val notificationRepositoryMock = buildNotificationRepositoryMock
+    val submissionRepositoryMock = buildSubmissionRepositoryMock
+    val notificationServiceMock = buildNotificationServiceMock
+    val notificationFactoryMock = buildMovementNotificationFactoryMock
+    val movementsMetricsMock = buildMovementsMetricsMock
 
     val controller = new NotificationController(
       mockAuthConnector,
-      mockHeaderValidator,
-      mockMetrics,
-      mockNotificationService,
-      mockNotificationFactory,
+      headerValidatorMock,
+      movementsMetricsMock,
+      notificationServiceMock,
+      notificationFactoryMock,
       stubControllerComponents()
     )
 
@@ -64,7 +62,7 @@ class NotificationControllerSpec2
     "return list of notifications" in new SetUp {
       withAuthorizedUser()
 
-      when(mockNotificationRepository.findNotificationsByConversationId(any())).thenReturn(Future.successful(Seq.empty))
+      when(notificationRepositoryMock.findNotificationsByConversationId(any())).thenReturn(Future.successful(Seq.empty))
 
       val result =
         controller.listOfNotifications("convId")(FakeRequest(POST, "").withHeaders(validHeaders.toSeq: _*))
