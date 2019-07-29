@@ -16,13 +16,12 @@
 
 package uk.gov.hmrc.exports.movements.models.notifications
 
-import javax.inject.Singleton
+import javax.inject.{Inject, Singleton}
 
 import scala.xml.NodeSeq
 
-//TODO This should be an object. There is not point to need to inject this or have it as class. Changing to object will break a lot of code, so be careful
 @Singleton
-class NotificationFactory {
+class NotificationFactory @Inject()() {
 
   private val inventoryLinkingControlResponseLabel = "inventoryLinkingControlResponse"
   private val inventoryLinkingMovementTotalsResponse = "inventoryLinkingMovementTotalsResponse"
