@@ -14,22 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.exports.movements.models.notifications
+package uk.gov.hmrc.exports.movements.models.notifications.parsers
 
-import java.time.Instant
+import uk.gov.hmrc.exports.movements.models.notifications.NotificationData
 
-import play.api.libs.json.Json
+import scala.xml.NodeSeq
 
-final case class Notification(
-  timestampReceived: Instant = Instant.now(),
-  conversationId: String,
-  responseType: String,
-  payload: String,
-  data: NotificationData
-)
-
-object Notification {
-  implicit val format = Json.format[Notification]
-
-  def empty = Notification(conversationId = "", responseType = "", payload = "", data = NotificationData())
+trait ResponseParser {
+  def parse(responseXml: NodeSeq): NotificationData
 }

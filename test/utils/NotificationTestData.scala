@@ -47,7 +47,7 @@ object NotificationTestData {
     responseType = "inventoryLinkingControlResponse",
     payload = Utility.trim(exampleRejectInventoryLinkingControlResponseXML).toString(),
     data = NotificationData(
-      messageCode = MessageCodes.CST,
+      messageCode = Some(MessageCodes.CST),
       actionCode = Some("3"),
       entries = Seq(Entry(ucrBlock = Some(UcrBlock(ucr = "5GB123456789000-123ABC456DEFIIIII", ucrType = "M")))),
       errorCode = Some(errorCode)
@@ -72,7 +72,7 @@ object NotificationTestData {
     responseType = "inventoryLinkingMovementTotalsResponse",
     payload = Utility.trim(exampleInventoryLinkingMovementTotalsResponseXML).toString(),
     data = NotificationData(
-      messageCode = MessageCodes.ERS,
+      messageCode = Some(MessageCodes.ERS),
       crcCode = Some("CRC"),
       declarationCount = Some(declarationCount),
       entries = Seq(
@@ -142,7 +142,7 @@ object NotificationTestData {
     responseType = "inventoryLinkingMovementResponse",
     payload = Utility.trim(exampleInventoryLinkingMovementTotalsResponseXML).toString(),
     data = NotificationData(
-      messageCode = MessageCodes.EAL,
+      messageCode = Some(MessageCodes.EAL),
       crcCode = Some("CRC"),
       goodsArrivalDateTime = Some("2019-07-12T13:14:54.000Z"),
       goodsLocation = Some("Location"),
@@ -245,13 +245,13 @@ object NotificationTestData {
       conversationId = conversationId,
       responseType = "TestResponse_1",
       payload = payload_1,
-      data = NotificationData(messageCode = MessageCodes.EAL)
+      data = NotificationData(messageCode = Some(MessageCodes.EAL))
     )
   val notification_2: Notification =
     Notification(
       conversationId = conversationId_2,
       responseType = "TestResponse_2",
       payload = payload_2,
-      data = NotificationData(messageCode = MessageCodes.EDL)
+      data = NotificationData(messageCode = Some(MessageCodes.EDL))
     )
 }

@@ -18,8 +18,8 @@ package uk.gov.hmrc.exports.movements.models.notifications
 
 import play.api.libs.json.Json
 
-case class NotificationData(
-  messageCode: String,
+final case class NotificationData(
+  messageCode: Option[String] = None ,
   crcCode: Option[String] = None,
   declarationCount: Option[Int] = None,
   entries: Seq[Entry] = Seq.empty,
@@ -37,5 +37,5 @@ case class NotificationData(
 object NotificationData {
   implicit val format = Json.format[NotificationData]
 
-  def empty = NotificationData(messageCode = "")
+  def empty = NotificationData()
 }

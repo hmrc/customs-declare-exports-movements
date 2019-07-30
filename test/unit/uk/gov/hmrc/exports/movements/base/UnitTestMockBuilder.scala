@@ -24,7 +24,8 @@ import reactivemongo.api.commands.{DefaultWriteResult, WriteResult}
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
 import uk.gov.hmrc.exports.movements.metrics.ExportsMetrics
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
-import uk.gov.hmrc.exports.movements.models.notifications.{Notification, NotificationFactory}
+import uk.gov.hmrc.exports.movements.models.notifications.parsers.{ResponseParser, ResponseParserContext, ResponseParserFactory}
+import uk.gov.hmrc.exports.movements.models.notifications.{Notification, NotificationData, NotificationFactory}
 import uk.gov.hmrc.exports.movements.repositories.{ConsolidationRepository, NotificationRepository, SubmissionRepository}
 import uk.gov.hmrc.exports.movements.services.{ConsolidationService, NotificationService}
 
@@ -110,5 +111,24 @@ object UnitTestMockBuilder extends MockitoSugar {
     when(movementsMetricsMock.startTimer(any())).thenReturn(new Timer().time())
 
     movementsMetricsMock
+  }
+
+  def buildResponseParserFactoryMock: ResponseParserFactory = {
+    val responseParserFactoryMock = mock[ResponseParserFactory]
+
+    val responseParserMock = buildResponseParserMock
+    when(responseParserFactoryMock.buildResponseParser(any())).thenReturn(responseParserMock)
+    val responseParserContext = ResponseParserContext("", responseParserMock)
+    when(responseParserFactoryMock.buildResponseParserContext(any())).thenReturn(responseParserContext)
+
+    responseParserFactoryMock
+  }
+
+  def buildResponseParserMock: ResponseParser = {
+    val responseParserMock = mock[ResponseParser]
+
+    when(responseParserMock.parse(any())).thenReturn(NotificationData.empty)
+
+    responseParserMock
   }
 }
