@@ -50,6 +50,52 @@ object ConsolidationTestData {
     )
   )
 
+  val exampleAssociateDucrConsolidationRequest: Elem =
+    <inventoryLinkingConsolidationRequest>
+      <messageCode>EAC</messageCode>
+      <masterUCR>5GB123456789000-123ABC456DEFIIIII</masterUCR>
+      <ucrBlock>
+        <ucr>4GB123456789000-123ABC456DEFIIIII</ucr>
+        <ucrType>D</ucrType>
+      </ucrBlock>
+    </inventoryLinkingConsolidationRequest>
+
+  val exampleAssociateDucrConsolidationRequestJson: JsValue = JsObject(
+    Map(
+      "inventoryLinkingConsolidationRequest" -> JsObject(
+        Map(
+          "messageCode" -> JsString("EAC"),
+          "masterUCR" -> JsString("5GB123456789000-123ABC456DEFIIIII"),
+          "ucrBlock" -> JsObject(
+            Map("ucr" -> JsString("4GB123456789000-123ABC456DEFIIIII"), "ucrType" -> JsString("D"))
+          )
+        )
+      )
+    )
+  )
+
+  val exampleDisassociateDucrConsolidationRequest: Elem =
+    <inventoryLinkingConsolidationRequest>
+      <messageCode>EAC</messageCode>
+      <ucrBlock>
+        <ucr>4GB123456789000-123ABC456DEFIIIII</ucr>
+        <ucrType>D</ucrType>
+      </ucrBlock>
+    </inventoryLinkingConsolidationRequest>
+
+  val exampleDisassociateDucrConsolidationRequestJson: JsValue = JsObject(
+    Map(
+      "inventoryLinkingConsolidationRequest" -> JsObject(
+        Map(
+          "messageCode" -> JsString("EAC"),
+          "ucrBlock" -> JsObject(
+            Map("ucr" -> JsString("4GB123456789000-123ABC456DEFIIIII"), "ucrType" -> JsString("D"))
+          )
+        )
+      )
+    )
+  )
+
   val ValidConsolidationRequestHeaders = Map(
     HeaderNames.CONTENT_TYPE -> ContentTypes.XML(Codec.utf_8),
     HeaderNames.AUTHORIZATION -> dummyToken,

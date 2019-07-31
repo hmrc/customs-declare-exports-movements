@@ -10,5 +10,7 @@ GET         /notifications/:conversationId                  uk.gov.hmrc.exports.
 
 # Movements Consolidations
 
-POST        /consolidations/submit                          uk.gov.hmrc.exports.movements.controllers.ConsolidationController.submitMovementConsolidation()
+POST        /consolidations/shut                            uk.gov.hmrc.exports.movements.controllers.ConsolidationController.shutMucr()
+POST        /consolidations/associate                       uk.gov.hmrc.exports.movements.controllers.ConsolidationController.associateMucr()
+POST        /consolidations/disassociate                    uk.gov.hmrc.exports.movements.controllers.ConsolidationController.disassociateMucr()
 

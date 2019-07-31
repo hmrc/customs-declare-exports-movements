@@ -44,13 +44,15 @@ class ConsolidationControllerSpec
     extends WordSpec with GuiceOneAppPerSuite with AuthTestSupport with BeforeAndAfterEach with ScalaFutures
     with MustMatchers {
 
-  val submitMovementConsolidationUri = "/consolidations/submit"
-
-  private val consolidationServiceMock = buildConsolidationServiceMock
   override lazy val app: Application = GuiceApplicationBuilder()
     .overrides(bind[AuthConnector].to(mockAuthConnector), bind[ConsolidationService].to(consolidationServiceMock))
     .build()
 
+  private val shutMucrUri = "/consolidations/shut"
+  private val associateDucrUri = "/consolidations/associate"
+  private val disassociateDucrUri = "/consolidations/disassociate"
+
+  private val consolidationServiceMock = buildConsolidationServiceMock
   private val metrics: MovementsMetrics = app.injector.instanceOf[MovementsMetrics]
   private val headerValidator: HeaderValidator = app.injector.instanceOf[HeaderValidator]
 
@@ -59,88 +61,266 @@ class ConsolidationControllerSpec
     reset(mockAuthConnector, consolidationServiceMock)
   }
 
-  "MovementConsolidationController on submitMovementConsolidation" when {
+  "MovementConsolidationController" when {
+    "on shutMucr" when {
 
-    "everything works correctly" should {
+      "everything works correctly" should {
 
-      "return Accepted status" in {
-        withAuthorizedUser()
-        when(consolidationServiceMock.submitConsolidationRequest(any(), any())(any()))
-          .thenReturn(Future.successful(Right((): Unit)))
+        "return Accepted status" in {
+          withAuthorizedUser()
+          when(consolidationServiceMock.submitConsolidationRequest(any(), any())(any()))
+            .thenReturn(Future.successful(Right((): Unit)))
 
-        val result = routePostSubmitMovementConsolidation()
+          val result = routePostSubmitMovementConsolidation(uri = shutMucrUri)
 
-        status(result) must be(ACCEPTED)
+          status(result) must be(ACCEPTED)
+        }
+
+        "call ConsolidationService once, passing EORI and request payload" in {
+          withAuthorizedUser()
+          when(consolidationServiceMock.submitConsolidationRequest(any(), any())(any()))
+            .thenReturn(Future.successful(Right((): Unit)))
+
+          routePostSubmitMovementConsolidation(uri = shutMucrUri).futureValue
+
+          val expectedEori = ValidConsolidationRequestHeaders(XEoriIdentifierHeaderName)
+          val requestBodyCaptor: ArgumentCaptor[NodeSeq] = ArgumentCaptor.forClass(classOf[NodeSeq])
+          verify(consolidationServiceMock)
+            .submitConsolidationRequest(meq(expectedEori), requestBodyCaptor.capture())(any())
+
+          requestBodyCaptor.getValue must equal(exampleShutMucrConsolidationRequest)
+        }
       }
 
-      "call ConsolidationService once, passing EORI and request payload" in {
-        withAuthorizedUser()
-        when(consolidationServiceMock.submitConsolidationRequest(any(), any())(any()))
-          .thenReturn(Future.successful(Right((): Unit)))
+      "ConsolidationService returns Either.Left" should {
 
-        routePostSubmitMovementConsolidation().futureValue
+        "return InternalServerError" in {
+          withAuthorizedUser()
+          when(consolidationServiceMock.submitConsolidationRequest(any(), any())(any()))
+            .thenReturn(Future.successful(Left("")))
 
-        val expectedEori = ValidConsolidationRequestHeaders(XEoriIdentifierHeaderName)
-        val requestBodyCaptor: ArgumentCaptor[NodeSeq] = ArgumentCaptor.forClass(classOf[NodeSeq])
-        verify(consolidationServiceMock)
-          .submitConsolidationRequest(meq(expectedEori), requestBodyCaptor.capture())(any())
+          val result = routePostSubmitMovementConsolidation(uri = shutMucrUri)
 
-        requestBodyCaptor.getValue must equal(exampleShutMucrConsolidationRequest)
+          status(result) must be(INTERNAL_SERVER_ERROR)
+        }
+      }
+
+      "provided with invalid request format" should {
+
+        "return ErrorResponse for invalid payload" in {
+          withAuthorizedUser()
+          when(consolidationServiceMock.submitConsolidationRequest(any(), any())(any()))
+            .thenReturn(Future.successful(Right((): Unit)))
+
+          val result = route(
+            app,
+            FakeRequest(POST, shutMucrUri)
+              .withHeaders(ValidConsolidationRequestHeaders.toSeq: _*)
+              .withJsonBody(exampleShutMucrConsolidationRequestJson)
+          ).get
+
+          status(result) must be(BAD_REQUEST)
+          contentAsString(result) must include("Invalid payload")
+        }
+
+        "not call ConsolidationService" in {
+          withAuthorizedUser()
+          when(consolidationServiceMock.submitConsolidationRequest(any(), any())(any()))
+            .thenReturn(Future.successful(Right((): Unit)))
+
+          route(
+            app,
+            FakeRequest(POST, shutMucrUri)
+              .withHeaders(ValidConsolidationRequestHeaders.toSeq: _*)
+              .withJsonBody(exampleShutMucrConsolidationRequestJson)
+          ).get.futureValue
+
+          verifyZeroInteractions(consolidationServiceMock)
+        }
       }
     }
 
-    "ConsolidationService returns Either.Left" should {
+    "on associateMucr" when {
 
-      "return InternalServerError" in {
-        withAuthorizedUser()
-        when(consolidationServiceMock.submitConsolidationRequest(any(), any())(any()))
-          .thenReturn(Future.successful(Left("")))
+      "everything works correctly" should {
 
-        val result = routePostSubmitMovementConsolidation()
+        "return Accepted status" in {
+          withAuthorizedUser()
+          when(consolidationServiceMock.submitConsolidationRequest(any(), any())(any()))
+            .thenReturn(Future.successful(Right((): Unit)))
 
-        status(result) must be(INTERNAL_SERVER_ERROR)
+          val result = routePostSubmitMovementConsolidation(
+            xmlBody = exampleAssociateDucrConsolidationRequest,
+            uri = associateDucrUri
+          )
+
+          status(result) must be(ACCEPTED)
+        }
+
+        "call ConsolidationService once, passing EORI and request payload" in {
+          withAuthorizedUser()
+          when(consolidationServiceMock.submitConsolidationRequest(any(), any())(any()))
+            .thenReturn(Future.successful(Right((): Unit)))
+
+          routePostSubmitMovementConsolidation(
+            xmlBody = exampleAssociateDucrConsolidationRequest,
+            uri = associateDucrUri
+          ).futureValue
+
+          val expectedEori = ValidConsolidationRequestHeaders(XEoriIdentifierHeaderName)
+          val requestBodyCaptor: ArgumentCaptor[NodeSeq] = ArgumentCaptor.forClass(classOf[NodeSeq])
+          verify(consolidationServiceMock)
+            .submitConsolidationRequest(meq(expectedEori), requestBodyCaptor.capture())(any())
+
+          requestBodyCaptor.getValue must equal(exampleAssociateDucrConsolidationRequest)
+        }
+      }
+
+      "ConsolidationService returns Either.Left" should {
+
+        "return InternalServerError" in {
+          withAuthorizedUser()
+          when(consolidationServiceMock.submitConsolidationRequest(any(), any())(any()))
+            .thenReturn(Future.successful(Left("")))
+
+          val result = routePostSubmitMovementConsolidation(
+            xmlBody = exampleAssociateDucrConsolidationRequest,
+            uri = associateDucrUri
+          )
+
+          status(result) must be(INTERNAL_SERVER_ERROR)
+        }
+      }
+
+      "provided with invalid request format" should {
+
+        "return ErrorResponse for invalid payload" in {
+          withAuthorizedUser()
+          when(consolidationServiceMock.submitConsolidationRequest(any(), any())(any()))
+            .thenReturn(Future.successful(Right((): Unit)))
+
+          val result = route(
+            app,
+            FakeRequest(POST, associateDucrUri)
+              .withHeaders(ValidConsolidationRequestHeaders.toSeq: _*)
+              .withJsonBody(exampleAssociateDucrConsolidationRequestJson)
+          ).get
+
+          status(result) must be(BAD_REQUEST)
+          contentAsString(result) must include("Invalid payload")
+        }
+
+        "not call ConsolidationService" in {
+          withAuthorizedUser()
+          when(consolidationServiceMock.submitConsolidationRequest(any(), any())(any()))
+            .thenReturn(Future.successful(Right((): Unit)))
+
+          route(
+            app,
+            FakeRequest(POST, associateDucrUri)
+              .withHeaders(ValidConsolidationRequestHeaders.toSeq: _*)
+              .withJsonBody(exampleAssociateDucrConsolidationRequestJson)
+          ).get.futureValue
+
+          verifyZeroInteractions(consolidationServiceMock)
+        }
       }
     }
 
-    "provided with invalid request format" should {
+    "on disassociateMucr" when {
 
-      "return ErrorResponse for invalid payload" in {
-        withAuthorizedUser()
-        when(consolidationServiceMock.submitConsolidationRequest(any(), any())(any()))
-          .thenReturn(Future.successful(Right((): Unit)))
+      "everything works correctly" should {
 
-        val result = route(
-          app,
-          FakeRequest(POST, submitMovementConsolidationUri)
-            .withHeaders(ValidConsolidationRequestHeaders.toSeq: _*)
-            .withJsonBody(exampleShutMucrConsolidationRequestJson)
-        ).get
+        "return Accepted status" in {
+          withAuthorizedUser()
+          when(consolidationServiceMock.submitConsolidationRequest(any(), any())(any()))
+            .thenReturn(Future.successful(Right((): Unit)))
 
-        status(result) must be(BAD_REQUEST)
-        contentAsString(result) must include("Invalid payload")
+          val result = routePostSubmitMovementConsolidation(
+            xmlBody = exampleDisassociateDucrConsolidationRequest,
+            uri = disassociateDucrUri
+          )
+
+          status(result) must be(ACCEPTED)
+        }
+
+        "call ConsolidationService once, passing EORI and request payload" in {
+          withAuthorizedUser()
+          when(consolidationServiceMock.submitConsolidationRequest(any(), any())(any()))
+            .thenReturn(Future.successful(Right((): Unit)))
+
+          routePostSubmitMovementConsolidation(
+            xmlBody = exampleDisassociateDucrConsolidationRequest,
+            uri = disassociateDucrUri
+          ).futureValue
+
+          val expectedEori = ValidConsolidationRequestHeaders(XEoriIdentifierHeaderName)
+          val requestBodyCaptor: ArgumentCaptor[NodeSeq] = ArgumentCaptor.forClass(classOf[NodeSeq])
+          verify(consolidationServiceMock)
+            .submitConsolidationRequest(meq(expectedEori), requestBodyCaptor.capture())(any())
+
+          requestBodyCaptor.getValue must equal(exampleDisassociateDucrConsolidationRequest)
+        }
       }
 
-      "not call ConsolidationService" in {
-        withAuthorizedUser()
-        when(consolidationServiceMock.submitConsolidationRequest(any(), any())(any()))
-          .thenReturn(Future.successful(Right((): Unit)))
+      "ConsolidationService returns Either.Left" should {
 
-        route(
-          app,
-          FakeRequest(POST, submitMovementConsolidationUri)
-            .withHeaders(ValidConsolidationRequestHeaders.toSeq: _*)
-            .withJsonBody(exampleShutMucrConsolidationRequestJson)
-        ).get.futureValue
+        "return InternalServerError" in {
+          withAuthorizedUser()
+          when(consolidationServiceMock.submitConsolidationRequest(any(), any())(any()))
+            .thenReturn(Future.successful(Left("")))
 
-        verifyZeroInteractions(consolidationServiceMock)
+          val result = routePostSubmitMovementConsolidation(
+            xmlBody = exampleDisassociateDucrConsolidationRequest,
+            uri = disassociateDucrUri
+          )
+
+          status(result) must be(INTERNAL_SERVER_ERROR)
+        }
+      }
+
+      "provided with invalid request format" should {
+
+        "return ErrorResponse for invalid payload" in {
+          withAuthorizedUser()
+          when(consolidationServiceMock.submitConsolidationRequest(any(), any())(any()))
+            .thenReturn(Future.successful(Right((): Unit)))
+
+          val result = route(
+            app,
+            FakeRequest(POST, disassociateDucrUri)
+              .withHeaders(ValidConsolidationRequestHeaders.toSeq: _*)
+              .withJsonBody(exampleDisassociateDucrConsolidationRequestJson)
+          ).get
+
+          status(result) must be(BAD_REQUEST)
+          contentAsString(result) must include("Invalid payload")
+        }
+
+        "not call ConsolidationService" in {
+          withAuthorizedUser()
+          when(consolidationServiceMock.submitConsolidationRequest(any(), any())(any()))
+            .thenReturn(Future.successful(Right((): Unit)))
+
+          route(
+            app,
+            FakeRequest(POST, disassociateDucrUri)
+              .withHeaders(ValidConsolidationRequestHeaders.toSeq: _*)
+              .withJsonBody(exampleDisassociateDucrConsolidationRequestJson)
+          ).get.futureValue
+
+          verifyZeroInteractions(consolidationServiceMock)
+        }
       }
     }
+
   }
 
   def routePostSubmitMovementConsolidation(
     headers: Map[String, String] = ValidConsolidationRequestHeaders,
-    xmlBody: Elem = exampleShutMucrConsolidationRequest
+    xmlBody: Elem = exampleShutMucrConsolidationRequest,
+    uri: String
   ): Future[Result] =
-    route(app, FakeRequest(POST, submitMovementConsolidationUri).withHeaders(headers.toSeq: _*).withXmlBody(xmlBody)).get
+    route(app, FakeRequest(POST, uri).withHeaders(headers.toSeq: _*).withXmlBody(xmlBody)).get
 
 }

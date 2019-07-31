@@ -38,7 +38,29 @@ class ConsolidationController @Inject()(
 
   private val logger = Logger(this.getClass)
 
-  def submitMovementConsolidation(): Action[AnyContent] =
+  def shutMucr(): Action[AnyContent] =
+    authorisedAction(bodyParser = xmlOrEmptyBody) { implicit request =>
+      request.body.asXml match {
+        case Some(requestXml) =>
+          forwardMovementConsolidationRequest(request.eori.value, requestXml)
+        case None =>
+          logger.error("Body is not xml")
+          Future.successful(ErrorResponse.ErrorInvalidPayload.XmlResult)
+      }
+    }
+
+  def associateMucr(): Action[AnyContent] =
+    authorisedAction(bodyParser = xmlOrEmptyBody) { implicit request =>
+      request.body.asXml match {
+        case Some(requestXml) =>
+          forwardMovementConsolidationRequest(request.eori.value, requestXml)
+        case None =>
+          logger.error("Body is not xml")
+          Future.successful(ErrorResponse.ErrorInvalidPayload.XmlResult)
+      }
+    }
+
+  def disassociateMucr(): Action[AnyContent] =
     authorisedAction(bodyParser = xmlOrEmptyBody) { implicit request =>
       request.body.asXml match {
         case Some(requestXml) =>
