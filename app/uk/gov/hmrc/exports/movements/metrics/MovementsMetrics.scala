@@ -18,12 +18,11 @@ package uk.gov.hmrc.exports.movements.metrics
 
 import com.codahale.metrics.Timer.Context
 import com.kenshoo.play.metrics.Metrics
-import javax.inject.Inject
-import javax.inject.Singleton
+import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.exports.movements.metrics.MetricIdentifiers._
 
 @Singleton
-class ExportsMetrics @Inject()(metrics: Metrics) {
+class MovementsMetrics @Inject()(metrics: Metrics) {
 
   private val timers = Map(
     notificationMetric -> metrics.defaultRegistry.timer(s"$notificationMetric.timer"),

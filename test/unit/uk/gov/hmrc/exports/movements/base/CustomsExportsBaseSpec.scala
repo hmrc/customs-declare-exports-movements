@@ -29,13 +29,13 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.i18n.MessagesApi
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.inject.{bind, Injector}
+import play.api.inject.{Injector, bind}
 import play.api.libs.ws.WSClient
 import play.filters.csrf.{CSRFConfig, CSRFConfigProvider, CSRFFilter}
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.exports.movements.config.AppConfig
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
-import uk.gov.hmrc.exports.movements.metrics.ExportsMetrics
+import uk.gov.hmrc.exports.movements.metrics.MovementsMetrics
 import uk.gov.hmrc.exports.movements.models.{CustomsInventoryLinkingResponse, Submission}
 import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, SubmissionRepository}
 
@@ -51,14 +51,14 @@ trait CustomsExportsBaseSpec
         bind[NotificationRepository].to(mockMovementNotificationsRepository),
         bind[SubmissionRepository].to(mockMovementsRepository),
         bind[CustomsInventoryLinkingExportsConnector].to(mockCustomsInventoryLinkingConnector),
-        bind[ExportsMetrics].to(mockMetrics)
+        bind[MovementsMetrics].to(mockMetrics)
       )
       .build()
   val mockMovementNotificationsRepository: NotificationRepository = mock[NotificationRepository]
   val mockMovementsRepository: SubmissionRepository = mock[SubmissionRepository]
   val mockCustomsInventoryLinkingConnector: CustomsInventoryLinkingExportsConnector =
     mock[CustomsInventoryLinkingExportsConnector]
-  val mockMetrics: ExportsMetrics = mock[ExportsMetrics]
+  val mockMetrics: MovementsMetrics = mock[MovementsMetrics]
   val cfg: CSRFConfig = injector.instanceOf[CSRFConfigProvider].get
   val token: String = injector.instanceOf[CSRFFilter].tokenProvider.generateToken
 

@@ -22,7 +22,7 @@ import org.mockito.Mockito.when
 import org.scalatest.mockito.MockitoSugar
 import reactivemongo.api.commands.{DefaultWriteResult, WriteResult}
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
-import uk.gov.hmrc.exports.movements.metrics.ExportsMetrics
+import uk.gov.hmrc.exports.movements.metrics.MovementsMetrics
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
 import uk.gov.hmrc.exports.movements.models.notifications.parsers.{ResponseParser, ResponseParserContext, ResponseParserFactory}
 import uk.gov.hmrc.exports.movements.models.notifications.{Notification, NotificationData, NotificationFactory}
@@ -105,8 +105,8 @@ object UnitTestMockBuilder extends MockitoSugar {
     customsInventoryLinkingExportsConnectorMock
   }
 
-  def buildMovementsMetricsMock: ExportsMetrics = {
-    val movementsMetricsMock = mock[ExportsMetrics]
+  def buildMovementsMetricsMock: MovementsMetrics = {
+    val movementsMetricsMock = mock[MovementsMetrics]
 
     when(movementsMetricsMock.startTimer(any())).thenReturn(new Timer().time())
 
