@@ -37,15 +37,9 @@ class MovementTotalsResponseParser extends ResponseParser {
 
   private def buildEntriesTotalsResponse(xml: NodeSeq): Seq[Entry] = (xml \ XmlTags.entry).map { entry =>
     Entry(
-      ucrBlock =
-        if ((entry \ XmlTags.ucrBlock).nonEmpty)
-          Some(
-            UcrBlock(
-              ucr = (entry \ XmlTags.ucrBlock \ XmlTags.ucr).text,
-              ucrType = (entry \ XmlTags.ucrBlock \ XmlTags.ucrType).text
-            )
-          )
-        else None,
+      ucrBlock = (entry \ XmlTags.ucrBlock).map { ucrBlockNode =>
+        UcrBlock(ucr = (ucrBlockNode \ XmlTags.ucr).text, ucrType = (ucrBlockNode \ XmlTags.ucrType).text)
+      }.headOption,
       goodsItem = (entry \ XmlTags.goodsItem).map { goodsItemNode =>
         GoodsItem(
           commodityCode = stringOption(goodsItemNode \ XmlTags.commodityCode).map(_.toInt),
@@ -53,15 +47,13 @@ class MovementTotalsResponseParser extends ResponseParser {
           totalNetMass = stringOption(goodsItemNode \ XmlTags.totalNetMass).map(BigDecimal(_))
         )
       },
-      entryStatus = if ((entry \ XmlTags.entryStatus).nonEmpty) {
-        Some(
-          EntryStatus(
-            ics = stringOption(entry \ XmlTags.entryStatus \ XmlTags.ics),
-            roe = stringOption(entry \ XmlTags.entryStatus \ XmlTags.roe),
-            soe = stringOption(entry \ XmlTags.entryStatus \ XmlTags.soe)
-          )
+      entryStatus = (entry \ XmlTags.entryStatus).map { entryStatusNode =>
+        EntryStatus(
+          ics = stringOption(entryStatusNode \ XmlTags.ics),
+          roe = stringOption(entryStatusNode \ XmlTags.roe),
+          soe = stringOption(entryStatusNode \ XmlTags.soe)
         )
-      } else None
+      }.headOption
     )
   }
 

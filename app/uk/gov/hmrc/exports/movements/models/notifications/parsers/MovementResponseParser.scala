@@ -34,14 +34,9 @@ class MovementResponseParser extends ResponseParser {
 
   private def buildEntries(responseXml: NodeSeq): Seq[Entry] = {
     val ucrBlock =
-      if ((responseXml \ XmlTags.ucrBlock).nonEmpty)
-        Some(
-          UcrBlock(
-            ucr = (responseXml \ XmlTags.ucrBlock \ XmlTags.ucr).text,
-            ucrType = (responseXml \ XmlTags.ucrBlock \ XmlTags.ucrType).text
-          )
-        )
-      else None
+      (responseXml \ XmlTags.ucrBlock).map { ucrBlockNode =>
+        UcrBlock(ucr = (ucrBlockNode \ XmlTags.ucr).text, ucrType = (ucrBlockNode \ XmlTags.ucrType).text)
+      }.headOption
 
     val goodsItem = (responseXml \ XmlTags.goodsItem).map { goodsItemNode =>
       GoodsItem(
@@ -51,19 +46,18 @@ class MovementResponseParser extends ResponseParser {
       )
     }
 
-    val entryStatus = if ((responseXml \ XmlTags.entryStatus).nonEmpty) {
-      Some(
-        EntryStatus(
-          ics = stringOption(responseXml \ XmlTags.entryStatus \ XmlTags.ics),
-          roe = stringOption(responseXml \ XmlTags.entryStatus \ XmlTags.roe),
-          soe = stringOption(responseXml \ XmlTags.entryStatus \ XmlTags.soe)
-        )
+    val entryStatus = (responseXml \ XmlTags.entryStatus).map { entryStatusNode =>
+      EntryStatus(
+        ics = stringOption(entryStatusNode \ XmlTags.ics),
+        roe = stringOption(entryStatusNode \ XmlTags.roe),
+        soe = stringOption(entryStatusNode \ XmlTags.soe)
       )
-    } else None
+    }.headOption
 
-    if (ucrBlock.nonEmpty || goodsItem.nonEmpty || entryStatus.nonEmpty)
-      Seq(Entry(ucrBlock = ucrBlock, goodsItem = goodsItem, entryStatus = entryStatus))
-    else Seq.empty
+    (ucrBlock, goodsItem, entryStatus) match {
+      case (None, Nil, None) => Seq.empty
+      case _                 => Seq(Entry(ucrBlock = ucrBlock, goodsItem = goodsItem, entryStatus = entryStatus))
+    }
   }
 
   private def stringOption(node: NodeSeq): Option[String] = if (node.text.trim.nonEmpty) Some(node.text) else None
