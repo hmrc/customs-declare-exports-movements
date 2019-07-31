@@ -24,9 +24,13 @@ import reactivemongo.api.commands.{DefaultWriteResult, WriteResult}
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
 import uk.gov.hmrc.exports.movements.metrics.MovementsMetrics
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
-import uk.gov.hmrc.exports.movements.models.notifications.parsers.{ResponseParser, ResponseParserContext, ResponseParserFactory}
+import uk.gov.hmrc.exports.movements.models.notifications.parsers.{
+  ResponseParser,
+  ResponseParserContext,
+  ResponseParserFactory
+}
 import uk.gov.hmrc.exports.movements.models.notifications.{Notification, NotificationData, NotificationFactory}
-import uk.gov.hmrc.exports.movements.repositories.{ConsolidationRepository, NotificationRepository, SubmissionRepository}
+import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, SubmissionRepository}
 import uk.gov.hmrc.exports.movements.services.{ConsolidationService, NotificationService}
 
 import scala.concurrent.Future
@@ -57,16 +61,9 @@ object UnitTestMockBuilder extends MockitoSugar {
     when(submissionRepositoryMock.getByConversationId(any())).thenReturn(Future.successful(None))
     when(submissionRepositoryMock.getByEoriAndDucr(any(), any())).thenReturn(Future.successful(None))
     when(submissionRepositoryMock.save(any())).thenReturn(Future.successful(false))
+    when(submissionRepositoryMock.insert(any())(any())).thenReturn(Future.successful(dummyWriteResultFailure))
 
     submissionRepositoryMock
-  }
-
-  def buildConsolidationRepositoryMock: ConsolidationRepository = {
-    val consolidationRepositoryMock = mock[ConsolidationRepository]
-
-    when(consolidationRepositoryMock.insert(any())(any())).thenReturn(Future.successful(dummyWriteResultFailure))
-
-    consolidationRepositoryMock
   }
 
   def buildNotificationServiceMock: NotificationService = {

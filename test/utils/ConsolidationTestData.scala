@@ -20,15 +20,11 @@ import play.api.http.{ContentTypes, HeaderNames}
 import play.api.libs.json.{JsObject, JsString, JsValue}
 import play.api.mvc.Codec
 import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames
-import uk.gov.hmrc.exports.movements.models.consolidations.ConsolidationSubmission
 import utils.MovementsTestData._
 
 import scala.xml.Elem
 
 object ConsolidationTestData {
-
-  val consolidationSubmission =
-    ConsolidationSubmission(eori = validEori, conversationId = conversationId, ucr = randomUcr)
 
   val exampleShutMucrConsolidationRequest: Elem =
     <inventoryLinkingConsolidationRequest>
@@ -44,7 +40,7 @@ object ConsolidationTestData {
     Map(
       "inventoryLinkingConsolidationRequest" -> JsObject(
         Map(
-          "messageCode" -> JsString("CST"),
+          "messMovementRepositorySpecageCode" -> JsString("CST"),
           "masterUCR" -> JsString("5GB123456789000-123ABC456DEFIIIII"),
           "ucrBlock" -> JsObject(
             Map("ucr" -> JsString("4GB123456789000-123ABC456DEFIIIII"), "ucrType" -> JsString("D"))

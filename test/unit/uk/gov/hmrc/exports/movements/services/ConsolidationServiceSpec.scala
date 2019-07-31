@@ -25,8 +25,7 @@ import org.scalatest.time.{Millis, Seconds, Span}
 import org.scalatest.{MustMatchers, WordSpec}
 import play.api.http.Status.{ACCEPTED, BAD_REQUEST}
 import reactivemongo.api.commands.WriteResult
-import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
-import uk.gov.hmrc.exports.movements.models.consolidations.ConsolidationSubmission
+import uk.gov.hmrc.exports.movements.models.{CustomsInventoryLinkingResponse, Submission}
 import uk.gov.hmrc.exports.movements.services.ConsolidationService
 import uk.gov.hmrc.http.HeaderCarrier
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
@@ -44,7 +43,7 @@ class ConsolidationServiceSpec extends WordSpec with MockitoSugar with ScalaFutu
   private trait Test {
     implicit val hc: HeaderCarrier = mock[HeaderCarrier]
     val customsInventoryLinkingExportsConnectorMock = buildCustomsInventoryLinkingExportsConnectorMock
-    val consolidationRepositoryMock = buildConsolidationRepositoryMock
+    val consolidationRepositoryMock = buildSubmissionRepositoryMock
     val consolidationService = new ConsolidationService(
       customsInventoryLinkingExportsConnector = customsInventoryLinkingExportsConnectorMock,
       consolidationRepository = consolidationRepositoryMock
@@ -84,15 +83,15 @@ class ConsolidationServiceSpec extends WordSpec with MockitoSugar with ScalaFutu
 
         consolidationService.submitConsolidationRequest(validEori, exampleShutMucrConsolidationRequest).futureValue
 
-        val consolidationSubmissionCaptor: ArgumentCaptor[ConsolidationSubmission] =
-          ArgumentCaptor.forClass(classOf[ConsolidationSubmission])
+        val consolidationSubmissionCaptor: ArgumentCaptor[Submission] =
+          ArgumentCaptor.forClass(classOf[Submission])
         verify(consolidationRepositoryMock).insert(consolidationSubmissionCaptor.capture())(any())
         val actualConsolidationSubmission = consolidationSubmissionCaptor.getValue
 
         actualConsolidationSubmission.uuid mustNot be(empty)
         actualConsolidationSubmission.eori must equal(validEori)
         actualConsolidationSubmission.conversationId must equal(conversationId)
-        actualConsolidationSubmission.ucr must equal("4GB123456789000-123ABC456DEFIIIII")
+        actualConsolidationSubmission.ucrBlocks.head.ucr must equal("4GB123456789000-123ABC456DEFIIIII")
       }
 
       trait HappyPathSaveTest extends Test {

@@ -43,7 +43,7 @@ class SubmissionRepository @Inject()(implicit mc: ReactiveMongoComponent, ec: Ex
     find("conversationId" -> JsString(conversationId)).map(_.headOption)
 
   def getByEoriAndDucr(eori: String, ducr: String): Future[Option[Submission]] =
-    find("eori" -> JsString(eori), "ucr" -> JsString(ducr)).map(_.headOption)
+    find("eori" -> JsString(eori), "ucrBlocks.ucr" -> JsString(ducr)).map(_.headOption)
 
   def save(movementSubmission: Submission): Future[Boolean] =
     insert(movementSubmission).map { res =>

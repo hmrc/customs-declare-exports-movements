@@ -23,6 +23,7 @@ import play.api.http.{ContentTypes, HeaderNames}
 import play.api.mvc.Codec
 import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames._
 import uk.gov.hmrc.exports.movements.models._
+import uk.gov.hmrc.exports.movements.models.notifications.{UcrBlock => UcrBlockModel}
 import uk.gov.hmrc.wco.dec.inventorylinking.common.{AgentDetails, TransportDetails, UcrBlock}
 import uk.gov.hmrc.wco.dec.inventorylinking.movement.request.InventoryLinkingMovementRequest
 import uk.gov.hmrc.wco.dec.{DateTimeString, MetaData, Response, ResponseDateTimeElement, Declaration => WcoDeclaration}
@@ -85,14 +86,6 @@ object MovementsTestData {
       issueDateTime = dateTimeElement(now.minusHours(5))
     )
   )
-
-  def movementSubmission(
-    eori: String = validEori,
-    convoId: String = conversationId,
-    subUcr: String = randomUcr
-  ): Submission =
-    Submission(eori, convoId, subUcr, "Arrival")
-
   val ValidHeaders: Map[String, String] = Map(
     ContentTypeHeader,
     ValidAuthorizationHeader,
@@ -103,6 +96,18 @@ object MovementsTestData {
     ValidUcrHeader,
     ValidMovementTypeHeader
   )
+
+  def movementSubmission(
+    eori: String = validEori,
+    conversationId: String = conversationId,
+    submittedUcr: String = randomUcr
+  ): Submission =
+    Submission(
+      eori = eori,
+      conversationId = conversationId,
+      ucrBlocks = Seq(UcrBlockModel(ucr = submittedUcr, ucrType = "")),
+      actionType = "Arrival"
+    )
 
   def dateTimeElement(dateTimeVal: DateTime) =
     Some(ResponseDateTimeElement(DateTimeString("102", dateTimeVal.toString("yyyyMMdd"))))

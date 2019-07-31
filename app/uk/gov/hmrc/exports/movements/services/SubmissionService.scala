@@ -18,12 +18,12 @@ package uk.gov.hmrc.exports.movements.services
 
 import javax.inject.{Inject, Singleton}
 import play.api.Logger
-import play.api.libs.json.Json
 import play.api.mvc.Result
-import play.api.mvc.Results.{Accepted, InternalServerError, Ok}
+import play.api.mvc.Results.{Accepted, InternalServerError}
 import play.mvc.Http.Status.ACCEPTED
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
 import uk.gov.hmrc.exports.movements.models.Submission
+import uk.gov.hmrc.exports.movements.models.notifications.UcrBlock
 import uk.gov.hmrc.exports.movements.repositories.SubmissionRepository
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -38,7 +38,7 @@ class SubmissionService @Inject()(
 ) {
 
   // TODO return Option[String] as conversation ID and handle result in Controller
-  def handleMovementSubmission(eori: String, ucr: String, movementType: String, xml: NodeSeq)(
+  def handleMovementSubmission(eori: String, ucr: String, actionType: String, xml: NodeSeq)(
     implicit hc: HeaderCarrier
   ): Future[Result] =
     linkingExportsConnector
@@ -51,7 +51,7 @@ class SubmissionService @Inject()(
                 Logger.info(s"No ConversationID returned for submission with Eori: $eori")
                 Future.successful(InternalServerError("No conversation Id Returned"))
               }) { conversationId =>
-                persistMovementsData(eori, conversationId, ucr, movementType).map(
+                persistMovementsData(eori, conversationId, Seq(UcrBlock(ucr = ucr, ucrType = "")), actionType).map(
                   result =>
                     if (result) {
                       Accepted("Movement Submission submitted and persisted ok")
@@ -67,15 +67,14 @@ class SubmissionService @Inject()(
         }
       )
 
-  def getMovementsByEori(eori: String): Future[Seq[Submission]] = movementsRepo.findByEori(eori)
-
   private def persistMovementsData(
     eori: String,
     conversationId: String,
-    ucr: String,
-    movementType: String
+    ucrBlocks: Seq[UcrBlock],
+    actionType: String
   ): Future[Boolean] = {
-    val movementSubmission = Submission(eori, conversationId, ucr, movementType)
+    val movementSubmission =
+      Submission(eori = eori, conversationId = conversationId, ucrBlocks = ucrBlocks, actionType = actionType)
     movementsRepo
       .save(movementSubmission)
       .map(res => {
@@ -84,5 +83,7 @@ class SubmissionService @Inject()(
         res
       })
   }
+
+  def getMovementsByEori(eori: String): Future[Seq[Submission]] = movementsRepo.findByEori(eori)
 
 }

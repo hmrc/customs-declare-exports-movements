@@ -20,9 +20,9 @@ import javax.inject.{Inject, Singleton}
 import play.api.Logger
 import play.api.http.Status.ACCEPTED
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
-import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
-import uk.gov.hmrc.exports.movements.models.consolidations.ConsolidationSubmission
-import uk.gov.hmrc.exports.movements.repositories.ConsolidationRepository
+import uk.gov.hmrc.exports.movements.models.notifications.UcrBlock
+import uk.gov.hmrc.exports.movements.models.{CustomsInventoryLinkingResponse, Submission}
+import uk.gov.hmrc.exports.movements.repositories.SubmissionRepository
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -33,7 +33,7 @@ import scala.xml.NodeSeq
 @Singleton
 class ConsolidationService @Inject()(
   customsInventoryLinkingExportsConnector: CustomsInventoryLinkingExportsConnector,
-  consolidationRepository: ConsolidationRepository
+  consolidationRepository: SubmissionRepository
 ) {
 
   private val logger = Logger(this.getClass)
@@ -44,10 +44,11 @@ class ConsolidationService @Inject()(
     customsInventoryLinkingExportsConnector.sendInventoryLinkingRequest(eori, requestXml).flatMap {
 
       case CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId)) =>
-        val newSubmission = ConsolidationSubmission(
+        val newSubmission = Submission(
           eori = eori,
           conversationId = conversationId,
-          ucr = extractUcrFromRequest(requestXml).getOrElse("")
+          ucrBlocks = Seq(UcrBlock(ucr = extractUcrFromRequest(requestXml).getOrElse(""), ucrType = "")),
+          actionType = "Consolidate"
         )
 
         consolidationRepository
