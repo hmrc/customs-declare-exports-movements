@@ -97,13 +97,14 @@ class NotificationRepositorySpec
     "there are multiple Notifications with given conversationId" should {
       "return all the Notifications" in {
         repo.insert(notification_1).futureValue
-        repo.insert(notification_2.copy(conversationId = notification_1.conversationId)).futureValue
+        val notificationWithSameConversationId = notification_2.copy(conversationId = notification_1.conversationId)
+        repo.insert(notificationWithSameConversationId).futureValue
 
         val foundNotifications = repo.findNotificationsByConversationId(conversationId).futureValue
 
         foundNotifications.length must equal(2)
         foundNotifications must contain(notification_1)
-        foundNotifications must contain(notification_2)
+        foundNotifications must contain(notificationWithSameConversationId)
       }
     }
   }

@@ -236,7 +236,7 @@ object NotificationTestData {
     "X-Badge-Identifier" -> "badgeIdentifier1"
   )
 
-  private val payloadExemplaryLength = 300
+  private val payloadExemplaryLength = 10
   val payload_1 = TestDataHelper.randomAlphanumericString(payloadExemplaryLength)
   val payload_2 = TestDataHelper.randomAlphanumericString(payloadExemplaryLength)
 
