@@ -21,7 +21,6 @@ import play.api.Logger
 import play.api.libs.json.Json
 import play.api.mvc._
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.exports.movements.config.AppConfig
 import uk.gov.hmrc.exports.movements.controllers.actions.AuthenticatedController
 import uk.gov.hmrc.exports.movements.controllers.util.HeaderValidator
 import uk.gov.hmrc.exports.movements.models.{AuthorizedSubmissionRequest, ErrorResponse, ValidatedHeadersRequest}
@@ -34,7 +33,6 @@ import scala.xml.NodeSeq
 
 @Singleton
 class SubmissionController @Inject()(
-  appConfig: AppConfig,
   authConnector: AuthConnector,
   headerValidator: HeaderValidator,
   movementsService: SubmissionService,
