@@ -23,14 +23,13 @@ import scala.xml.NodeSeq
 class ControlResponseParser extends ResponseParser {
 
   override def parse(responseXml: NodeSeq): NotificationData = NotificationData(
-    messageCode = stringOption(responseXml \ XmlTags.messageCode),
-    actionCode = stringOption(responseXml \ XmlTags.actionCode),
+    messageCode = StringOption((responseXml \ XmlTags.messageCode).text),
+    actionCode = StringOption((responseXml \ XmlTags.actionCode).text),
     entries = (responseXml \ XmlTags.ucr).map { ucrNode =>
       Entry(ucrBlock = Some(UcrBlock(ucr = (ucrNode \ XmlTags.ucr).text, ucrType = (ucrNode \ XmlTags.ucrType).text)))
     },
-    movementReference = stringOption(responseXml \ XmlTags.movementReference),
-    errorCode = stringOption(responseXml \ XmlTags.error \ XmlTags.errorCode)
+    movementReference = StringOption((responseXml \ XmlTags.movementReference).text),
+    errorCode = StringOption((responseXml \ XmlTags.error \ XmlTags.errorCode).text)
   )
 
-  private def stringOption(node: NodeSeq): Option[String] = if (node.text.trim.nonEmpty) Some(node.text) else None
 }

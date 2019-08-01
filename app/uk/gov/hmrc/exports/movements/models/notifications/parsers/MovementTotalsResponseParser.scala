@@ -23,16 +23,16 @@ import scala.xml.NodeSeq
 class MovementTotalsResponseParser extends ResponseParser {
 
   override def parse(responseXml: NodeSeq): NotificationData = NotificationData(
-    messageCode = stringOption(responseXml \ XmlTags.messageCode),
-    crcCode = stringOption(responseXml \ XmlTags.crc),
-    declarationCount = stringOption(responseXml \ XmlTags.declarationCount).map(_.toInt),
+    messageCode = StringOption((responseXml \ XmlTags.messageCode).text),
+    crcCode = StringOption((responseXml \ XmlTags.crc).text),
+    declarationCount = StringOption((responseXml \ XmlTags.declarationCount).text).map(_.toInt),
     entries = buildEntriesTotalsResponse(responseXml),
-    goodsArrivalDateTime = stringOption(responseXml \ XmlTags.goodsArrivalDateTime),
-    goodsLocation = stringOption(responseXml \ XmlTags.goodsLocation),
-    masterRoe = stringOption(responseXml \ XmlTags.masterROE),
-    masterSoe = stringOption(responseXml \ XmlTags.masterSOE),
-    masterUcr = stringOption(responseXml \ XmlTags.masterUCR),
-    movementReference = stringOption(responseXml \ XmlTags.movementReference)
+    goodsArrivalDateTime = StringOption((responseXml \ XmlTags.goodsArrivalDateTime).text),
+    goodsLocation = StringOption((responseXml \ XmlTags.goodsLocation).text),
+    masterRoe = StringOption((responseXml \ XmlTags.masterROE).text),
+    masterSoe = StringOption((responseXml \ XmlTags.masterSOE).text),
+    masterUcr = StringOption((responseXml \ XmlTags.masterUCR).text),
+    movementReference = StringOption((responseXml \ XmlTags.movementReference).text)
   )
 
   private def buildEntriesTotalsResponse(xml: NodeSeq): Seq[Entry] = (xml \ XmlTags.entry).map { entry =>
@@ -42,20 +42,19 @@ class MovementTotalsResponseParser extends ResponseParser {
       }.headOption,
       goodsItem = (entry \ XmlTags.goodsItem).map { goodsItemNode =>
         GoodsItem(
-          commodityCode = stringOption(goodsItemNode \ XmlTags.commodityCode).map(_.toInt),
-          totalPackages = stringOption(goodsItemNode \ XmlTags.totalPackages).map(_.toInt),
-          totalNetMass = stringOption(goodsItemNode \ XmlTags.totalNetMass).map(BigDecimal(_))
+          commodityCode = StringOption((goodsItemNode \ XmlTags.commodityCode).text).map(_.toInt),
+          totalPackages = StringOption((goodsItemNode \ XmlTags.totalPackages).text).map(_.toInt),
+          totalNetMass = StringOption((goodsItemNode \ XmlTags.totalNetMass).text).map(BigDecimal(_))
         )
       },
       entryStatus = (entry \ XmlTags.entryStatus).map { entryStatusNode =>
         EntryStatus(
-          ics = stringOption(entryStatusNode \ XmlTags.ics),
-          roe = stringOption(entryStatusNode \ XmlTags.roe),
-          soe = stringOption(entryStatusNode \ XmlTags.soe)
+          ics = StringOption((entryStatusNode \ XmlTags.ics).text),
+          roe = StringOption((entryStatusNode \ XmlTags.roe).text),
+          soe = StringOption((entryStatusNode \ XmlTags.soe).text)
         )
       }.headOption
     )
   }
 
-  private def stringOption(node: NodeSeq): Option[String] = if (node.text.trim.nonEmpty) Some(node.text) else None
 }

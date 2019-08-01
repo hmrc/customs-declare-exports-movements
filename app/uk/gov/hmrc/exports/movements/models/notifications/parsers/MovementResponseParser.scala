@@ -24,12 +24,12 @@ class MovementResponseParser extends ResponseParser {
 
   override def parse(responseXml: NodeSeq): NotificationData =
     NotificationData(
-      messageCode = stringOption(responseXml \ XmlTags.messageCode),
-      crcCode = stringOption(responseXml \ XmlTags.crc),
+      messageCode = StringOption((responseXml \ XmlTags.messageCode).text),
+      crcCode = StringOption((responseXml \ XmlTags.crc).text),
       entries = buildEntries(responseXml),
-      goodsArrivalDateTime = stringOption(responseXml \ XmlTags.goodsArrivalDateTime),
-      goodsLocation = stringOption(responseXml \ XmlTags.goodsLocation),
-      movementReference = stringOption(responseXml \ XmlTags.movementReference)
+      goodsArrivalDateTime = StringOption((responseXml \ XmlTags.goodsArrivalDateTime).text),
+      goodsLocation = StringOption((responseXml \ XmlTags.goodsLocation).text),
+      movementReference = StringOption((responseXml \ XmlTags.movementReference).text)
     )
 
   private def buildEntries(responseXml: NodeSeq): Seq[Entry] = {
@@ -40,17 +40,17 @@ class MovementResponseParser extends ResponseParser {
 
     val goodsItem = (responseXml \ XmlTags.goodsItem).map { goodsItemNode =>
       GoodsItem(
-        commodityCode = stringOption(goodsItemNode \ XmlTags.commodityCode).map(_.toInt),
-        totalPackages = stringOption(goodsItemNode \ XmlTags.totalPackages).map(_.toInt),
-        totalNetMass = stringOption(goodsItemNode \ XmlTags.totalNetMass).map(BigDecimal(_))
+        commodityCode = StringOption((goodsItemNode \ XmlTags.commodityCode).text).map(_.toInt),
+        totalPackages = StringOption((goodsItemNode \ XmlTags.totalPackages).text).map(_.toInt),
+        totalNetMass = StringOption((goodsItemNode \ XmlTags.totalNetMass).text).map(BigDecimal(_))
       )
     }
 
     val entryStatus = (responseXml \ XmlTags.entryStatus).map { entryStatusNode =>
       EntryStatus(
-        ics = stringOption(entryStatusNode \ XmlTags.ics),
-        roe = stringOption(entryStatusNode \ XmlTags.roe),
-        soe = stringOption(entryStatusNode \ XmlTags.soe)
+        ics = StringOption((entryStatusNode \ XmlTags.ics).text),
+        roe = StringOption((entryStatusNode \ XmlTags.roe).text),
+        soe = StringOption((entryStatusNode \ XmlTags.soe).text)
       )
     }.headOption
 
@@ -60,5 +60,4 @@ class MovementResponseParser extends ResponseParser {
     }
   }
 
-  private def stringOption(node: NodeSeq): Option[String] = if (node.text.trim.nonEmpty) Some(node.text) else None
 }
