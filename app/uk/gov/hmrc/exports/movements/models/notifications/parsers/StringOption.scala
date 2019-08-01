@@ -18,7 +18,7 @@ package uk.gov.hmrc.exports.movements.models.notifications.parsers
 
 object StringOption {
 
-  def apply(str: String): Option[String] = if (str == null || str.trim.isEmpty) None else Some(str)
+  def apply(str: String): Option[String] = Option(str).filter(_.trim.nonEmpty)
 
   def empty: Option[String] = None
 }

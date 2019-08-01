@@ -24,9 +24,18 @@ class StringOptionSpec extends WordSpec with MustMatchers {
   "StringOption on apply" should {
 
     "return Some containing this String" when {
+
       "provided with non-empty String" in {
 
         val input = "This is non-empty String"
+        val output = StringOption(input)
+
+        output must equal(Some(input))
+      }
+
+      "provided with non-empty String with leading or ending spaces" in {
+
+        val input = "  This is non-empty String with spaces      "
         val output = StringOption(input)
 
         output must equal(Some(input))
