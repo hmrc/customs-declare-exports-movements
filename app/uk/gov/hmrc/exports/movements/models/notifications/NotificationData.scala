@@ -16,23 +16,25 @@
 
 package uk.gov.hmrc.exports.movements.models.notifications
 
-import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.exports.movements.models.notifications.parsers.ResponseParserFactory
+import play.api.libs.json.Json
 
-import scala.xml.{NodeSeq, Utility}
+final case class NotificationData(
+  messageCode: Option[String] = None,
+  crcCode: Option[String] = None,
+  declarationCount: Option[Int] = None,
+  entries: Seq[Entry] = Seq.empty,
+  goodsArrivalDateTime: Option[String] = None,
+  goodsLocation: Option[String] = None,
+  masterRoe: Option[String] = None,
+  masterSoe: Option[String] = None,
+  masterUcr: Option[String] = None,
+  movementReference: Option[String] = None,
+  actionCode: Option[String] = None,
+  errorCode: Option[String] = None
+)
 
-@Singleton
-class NotificationFactory @Inject()(responseParserFactory: ResponseParserFactory) {
+object NotificationData {
+  implicit val format = Json.format[NotificationData]
 
-  def buildMovementNotification(conversationId: String, xml: NodeSeq): Notification = {
-    val context = responseParserFactory.buildResponseParserContext(xml)
-    val notificationData = context.parser.parse(xml)
-    Notification(
-      conversationId = conversationId,
-      responseType = context.responseType,
-      data = notificationData,
-      payload = Utility.trim(xml.head).toString
-    )
-  }
-
+  def empty = NotificationData()
 }

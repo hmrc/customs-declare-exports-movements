@@ -20,16 +20,22 @@ import java.time.Instant
 
 import play.api.libs.json.Json
 
-final case class Notification(
+final case class NotificationPresentation(
   timestampReceived: Instant = Instant.now(),
   conversationId: String,
-  responseType: String,
-  payload: String,
-  data: NotificationData
+  ucrBlocks: Seq[UcrBlock],
+  roe: Option[String],
+  soe: Option[String]
 )
 
-object Notification {
-  implicit val format = Json.format[Notification]
+object NotificationPresentation {
+  implicit val format = Json.format[NotificationPresentation]
 
-  def empty = Notification(conversationId = "", responseType = "", payload = "", data = NotificationData())
+  def apply(notification: Notification): NotificationPresentation = NotificationPresentation(
+    timestampReceived = notification.timestampReceived,
+    conversationId = notification.conversationId,
+    ucrBlocks = notification.data.entries.flatMap(_.ucrBlock),
+    roe = notification.data.masterRoe,
+    soe = notification.data.masterSoe
+  )
 }

@@ -16,23 +16,14 @@
 
 package uk.gov.hmrc.exports.movements.models.notifications
 
-import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.exports.movements.models.notifications.parsers.ResponseParserFactory
+import play.api.libs.json.Json
 
-import scala.xml.{NodeSeq, Utility}
+final case class Entry(
+  ucrBlock: Option[UcrBlock] = None,
+  goodsItem: Seq[GoodsItem] = Seq.empty,
+  entryStatus: Option[EntryStatus] = None
+)
 
-@Singleton
-class NotificationFactory @Inject()(responseParserFactory: ResponseParserFactory) {
-
-  def buildMovementNotification(conversationId: String, xml: NodeSeq): Notification = {
-    val context = responseParserFactory.buildResponseParserContext(xml)
-    val notificationData = context.parser.parse(xml)
-    Notification(
-      conversationId = conversationId,
-      responseType = context.responseType,
-      data = notificationData,
-      payload = Utility.trim(xml.head).toString
-    )
-  }
-
+object Entry {
+  implicit val format = Json.format[Entry]
 }

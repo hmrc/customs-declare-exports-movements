@@ -24,8 +24,8 @@ import play.api.mvc._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.exports.movements.controllers.actions.AuthenticatedController
 import uk.gov.hmrc.exports.movements.controllers.util.HeaderValidator
-import uk.gov.hmrc.exports.movements.metrics.ExportsMetrics
 import uk.gov.hmrc.exports.movements.metrics.MetricIdentifiers._
+import uk.gov.hmrc.exports.movements.metrics.MovementsMetrics
 import uk.gov.hmrc.exports.movements.models.notifications.{Notification, NotificationFactory}
 import uk.gov.hmrc.exports.movements.services.NotificationService
 
@@ -37,7 +37,7 @@ import scala.xml.NodeSeq
 class NotificationController @Inject()(
   authConnector: AuthConnector,
   headerValidator: HeaderValidator,
-  metrics: ExportsMetrics,
+  metrics: MovementsMetrics,
   notificationService: NotificationService,
   notificationFactory: NotificationFactory,
   cc: ControllerComponents

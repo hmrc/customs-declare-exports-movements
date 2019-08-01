@@ -14,22 +14,11 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.exports.movements.models.notifications
+package uk.gov.hmrc.exports.movements.models.notifications.parsers
 
-import java.time.Instant
+object StringOption {
 
-import play.api.libs.json.Json
+  def apply(str: String): Option[String] = Option(str).filter(_.trim.nonEmpty)
 
-final case class Notification(
-  timestampReceived: Instant = Instant.now(),
-  conversationId: String,
-  responseType: String,
-  payload: String,
-  data: NotificationData
-)
-
-object Notification {
-  implicit val format = Json.format[Notification]
-
-  def empty = Notification(conversationId = "", responseType = "", payload = "", data = NotificationData())
+  def empty: Option[String] = None
 }

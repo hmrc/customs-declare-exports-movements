@@ -31,7 +31,7 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames.XEoriIdentifierHeaderName
 import uk.gov.hmrc.exports.movements.controllers.util.HeaderValidator
-import uk.gov.hmrc.exports.movements.metrics.ExportsMetrics
+import uk.gov.hmrc.exports.movements.metrics.MovementsMetrics
 import uk.gov.hmrc.exports.movements.services.ConsolidationService
 import unit.uk.gov.hmrc.exports.movements.base.AuthTestSupport
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder.buildConsolidationServiceMock
@@ -51,7 +51,7 @@ class ConsolidationControllerSpec
     .overrides(bind[AuthConnector].to(mockAuthConnector), bind[ConsolidationService].to(consolidationServiceMock))
     .build()
 
-  private val metrics: ExportsMetrics = app.injector.instanceOf[ExportsMetrics]
+  private val metrics: MovementsMetrics = app.injector.instanceOf[MovementsMetrics]
   private val headerValidator: HeaderValidator = app.injector.instanceOf[HeaderValidator]
 
   override def beforeEach(): Unit = {

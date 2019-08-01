@@ -16,65 +16,102 @@
 
 package unit.uk.gov.hmrc.exports.movements.models.notifications
 
+import org.mockito.ArgumentMatchers.{any, eq => meq}
+import org.mockito.Mockito.{verify, when}
+import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{MustMatchers, WordSpec}
-import uk.gov.hmrc.exports.movements.models.notifications.{Notification, NotificationFactory}
-import utils.MovementsTestData._
+import uk.gov.hmrc.exports.movements.models.notifications.parsers.ResponseParserContext
+import uk.gov.hmrc.exports.movements.models.notifications.{NotificationData, NotificationFactory}
+import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder
+import utils.MovementsTestData.conversationId
 import utils.NotificationTestData._
 
-class NotificationFactorySpec extends WordSpec with MustMatchers {
+import scala.xml.{Utility, XML}
+
+class NotificationFactorySpec extends WordSpec with MustMatchers with MockitoSugar {
 
   private trait Test {
-    val notificationFactory = new NotificationFactory
+    val responseParserMock = UnitTestMockBuilder.buildResponseParserMock
+    val exampleResponseParserContext = ResponseParserContext("ResponseType", responseParserMock)
+
+    val responseParserFactoryMock = UnitTestMockBuilder.buildResponseParserFactoryMock
+    when(responseParserFactoryMock.buildResponseParser(any())).thenReturn(responseParserMock)
+    when(responseParserFactoryMock.buildResponseParserContext(any())).thenReturn(exampleResponseParserContext)
+
+    val notificationFactory = new NotificationFactory(responseParserFactoryMock)
   }
 
-  "MovementNotificationFactory on buildMovementNotification(ConversationId, NodeSeq)" when {
+  "MovementNotificationFactory on buildMovementNotification" when {
 
-    "provided with correct inventoryLinkingControlResponse" should {
-      "return MovementNotification" in new Test {
-        val xml = exampleRejectInventoryLinkingControlResponseXML
-        val resultNotification = notificationFactory.buildMovementNotification(conversationId, xml)
+    "everything works correctly" should {
 
-        val expectedNotification = exampleRejectInventoryLinkingControlResponseNotification
-        assertNotificationsEquality(resultNotification, expectedNotification)
+      "call ResponseParserFactory, passing response XML provided" in new Test {
+        val responseXml = exampleRejectInventoryLinkingControlResponseXML
+        notificationFactory.buildMovementNotification(conversationId, responseXml)
+
+        verify(responseParserFactoryMock).buildResponseParserContext(meq(responseXml))
       }
-    }
 
-    "provided with correct inventoryLinkingMovementTotalsResponse" should {
-      "return MovementNotification" in new Test {
-        val xml = exampleInventoryLinkingMovementTotalsResponseXML
-        val resultNotification = notificationFactory.buildMovementNotification(conversationId, xml)
+      "call ResponseParser returned by the ResponseParserFactory, passing response XML provided" in new Test {
+        val responseXml = exampleRejectInventoryLinkingControlResponseXML
+        notificationFactory.buildMovementNotification(conversationId, responseXml)
 
-        val expectedNotification = exampleInventoryLinkingMovementTotalsResponseNotification
-        assertNotificationsEquality(resultNotification, expectedNotification)
+        verify(responseParserMock).parse(meq(responseXml))
       }
-    }
 
-    "provided with unknown XML format" should {
-      "throw an IllegalArgumentException" in new Test {
-        val xml = unknownFormatResponseXML
-        val exc = intercept[IllegalArgumentException] {
-          notificationFactory.buildMovementNotification(conversationId, xml)
-        }
+      "return Notification containing correct conversationId" in new Test {
+        val responseXml = exampleRejectInventoryLinkingControlResponseXML
+        val resultNotification = notificationFactory.buildMovementNotification(conversationId, responseXml)
 
-        exc.getMessage must include("Unknown Inventory Linking Response: UnknownFormat")
+        resultNotification.conversationId must equal(conversationId)
+      }
+
+      "return Notification containing responseType from context" in new Test {
+        val responseXml = exampleRejectInventoryLinkingControlResponseXML
+        val expectedResponseType = exampleResponseParserContext.responseType
+
+        val resultNotification = notificationFactory.buildMovementNotification(conversationId, responseXml)
+
+        resultNotification.responseType must equal(expectedResponseType)
+      }
+
+      "return Notification containing notificationData from ResponseParser" in new Test {
+        val expectedNotificationData = NotificationData(messageCode = Some("TestMessageCode"))
+        when(responseParserMock.parse(any())).thenReturn(expectedNotificationData)
+
+        val responseXml = exampleRejectInventoryLinkingControlResponseXML
+        val resultNotification = notificationFactory.buildMovementNotification(conversationId, responseXml)
+
+        resultNotification.data must equal(expectedNotificationData)
+      }
+
+      "return Notification containing correct payload" in new Test {
+        val responseXml = exampleRejectInventoryLinkingControlResponseXML
+        val expectedPayload = exampleRejectInventoryLinkingControlResponseNotification.copy(
+          payload =
+            Utility.trim(XML.loadString(exampleRejectInventoryLinkingControlResponseNotification.payload)).toString
+        )
+
+        val resultNotification = notificationFactory.buildMovementNotification(conversationId, responseXml)
+
+        resultNotification.conversationId must equal(conversationId)
       }
     }
 
     "provided with empty Conversation ID" should {
-      "create MovementNotification with empty conversationId field" in new Test {
-        val xml = exampleRejectInventoryLinkingControlResponseXML
-        val resultNotification = notificationFactory.buildMovementNotification("", xml)
-
+      "create Notification with empty conversationId field" in new Test {
+        val responseXml = exampleRejectInventoryLinkingControlResponseXML
         val expectedNotification = exampleRejectInventoryLinkingControlResponseNotification.copy(conversationId = "")
-        assertNotificationsEquality(resultNotification, expectedNotification)
+
+        val resultNotification = notificationFactory.buildMovementNotification("", responseXml)
+
+        resultNotification.conversationId must equal("")
+        resultNotification.responseType mustNot be(empty)
+        resultNotification.payload mustNot be(empty)
+        resultNotification.data must equal(NotificationData.empty)
       }
     }
-  }
 
-  private def assertNotificationsEquality(actual: Notification, expected: Notification): Unit = {
-    actual.conversationId must equal(expected.conversationId)
-    actual.errors must equal(expected.errors)
-    actual.payload must equal(expected.payload)
   }
 
 }

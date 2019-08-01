@@ -33,6 +33,16 @@ object MovementsTestData {
 
   private lazy val responseFunctionCodes: Seq[String] =
     Seq("01", "02", "03", "05", "06", "07", "08", "09", "10", "11", "16", "17", "18")
+  object MessageCodes {
+    val EAA = "EAA"
+    val EAL = "EAL"
+    val EDL = "EDL"
+    val EAC = "EAC"
+    val CST = "CST"
+    val ERS = "ERS"
+    val EMR = "EMR"
+  }
+
   val validEori: String = "GB167676"
   val randomEori: String = randomString(8)
   val lrn: Option[String] = Some(randomString(22))
@@ -41,6 +51,7 @@ object MovementsTestData {
   val conversationId_2: String = "b1c09f1b-7c94-4e90-b754-7c5c71c44e22"
   val randomUcr: String = randomString(16)
   val before: Long = System.currentTimeMillis()
+
   val authToken: String =
     "BXQ3/Treo4kQCZvVcCqKPlwxRN4RA9Mb5RF8fFxOuwG5WSg+S+Rsp9Nq998Fgg0HeNLXL7NGwEAIzwM6vuA6YYhRQnTRFaBhrp+1w+kVW8g1qHGLYO48QPWuxdM87VMCZqxnCuDoNxVn76vwfgtpNj0+NwfzXV2Zc12L2QGgF9H9KwIkeIPK/mMlBESjue4V]"
   val dummyToken: String = s"Bearer $authToken"

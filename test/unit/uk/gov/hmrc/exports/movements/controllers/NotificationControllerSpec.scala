@@ -29,8 +29,7 @@ import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.exports.movements.controllers.util.{CustomsHeaderNames, HeaderValidator}
-import uk.gov.hmrc.exports.movements.metrics.ExportsMetrics
+import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames
 import uk.gov.hmrc.exports.movements.models.notifications.{Notification, NotificationFactory}
 import uk.gov.hmrc.exports.movements.services.NotificationService
 import unit.uk.gov.hmrc.exports.movements.base.AuthTestSupport
@@ -38,7 +37,7 @@ import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
 import utils.NotificationTestData._
 
 import scala.concurrent.Future
-import scala.xml.{Elem, NodeSeq}
+import scala.xml.{Elem, NodeSeq, Utility}
 
 class NotificationControllerSpec
     extends WordSpec with GuiceOneAppPerSuite with AuthTestSupport with BeforeAndAfterEach with ScalaFutures
@@ -138,10 +137,13 @@ class NotificationControllerSpec
 
         val conversationIdCaptor: ArgumentCaptor[String] = ArgumentCaptor.forClass(classOf[String])
         val requestBodyCaptor: ArgumentCaptor[Elem] = ArgumentCaptor.forClass(classOf[Elem])
-        verify(movementNotificationFactoryMock, times(1))
+        verify(movementNotificationFactoryMock)
           .buildMovementNotification(conversationIdCaptor.capture(), requestBodyCaptor.capture())
+
         conversationIdCaptor.getValue must equal(validHeaders(CustomsHeaderNames.XConversationIdName))
-        requestBodyCaptor.getValue must equal(exampleInventoryLinkingMovementTotalsResponseXML)
+        Utility.trim(requestBodyCaptor.getValue).toString must equal(
+          Utility.trim(exampleInventoryLinkingMovementTotalsResponseXML).toString
+        )
       }
 
       "call NotificationService once, passing parsed MovementNotification" in new HappyPathSaveTotalsResponseTest {

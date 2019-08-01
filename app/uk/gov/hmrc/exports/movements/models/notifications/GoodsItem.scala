@@ -15,10 +15,15 @@
  */
 
 package uk.gov.hmrc.exports.movements.models.notifications
+
 import play.api.libs.json.Json
 
-case class NotificationError(errorCode: String)
+final case class GoodsItem(
+  commodityCode: Option[Int] = None,
+  totalPackages: Option[Int] = None,
+  totalNetMass: Option[BigDecimal] = None
+)
 
-object NotificationError {
-  implicit val format = Json.format[NotificationError]
+object GoodsItem {
+  implicit val format = Json.format[GoodsItem]
 }
