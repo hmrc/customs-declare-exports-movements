@@ -43,9 +43,9 @@ class MovementTotalsResponseParserSpec extends WordSpec with MustMatchers {
             )
             .data
 
-        val resultNotification = parser.parse(xml)
+        val resultNotificationData = parser.parse(xml)
 
-        NotificationsComparator.assertEquality(resultNotification, expectedNotificationData)
+        resultNotificationData must equal(expectedNotificationData)
       }
     }
 
@@ -59,9 +59,9 @@ class MovementTotalsResponseParserSpec extends WordSpec with MustMatchers {
         val expectedNotificationData =
           NotificationData(messageCode = Some(MessageCodes.ERS), goodsLocation = Some(goodsLocation))
 
-        val resultNotification = parser.parse(xml)
+        val resultNotificationData = parser.parse(xml)
 
-        NotificationsComparator.assertEquality(resultNotification, expectedNotificationData)
+        resultNotificationData must equal(expectedNotificationData)
       }
     }
 
@@ -70,9 +70,9 @@ class MovementTotalsResponseParserSpec extends WordSpec with MustMatchers {
         val xml = <inventoryLinkingMovementTotalsResponse></inventoryLinkingMovementTotalsResponse>
         val expectedNotificationData = NotificationData.empty
 
-        val resultNotification = parser.parse(xml)
+        val resultNotificationData = parser.parse(xml)
 
-        NotificationsComparator.assertEquality(resultNotification, expectedNotificationData)
+        resultNotificationData must equal(expectedNotificationData)
       }
     }
   }

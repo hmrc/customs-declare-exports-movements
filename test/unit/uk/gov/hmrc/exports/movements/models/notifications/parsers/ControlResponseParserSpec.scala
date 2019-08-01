@@ -41,9 +41,9 @@ class ControlResponseParserSpec extends WordSpec with MustMatchers {
               Utility.trim(XML.loadString(exampleRejectInventoryLinkingControlResponseNotification.payload)).toString
           ).data
 
-        val resultNotification = parser.parse(xml)
+        val resultNotificationData = parser.parse(xml)
 
-        NotificationsComparator.assertEquality(resultNotification, expectedNotificationData)
+        resultNotificationData must equal(expectedNotificationData)
       }
     }
 
@@ -57,9 +57,9 @@ class ControlResponseParserSpec extends WordSpec with MustMatchers {
         val expectedNotificationData =
           NotificationData.empty.copy(messageCode = Some(MessageCodes.ERS), actionCode = Some("1"))
 
-        val resultNotification = parser.parse(xml)
+        val resultNotificationData = parser.parse(xml)
 
-        NotificationsComparator.assertEquality(resultNotification, expectedNotificationData)
+        resultNotificationData must equal(expectedNotificationData)
       }
     }
 
@@ -68,9 +68,9 @@ class ControlResponseParserSpec extends WordSpec with MustMatchers {
         val xml = <inventoryLinkingControlResponse></inventoryLinkingControlResponse>
         val expectedNotificationData = NotificationData.empty
 
-        val resultNotification = parser.parse(xml)
+        val resultNotificationData = parser.parse(xml)
 
-        NotificationsComparator.assertEquality(resultNotification, expectedNotificationData)
+        resultNotificationData must equal(expectedNotificationData)
       }
     }
   }
