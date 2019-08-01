@@ -20,9 +20,7 @@ import javax.inject.{Inject, Singleton}
 import play.api.Logger
 import play.api.mvc._
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.exports.movements.config.AppConfig
 import uk.gov.hmrc.exports.movements.controllers.actions.AuthenticatedController
-import uk.gov.hmrc.exports.movements.controllers.util.HeaderValidator
 import uk.gov.hmrc.exports.movements.models.ErrorResponse
 import uk.gov.hmrc.exports.movements.services.ConsolidationService
 import uk.gov.hmrc.http.HeaderCarrier
@@ -33,9 +31,7 @@ import scala.xml.NodeSeq
 
 @Singleton
 class ConsolidationController @Inject()(
-  appConfig: AppConfig,
   authConnector: AuthConnector,
-  headerValidator: HeaderValidator,
   consolidationService: ConsolidationService,
   cc: ControllerComponents
 ) extends AuthenticatedController(authConnector, cc) {
