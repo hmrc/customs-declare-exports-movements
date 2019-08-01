@@ -19,7 +19,7 @@ package uk.gov.hmrc.exports.movements.models.notifications
 import play.api.libs.json.Json
 
 final case class NotificationData(
-  messageCode: Option[String] = None ,
+  messageCode: Option[String] = None,
   crcCode: Option[String] = None,
   declarationCount: Option[Int] = None,
   entries: Seq[Entry] = Seq.empty,
@@ -29,7 +29,6 @@ final case class NotificationData(
   masterSoe: Option[String] = None,
   masterUcr: Option[String] = None,
   movementReference: Option[String] = None,
-
   actionCode: Option[String] = None,
   errorCode: Option[String] = None
 )

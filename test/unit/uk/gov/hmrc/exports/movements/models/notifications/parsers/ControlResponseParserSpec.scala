@@ -36,10 +36,12 @@ class ControlResponseParserSpec extends WordSpec with MustMatchers {
       "return NotificationData" in new Test {
         val xml = exampleRejectInventoryLinkingControlResponseXML
         val expectedNotificationData =
-          exampleRejectInventoryLinkingControlResponseNotification.copy(
-            payload =
-              Utility.trim(XML.loadString(exampleRejectInventoryLinkingControlResponseNotification.payload)).toString
-          ).data
+          exampleRejectInventoryLinkingControlResponseNotification
+            .copy(
+              payload =
+                Utility.trim(XML.loadString(exampleRejectInventoryLinkingControlResponseNotification.payload)).toString
+            )
+            .data
 
         val resultNotificationData = parser.parse(xml)
 
