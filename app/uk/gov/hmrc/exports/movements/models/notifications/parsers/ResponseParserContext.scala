@@ -16,4 +16,4 @@
 
 package uk.gov.hmrc.exports.movements.models.notifications.parsers
 
-case class ResponseParserContext(responseType: String, parser: ResponseParser)
+final case class ResponseParserContext(responseType: String, parser: ResponseParser)
