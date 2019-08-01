@@ -33,7 +33,7 @@ import utils.NotificationTestData._
 
 import scala.concurrent.Future
 
-class NotificationControllerSpec2
+class NotificationControllerSpecNoApp
     extends WordSpec with MustMatchers with MockitoSugar with ScalaFutures with AuthTestSupport {
 
   trait SetUp {
