@@ -41,11 +41,15 @@ class SubmissionController @Inject()(
 
   private val logger = Logger(this.getClass)
 
-  def submitMovement(): Action[AnyContent] =
-    authorisedAction(bodyParser = xmlOrEmptyBody) { implicit request =>
-      implicit val headers: Map[String, String] = request.headers.toSimpleMap
-      processMovementsRequest()
-    }
+  def submitArrival(): Action[AnyContent] = authorisedAction(bodyParser = xmlOrEmptyBody) { implicit request =>
+    implicit val headers: Map[String, String] = request.headers.toSimpleMap
+    processMovementsRequest()
+  }
+
+  def submitDeparture(): Action[AnyContent] = authorisedAction(bodyParser = xmlOrEmptyBody) { implicit request =>
+    implicit val headers: Map[String, String] = request.headers.toSimpleMap
+    processMovementsRequest()
+  }
 
   private def xmlOrEmptyBody: BodyParser[AnyContent] =
     BodyParser(

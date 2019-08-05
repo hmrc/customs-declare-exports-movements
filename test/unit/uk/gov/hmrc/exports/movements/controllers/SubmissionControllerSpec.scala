@@ -28,11 +28,11 @@ import unit.uk.gov.hmrc.exports.movements.base.CustomsExportsBaseSpec
 import utils.MovementsTestData._
 
 class SubmissionControllerSpec extends CustomsExportsBaseSpec {
-  val saveMovementUri = "/save-movement-submission"
+  val arrivalUri = "/movements/arrival"
 
   val xmlBody: String = randomSubmitDeclaration.toXml
 
-  val fakeXmlRequest: FakeRequest[String] = FakeRequest("POST", saveMovementUri).withBody(xmlBody)
+  val fakeXmlRequest: FakeRequest[String] = FakeRequest("POST", arrivalUri).withBody(xmlBody)
   val fakeXmlRequestWithHeaders: FakeRequest[String] =
     fakeXmlRequest
       .withHeaders(

@@ -2,7 +2,9 @@
 
 POST        /customs-declare-exports/notifyMovement         uk.gov.hmrc.exports.movements.controllers.NotificationController.saveNotification()
 
-POST        /save-movement-submission                       uk.gov.hmrc.exports.movements.controllers.SubmissionController.submitMovement()
+POST        /movements/arrival                              uk.gov.hmrc.exports.movements.controllers.SubmissionController.submitArrival()
+
+POST        /movements/departure                            uk.gov.hmrc.exports.movements.controllers.SubmissionController.submitDeparture()
 
 GET         /movements                                      uk.gov.hmrc.exports.movements.controllers.SubmissionController.getMovements()
 

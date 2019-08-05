@@ -30,7 +30,7 @@ import unit.uk.gov.hmrc.exports.movements.base.CustomsExportsBaseSpec
 import utils.MovementsTestData._
 
 class AuthenticatedControllerSpec extends CustomsExportsBaseSpec with ScalaFutures {
-  val uri = "/save-movement-submission"
+  val uri = "/movements/arrival"
   val xmlBody: String = "<iamXml></iamXml>"
   val fakeXmlRequest: FakeRequest[String] = FakeRequest("POST", uri).withBody(xmlBody)
   val fakeXmlRequestWithHeaders: FakeRequest[String] =
