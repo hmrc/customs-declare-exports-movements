@@ -36,7 +36,8 @@ import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.exports.movements.config.AppConfig
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
 import uk.gov.hmrc.exports.movements.metrics.MovementsMetrics
-import uk.gov.hmrc.exports.movements.models.{CustomsInventoryLinkingResponse, Submission}
+import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
+import uk.gov.hmrc.exports.movements.models.submissions.Submission
 import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, SubmissionRepository}
 
 import scala.concurrent.duration._

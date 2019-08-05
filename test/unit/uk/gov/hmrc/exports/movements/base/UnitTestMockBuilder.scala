@@ -24,11 +24,7 @@ import reactivemongo.api.commands.{DefaultWriteResult, WriteResult}
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
 import uk.gov.hmrc.exports.movements.metrics.MovementsMetrics
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
-import uk.gov.hmrc.exports.movements.models.notifications.parsers.{
-  ResponseParser,
-  ResponseParserContext,
-  ResponseParserFactory
-}
+import uk.gov.hmrc.exports.movements.models.notifications.parsers.{ResponseParser, ResponseParserContext, ResponseParserFactory}
 import uk.gov.hmrc.exports.movements.models.notifications.{Notification, NotificationData, NotificationFactory}
 import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, SubmissionRepository}
 import uk.gov.hmrc.exports.movements.services.{ConsolidationService, NotificationService}
@@ -78,7 +74,7 @@ object UnitTestMockBuilder extends MockitoSugar {
   def buildConsolidationServiceMock: ConsolidationService = {
     val consolidationServiceMock = mock[ConsolidationService]
 
-    when(consolidationServiceMock.submitConsolidationRequest(any(), any())(any()))
+    when(consolidationServiceMock.submitConsolidationRequest(any())(any()))
       .thenReturn(Future.successful(Left("")))
 
     consolidationServiceMock

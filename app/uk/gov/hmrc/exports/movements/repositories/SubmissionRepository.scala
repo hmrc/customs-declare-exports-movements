@@ -22,7 +22,7 @@ import play.api.libs.json.JsString
 import play.modules.reactivemongo.ReactiveMongoComponent
 import reactivemongo.api.indexes.{Index, IndexType}
 import reactivemongo.bson.BSONObjectID
-import uk.gov.hmrc.exports.movements.models.Submission
+import uk.gov.hmrc.exports.movements.models.submissions.Submission
 import uk.gov.hmrc.mongo.ReactiveRepository
 
 import scala.concurrent.{ExecutionContext, Future}

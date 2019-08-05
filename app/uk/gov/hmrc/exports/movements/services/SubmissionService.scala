@@ -22,8 +22,8 @@ import play.api.mvc.Result
 import play.api.mvc.Results.{Accepted, InternalServerError}
 import play.mvc.Http.Status.ACCEPTED
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
-import uk.gov.hmrc.exports.movements.models.Submission
 import uk.gov.hmrc.exports.movements.models.notifications.UcrBlock
+import uk.gov.hmrc.exports.movements.models.submissions.Submission
 import uk.gov.hmrc.exports.movements.repositories.SubmissionRepository
 import uk.gov.hmrc.http.HeaderCarrier
 

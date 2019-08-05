@@ -14,23 +14,8 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.exports.movements.models
+package uk.gov.hmrc.exports.movements.services.context
 
-import java.time.Instant
-import java.util.UUID
+import scala.xml.NodeSeq
 
-import play.api.libs.json._
-import uk.gov.hmrc.exports.movements.models.notifications.UcrBlock
-
-case class Submission(
-  uuid: String = UUID.randomUUID().toString,
-  eori: String,
-  conversationId: String,
-  ucrBlocks: Seq[UcrBlock],
-  actionType: String,
-  requestTimestamp: Instant = Instant.now()
-)
-
-object Submission {
-  implicit val formats = Json.format[Submission]
-}
+final case class SubmissionRequestContext(eori: String, actionType: String, requestXml: NodeSeq)

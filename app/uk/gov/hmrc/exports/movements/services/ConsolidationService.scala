@@ -20,9 +20,11 @@ import javax.inject.{Inject, Singleton}
 import play.api.Logger
 import play.api.http.Status.ACCEPTED
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
+import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
 import uk.gov.hmrc.exports.movements.models.notifications.UcrBlock
-import uk.gov.hmrc.exports.movements.models.{CustomsInventoryLinkingResponse, Submission}
+import uk.gov.hmrc.exports.movements.models.submissions.Submission
 import uk.gov.hmrc.exports.movements.repositories.SubmissionRepository
+import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -38,17 +40,17 @@ class ConsolidationService @Inject()(
 
   private val logger = Logger(this.getClass)
 
-  def submitConsolidationRequest(eori: String, requestXml: NodeSeq)(
-    implicit hc: HeaderCarrier
-  ): Future[Either[String, Unit]] =
-    customsInventoryLinkingExportsConnector.sendInventoryLinkingRequest(eori, requestXml).flatMap {
+  def submitConsolidationRequest(
+    context: SubmissionRequestContext
+  )(implicit hc: HeaderCarrier): Future[Either[String, Unit]] =
+    customsInventoryLinkingExportsConnector.sendInventoryLinkingRequest(context.eori, context.requestXml).flatMap {
 
       case CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId)) =>
         val newSubmission = Submission(
-          eori = eori,
+          eori = context.eori,
           conversationId = conversationId,
-          ucrBlocks = Seq(UcrBlock(ucr = extractUcrFromRequest(requestXml).getOrElse(""), ucrType = "")),
-          actionType = "Consolidate"
+          ucrBlocks = Seq(UcrBlock(ucr = extractUcrFromRequest(context.requestXml).getOrElse(""), ucrType = "")),
+          actionType = context.actionType
         )
 
         consolidationRepository
@@ -62,7 +64,7 @@ class ConsolidationService @Inject()(
 
       case CustomsInventoryLinkingResponse(status, _) =>
         logger
-          .error(s"Customs Inventory Linking Exports returned $status for Eori: $eori")
+          .error(s"Customs Inventory Linking Exports returned $status for Eori: ${context.eori}")
         Future.successful(Left("Non Accepted status returned by Customs Inventory Linking Exports"))
     }
 

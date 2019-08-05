@@ -25,11 +25,12 @@ import org.scalatest.time.{Millis, Seconds, Span}
 import org.scalatest.{MustMatchers, WordSpec}
 import play.api.http.Status.{ACCEPTED, BAD_REQUEST}
 import reactivemongo.api.commands.WriteResult
-import uk.gov.hmrc.exports.movements.models.{CustomsInventoryLinkingResponse, Submission}
+import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
+import uk.gov.hmrc.exports.movements.models.submissions.Submission
 import uk.gov.hmrc.exports.movements.services.ConsolidationService
 import uk.gov.hmrc.http.HeaderCarrier
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
-import utils.ConsolidationTestData.exampleShutMucrConsolidationRequest
+import utils.ConsolidationTestData.{exampleShutMucrConsolidationRequest, exampleShutMucrContext}
 import utils.MovementsTestData.{conversationId, validEori}
 
 import scala.concurrent.Future
@@ -57,14 +58,14 @@ class ConsolidationServiceSpec extends WordSpec with MockitoSugar with ScalaFutu
       "return Either.Right" in new HappyPathSaveTest {
 
         val submissionResult =
-          consolidationService.submitConsolidationRequest(validEori, exampleShutMucrConsolidationRequest).futureValue
+          consolidationService.submitConsolidationRequest(exampleShutMucrContext).futureValue
 
         submissionResult must equal(Right((): Unit))
       }
 
       "call CustomsInventoryLinkingExportsConnector and ConsolidationRepository afterwards" in new HappyPathSaveTest {
 
-        consolidationService.submitConsolidationRequest(validEori, exampleShutMucrConsolidationRequest).futureValue
+        consolidationService.submitConsolidationRequest(exampleShutMucrContext).futureValue
 
         val inOrder: InOrder = Mockito.inOrder(customsInventoryLinkingExportsConnectorMock, consolidationRepositoryMock)
         inOrder.verify(customsInventoryLinkingExportsConnectorMock).sendInventoryLinkingRequest(any(), any())(any())
@@ -73,7 +74,7 @@ class ConsolidationServiceSpec extends WordSpec with MockitoSugar with ScalaFutu
 
       "call CustomsInventoryLinkingExportsConnector with EORI and XML provided" in new HappyPathSaveTest {
 
-        consolidationService.submitConsolidationRequest(validEori, exampleShutMucrConsolidationRequest).futureValue
+        consolidationService.submitConsolidationRequest(exampleShutMucrContext).futureValue
 
         verify(customsInventoryLinkingExportsConnectorMock)
           .sendInventoryLinkingRequest(meq(validEori), meq(exampleShutMucrConsolidationRequest))(any())
@@ -81,7 +82,7 @@ class ConsolidationServiceSpec extends WordSpec with MockitoSugar with ScalaFutu
 
       "call ConsolidationRepository with correctly built ConsolidationSubmission" in new HappyPathSaveTest {
 
-        consolidationService.submitConsolidationRequest(validEori, exampleShutMucrConsolidationRequest).futureValue
+        consolidationService.submitConsolidationRequest(exampleShutMucrContext).futureValue
 
         val consolidationSubmissionCaptor: ArgumentCaptor[Submission] =
           ArgumentCaptor.forClass(classOf[Submission])
@@ -110,7 +111,7 @@ class ConsolidationServiceSpec extends WordSpec with MockitoSugar with ScalaFutu
           .thenReturn(Future.successful(CustomsInventoryLinkingResponse(status = BAD_REQUEST, None)))
 
         val submissionResult =
-          consolidationService.submitConsolidationRequest(validEori, exampleShutMucrConsolidationRequest).futureValue
+          consolidationService.submitConsolidationRequest(exampleShutMucrContext).futureValue
 
         submissionResult must equal(Left("Non Accepted status returned by Customs Inventory Linking Exports"))
       }
@@ -119,7 +120,7 @@ class ConsolidationServiceSpec extends WordSpec with MockitoSugar with ScalaFutu
         when(customsInventoryLinkingExportsConnectorMock.sendInventoryLinkingRequest(any(), any())(any()))
           .thenReturn(Future.successful(CustomsInventoryLinkingResponse(status = BAD_REQUEST, None)))
 
-        consolidationService.submitConsolidationRequest(validEori, exampleShutMucrConsolidationRequest).futureValue
+        consolidationService.submitConsolidationRequest(exampleShutMucrContext).futureValue
 
         verifyZeroInteractions(consolidationRepositoryMock)
       }
@@ -137,7 +138,7 @@ class ConsolidationServiceSpec extends WordSpec with MockitoSugar with ScalaFutu
           .thenReturn(Future.failed[WriteResult](new Exception(exceptionMsg) with NoStackTrace))
 
         val submissionResult =
-          consolidationService.submitConsolidationRequest(validEori, exampleShutMucrConsolidationRequest).futureValue
+          consolidationService.submitConsolidationRequest(exampleShutMucrContext).futureValue
 
         submissionResult must equal(Left(exceptionMsg))
       }

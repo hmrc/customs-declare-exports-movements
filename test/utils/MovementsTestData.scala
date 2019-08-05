@@ -24,6 +24,7 @@ import play.api.mvc.Codec
 import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames._
 import uk.gov.hmrc.exports.movements.models._
 import uk.gov.hmrc.exports.movements.models.notifications.{UcrBlock => UcrBlockModel}
+import uk.gov.hmrc.exports.movements.models.submissions.Submission
 import uk.gov.hmrc.wco.dec.inventorylinking.common.{AgentDetails, TransportDetails, UcrBlock}
 import uk.gov.hmrc.wco.dec.inventorylinking.movement.request.InventoryLinkingMovementRequest
 import uk.gov.hmrc.wco.dec.{DateTimeString, MetaData, Response, ResponseDateTimeElement, Declaration => WcoDeclaration}

@@ -27,7 +27,7 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.exports.movements.models.Submission
+import uk.gov.hmrc.exports.movements.models.submissions.Submission
 import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, SubmissionRepository}
 import utils.ExternalServicesConfig.{Host, Port}
 import utils.stubs.CustomsMovementsAPIService
