@@ -19,9 +19,9 @@ package utils
 import org.joda.time.{DateTime, DateTimeZone}
 import play.api.http.HeaderNames.CONTENT_TYPE
 import play.api.http.{ContentTypes, HeaderNames}
+import play.api.libs.json.{JsObject, JsString, JsValue}
 import play.api.mvc.Codec
 import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames._
-import uk.gov.hmrc.exports.movements.models._
 import uk.gov.hmrc.exports.movements.models.notifications.{UcrBlock => UcrBlockModel}
 import uk.gov.hmrc.exports.movements.models.submissions.Submission
 import uk.gov.hmrc.exports.movements.models.submissions.Submission.ActionTypes
@@ -30,6 +30,7 @@ import uk.gov.hmrc.wco.dec.inventorylinking.movement.request.InventoryLinkingMov
 import uk.gov.hmrc.wco.dec.{DateTimeString, MetaData, ResponseDateTimeElement, Declaration => WcoDeclaration}
 
 import scala.util.Random
+import scala.xml.Elem
 
 object MovementsTestData {
 
@@ -52,18 +53,28 @@ object MovementsTestData {
   val conversationId_3: String = "b1c09f1b-7c94-4e90-b754-7c5c71c44e33"
   val conversationId_4: String = "b1c09f1b-7c94-4e90-b754-7c5c71c44e44"
   val conversationId_5: String = "b1c09f1b-7c94-4e90-b754-7c5c71c44e55"
+  val ucr = "9GB025115188654-IAZ1"
+  val ucr_2 = "7GB123456789000-123ABC456DEFQWERT"
   val randomUcr: String = randomString(16)
+
+  val location = "LOCATION"
+  val agentRole = "ARL"
+  val shedOPID = "SOP"
+  val movementReference = "MovRef001234"
+  private val masterOptCodes = Seq("A", "F", "R", "X")
+  val masterOpt = masterOptCodes.head
+  val transportId = "TransportID"
+  val transportMode = "X"
+  val transportNationality = "UK"
 
   val authToken: String =
     "BXQ3/Treo4kQCZvVcCqKPlwxRN4RA9Mb5RF8fFxOuwG5WSg+S+Rsp9Nq998Fgg0HeNLXL7NGwEAIzwM6vuA6YYhRQnTRFaBhrp+1w+kVW8g1qHGLYO48QPWuxdM87VMCZqxnCuDoNxVn76vwfgtpNj0+NwfzXV2Zc12L2QGgF9H9KwIkeIPK/mMlBESjue4V]"
   val dummyToken: String = s"Bearer $authToken"
-  val declarantEoriValue: String = "ZZ123456789000"
-  val declarantEori: Eori = Eori(declarantEoriValue)
   val declarantLrnValue: String = "MyLrnValue1234"
   val declarantUcrValue: String = "MyDucrValue1234"
   val declarantMrnValue: String = "MyMucrValue1234"
   val ContentTypeHeader: (String, String) = CONTENT_TYPE -> ContentTypes.XML(Codec.utf_8)
-  val ValidXEoriIdentifierHeader: (String, String) = XEoriIdentifierHeaderName -> declarantEoriValue
+  val ValidXEoriIdentifierHeader: (String, String) = XEoriIdentifierHeaderName -> validEori
   val ValidLrnHeader: (String, String) = XLrnHeaderName -> declarantLrnValue
   val ValidAuthorizationHeader: (String, String) = HeaderNames.AUTHORIZATION -> dummyToken
   val ValidConversationIdHeader: (String, String) = XConversationIdName -> conversationId
@@ -75,7 +86,7 @@ object MovementsTestData {
     ValidAuthorizationHeader,
     ValidConversationIdHeader,
     ValidXEoriIdentifierHeader,
-    // This is not needed
+    // TODO: This is not needed
     ValidLrnHeader,
     ValidUcrHeader,
     ValidMovementTypeHeader
@@ -101,7 +112,7 @@ object MovementsTestData {
   val now: DateTime = DateTime.now.withZone(DateTimeZone.UTC)
   def validInventoryLinkingExportRequest = InventoryLinkingMovementRequest(
     messageCode = "11",
-    agentDetails = Some(AgentDetails(eori = Some(declarantEoriValue), agentLocation = Some("location"))),
+    agentDetails = Some(AgentDetails(eori = Some(validEori), agentLocation = Some("location"))),
     ucrBlock = UcrBlock(ucr = declarantUcrValue, ucrType = "type"),
     goodsLocation = "goodsLocation",
     goodsArrivalDateTime = Some(now.toString),
@@ -114,5 +125,107 @@ object MovementsTestData {
 
   protected def randomString(length: Int): String = Random.alphanumeric.take(length).mkString
 
+
+  def exampleArrivalRequestXML: Elem =
+    <inventoryLinkingMovementRequest>
+      <messageCode>{MessageCodes.EAL}</messageCode>
+      <agentDetails>
+        <EORI>{validEori}</EORI>
+        <agentLocation>{location}</agentLocation>
+        <agentRole>{agentRole}</agentRole>
+      </agentDetails>
+      <ucrBlock>
+        <ucr>{ucr}</ucr>
+        <ucrType>D</ucrType>
+      </ucrBlock>
+      <goodsLocation>{location}</goodsLocation>
+      <goodsArrivalDateTime>2019-07-12T13:14:54.000Z</goodsArrivalDateTime>
+      <shedOPID>{shedOPID}</shedOPID>
+      <movementReference>{movementReference}</movementReference>
+      <masterUCR>{ucr_2}</masterUCR>
+      <masterOpt>{masterOpt}</masterOpt>
+      <transportDetails>
+        <transportID>{transportId}</transportID>
+        <transportMode>{transportMode}</transportMode>
+        <transportNationality>{transportNationality}</transportNationality>
+      </transportDetails>
+    </inventoryLinkingMovementRequest>
+
+  val exampleArrivalRequestJson: JsValue = JsObject(Map(
+    "inventoryLinkingMovementRequest" -> JsObject(Map(
+      "messageCode" -> JsString(MessageCodes.EAL),
+      "agentDetails" -> JsObject(Map(
+        "EORI" -> JsString(validEori),
+        "agentLocation" -> JsString(location),
+        "agentRole" -> JsString(agentRole)
+      )),
+      "ucrBlock" -> JsObject(Map(
+        "ucr" -> JsString(ucr),
+        "ucrType" -> JsString("D")
+      )),
+      "goodsLocation" -> JsString(location),
+      "goodsArrivalDateTime" -> JsString("2019-07-12T13:14:54.000Z"),
+      "shedOPID" -> JsString(shedOPID),
+      "movementReference" -> JsString(movementReference),
+      "masterUCR" -> JsString(ucr_2),
+      "masterOpt" -> JsString(masterOpt),
+      "transportDetails" -> JsObject(Map(
+        "transportID" -> JsString(transportId),
+        "transportMode" -> JsString(transportMode),
+        "transportNationality" -> JsString(transportNationality)
+      ))
+    ))
+  ))
+
+  def exampleDepartureRequestXML: Elem =
+    <inventoryLinkingMovementRequest>
+      <messageCode>{MessageCodes.EDL}</messageCode>
+      <agentDetails>
+        <EORI>{validEori}</EORI>
+        <agentLocation>{location}</agentLocation>
+        <agentRole>{agentRole}</agentRole>
+      </agentDetails>
+      <ucrBlock>
+        <ucr>{ucr}</ucr>
+        <ucrType>D</ucrType>
+      </ucrBlock>
+      <goodsLocation>{location}</goodsLocation>
+      <goodsDepartureDateTime>2019-07-12T13:14:54.000Z</goodsDepartureDateTime>
+      <shedOPID>{shedOPID}</shedOPID>
+      <movementReference>{movementReference}</movementReference>
+      <masterUCR>{ucr_2}</masterUCR>
+      <masterOpt>{masterOpt}</masterOpt>
+      <transportDetails>
+        <transportID>{transportId}</transportID>
+        <transportMode>{transportMode}</transportMode>
+        <transportNationality>{transportNationality}</transportNationality>
+      </transportDetails>
+    </inventoryLinkingMovementRequest>
+
+  val exampleDepartureRequestJson: JsValue = JsObject(Map(
+    "inventoryLinkingMovementRequest" -> JsObject(Map(
+      "messageCode" -> JsString(MessageCodes.EDL),
+      "agentDetails" -> JsObject(Map(
+        "EORI" -> JsString(validEori),
+        "agentLocation" -> JsString(location),
+        "agentRole" -> JsString(agentRole)
+      )),
+      "ucrBlock" -> JsObject(Map(
+        "ucr" -> JsString(ucr),
+        "ucrType" -> JsString("D")
+      )),
+      "goodsLocation" -> JsString(location),
+      "goodsDepartureDateTime" -> JsString("2019-07-12T13:14:54.000Z"),
+      "shedOPID" -> JsString(shedOPID),
+      "movementReference" -> JsString(movementReference),
+      "masterUCR" -> JsString(ucr_2),
+      "masterOpt" -> JsString(masterOpt),
+      "transportDetails" -> JsObject(Map(
+        "transportID" -> JsString(transportId),
+        "transportMode" -> JsString(transportMode),
+        "transportNationality" -> JsString(transportNationality)
+      ))
+    ))
+  ))
 
 }

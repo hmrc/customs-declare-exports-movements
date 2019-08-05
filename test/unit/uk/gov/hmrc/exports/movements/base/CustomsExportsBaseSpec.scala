@@ -32,7 +32,6 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.inject.{Injector, bind}
 import play.api.libs.ws.WSClient
 import play.filters.csrf.{CSRFConfig, CSRFConfigProvider, CSRFFilter}
-import reactivemongo.api.commands.WriteResult
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.exports.movements.config.AppConfig
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
@@ -85,12 +84,6 @@ trait CustomsExportsBaseSpec
   protected def withConnectorCall(response: CustomsInventoryLinkingResponse) =
     when(mockCustomsInventoryLinkingConnector.sendInventoryLinkingRequest(any(), any())(any()))
       .thenReturn(Future.successful(response))
-
-  protected def withDataSaved(ok: Boolean): OngoingStubbing[Future[WriteResult]] =
-    when(mockMovementsRepository.insert(any())(any())).thenReturn(Future.successful(ok match {
-      case true => UnitTestMockBuilder.dummyWriteResultSuccess
-      case false => UnitTestMockBuilder.dummyWriteResultFailure
-    }))
 
   protected def withMovements(movements: Seq[Submission]): OngoingStubbing[Future[Seq[Submission]]] =
     when(mockMovementsRepository.findByEori(any())).thenReturn(Future.successful(movements))

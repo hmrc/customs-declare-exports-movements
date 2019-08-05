@@ -17,9 +17,13 @@
 package component.uk.gov.hmrc.exports.movements
 
 import component.uk.gov.hmrc.exports.movements.base.ComponentTestSpec
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import play.api.mvc.{AnyContentAsXml, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import reactivemongo.core.actors.Exceptions.PrimaryUnavailableException
+import reactivemongo.core.errors.ConnectionException
 import utils.MovementsTestData._
 
 import scala.concurrent.Future
@@ -27,9 +31,9 @@ import scala.xml.XML
 
 class MovementsSubmissionReceivedSpec extends ComponentTestSpec {
 
-  val endpoint = "/save-movement-submission"
+  val submitArrivalEndpoint = "/movements/arrival"
 
-  lazy val validMovementSubmissionRequest: FakeRequest[AnyContentAsXml] = FakeRequest("POST", endpoint)
+  lazy val validMovementSubmissionRequest: FakeRequest[AnyContentAsXml] = FakeRequest(POST, submitArrivalEndpoint)
     .withHeaders(ValidHeaders.toSeq: _*)
     .withXmlBody(XML.loadString(validInventoryLinkingExportRequest.toXml))
 
@@ -42,7 +46,7 @@ class MovementsSubmissionReceivedSpec extends ComponentTestSpec {
         moveSubRepoMockedResult = true,
         moveSubRepoIsCalled = true,
         expectedResponseStatus = ACCEPTED,
-        expectedResponseBody = "Movement Submission submitted and persisted ok"
+        expectedResponseBody = "Movement Submission submitted successfully"
       )
     }
 
@@ -53,7 +57,7 @@ class MovementsSubmissionReceivedSpec extends ComponentTestSpec {
         moveSubRepoMockedResult = false,
         moveSubRepoIsCalled = true,
         expectedResponseStatus = INTERNAL_SERVER_ERROR,
-        expectedResponseBody = "Unable to persist data something bad happened"
+        expectedResponseBody = "DatabaseException['ERROR']"
       )
     }
 
@@ -64,7 +68,7 @@ class MovementsSubmissionReceivedSpec extends ComponentTestSpec {
         moveSubRepoMockedResult = false,
         moveSubRepoIsCalled = false,
         expectedResponseStatus = INTERNAL_SERVER_ERROR,
-        expectedResponseBody = "Non Accepted status returned by Customs Declaration Service"
+        expectedResponseBody = "Non Accepted status returned by Customs Inventory Linking Exports"
       )
     }
 
@@ -75,7 +79,7 @@ class MovementsSubmissionReceivedSpec extends ComponentTestSpec {
         moveSubRepoMockedResult = true,
         moveSubRepoIsCalled = false,
         expectedResponseStatus = INTERNAL_SERVER_ERROR,
-        expectedResponseBody = "Non Accepted status returned by Customs Declaration Service"
+        expectedResponseBody = "Non Accepted status returned by Customs Inventory Linking Exports"
       )
     }
 
@@ -86,7 +90,7 @@ class MovementsSubmissionReceivedSpec extends ComponentTestSpec {
         moveSubRepoMockedResult = true,
         moveSubRepoIsCalled = false,
         expectedResponseStatus = INTERNAL_SERVER_ERROR,
-        expectedResponseBody = "Non Accepted status returned by Customs Declaration Service"
+        expectedResponseBody = "Non Accepted status returned by Customs Inventory Linking Exports"
       )
     }
 
@@ -97,7 +101,7 @@ class MovementsSubmissionReceivedSpec extends ComponentTestSpec {
         moveSubRepoMockedResult = true,
         moveSubRepoIsCalled = false,
         expectedResponseStatus = INTERNAL_SERVER_ERROR,
-        expectedResponseBody = "Non Accepted status returned by Customs Declaration Service"
+        expectedResponseBody = "Non Accepted status returned by Customs Inventory Linking Exports"
       )
     }
 
@@ -118,14 +122,11 @@ class MovementsSubmissionReceivedSpec extends ComponentTestSpec {
       status(result) shouldBe INTERNAL_SERVER_ERROR
 
       And("the response body contains error")
-      contentAsString(result) shouldBe "Non Accepted status returned by Customs Declaration Service"
+      contentAsString(result) should include("Non Accepted status returned by Customs Inventory Linking Exports")
 
       And("the ILE API service was called correctly")
       eventually(
-        verifyILEServiceWasCalled(
-          requestBody = validInventoryLinkingExportRequest.toXml,
-          expectedEori = declarantEoriValue
-        )
+        verifyILEServiceWasCalled(requestBody = validInventoryLinkingExportRequest.toXml, expectedEori = validEori)
       )
 
       And("the movement submission repository was not called")
@@ -138,6 +139,16 @@ class MovementsSubmissionReceivedSpec extends ComponentTestSpec {
     scenario("an authorised user tries to submit movements declaration, but movement repository is down") {
 
       startInventoryLinkingService(ACCEPTED)
+      when(movementSubmissionsRepositoryMock.insert(any())(any()))
+        .thenReturn(
+          Future.failed(
+            new PrimaryUnavailableException(
+              "Supervisor-1",
+              "Connection-1",
+              ConnectionException("No primary node is available!")
+            )
+          )
+        )
       val request: FakeRequest[AnyContentAsXml] = validMovementSubmissionRequest
 
       Given("user is authorised")
@@ -150,18 +161,19 @@ class MovementsSubmissionReceivedSpec extends ComponentTestSpec {
       status(result) shouldBe INTERNAL_SERVER_ERROR
 
       And("the response body contains error")
-      contentAsString(result) shouldBe "<?xml version='1.0' encoding='UTF-8'?>\n<errorResponse>\n        <code>INTERNAL_SERVER_ERROR</code>\n        <message>Internal server error</message>\n      </errorResponse>"
+      contentAsString(result) should include("<?xml version='1.0' encoding='UTF-8'?>")
+      contentAsString(result) should include("<code>INTERNAL_SERVER_ERROR</code>")
+      contentAsString(result) should include(
+        "<message>MongoError['No primary node is available! (Supervisor-1/Connection-1)']</message>"
+      )
 
       And("the ILE API service is called correctly")
       eventually(
-        verifyILEServiceWasCalled(
-          requestBody = validInventoryLinkingExportRequest.toXml,
-          expectedEori = declarantEoriValue
-        )
+        verifyILEServiceWasCalled(requestBody = validInventoryLinkingExportRequest.toXml, expectedEori = validEori)
       )
 
       And("the movement submission repository is called correctly")
-      eventually(verifyMovementSubmissionRepositoryIsCorrectlyCalled(declarantEoriValue))
+      eventually(verifyMovementSubmissionRepositoryIsCorrectlyCalled(validEori))
 
       And("the request was authorised with AuthService")
       eventually(verifyAuthServiceCalledForNonCsp())
@@ -218,19 +230,16 @@ class MovementsSubmissionReceivedSpec extends ComponentTestSpec {
       status(result) shouldBe expectedResponseStatus
 
       And(s"the response body is $expectedResponseBody")
-      contentAsString(result) shouldBe expectedResponseBody
+      contentAsString(result) should include(expectedResponseBody)
 
       And("the ILE API service is called correctly")
       eventually(
-        verifyILEServiceWasCalled(
-          requestBody = validInventoryLinkingExportRequest.toXml,
-          expectedEori = declarantEoriValue
-        )
+        verifyILEServiceWasCalled(requestBody = validInventoryLinkingExportRequest.toXml, expectedEori = validEori)
       )
 
       if (moveSubRepoIsCalled) {
         And("the movements submission repository is called correctly")
-        eventually(verifyMovementSubmissionRepositoryIsCorrectlyCalled(declarantEoriValue))
+        eventually(verifyMovementSubmissionRepositoryIsCorrectlyCalled(validEori))
       } else {
         And("the movements submission repository is not called")
         verifyMovementSubmissionRepositoryWasNotCalled()

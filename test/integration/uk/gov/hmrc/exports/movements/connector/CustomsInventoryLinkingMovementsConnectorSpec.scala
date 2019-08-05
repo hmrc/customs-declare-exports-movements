@@ -81,7 +81,7 @@ class CustomsInventoryLinkingMovementsConnectorSpec
 
         verifyILEServiceWasCalled(
           requestBody = validInventoryLinkingExportRequest.toXml,
-          expectedEori = declarantEoriValue
+          expectedEori = validEori
         )
       }
 
@@ -95,7 +95,7 @@ class CustomsInventoryLinkingMovementsConnectorSpec
 
         verifyILEServiceWasCalled(
           requestBody = validInventoryLinkingExportRequest.toXml,
-          expectedEori = declarantEoriValue
+          expectedEori = validEori
         )
       }
 
@@ -183,5 +183,5 @@ class CustomsInventoryLinkingMovementsConnectorSpec
   }
 
   private def sendValidXml(xml: String): Future[CustomsInventoryLinkingResponse] =
-    connector.sendInventoryLinkingRequest(declarantEoriValue, scala.xml.XML.loadString(xml))
+    connector.sendInventoryLinkingRequest(validEori, scala.xml.XML.loadString(xml))
 }

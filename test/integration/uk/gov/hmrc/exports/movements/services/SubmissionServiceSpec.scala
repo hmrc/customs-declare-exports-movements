@@ -25,18 +25,19 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.{GuiceApplicationBuilder, GuiceableModule}
-import play.api.mvc.Result
 import play.api.test.Helpers._
+import reactivemongo.core.errors.GenericDatabaseException
+import uk.gov.hmrc.exports.movements.models.submissions.Submission.ActionTypes
 import uk.gov.hmrc.exports.movements.repositories.SubmissionRepository
 import uk.gov.hmrc.exports.movements.services.SubmissionService
+import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
 import uk.gov.hmrc.http.HeaderCarrier
-import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder.{dummyWriteResultFailure, dummyWriteResultSuccess}
+import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder.{buildSubmissionRepositoryMock, dummyWriteResultSuccess}
 import utils.CustomsMovementsAPIConfig
 import utils.ExternalServicesConfig.{Host, Port}
 import utils.MovementsTestData._
 import utils.stubs.CustomsMovementsAPIService
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.xml.XML
 
@@ -44,7 +45,7 @@ class SubmissionServiceSpec
     extends IntegrationTestSpec with GuiceOneAppPerSuite with MockitoSugar with CustomsMovementsAPIService
     with ScalaFutures {
 
-  val mockMovementsRepository: SubmissionRepository = mock[SubmissionRepository]
+  val mockMovementsRepository: SubmissionRepository = buildSubmissionRepositoryMock
 
   def overrideModules: Seq[GuiceableModule] = Nil
 
@@ -67,10 +68,11 @@ class SubmissionServiceSpec
   private implicit val hc: HeaderCarrier = HeaderCarrier()
 
   def withMovementSubmissionPersisted(result: Boolean): Unit =
-    when(mockMovementsRepository.insert(any())).thenReturn(Future.successful(result match {
-      case true  => dummyWriteResultSuccess
-      case false => dummyWriteResultFailure
-    }))
+    when(mockMovementsRepository.insert(any())(any())).thenReturn(if (result) {
+      Future.successful(dummyWriteResultSuccess)
+    } else {
+      Future.failed(GenericDatabaseException("There was a problem with Database", None))
+    })
 
   "Movements Service" should {
 
@@ -81,16 +83,14 @@ class SubmissionServiceSpec
         startInventoryLinkingService(ACCEPTED)
         withMovementSubmissionPersisted(true)
 
-        val result: Future[Result] =
-          movementsService.handleMovementSubmission(
-            declarantEoriValue,
-            declarantUcrValue,
-            "Arrival",
-            XML.loadString(validInventoryLinkingExportRequest.toXml)
-          )
+        val context = SubmissionRequestContext(
+          eori = validEori,
+          actionType = ActionTypes.Arrival,
+          requestXml = XML.loadString(validInventoryLinkingExportRequest.toXml)
+        )
+        val result = movementsService.submitRequest(context).futureValue
 
-        contentAsString(result) should be("Movement Submission submitted and persisted ok")
-        result.futureValue.header.status should be(ACCEPTED)
+        result should equal(Right())
       }
 
       "Departure is persisted" in {
@@ -98,16 +98,14 @@ class SubmissionServiceSpec
         startInventoryLinkingService(ACCEPTED)
         withMovementSubmissionPersisted(true)
 
-        val result: Future[Result] =
-          movementsService.handleMovementSubmission(
-            declarantEoriValue,
-            declarantUcrValue,
-            "Departure",
-            XML.loadString(validInventoryLinkingExportRequest.toXml)
-          )
+        val context = SubmissionRequestContext(
+          eori = validEori,
+          actionType = ActionTypes.Departure,
+          requestXml = XML.loadString(validInventoryLinkingExportRequest.toXml)
+        )
+        val result = movementsService.submitRequest(context).futureValue
 
-        contentAsString(result) should be("Movement Submission submitted and persisted ok")
-        result.futureValue.header.status should be(ACCEPTED)
+        result should equal(Right())
       }
     }
 
@@ -118,16 +116,14 @@ class SubmissionServiceSpec
         startInventoryLinkingService(ACCEPTED)
         withMovementSubmissionPersisted(false)
 
-        val result: Future[Result] =
-          movementsService.handleMovementSubmission(
-            declarantEoriValue,
-            declarantUcrValue,
-            "Arrival",
-            XML.loadString(validInventoryLinkingExportRequest.toXml)
-          )
+        val context = SubmissionRequestContext(
+          eori = validEori,
+          actionType = ActionTypes.Arrival,
+          requestXml = XML.loadString(validInventoryLinkingExportRequest.toXml)
+        )
+        val result = movementsService.submitRequest(context).futureValue
 
-        contentAsString(result) should be("Unable to persist data something bad happened")
-        result.futureValue.header.status should be(INTERNAL_SERVER_ERROR)
+        result should equal(Left("DatabaseException['There was a problem with Database']"))
       }
 
       "Departure is not persisted" in {
@@ -135,16 +131,14 @@ class SubmissionServiceSpec
         startInventoryLinkingService(ACCEPTED)
         withMovementSubmissionPersisted(false)
 
-        val result: Future[Result] =
-          movementsService.handleMovementSubmission(
-            declarantEoriValue,
-            declarantUcrValue,
-            "Departure",
-            XML.loadString(validInventoryLinkingExportRequest.toXml)
-          )
+        val context = SubmissionRequestContext(
+          eori = validEori,
+          actionType = ActionTypes.Departure,
+          requestXml = XML.loadString(validInventoryLinkingExportRequest.toXml)
+        )
+        val result = movementsService.submitRequest(context).futureValue
 
-        contentAsString(result) should be("Unable to persist data something bad happened")
-        result.futureValue.header.status should be(INTERNAL_SERVER_ERROR)
+        result should equal(Left("DatabaseException['There was a problem with Database']"))
       }
 
       "Arrival is not persisted (ACCEPTED but, no conversationID)" in {
@@ -152,16 +146,14 @@ class SubmissionServiceSpec
         startInventoryLinkingService(ACCEPTED, conversationId = false)
         withMovementSubmissionPersisted(false)
 
-        val result: Future[Result] =
-          movementsService.handleMovementSubmission(
-            declarantEoriValue,
-            declarantUcrValue,
-            "Arrival",
-            XML.loadString(validInventoryLinkingExportRequest.toXml)
-          )
+        val context = SubmissionRequestContext(
+          eori = validEori,
+          actionType = ActionTypes.Arrival,
+          requestXml = XML.loadString(validInventoryLinkingExportRequest.toXml)
+        )
+        val result = movementsService.submitRequest(context).futureValue
 
-        contentAsString(result) should be("No conversation Id Returned")
-        result.futureValue.header.status should be(INTERNAL_SERVER_ERROR)
+        result should equal(Left("Non Accepted status returned by Customs Inventory Linking Exports"))
       }
 
       "Departure is not persisted (ACCEPTED but, no conversationID)" in {
@@ -169,16 +161,14 @@ class SubmissionServiceSpec
         startInventoryLinkingService(ACCEPTED, conversationId = false)
         withMovementSubmissionPersisted(false)
 
-        val result: Future[Result] =
-          movementsService.handleMovementSubmission(
-            declarantEoriValue,
-            declarantUcrValue,
-            "Departure",
-            XML.loadString(validInventoryLinkingExportRequest.toXml)
-          )
+        val context = SubmissionRequestContext(
+          eori = validEori,
+          actionType = ActionTypes.Departure,
+          requestXml = XML.loadString(validInventoryLinkingExportRequest.toXml)
+        )
+        val result = movementsService.submitRequest(context).futureValue
 
-        contentAsString(result) should be("No conversation Id Returned")
-        result.futureValue.header.status should be(INTERNAL_SERVER_ERROR)
+        result should equal(Left("Non Accepted status returned by Customs Inventory Linking Exports"))
       }
 
       "it is Not Accepted (BAD_REQUEST)" in {
@@ -186,16 +176,14 @@ class SubmissionServiceSpec
         startInventoryLinkingService(BAD_REQUEST)
         withMovementSubmissionPersisted(false)
 
-        val result: Future[Result] =
-          movementsService.handleMovementSubmission(
-            declarantEoriValue,
-            declarantUcrValue,
-            "Arrival",
-            XML.loadString(validInventoryLinkingExportRequest.toXml)
-          )
+        val context = SubmissionRequestContext(
+          eori = validEori,
+          actionType = ActionTypes.Arrival,
+          requestXml = XML.loadString(validInventoryLinkingExportRequest.toXml)
+        )
+        val result = movementsService.submitRequest(context).futureValue
 
-        contentAsString(result) should be("Non Accepted status returned by Customs Declaration Service")
-        result.futureValue.header.status should be(INTERNAL_SERVER_ERROR)
+        result should equal(Left("Non Accepted status returned by Customs Inventory Linking Exports"))
       }
 
       "it is Not Accepted (NOT_FOUND)" in {
@@ -203,16 +191,14 @@ class SubmissionServiceSpec
         startInventoryLinkingService(NOT_FOUND)
         withMovementSubmissionPersisted(false)
 
-        val result: Future[Result] =
-          movementsService.handleMovementSubmission(
-            declarantEoriValue,
-            declarantUcrValue,
-            "Arrival",
-            XML.loadString(validInventoryLinkingExportRequest.toXml)
-          )
+        val context = SubmissionRequestContext(
+          eori = validEori,
+          actionType = ActionTypes.Arrival,
+          requestXml = XML.loadString(validInventoryLinkingExportRequest.toXml)
+        )
+        val result = movementsService.submitRequest(context).futureValue
 
-        contentAsString(result) should be("Non Accepted status returned by Customs Declaration Service")
-        result.futureValue.header.status should be(INTERNAL_SERVER_ERROR)
+        result should equal(Left("Non Accepted status returned by Customs Inventory Linking Exports"))
       }
 
       "it is Not Accepted (UNAUTHORIZED)" in {
@@ -220,16 +206,15 @@ class SubmissionServiceSpec
         startInventoryLinkingService(UNAUTHORIZED)
         withMovementSubmissionPersisted(false)
 
-        val result: Future[Result] =
-          movementsService.handleMovementSubmission(
-            declarantEoriValue,
-            declarantUcrValue,
-            "Arrival",
-            XML.loadString(validInventoryLinkingExportRequest.toXml)
-          )
 
-        contentAsString(result) should be("Non Accepted status returned by Customs Declaration Service")
-        result.futureValue.header.status should be(INTERNAL_SERVER_ERROR)
+        val context = SubmissionRequestContext(
+          eori = validEori,
+          actionType = ActionTypes.Arrival,
+          requestXml = XML.loadString(validInventoryLinkingExportRequest.toXml)
+        )
+        val result = movementsService.submitRequest(context).futureValue
+
+        result should equal(Left("Non Accepted status returned by Customs Inventory Linking Exports"))
       }
 
       "it is Not Accepted (INTERNAL_SERVER_ERROR)" in {
@@ -237,16 +222,15 @@ class SubmissionServiceSpec
         startInventoryLinkingService(INTERNAL_SERVER_ERROR)
         withMovementSubmissionPersisted(false)
 
-        val result: Future[Result] =
-          movementsService.handleMovementSubmission(
-            declarantEoriValue,
-            declarantUcrValue,
-            "Arrival",
-            XML.loadString(validInventoryLinkingExportRequest.toXml)
-          )
 
-        contentAsString(result) should be("Non Accepted status returned by Customs Declaration Service")
-        result.futureValue.header.status should be(INTERNAL_SERVER_ERROR)
+        val context = SubmissionRequestContext(
+          eori = validEori,
+          actionType = ActionTypes.Arrival,
+          requestXml = XML.loadString(validInventoryLinkingExportRequest.toXml)
+        )
+        val result = movementsService.submitRequest(context).futureValue
+
+        result should equal(Left("Non Accepted status returned by Customs Inventory Linking Exports"))
       }
     }
   }

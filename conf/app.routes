@@ -7,7 +7,7 @@ GET         /notifications/:conversationId                  uk.gov.hmrc.exports.
 POST        /movements/arrival                              uk.gov.hmrc.exports.movements.controllers.SubmissionController.submitArrival()
 POST        /movements/departure                            uk.gov.hmrc.exports.movements.controllers.SubmissionController.submitDeparture()
 
-GET         /movements                                      uk.gov.hmrc.exports.movements.controllers.SubmissionController.getMovements()
+GET         /movements                                      uk.gov.hmrc.exports.movements.controllers.SubmissionController.getAllSubmissions()
 
 # Movements Consolidations
 

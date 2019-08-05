@@ -23,33 +23,34 @@ import play.api.mvc._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.exports.movements.controllers.actions.AuthenticatedController
 import uk.gov.hmrc.exports.movements.controllers.util.HeaderValidator
-import uk.gov.hmrc.exports.movements.models.{AuthorizedSubmissionRequest, ErrorResponse, ValidatedHeadersRequest}
+import uk.gov.hmrc.exports.movements.models.submissions.Submission.ActionTypes
+import uk.gov.hmrc.exports.movements.models.{AuthorizedSubmissionRequest, ErrorResponse}
 import uk.gov.hmrc.exports.movements.services.SubmissionService
+import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.xml.NodeSeq
 
 @Singleton
 class SubmissionController @Inject()(
   authConnector: AuthConnector,
   headerValidator: HeaderValidator,
-  movementsService: SubmissionService,
+  submissionService: SubmissionService,
   cc: ControllerComponents
 ) extends AuthenticatedController(authConnector, cc) {
 
   private val logger = Logger(this.getClass)
 
-  def submitArrival(): Action[AnyContent] = authorisedAction(bodyParser = xmlOrEmptyBody) { implicit request =>
-    implicit val headers: Map[String, String] = request.headers.toSimpleMap
-    processMovementsRequest()
-  }
+  def submitArrival(): Action[AnyContent] =
+    authorisedAction(bodyParser = xmlOrEmptyBody) { implicit request =>
+      submitMovementSubmission(ActionTypes.Arrival)
+    }
 
-  def submitDeparture(): Action[AnyContent] = authorisedAction(bodyParser = xmlOrEmptyBody) { implicit request =>
-    implicit val headers: Map[String, String] = request.headers.toSimpleMap
-    processMovementsRequest()
-  }
+  def submitDeparture(): Action[AnyContent] =
+    authorisedAction(bodyParser = xmlOrEmptyBody) { implicit request =>
+      submitMovementSubmission(ActionTypes.Departure)
+    }
 
   private def xmlOrEmptyBody: BodyParser[AnyContent] =
     BodyParser(
@@ -62,38 +63,33 @@ class SubmissionController @Inject()(
       }
     )
 
-  private def processMovementsRequest()(
-    implicit request: AuthorizedSubmissionRequest[AnyContent],
-    hc: HeaderCarrier,
-    headers: Map[String, String]
-  ): Future[Result] =
-    headerValidator.validateAndExtractMovementSubmissionHeaders match {
-      case Right(vhr) =>
-        request.body.asXml match {
-          case Some(xml) =>
-            processSave(vhr, xml).recoverWith {
-              case e: Exception =>
-                logger.error(s"problem calling declaration api ${e.getMessage}")
-                Future.successful(ErrorResponse.ErrorInternalServerError.XmlResult)
-            }
-          case None =>
-            logger.error("Body is not xml")
-            Future.successful(ErrorResponse.ErrorInvalidPayload.XmlResult)
-        }
-      case Left(_) =>
-        logger.error("Invalid Headers found")
-        Future.successful(ErrorResponse.ErrorGenericBadRequest.XmlResult)
+  private def submitMovementSubmission(
+    actionType: String
+  )(implicit request: AuthorizedSubmissionRequest[AnyContent], hc: HeaderCarrier): Future[Result] =
+    request.body.asXml match {
+      case Some(requestXml) =>
+        val context =
+          SubmissionRequestContext(eori = request.eori.value, actionType = actionType, requestXml = requestXml)
+        forwardMovementSubmissionRequest(context)
+      case None =>
+        logger.error("Body is not xml")
+        Future.successful(ErrorResponse.ErrorInvalidPayload.XmlResult)
     }
 
-  private def processSave(
-    vhr: ValidatedHeadersRequest,
-    xml: NodeSeq
-  )(implicit request: AuthorizedSubmissionRequest[AnyContent], hc: HeaderCarrier): Future[Result] =
-    movementsService
-      .handleMovementSubmission(request.eori.value, vhr.ducr, vhr.movementType, xml)
+  private def forwardMovementSubmissionRequest(
+    context: SubmissionRequestContext
+  )(implicit hc: HeaderCarrier): Future[Result] =
+    submissionService
+      .submitRequest(
+        SubmissionRequestContext(eori = context.eori, actionType = context.actionType, requestXml = context.requestXml)
+      )
+      .map {
+        case Right(_)       => Accepted("Movement Submission submitted successfully")
+        case Left(errorMsg) => ErrorResponse.errorInternalServerError(errorMsg).XmlResult
+      }
 
-  def getMovements: Action[AnyContent] =
+  def getAllSubmissions: Action[AnyContent] =
     authorisedAction(parse.default) { implicit authorizedRequest =>
-      movementsService.getMovementsByEori(authorizedRequest.eori.value).map(movements => Ok(Json.toJson(movements)))
+      submissionService.getSubmissionsByEori(authorizedRequest.eori.value).map(movements => Ok(Json.toJson(movements)))
     }
 }

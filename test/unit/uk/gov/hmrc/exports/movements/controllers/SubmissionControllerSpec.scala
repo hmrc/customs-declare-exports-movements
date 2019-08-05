@@ -16,102 +16,271 @@
 
 package unit.uk.gov.hmrc.exports.movements.controllers
 
-import java.util.UUID
-
-import play.api.http.ContentTypes
+import org.mockito.ArgumentCaptor
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.{reset, verify, verifyZeroInteractions, when}
+import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.{BeforeAndAfterEach, MustMatchers, WordSpec}
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.Application
+import play.api.inject.bind
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
+import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames
-import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
-import unit.uk.gov.hmrc.exports.movements.base.CustomsExportsBaseSpec
+import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames.XEoriIdentifierHeaderName
+import uk.gov.hmrc.exports.movements.controllers.util.HeaderValidator
+import uk.gov.hmrc.exports.movements.metrics.MovementsMetrics
+import uk.gov.hmrc.exports.movements.models.submissions.Submission.ActionTypes
+import uk.gov.hmrc.exports.movements.services.SubmissionService
+import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
+import unit.uk.gov.hmrc.exports.movements.base.AuthTestSupport
+import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder.buildSubmissionServiceMock
 import utils.MovementsTestData._
 
-class SubmissionControllerSpec extends CustomsExportsBaseSpec {
-  val arrivalUri = "/movements/arrival"
+import scala.concurrent.Future
+import scala.xml.Elem
 
-  val xmlBody: String = randomSubmitDeclaration.toXml
+class SubmissionControllerSpec
+    extends WordSpec with GuiceOneAppPerSuite with AuthTestSupport with BeforeAndAfterEach with ScalaFutures
+    with MustMatchers {
 
-  val fakeXmlRequest: FakeRequest[String] = FakeRequest("POST", arrivalUri).withBody(xmlBody)
-  val fakeXmlRequestWithHeaders: FakeRequest[String] =
-    fakeXmlRequest
-      .withHeaders(
-        CustomsHeaderNames.XUcrHeaderName -> declarantUcrValue,
-        CustomsHeaderNames.XMovementTypeHeaderName -> "Arrival",
-        AUTHORIZATION -> dummyToken,
-        CONTENT_TYPE -> ContentTypes.XML
-      )
+  override lazy val app: Application = GuiceApplicationBuilder()
+    .overrides(bind[AuthConnector].to(mockAuthConnector), bind[SubmissionService].to(submissionServiceMock))
+    .build()
 
-  def fakeRequestWithPayload(uri: String, payload: String): FakeRequest[String] =
-    FakeRequest("POST", uri).withBody(payload)
+  private val arrivalUri = "/movements/arrival"
+  private val departureUri = "/movements/departure"
+  private val getAllSubmissionsUri = "/movements"
 
-  "Actions for submission" when {
+  private val submissionServiceMock = buildSubmissionServiceMock
+  private val metrics: MovementsMetrics = app.injector.instanceOf[MovementsMetrics]
+  private val headerValidator: HeaderValidator = app.injector.instanceOf[HeaderValidator]
 
-    "POST to /save-movement-submission" should {
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    reset(mockAuthConnector, submissionServiceMock)
+  }
 
-      "return 202 status when movement has been saved" in {
+
+  private def routePost(
+    headers: Map[String, String] = ValidHeaders,
+    xmlBody: Elem,
+    uri: String
+  ): Future[Result] =
+    route(app, FakeRequest(POST, uri).withHeaders(headers.toSeq: _*).withXmlBody(xmlBody)).get
+
+  private def routeGet(
+    headers: Map[String, String] = ValidHeaders,
+    uri: String
+  ): Future[Result] =
+    route(app, FakeRequest(GET, uri).withHeaders(headers.toSeq: _*)).get
+
+
+  //  val xmlBody: String = randomSubmitDeclaration.toXml
+//
+//  val fakeXmlRequest: FakeRequest[String] = FakeRequest("POST", arrivalUri).withBody(xmlBody)
+//  val fakeXmlRequestWithHeaders: FakeRequest[String] =
+//    fakeXmlRequest
+//      .withHeaders(
+//        CustomsHeaderNames.XUcrHeaderName -> declarantUcrValue,
+//        CustomsHeaderNames.XMovementTypeHeaderName -> "Arrival",
+//        AUTHORIZATION -> dummyToken,
+//        CONTENT_TYPE -> ContentTypes.XML
+//      )
+//
+//  def fakeRequestWithPayload(uri: String, payload: String): FakeRequest[String] =
+//    FakeRequest("POST", uri).withBody(payload)
+
+  "SubmissionController on submitArrival" when {
+
+    "everything works correctly" should {
+
+      "return Accepted status" in {
         withAuthorizedUser()
-        withDataSaved(true)
-        withConnectorCall(CustomsInventoryLinkingResponse(ACCEPTED, Some(UUID.randomUUID().toString)))
+        when(submissionServiceMock.submitRequest(any())(any()))
+          .thenReturn(Future.successful(Right((): Unit)))
 
-        val result = route(app, fakeXmlRequestWithHeaders).get
+        val result = routePost(xmlBody = exampleArrivalRequestXML, uri = arrivalUri)
 
         status(result) must be(ACCEPTED)
       }
 
-      "return 400 status when non XML is received" in {
+      "call SubmissionService, passing correctly built RequestContext" in {
         withAuthorizedUser()
+        when(submissionServiceMock.submitRequest(any())(any()))
+          .thenReturn(Future.successful(Right((): Unit)))
 
-        val result = route(app, fakeXmlRequestWithHeaders.withBody("{json}")).get
+        routePost(xmlBody = exampleArrivalRequestXML, uri = arrivalUri).futureValue
 
-        status(result) must be(BAD_REQUEST)
+        val expectedEori = ValidHeaders(XEoriIdentifierHeaderName)
+        val contextCaptor: ArgumentCaptor[SubmissionRequestContext] =
+          ArgumentCaptor.forClass(classOf[SubmissionRequestContext])
+
+        verify(submissionServiceMock).submitRequest(contextCaptor.capture())(any())
+
+        contextCaptor.getValue.eori must equal(expectedEori)
+        contextCaptor.getValue.actionType must equal(ActionTypes.Arrival)
+        contextCaptor.getValue.requestXml must equal(exampleArrivalRequestXML)
       }
+    }
 
-      "return 400 status when non XML contentType is received" in {
+    "SubmissionService returns Either.Left" should {
+
+      "return InternalServerError" in {
         withAuthorizedUser()
+
+        when(submissionServiceMock.submitRequest(any())(any()))
+          .thenReturn(Future.successful(Left("")))
+
+        val result = routePost(xmlBody = exampleArrivalRequestXML, uri = arrivalUri)
+
+        status(result) must be(INTERNAL_SERVER_ERROR)
+      }
+    }
+
+    "provided with invalid request format" should {
+
+      "return ErrorResponse for invalid payload" in {
+        withAuthorizedUser()
+        when(submissionServiceMock.submitRequest(any())(any()))
+          .thenReturn(Future.successful(Right((): Unit)))
 
         val result = route(
           app,
-          fakeXmlRequest
-            .withHeaders(AUTHORIZATION -> dummyToken, CONTENT_TYPE -> ContentTypes.JSON)
+          FakeRequest(POST, arrivalUri)
+            .withHeaders(ValidHeaders.toSeq: _*)
+            .withJsonBody(exampleArrivalRequestJson)
         ).get
 
         status(result) must be(BAD_REQUEST)
+        contentAsString(result) must include("Invalid payload")
       }
 
-      "return 500 status when something goes wrong" in {
+      "not call SubmissionService" in {
         withAuthorizedUser()
-        withConnectorCall(CustomsInventoryLinkingResponse(BAD_REQUEST, None))
+        when(submissionServiceMock.submitRequest(any())(any()))
+          .thenReturn(Future.successful(Right((): Unit)))
 
-        val failedResult = route(app, fakeXmlRequestWithHeaders).get
+        route(
+          app,
+          FakeRequest(POST, arrivalUri)
+            .withHeaders(ValidHeaders.toSeq: _*)
+            .withJsonBody(exampleArrivalRequestJson)
+        ).get.futureValue
 
-        status(failedResult) must be(INTERNAL_SERVER_ERROR)
-      }
-    }
-
-    "GET from /movements/:eori" should {
-
-      "return 200 status with movements as response body" in {
-        val submission = exampleSubmission()
-
-        withAuthorizedUser()
-        withMovements(Seq(submission))
-
-        val result = route(app, FakeRequest("GET", "/movements")).get
-
-        status(result) must be(OK)
-        contentAsJson(result) must be(Json.toJson(Seq(submission)))
-      }
-
-      // TODO: 204 is safe response
-      "return 200 status without empty response" in {
-        withAuthorizedUser()
-        withMovements(Seq.empty)
-
-        val result = route(app, FakeRequest("GET", "/movements")).get
-
-        status(result) must be(OK)
+        verifyZeroInteractions(submissionServiceMock)
       }
     }
   }
+
+  "SubmissionController on submitDeparture" when {
+
+    "everything works correctly" should {
+
+      "return Accepted status" in {
+        withAuthorizedUser()
+        when(submissionServiceMock.submitRequest(any())(any()))
+          .thenReturn(Future.successful(Right((): Unit)))
+
+        val result = routePost(xmlBody = exampleDepartureRequestXML, uri = departureUri)
+
+        status(result) must be(ACCEPTED)
+      }
+
+      "call SubmissionService, passing correctly built RequestContext" in {
+        withAuthorizedUser()
+        when(submissionServiceMock.submitRequest(any())(any()))
+          .thenReturn(Future.successful(Right((): Unit)))
+
+        routePost(xmlBody = exampleDepartureRequestXML, uri = departureUri).futureValue
+
+        val expectedEori = ValidHeaders(XEoriIdentifierHeaderName)
+        val contextCaptor: ArgumentCaptor[SubmissionRequestContext] =
+          ArgumentCaptor.forClass(classOf[SubmissionRequestContext])
+
+        verify(submissionServiceMock).submitRequest(contextCaptor.capture())(any())
+
+        contextCaptor.getValue.eori must equal(expectedEori)
+        contextCaptor.getValue.actionType must equal(ActionTypes.Departure)
+        contextCaptor.getValue.requestXml must equal(exampleDepartureRequestXML)
+      }
+    }
+
+    "SubmissionService returns Either.Left" should {
+
+      "return InternalServerError" in {
+        withAuthorizedUser()
+
+        when(submissionServiceMock.submitRequest(any())(any()))
+          .thenReturn(Future.successful(Left("")))
+
+        val result = routePost(xmlBody = exampleDepartureRequestXML, uri = departureUri)
+
+        status(result) must be(INTERNAL_SERVER_ERROR)
+      }
+    }
+
+    "provided with invalid request format" should {
+
+      "return ErrorResponse for invalid payload" in {
+        withAuthorizedUser()
+        when(submissionServiceMock.submitRequest(any())(any()))
+          .thenReturn(Future.successful(Right((): Unit)))
+
+        val result = route(
+          app,
+          FakeRequest(POST, departureUri)
+            .withHeaders(ValidHeaders.toSeq: _*)
+            .withJsonBody(exampleDepartureRequestJson)
+        ).get
+
+        status(result) must be(BAD_REQUEST)
+        contentAsString(result) must include("Invalid payload")
+      }
+
+      "not call SubmissionService" in {
+        withAuthorizedUser()
+        when(submissionServiceMock.submitRequest(any())(any()))
+          .thenReturn(Future.successful(Right((): Unit)))
+
+        route(
+          app,
+          FakeRequest(POST, departureUri)
+            .withHeaders(ValidHeaders.toSeq: _*)
+            .withJsonBody(exampleDepartureRequestJson)
+        ).get.futureValue
+
+        verifyZeroInteractions(submissionServiceMock)
+      }
+    }
+  }
+
+  "SubmissionController on getAllSubmissions" should {
+
+    "return Ok status" in {
+      withAuthorizedUser()
+      when(submissionServiceMock.getSubmissionsByEori(any[String]))
+        .thenReturn(Future.successful(Seq(exampleSubmission())))
+
+      val result = routeGet(uri = getAllSubmissionsUri)
+
+      status(result) must be(OK)
+    }
+
+    "return what SubmissionService returns in the body" in {
+      withAuthorizedUser()
+      val serviceResponseContent = Seq(exampleSubmission(), exampleSubmission(), exampleSubmission())
+      when(submissionServiceMock.getSubmissionsByEori(any[String]))
+        .thenReturn(Future.successful(serviceResponseContent))
+
+      val result = routeGet(uri = getAllSubmissionsUri)
+
+      status(result) must be(OK)
+      contentAsJson(result) must equal(Json.toJson(serviceResponseContent))
+    }
+  }
+
 }

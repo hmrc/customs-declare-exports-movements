@@ -16,95 +16,177 @@
 
 package unit.uk.gov.hmrc.exports.movements.services
 
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito._
-import org.scalatest.BeforeAndAfterEach
-import play.api.http.Status.{ACCEPTED, BAD_REQUEST, INTERNAL_SERVER_ERROR}
-import play.api.mvc.Result
+import org.mockito.ArgumentMatchers.{any, eq => meq}
+import org.mockito.Mockito.{verify, verifyZeroInteractions, when}
+import org.mockito.{ArgumentCaptor, InOrder, Mockito}
+import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.mockito.MockitoSugar
+import org.scalatest.time.{Millis, Seconds, Span}
+import org.scalatest.{MustMatchers, WordSpec}
+import play.api.http.Status.{ACCEPTED, BAD_REQUEST}
+import reactivemongo.api.commands.WriteResult
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
 import uk.gov.hmrc.exports.movements.models.submissions.Submission
+import uk.gov.hmrc.exports.movements.models.submissions.Submission.ActionTypes
 import uk.gov.hmrc.exports.movements.services.SubmissionService
+import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
 import uk.gov.hmrc.http.HeaderCarrier
-import unit.uk.gov.hmrc.exports.movements.base.CustomsExportsBaseSpec
-import utils.MovementsTestData._
+import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
+import utils.ConsolidationTestData._
+import utils.MovementsTestData.{conversationId, validEori}
 
-import scala.xml.NodeSeq
+import scala.concurrent.Future
+import scala.util.control.NoStackTrace
 
-class SubmissionServiceSpec extends CustomsExportsBaseSpec with BeforeAndAfterEach {
+class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures with MustMatchers {
 
-  override def beforeEach: Unit =
-    reset(mockCustomsInventoryLinkingConnector, mockMovementsRepository)
+  implicit val defaultPatience: PatienceConfig =
+    PatienceConfig(timeout = Span(5, Seconds), interval = Span(100, Millis))
 
-  trait SetUp {
-    val testObj = new SubmissionService(mockCustomsInventoryLinkingConnector, mockMovementsRepository)
+  private trait Test {
     implicit val hc: HeaderCarrier = mock[HeaderCarrier]
+    val customsInventoryLinkingExportsConnectorMock = buildCustomsInventoryLinkingExportsConnectorMock
+    val submissionRepositoryMock = buildSubmissionRepositoryMock
+    val consolidationService = new SubmissionService(
+      customsInventoryLinkingExportsConnector = customsInventoryLinkingExportsConnectorMock,
+      submissionRepository = submissionRepositoryMock
+    )
   }
 
-  "MovementsService" should {
+  "ConsolidationService on submitConsolidationRequest" when {
 
-    "return accepted when connector and persist movements successful" in new SetUp() {
-      val xml: NodeSeq = <xmlval><a><b></b></a><a><b></b></a></xmlval>
+    "everything works correctly" should {
 
-      withConnectorCall(CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId)))
-      withDataSaved(true)
+      "return Either.Right" in new HappyPathSaveTest {
 
-      val result: Result =
-        testObj
-          .handleMovementSubmission(declarantEoriValue, declarantUcrValue, "movementType", xml)
-          .futureValue
+        val submissionResult =
+          consolidationService.submitRequest(exampleShutMucrContext).futureValue
 
-      result.header.status must be(ACCEPTED)
-      verify(mockCustomsInventoryLinkingConnector).sendInventoryLinkingRequest(any[String], any[NodeSeq])(any())
-      verify(mockMovementsRepository).insert(any[Submission])(any())
+        submissionResult must equal(Right((): Unit))
+      }
+
+      "call CustomsInventoryLinkingExportsConnector and ConsolidationRepository afterwards" in new HappyPathSaveTest {
+
+        consolidationService.submitRequest(exampleShutMucrContext).futureValue
+
+        val inOrder: InOrder = Mockito.inOrder(customsInventoryLinkingExportsConnectorMock, submissionRepositoryMock)
+        inOrder.verify(customsInventoryLinkingExportsConnectorMock).sendInventoryLinkingRequest(any(), any())(any())
+        inOrder.verify(submissionRepositoryMock).insert(any())(any())
+      }
+
+      "call CustomsInventoryLinkingExportsConnector with EORI and XML provided" in new HappyPathSaveTest {
+
+        consolidationService.submitRequest(exampleShutMucrContext).futureValue
+
+        verify(customsInventoryLinkingExportsConnectorMock)
+          .sendInventoryLinkingRequest(meq(validEori), meq(exampleShutMucrConsolidationRequest))(any())
+      }
+
+      "call ConsolidationRepository with correctly built ConsolidationSubmission" in new HappyPathSaveTest {
+
+        consolidationService.submitRequest(exampleShutMucrContext).futureValue
+
+        val consolidationSubmissionCaptor: ArgumentCaptor[Submission] =
+          ArgumentCaptor.forClass(classOf[Submission])
+        verify(submissionRepositoryMock).insert(consolidationSubmissionCaptor.capture())(any())
+        val actualConsolidationSubmission = consolidationSubmissionCaptor.getValue
+
+        actualConsolidationSubmission.uuid mustNot be(empty)
+        actualConsolidationSubmission.eori must equal(validEori)
+        actualConsolidationSubmission.conversationId must equal(conversationId)
+        actualConsolidationSubmission.ucrBlocks.head.ucr must equal("4GB123456789000-123ABC456DEFIIIII")
+      }
+
     }
 
-    "return internal server error when connector succeeds but persist movements fails" in new SetUp() {
-      val xml: NodeSeq = <xmlval><a><b></b></a><a><b></b></a></xmlval>
+    "everything works correctly, but provided with XML missing UCR" should {
 
-      withConnectorCall(CustomsInventoryLinkingResponse(BAD_REQUEST, None))
-      withDataSaved(true)
+      "return Either.Right" in new HappyPathSaveTest {
 
-      val result: Result =
-        testObj
-          .handleMovementSubmission(declarantEoriValue, declarantUcrValue, "movementType", xml)
+        val context = SubmissionRequestContext(
+          eori = validEori,
+          actionType = ActionTypes.ShutMucr,
+          requestXml = exampleShutMucrConsolidationRequestWithoutUcrBlock
+        )
+        val submissionResult =
+          consolidationService
+            .submitRequest(context)
+            .futureValue
+
+        submissionResult must equal(Right((): Unit))
+      }
+
+      "call ConsolidationRepository with ConsolidationSubmission containing empty ucr element" in new HappyPathSaveTest {
+
+        val context = SubmissionRequestContext(
+          eori = validEori,
+          actionType = ActionTypes.ShutMucr,
+          requestXml = exampleShutMucrConsolidationRequestWithoutUcrBlock
+        )
+        consolidationService
+          .submitRequest(context)
           .futureValue
 
-      result.header.status must be(INTERNAL_SERVER_ERROR)
-      verify(mockCustomsInventoryLinkingConnector).sendInventoryLinkingRequest(any[String], any[NodeSeq])(any())
-      verifyZeroInteractions(mockMovementsRepository)
+        val consolidationSubmissionCaptor: ArgumentCaptor[Submission] =
+          ArgumentCaptor.forClass(classOf[Submission])
+
+        verify(submissionRepositoryMock).insert(consolidationSubmissionCaptor.capture())(any())
+
+        val actualConsolidationSubmission = consolidationSubmissionCaptor.getValue
+        actualConsolidationSubmission.uuid mustNot be(empty)
+        actualConsolidationSubmission.eori must equal(validEori)
+        actualConsolidationSubmission.conversationId must equal(conversationId)
+        actualConsolidationSubmission.ucrBlocks must be(empty)
+      }
     }
 
-    "return internal server error when connector succeeds but return no conversation id" in new SetUp() {
-      val xml: NodeSeq = <xmlval><a><b></b></a><a><b></b></a></xmlval>
+    "CustomsInventoryLinkingExportsConnector returns status other than ACCEPTED" should {
 
-      withConnectorCall(CustomsInventoryLinkingResponse(ACCEPTED, None))
+      "return Either.Left with proper message" in new Test {
+        when(customsInventoryLinkingExportsConnectorMock.sendInventoryLinkingRequest(any(), any())(any()))
+          .thenReturn(Future.successful(CustomsInventoryLinkingResponse(status = BAD_REQUEST, None)))
 
-      val result: Result =
-        testObj
-          .handleMovementSubmission(declarantEoriValue, declarantUcrValue, "movementType", xml)
-          .futureValue
+        val submissionResult =
+          consolidationService.submitRequest(exampleShutMucrContext).futureValue
 
-      result.header.status must be(INTERNAL_SERVER_ERROR)
-      verify(mockCustomsInventoryLinkingConnector).sendInventoryLinkingRequest(any[String], any[NodeSeq])(any())
-      verifyZeroInteractions(mockMovementsRepository)
+        submissionResult must equal(Left("Non Accepted status returned by Customs Inventory Linking Exports"))
+      }
+
+      "not call ConsolidationRepository" in new Test {
+        when(customsInventoryLinkingExportsConnectorMock.sendInventoryLinkingRequest(any(), any())(any()))
+          .thenReturn(Future.successful(CustomsInventoryLinkingResponse(status = BAD_REQUEST, None)))
+
+        consolidationService.submitRequest(exampleShutMucrContext).futureValue
+
+        verifyZeroInteractions(submissionRepositoryMock)
+      }
     }
 
-    "return internal server error when connector fails, persist should not be attempted" in new SetUp() {
-      val xml: NodeSeq = <xmlval><a><b></b></a><a><b></b></a></xmlval>
+    "ConsolidationRepository returns WriteResult with error" should {
 
-      withConnectorCall(CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId)))
-      withDataSaved(false)
+      "return Either.Left with the error's message" in new Test {
+        when(customsInventoryLinkingExportsConnectorMock.sendInventoryLinkingRequest(any(), any())(any()))
+          .thenReturn(
+            Future.successful(CustomsInventoryLinkingResponse(status = ACCEPTED, conversationId = Some(conversationId)))
+          )
+        val exceptionMsg = "Test Exception message"
+        when(submissionRepositoryMock.insert(any())(any()))
+          .thenReturn(Future.failed[WriteResult](new Exception(exceptionMsg) with NoStackTrace))
 
-      val result: Result =
-        testObj
-          .handleMovementSubmission(declarantEoriValue, declarantUcrValue, "movementType", xml)
-          .futureValue
+        val submissionResult =
+          consolidationService.submitRequest(exampleShutMucrContext).futureValue
 
-      result.header.status must be(INTERNAL_SERVER_ERROR)
-      verify(mockCustomsInventoryLinkingConnector).sendInventoryLinkingRequest(any[String], any[NodeSeq])(any())
-      verify(mockMovementsRepository).insert(any[Submission])(any())
+        submissionResult must equal(Left(exceptionMsg))
+      }
+    }
+
+    trait HappyPathSaveTest extends Test {
+      when(customsInventoryLinkingExportsConnectorMock.sendInventoryLinkingRequest(any(), any())(any()))
+        .thenReturn(
+          Future.successful(CustomsInventoryLinkingResponse(status = ACCEPTED, conversationId = Some(conversationId)))
+        )
+      when(submissionRepositoryMock.insert(any())(any())).thenReturn(Future.successful(dummyWriteResultSuccess))
     }
   }
-
 
 }

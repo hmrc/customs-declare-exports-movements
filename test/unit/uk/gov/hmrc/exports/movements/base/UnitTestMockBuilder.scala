@@ -21,13 +21,14 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatest.mockito.MockitoSugar
 import reactivemongo.api.commands.{DefaultWriteResult, WriteResult}
+import reactivemongo.core.errors.GenericDatabaseException
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
 import uk.gov.hmrc.exports.movements.metrics.MovementsMetrics
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
 import uk.gov.hmrc.exports.movements.models.notifications.parsers.{ResponseParser, ResponseParserContext, ResponseParserFactory}
 import uk.gov.hmrc.exports.movements.models.notifications.{Notification, NotificationData, NotificationFactory}
 import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, SubmissionRepository}
-import uk.gov.hmrc.exports.movements.services.{ConsolidationService, NotificationService}
+import uk.gov.hmrc.exports.movements.services.{NotificationService, SubmissionService}
 
 import scala.concurrent.Future
 import scala.xml.NodeSeq
@@ -36,14 +37,12 @@ object UnitTestMockBuilder extends MockitoSugar {
 
   val dummyWriteResultSuccess: WriteResult =
     DefaultWriteResult(ok = true, n = 1, writeErrors = Seq.empty, writeConcernError = None, code = None, errmsg = None)
-  val dummyWriteResultFailure: WriteResult =
-    DefaultWriteResult(ok = false, n = 0, writeErrors = Seq.empty, writeConcernError = None, code = None, errmsg = None)
 
   def buildNotificationRepositoryMock: NotificationRepository = {
     val notificationRepositoryMock = mock[NotificationRepository]
 
     when(notificationRepositoryMock.insert(any[Notification])(any()))
-      .thenReturn(Future.successful(dummyWriteResultFailure))
+      .thenReturn(Future.failed(GenericDatabaseException("ERROR", None)))
     when(notificationRepositoryMock.findNotificationsByConversationId(any[String]))
       .thenReturn(Future.successful(Seq.empty))
 
@@ -54,7 +53,7 @@ object UnitTestMockBuilder extends MockitoSugar {
     val submissionRepositoryMock = mock[SubmissionRepository]
 
     when(submissionRepositoryMock.findByEori(any())).thenReturn(Future.successful(Seq.empty))
-    when(submissionRepositoryMock.insert(any())(any())).thenReturn(Future.successful(dummyWriteResultFailure))
+    when(submissionRepositoryMock.insert(any())(any())).thenReturn(Future.failed(GenericDatabaseException("ERROR", None)))
 
     submissionRepositoryMock
   }
@@ -68,13 +67,13 @@ object UnitTestMockBuilder extends MockitoSugar {
     notificationServiceMock
   }
 
-  def buildConsolidationServiceMock: ConsolidationService = {
-    val consolidationServiceMock = mock[ConsolidationService]
+  def buildSubmissionServiceMock: SubmissionService = {
+    val submissionServiceMock = mock[SubmissionService]
 
-    when(consolidationServiceMock.submitConsolidationRequest(any())(any()))
+    when(submissionServiceMock.submitRequest(any())(any()))
       .thenReturn(Future.successful(Left("")))
 
-    consolidationServiceMock
+    submissionServiceMock
   }
 
   def buildMovementNotificationFactoryMock: NotificationFactory = {

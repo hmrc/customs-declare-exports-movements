@@ -33,10 +33,10 @@ import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames.XEoriId
 import uk.gov.hmrc.exports.movements.controllers.util.HeaderValidator
 import uk.gov.hmrc.exports.movements.metrics.MovementsMetrics
 import uk.gov.hmrc.exports.movements.models.submissions.Submission.ActionTypes
-import uk.gov.hmrc.exports.movements.services.ConsolidationService
+import uk.gov.hmrc.exports.movements.services.SubmissionService
 import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
 import unit.uk.gov.hmrc.exports.movements.base.AuthTestSupport
-import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder.buildConsolidationServiceMock
+import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder.buildSubmissionServiceMock
 import utils.ConsolidationTestData._
 
 import scala.concurrent.Future
@@ -47,30 +47,30 @@ class ConsolidationControllerSpec
     with MustMatchers {
 
   override lazy val app: Application = GuiceApplicationBuilder()
-    .overrides(bind[AuthConnector].to(mockAuthConnector), bind[ConsolidationService].to(consolidationServiceMock))
+    .overrides(bind[AuthConnector].to(mockAuthConnector), bind[SubmissionService].to(submissionServiceMock))
     .build()
 
   private val shutMucrUri = "/consolidations/shut"
   private val associateDucrUri = "/consolidations/associate"
   private val disassociateDucrUri = "/consolidations/disassociate"
 
-  private val consolidationServiceMock = buildConsolidationServiceMock
+  private val submissionServiceMock = buildSubmissionServiceMock
   private val metrics: MovementsMetrics = app.injector.instanceOf[MovementsMetrics]
   private val headerValidator: HeaderValidator = app.injector.instanceOf[HeaderValidator]
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    reset(mockAuthConnector, consolidationServiceMock)
+    reset(mockAuthConnector, submissionServiceMock)
   }
 
-  "MovementConsolidationController" when {
+  "ConsolidationController" when {
     "on shutMucr" when {
 
       "everything works correctly" should {
 
         "return Accepted status" in {
           withAuthorizedUser()
-          when(consolidationServiceMock.submitConsolidationRequest(any())(any()))
+          when(submissionServiceMock.submitRequest(any())(any()))
             .thenReturn(Future.successful(Right((): Unit)))
 
           val result = routePostSubmitMovementConsolidation(uri = shutMucrUri)
@@ -78,9 +78,9 @@ class ConsolidationControllerSpec
           status(result) must be(ACCEPTED)
         }
 
-        "call ConsolidationService once, passing EORI and request payload" in {
+        "call SubmissionService once, passing EORI and request payload" in {
           withAuthorizedUser()
-          when(consolidationServiceMock.submitConsolidationRequest(any())(any()))
+          when(submissionServiceMock.submitRequest(any())(any()))
             .thenReturn(Future.successful(Right((): Unit)))
 
           routePostSubmitMovementConsolidation(uri = shutMucrUri).futureValue
@@ -89,7 +89,7 @@ class ConsolidationControllerSpec
           val contextCaptor: ArgumentCaptor[SubmissionRequestContext] =
             ArgumentCaptor.forClass(classOf[SubmissionRequestContext])
 
-          verify(consolidationServiceMock).submitConsolidationRequest(contextCaptor.capture())(any())
+          verify(submissionServiceMock).submitRequest(contextCaptor.capture())(any())
 
           contextCaptor.getValue.eori must equal(expectedEori)
           contextCaptor.getValue.actionType must equal(ActionTypes.ShutMucr)
@@ -97,11 +97,11 @@ class ConsolidationControllerSpec
         }
       }
 
-      "ConsolidationService returns Either.Left" should {
+      "SubmissionService returns Either.Left" should {
 
         "return InternalServerError" in {
           withAuthorizedUser()
-          when(consolidationServiceMock.submitConsolidationRequest(any())(any()))
+          when(submissionServiceMock.submitRequest(any())(any()))
             .thenReturn(Future.successful(Left("")))
 
           val result = routePostSubmitMovementConsolidation(uri = shutMucrUri)
@@ -114,7 +114,7 @@ class ConsolidationControllerSpec
 
         "return ErrorResponse for invalid payload" in {
           withAuthorizedUser()
-          when(consolidationServiceMock.submitConsolidationRequest(any())(any()))
+          when(submissionServiceMock.submitRequest(any())(any()))
             .thenReturn(Future.successful(Right((): Unit)))
 
           val result = route(
@@ -128,9 +128,9 @@ class ConsolidationControllerSpec
           contentAsString(result) must include("Invalid payload")
         }
 
-        "not call ConsolidationService" in {
+        "not call SubmissionService" in {
           withAuthorizedUser()
-          when(consolidationServiceMock.submitConsolidationRequest(any())(any()))
+          when(submissionServiceMock.submitRequest(any())(any()))
             .thenReturn(Future.successful(Right((): Unit)))
 
           route(
@@ -140,7 +140,7 @@ class ConsolidationControllerSpec
               .withJsonBody(exampleShutMucrConsolidationRequestJson)
           ).get.futureValue
 
-          verifyZeroInteractions(consolidationServiceMock)
+          verifyZeroInteractions(submissionServiceMock)
         }
       }
     }
@@ -151,7 +151,7 @@ class ConsolidationControllerSpec
 
         "return Accepted status" in {
           withAuthorizedUser()
-          when(consolidationServiceMock.submitConsolidationRequest(any())(any()))
+          when(submissionServiceMock.submitRequest(any())(any()))
             .thenReturn(Future.successful(Right((): Unit)))
 
           val result = routePostSubmitMovementConsolidation(
@@ -162,9 +162,9 @@ class ConsolidationControllerSpec
           status(result) must be(ACCEPTED)
         }
 
-        "call ConsolidationService once, passing EORI and request payload" in {
+        "call SubmissionService once, passing EORI and request payload" in {
           withAuthorizedUser()
-          when(consolidationServiceMock.submitConsolidationRequest(any())(any()))
+          when(submissionServiceMock.submitRequest(any())(any()))
             .thenReturn(Future.successful(Right((): Unit)))
 
           routePostSubmitMovementConsolidation(
@@ -176,7 +176,7 @@ class ConsolidationControllerSpec
           val contextCaptor: ArgumentCaptor[SubmissionRequestContext] =
             ArgumentCaptor.forClass(classOf[SubmissionRequestContext])
 
-          verify(consolidationServiceMock).submitConsolidationRequest(contextCaptor.capture())(any())
+          verify(submissionServiceMock).submitRequest(contextCaptor.capture())(any())
 
           contextCaptor.getValue.eori must equal(expectedEori)
           contextCaptor.getValue.actionType must equal(ActionTypes.DucrAssociation)
@@ -184,11 +184,11 @@ class ConsolidationControllerSpec
         }
       }
 
-      "ConsolidationService returns Either.Left" should {
+      "SubmissionService returns Either.Left" should {
 
         "return InternalServerError" in {
           withAuthorizedUser()
-          when(consolidationServiceMock.submitConsolidationRequest(any())(any()))
+          when(submissionServiceMock.submitRequest(any())(any()))
             .thenReturn(Future.successful(Left("")))
 
           val result = routePostSubmitMovementConsolidation(
@@ -204,7 +204,7 @@ class ConsolidationControllerSpec
 
         "return ErrorResponse for invalid payload" in {
           withAuthorizedUser()
-          when(consolidationServiceMock.submitConsolidationRequest(any())(any()))
+          when(submissionServiceMock.submitRequest(any())(any()))
             .thenReturn(Future.successful(Right((): Unit)))
 
           val result = route(
@@ -218,9 +218,9 @@ class ConsolidationControllerSpec
           contentAsString(result) must include("Invalid payload")
         }
 
-        "not call ConsolidationService" in {
+        "not call SubmissionService" in {
           withAuthorizedUser()
-          when(consolidationServiceMock.submitConsolidationRequest(any())(any()))
+          when(submissionServiceMock.submitRequest(any())(any()))
             .thenReturn(Future.successful(Right((): Unit)))
 
           route(
@@ -230,7 +230,7 @@ class ConsolidationControllerSpec
               .withJsonBody(exampleAssociateDucrConsolidationRequestJson)
           ).get.futureValue
 
-          verifyZeroInteractions(consolidationServiceMock)
+          verifyZeroInteractions(submissionServiceMock)
         }
       }
     }
@@ -241,7 +241,7 @@ class ConsolidationControllerSpec
 
         "return Accepted status" in {
           withAuthorizedUser()
-          when(consolidationServiceMock.submitConsolidationRequest(any())(any()))
+          when(submissionServiceMock.submitRequest(any())(any()))
             .thenReturn(Future.successful(Right((): Unit)))
 
           val result = routePostSubmitMovementConsolidation(
@@ -252,9 +252,9 @@ class ConsolidationControllerSpec
           status(result) must be(ACCEPTED)
         }
 
-        "call ConsolidationService once, passing EORI and request payload" in {
+        "call SubmissionService once, passing EORI and request payload" in {
           withAuthorizedUser()
-          when(consolidationServiceMock.submitConsolidationRequest(any())(any()))
+          when(submissionServiceMock.submitRequest(any())(any()))
             .thenReturn(Future.successful(Right((): Unit)))
 
           routePostSubmitMovementConsolidation(
@@ -266,7 +266,7 @@ class ConsolidationControllerSpec
           val contextCaptor: ArgumentCaptor[SubmissionRequestContext] =
             ArgumentCaptor.forClass(classOf[SubmissionRequestContext])
 
-          verify(consolidationServiceMock).submitConsolidationRequest(contextCaptor.capture())(any())
+          verify(submissionServiceMock).submitRequest(contextCaptor.capture())(any())
 
           contextCaptor.getValue.eori must equal(expectedEori)
           contextCaptor.getValue.actionType must equal(ActionTypes.DucrDisassociation)
@@ -274,11 +274,11 @@ class ConsolidationControllerSpec
         }
       }
 
-      "ConsolidationService returns Either.Left" should {
+      "SubmissionService returns Either.Left" should {
 
         "return InternalServerError" in {
           withAuthorizedUser()
-          when(consolidationServiceMock.submitConsolidationRequest(any())(any()))
+          when(submissionServiceMock.submitRequest(any())(any()))
             .thenReturn(Future.successful(Left("")))
 
           val result = routePostSubmitMovementConsolidation(
@@ -294,7 +294,7 @@ class ConsolidationControllerSpec
 
         "return ErrorResponse for invalid payload" in {
           withAuthorizedUser()
-          when(consolidationServiceMock.submitConsolidationRequest(any())(any()))
+          when(submissionServiceMock.submitRequest(any())(any()))
             .thenReturn(Future.successful(Right((): Unit)))
 
           val result = route(
@@ -308,9 +308,9 @@ class ConsolidationControllerSpec
           contentAsString(result) must include("Invalid payload")
         }
 
-        "not call ConsolidationService" in {
+        "not call SubmissionService" in {
           withAuthorizedUser()
-          when(consolidationServiceMock.submitConsolidationRequest(any())(any()))
+          when(submissionServiceMock.submitRequest(any())(any()))
             .thenReturn(Future.successful(Right((): Unit)))
 
           route(
@@ -320,7 +320,7 @@ class ConsolidationControllerSpec
               .withJsonBody(exampleDisassociateDucrConsolidationRequestJson)
           ).get.futureValue
 
-          verifyZeroInteractions(consolidationServiceMock)
+          verifyZeroInteractions(submissionServiceMock)
         }
       }
     }

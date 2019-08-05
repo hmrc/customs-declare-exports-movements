@@ -74,7 +74,7 @@ trait AuthService extends WireMockRunner {
 
   def authServiceAuthorizesWithEoriAndNoRetrievals(
     bearerToken: String = authToken,
-    eori: Eori = Eori(declarantEoriValue)
+    eori: Eori = Eori(validEori)
   ): Unit =
     stubFor(
       post(authUrlMatcher)

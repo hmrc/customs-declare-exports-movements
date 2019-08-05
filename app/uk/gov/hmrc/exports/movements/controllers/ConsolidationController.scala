@@ -23,7 +23,7 @@ import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.exports.movements.controllers.actions.AuthenticatedController
 import uk.gov.hmrc.exports.movements.models.submissions.Submission.ActionTypes
 import uk.gov.hmrc.exports.movements.models.{AuthorizedSubmissionRequest, ErrorResponse}
-import uk.gov.hmrc.exports.movements.services.ConsolidationService
+import uk.gov.hmrc.exports.movements.services.SubmissionService
 import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -33,7 +33,7 @@ import scala.concurrent.Future
 @Singleton
 class ConsolidationController @Inject()(
   authConnector: AuthConnector,
-  consolidationService: ConsolidationService,
+  consolidationService: SubmissionService,
   cc: ControllerComponents
 ) extends AuthenticatedController(authConnector, cc) {
 
@@ -81,7 +81,7 @@ class ConsolidationController @Inject()(
   private def forwardMovementConsolidationRequest(
     context: SubmissionRequestContext
   )(implicit hc: HeaderCarrier): Future[Result] =
-    consolidationService.submitConsolidationRequest(context).map {
+    consolidationService.submitRequest(context).map {
       case Right(_)       => Accepted("Consolidation request submitted successfully")
       case Left(errorMsg) => ErrorResponse.errorInternalServerError(errorMsg).XmlResult
     }
