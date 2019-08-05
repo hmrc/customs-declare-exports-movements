@@ -30,11 +30,13 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.exports.movements.repositories.SubmissionRepository
 import uk.gov.hmrc.exports.movements.services.SubmissionService
 import uk.gov.hmrc.http.HeaderCarrier
+import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder.{dummyWriteResultFailure, dummyWriteResultSuccess}
 import utils.CustomsMovementsAPIConfig
 import utils.ExternalServicesConfig.{Host, Port}
 import utils.MovementsTestData._
 import utils.stubs.CustomsMovementsAPIService
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.xml.XML
 
@@ -65,7 +67,10 @@ class SubmissionServiceSpec
   private implicit val hc: HeaderCarrier = HeaderCarrier()
 
   def withMovementSubmissionPersisted(result: Boolean): Unit =
-    when(mockMovementsRepository.save(any())).thenReturn(Future.successful(result))
+    when(mockMovementsRepository.insert(any())).thenReturn(Future.successful(result match {
+      case true  => dummyWriteResultSuccess
+      case false => dummyWriteResultFailure
+    }))
 
   "Movements Service" should {
 

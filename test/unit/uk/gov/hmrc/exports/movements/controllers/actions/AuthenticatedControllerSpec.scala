@@ -42,7 +42,7 @@ class AuthenticatedControllerSpec extends CustomsExportsBaseSpec with ScalaFutur
         CONTENT_TYPE -> ContentTypes.XML
       )
 
-  val jsonBody: String = Json.toJson(movementSubmission()).toString()
+  val jsonBody: String = Json.toJson(exampleSubmission()).toString()
   val fakeJsonRequest: FakeRequest[String] = FakeRequest("POST", uri).withBody(jsonBody)
   val fakeJsonRequestWithHeaders: FakeRequest[String] =
     fakeJsonRequest

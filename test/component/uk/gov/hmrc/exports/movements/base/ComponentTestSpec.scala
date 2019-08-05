@@ -27,12 +27,15 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
+import reactivemongo.api.commands.WriteResult
 import uk.gov.hmrc.exports.movements.models.submissions.Submission
 import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, SubmissionRepository}
+import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder.{dummyWriteResultFailure, dummyWriteResultSuccess}
 import utils.ExternalServicesConfig.{Host, Port}
 import utils.stubs.CustomsMovementsAPIService
 import utils.{AuthService, CustomsMovementsAPIConfig}
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 trait ComponentTestSpec
@@ -60,12 +63,15 @@ trait ComponentTestSpec
   }
 
   // movements submission
-  def withMovementSubmissionRepository(saveResponse: Boolean): OngoingStubbing[Future[Boolean]] =
-    when(mockMovementSubmissionsRepository.save(any())).thenReturn(Future.successful(saveResponse))
+  def withMovementSubmissionRepository(saveResponse: Boolean): OngoingStubbing[Future[WriteResult]] =
+    when(mockMovementSubmissionsRepository.insert(any())).thenReturn(Future.successful(saveResponse match {
+      case true => dummyWriteResultSuccess
+      case false => dummyWriteResultFailure
+    }))
 
   def verifyMovementSubmissionRepositoryIsCorrectlyCalled(eoriValue: String) {
     val submissionCaptor: ArgumentCaptor[Submission] = ArgumentCaptor.forClass(classOf[Submission])
-    verify(mockMovementSubmissionsRepository).save(submissionCaptor.capture())
+    verify(mockMovementSubmissionsRepository).insert(submissionCaptor.capture())
     submissionCaptor.getValue.eori shouldBe eoriValue
   }
 

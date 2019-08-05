@@ -17,7 +17,6 @@
 package uk.gov.hmrc.exports.movements.repositories
 
 import javax.inject.{Inject, Singleton}
-import play.api.Logger
 import play.api.libs.json.JsString
 import play.modules.reactivemongo.ReactiveMongoComponent
 import reactivemongo.api.indexes.{Index, IndexType}
@@ -29,28 +28,13 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class SubmissionRepository @Inject()(implicit mc: ReactiveMongoComponent, ec: ExecutionContext)
-    extends ReactiveRepository[Submission, BSONObjectID]("movements", mc.mongoConnector.db, Submission.formats) {
+    extends ReactiveRepository[Submission, BSONObjectID]("movementSubmissions", mc.mongoConnector.db, Submission.formats) {
 
   override def indexes: Seq[Index] = Seq(
     Index(Seq("eori" -> IndexType.Ascending), name = Some("eoriIdx")),
     Index(Seq("conversationId" -> IndexType.Ascending), unique = true, name = Some("conversationIdIdx"))
   )
 
-  def findByEori(eori: String): Future[Seq[Submission]] =
-    find("eori" -> JsString(eori))
+  def findByEori(eori: String): Future[Seq[Submission]] = find("eori" -> JsString(eori))
 
-  def getByConversationId(conversationId: String): Future[Option[Submission]] =
-    find("conversationId" -> JsString(conversationId)).map(_.headOption)
-
-  def getByEoriAndDucr(eori: String, ducr: String): Future[Option[Submission]] =
-    find("eori" -> JsString(eori), "ucrBlocks.ucr" -> JsString(ducr)).map(_.headOption)
-
-  def save(movementSubmission: Submission): Future[Boolean] =
-    insert(movementSubmission).map { res =>
-      if (!res.ok)
-        // $COVERAGE-OFF$Trivial
-        Logger.error("Error during inserting movement result " + res.writeErrors.mkString("--"))
-      // $COVERAGE-ON$
-      res.ok
-    }
 }

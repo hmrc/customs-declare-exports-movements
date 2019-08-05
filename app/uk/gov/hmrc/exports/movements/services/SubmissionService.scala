@@ -76,11 +76,11 @@ class SubmissionService @Inject()(
     val movementSubmission =
       Submission(eori = eori, conversationId = conversationId, ucrBlocks = ucrBlocks, actionType = actionType)
     movementsRepo
-      .save(movementSubmission)
+      .insert(movementSubmission)
       .map(res => {
-        if (res) Logger.debug("movement submission data saved to DB")
+        if (res.ok) Logger.debug("movement submission data saved to DB")
         else Logger.error("error  saving movement submission data to DB")
-        res
+        res.ok
       })
   }
 

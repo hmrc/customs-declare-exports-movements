@@ -18,7 +18,6 @@ package unit.uk.gov.hmrc.exports.movements.services
 
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
-import org.mockito.stubbing.OngoingStubbing
 import org.scalatest.BeforeAndAfterEach
 import play.api.http.Status.{ACCEPTED, BAD_REQUEST, INTERNAL_SERVER_ERROR}
 import play.api.mvc.Result
@@ -29,7 +28,6 @@ import uk.gov.hmrc.http.HeaderCarrier
 import unit.uk.gov.hmrc.exports.movements.base.CustomsExportsBaseSpec
 import utils.MovementsTestData._
 
-import scala.concurrent.Future
 import scala.xml.NodeSeq
 
 class SubmissionServiceSpec extends CustomsExportsBaseSpec with BeforeAndAfterEach {
@@ -48,7 +46,7 @@ class SubmissionServiceSpec extends CustomsExportsBaseSpec with BeforeAndAfterEa
       val xml: NodeSeq = <xmlval><a><b></b></a><a><b></b></a></xmlval>
 
       withConnectorCall(CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId)))
-      withMovementSaved(true)
+      withDataSaved(true)
 
       val result: Result =
         testObj
@@ -57,14 +55,14 @@ class SubmissionServiceSpec extends CustomsExportsBaseSpec with BeforeAndAfterEa
 
       result.header.status must be(ACCEPTED)
       verify(mockCustomsInventoryLinkingConnector).sendInventoryLinkingRequest(any[String], any[NodeSeq])(any())
-      verify(mockMovementsRepository).save(any[Submission])
+      verify(mockMovementsRepository).insert(any[Submission])(any())
     }
 
     "return internal server error when connector succeeds but persist movements fails" in new SetUp() {
       val xml: NodeSeq = <xmlval><a><b></b></a><a><b></b></a></xmlval>
 
       withConnectorCall(CustomsInventoryLinkingResponse(BAD_REQUEST, None))
-      withMovementSaved(true)
+      withDataSaved(true)
 
       val result: Result =
         testObj
@@ -95,7 +93,7 @@ class SubmissionServiceSpec extends CustomsExportsBaseSpec with BeforeAndAfterEa
       val xml: NodeSeq = <xmlval><a><b></b></a><a><b></b></a></xmlval>
 
       withConnectorCall(CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId)))
-      withMovementSaved(false)
+      withDataSaved(false)
 
       val result: Result =
         testObj
@@ -104,11 +102,9 @@ class SubmissionServiceSpec extends CustomsExportsBaseSpec with BeforeAndAfterEa
 
       result.header.status must be(INTERNAL_SERVER_ERROR)
       verify(mockCustomsInventoryLinkingConnector).sendInventoryLinkingRequest(any[String], any[NodeSeq])(any())
-      verify(mockMovementsRepository).save(any[Submission])
+      verify(mockMovementsRepository).insert(any[Submission])(any())
     }
   }
 
-  private def withMovementSaved(result: Boolean): OngoingStubbing[Future[Boolean]] =
-    when(mockMovementsRepository.save(any())).thenReturn(Future.successful(result))
 
 }

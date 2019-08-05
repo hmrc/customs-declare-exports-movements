@@ -54,9 +54,6 @@ object UnitTestMockBuilder extends MockitoSugar {
     val submissionRepositoryMock = mock[SubmissionRepository]
 
     when(submissionRepositoryMock.findByEori(any())).thenReturn(Future.successful(Seq.empty))
-    when(submissionRepositoryMock.getByConversationId(any())).thenReturn(Future.successful(None))
-    when(submissionRepositoryMock.getByEoriAndDucr(any(), any())).thenReturn(Future.successful(None))
-    when(submissionRepositoryMock.save(any())).thenReturn(Future.successful(false))
     when(submissionRepositoryMock.insert(any())(any())).thenReturn(Future.successful(dummyWriteResultFailure))
 
     submissionRepositoryMock

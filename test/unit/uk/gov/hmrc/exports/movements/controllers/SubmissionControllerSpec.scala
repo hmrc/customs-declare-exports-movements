@@ -92,7 +92,7 @@ class SubmissionControllerSpec extends CustomsExportsBaseSpec {
     "GET from /movements/:eori" should {
 
       "return 200 status with movements as response body" in {
-        val submission = movementSubmission()
+        val submission = exampleSubmission()
 
         withAuthorizedUser()
         withMovements(Seq(submission))
