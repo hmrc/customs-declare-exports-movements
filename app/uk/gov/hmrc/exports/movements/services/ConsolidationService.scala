@@ -49,7 +49,7 @@ class ConsolidationService @Inject()(
         val newSubmission = Submission(
           eori = context.eori,
           conversationId = conversationId,
-          ucrBlocks = Seq(UcrBlock(ucr = extractUcrFromRequest(context.requestXml).getOrElse(""), ucrType = "")),
+          ucrBlocks = extractUcrListFrom(context.requestXml),
           actionType = context.actionType
         )
 
@@ -68,11 +68,18 @@ class ConsolidationService @Inject()(
         Future.successful(Left("Non Accepted status returned by Customs Inventory Linking Exports"))
     }
 
-  private def extractUcrFromRequest(request: NodeSeq): Option[String] =
-    Try((request \ "ucrBlock" \ "ucr").text).recoverWith {
+  private def extractUcrListFrom(request: NodeSeq): Seq[UcrBlock] =
+    Try {
+      val ucrBlocksNodes = request \ "ucrBlock"
+      ucrBlocksNodes.map { node =>
+        val ucr = (node \ "ucr").text
+        val ucrType = (node \ "ucrType").text
+        UcrBlock(ucr = ucr, ucrType = ucrType)
+      }
+    }.recoverWith {
       case exc =>
         logger.error(s"Exception thrown during UCR extraction from request: ${exc.getMessage}")
         Failure(exc)
-    }.toOption
+    }.getOrElse(Seq.empty)
 
 }

@@ -27,10 +27,12 @@ import play.api.http.Status.{ACCEPTED, BAD_REQUEST}
 import reactivemongo.api.commands.WriteResult
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
 import uk.gov.hmrc.exports.movements.models.submissions.Submission
+import uk.gov.hmrc.exports.movements.models.submissions.Submission.ActionTypes
 import uk.gov.hmrc.exports.movements.services.ConsolidationService
+import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
 import uk.gov.hmrc.http.HeaderCarrier
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
-import utils.ConsolidationTestData.{exampleShutMucrConsolidationRequest, exampleShutMucrContext}
+import utils.ConsolidationTestData._
 import utils.MovementsTestData.{conversationId, validEori}
 
 import scala.concurrent.Future
@@ -95,12 +97,46 @@ class ConsolidationServiceSpec extends WordSpec with MockitoSugar with ScalaFutu
         actualConsolidationSubmission.ucrBlocks.head.ucr must equal("4GB123456789000-123ABC456DEFIIIII")
       }
 
-      trait HappyPathSaveTest extends Test {
-        when(customsInventoryLinkingExportsConnectorMock.sendInventoryLinkingRequest(any(), any())(any()))
-          .thenReturn(
-            Future.successful(CustomsInventoryLinkingResponse(status = ACCEPTED, conversationId = Some(conversationId)))
-          )
-        when(consolidationRepositoryMock.insert(any())(any())).thenReturn(Future.successful(dummyWriteResultSuccess))
+    }
+
+    "everything works correctly, but provided with XML missing UCR" should {
+
+      "return Either.Right" in new HappyPathSaveTest {
+
+        val context = SubmissionRequestContext(
+          eori = validEori,
+          actionType = ActionTypes.ShutMucr,
+          requestXml = exampleShutMucrConsolidationRequestWithoutUcrBlock
+        )
+        val submissionResult =
+          consolidationService
+            .submitConsolidationRequest(context)
+            .futureValue
+
+        submissionResult must equal(Right((): Unit))
+      }
+
+      "call ConsolidationRepository with ConsolidationSubmission containing empty ucr element" in new HappyPathSaveTest {
+
+        val context = SubmissionRequestContext(
+          eori = validEori,
+          actionType = ActionTypes.ShutMucr,
+          requestXml = exampleShutMucrConsolidationRequestWithoutUcrBlock
+        )
+        consolidationService
+          .submitConsolidationRequest(context)
+          .futureValue
+
+        val consolidationSubmissionCaptor: ArgumentCaptor[Submission] =
+          ArgumentCaptor.forClass(classOf[Submission])
+
+        verify(consolidationRepositoryMock).insert(consolidationSubmissionCaptor.capture())(any())
+
+        val actualConsolidationSubmission = consolidationSubmissionCaptor.getValue
+        actualConsolidationSubmission.uuid mustNot be(empty)
+        actualConsolidationSubmission.eori must equal(validEori)
+        actualConsolidationSubmission.conversationId must equal(conversationId)
+        actualConsolidationSubmission.ucrBlocks must be(empty)
       }
     }
 
@@ -142,6 +178,14 @@ class ConsolidationServiceSpec extends WordSpec with MockitoSugar with ScalaFutu
 
         submissionResult must equal(Left(exceptionMsg))
       }
+    }
+
+    trait HappyPathSaveTest extends Test {
+      when(customsInventoryLinkingExportsConnectorMock.sendInventoryLinkingRequest(any(), any())(any()))
+        .thenReturn(
+          Future.successful(CustomsInventoryLinkingResponse(status = ACCEPTED, conversationId = Some(conversationId)))
+        )
+      when(consolidationRepositoryMock.insert(any())(any())).thenReturn(Future.successful(dummyWriteResultSuccess))
     }
   }
 

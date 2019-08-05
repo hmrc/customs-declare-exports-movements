@@ -98,6 +98,12 @@ object ConsolidationTestData {
     )
   )
 
+  val exampleShutMucrConsolidationRequestWithoutUcrBlock: Elem =
+    <inventoryLinkingConsolidationRequest>
+      <messageCode>CST</messageCode>
+      <masterUCR>5GB123456789000-123ABC456DEFIIIII</masterUCR>
+    </inventoryLinkingConsolidationRequest>
+
   val ValidConsolidationRequestHeaders = Map(
     HeaderNames.CONTENT_TYPE -> ContentTypes.XML(Codec.utf_8),
     HeaderNames.AUTHORIZATION -> dummyToken,
