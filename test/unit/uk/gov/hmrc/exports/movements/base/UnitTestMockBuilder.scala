@@ -53,7 +53,8 @@ object UnitTestMockBuilder extends MockitoSugar {
     val submissionRepositoryMock = mock[SubmissionRepository]
 
     when(submissionRepositoryMock.findByEori(any())).thenReturn(Future.successful(Seq.empty))
-    when(submissionRepositoryMock.insert(any())(any())).thenReturn(Future.failed(GenericDatabaseException("ERROR", None)))
+    when(submissionRepositoryMock.insert(any())(any()))
+      .thenReturn(Future.failed(GenericDatabaseException("ERROR", None)))
 
     submissionRepositoryMock
   }

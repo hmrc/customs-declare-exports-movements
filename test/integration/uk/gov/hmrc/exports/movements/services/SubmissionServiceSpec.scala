@@ -206,7 +206,6 @@ class SubmissionServiceSpec
         startInventoryLinkingService(UNAUTHORIZED)
         withMovementSubmissionPersisted(false)
 
-
         val context = SubmissionRequestContext(
           eori = validEori,
           actionType = ActionTypes.Arrival,
@@ -221,7 +220,6 @@ class SubmissionServiceSpec
 
         startInventoryLinkingService(INTERNAL_SERVER_ERROR)
         withMovementSubmissionPersisted(false)
-
 
         val context = SubmissionRequestContext(
           eori = validEori,

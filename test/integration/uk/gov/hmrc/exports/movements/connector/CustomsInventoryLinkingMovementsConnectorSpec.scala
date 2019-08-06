@@ -79,10 +79,7 @@ class CustomsInventoryLinkingMovementsConnectorSpec
         response.status should be(ACCEPTED)
         response.conversationId should not be empty
 
-        verifyILEServiceWasCalled(
-          requestBody = validInventoryLinkingExportRequest.toXml,
-          expectedEori = validEori
-        )
+        verifyILEServiceWasCalled(requestBody = validInventoryLinkingExportRequest.toXml, expectedEori = validEori)
       }
 
       "request is processed successfully - 202 (without conversationId)" in {
@@ -93,10 +90,7 @@ class CustomsInventoryLinkingMovementsConnectorSpec
         response.status should be(ACCEPTED)
         response.conversationId should be(None)
 
-        verifyILEServiceWasCalled(
-          requestBody = validInventoryLinkingExportRequest.toXml,
-          expectedEori = validEori
-        )
+        verifyILEServiceWasCalled(requestBody = validInventoryLinkingExportRequest.toXml, expectedEori = validEori)
       }
 
       "request is not processed - 500" in {

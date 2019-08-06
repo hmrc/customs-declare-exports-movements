@@ -118,9 +118,17 @@ class SubmissionRepositorySpec
         val submission_3 =
           exampleSubmission(eori = validEori, conversationId = conversationId_3, actionType = ActionTypes.ShutMucr)
         val submission_4 =
-          exampleSubmission(eori = validEori, conversationId = conversationId_4, actionType = ActionTypes.DucrAssociation)
+          exampleSubmission(
+            eori = validEori,
+            conversationId = conversationId_4,
+            actionType = ActionTypes.DucrAssociation
+          )
         val submission_5 =
-          exampleSubmission(eori = validEori, conversationId = conversationId_5, actionType = ActionTypes.DucrDisassociation)
+          exampleSubmission(
+            eori = validEori,
+            conversationId = conversationId_5,
+            actionType = ActionTypes.DucrDisassociation
+          )
         repo.insert(submission).futureValue.ok must be(true)
         repo.insert(submission_2).futureValue.ok must be(true)
         repo.insert(submission_3).futureValue.ok must be(true)

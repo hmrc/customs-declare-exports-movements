@@ -40,9 +40,7 @@ class SubmissionService @Inject()(
 
   private val logger = Logger(this.getClass)
 
-  def submitRequest(
-    context: SubmissionRequestContext
-  )(implicit hc: HeaderCarrier): Future[Either[String, Unit]] =
+  def submitRequest(context: SubmissionRequestContext)(implicit hc: HeaderCarrier): Future[Either[String, Unit]] =
     customsInventoryLinkingExportsConnector.sendInventoryLinkingRequest(context.eori, context.requestXml).flatMap {
 
       case CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId)) =>

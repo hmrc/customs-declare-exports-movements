@@ -125,7 +125,6 @@ object MovementsTestData {
 
   protected def randomString(length: Int): String = Random.alphanumeric.take(length).mkString
 
-
   def exampleArrivalRequestXML: Elem =
     <inventoryLinkingMovementRequest>
       <messageCode>{MessageCodes.EAL}</messageCode>
@@ -151,31 +150,36 @@ object MovementsTestData {
       </transportDetails>
     </inventoryLinkingMovementRequest>
 
-  val exampleArrivalRequestJson: JsValue = JsObject(Map(
-    "inventoryLinkingMovementRequest" -> JsObject(Map(
-      "messageCode" -> JsString(MessageCodes.EAL),
-      "agentDetails" -> JsObject(Map(
-        "EORI" -> JsString(validEori),
-        "agentLocation" -> JsString(location),
-        "agentRole" -> JsString(agentRole)
-      )),
-      "ucrBlock" -> JsObject(Map(
-        "ucr" -> JsString(ucr),
-        "ucrType" -> JsString("D")
-      )),
-      "goodsLocation" -> JsString(location),
-      "goodsArrivalDateTime" -> JsString("2019-07-12T13:14:54.000Z"),
-      "shedOPID" -> JsString(shedOPID),
-      "movementReference" -> JsString(movementReference),
-      "masterUCR" -> JsString(ucr_2),
-      "masterOpt" -> JsString(masterOpt),
-      "transportDetails" -> JsObject(Map(
-        "transportID" -> JsString(transportId),
-        "transportMode" -> JsString(transportMode),
-        "transportNationality" -> JsString(transportNationality)
-      ))
-    ))
-  ))
+  val exampleArrivalRequestJson: JsValue = JsObject(
+    Map(
+      "inventoryLinkingMovementRequest" -> JsObject(
+        Map(
+          "messageCode" -> JsString(MessageCodes.EAL),
+          "agentDetails" -> JsObject(
+            Map(
+              "EORI" -> JsString(validEori),
+              "agentLocation" -> JsString(location),
+              "agentRole" -> JsString(agentRole)
+            )
+          ),
+          "ucrBlock" -> JsObject(Map("ucr" -> JsString(ucr), "ucrType" -> JsString("D"))),
+          "goodsLocation" -> JsString(location),
+          "goodsArrivalDateTime" -> JsString("2019-07-12T13:14:54.000Z"),
+          "shedOPID" -> JsString(shedOPID),
+          "movementReference" -> JsString(movementReference),
+          "masterUCR" -> JsString(ucr_2),
+          "masterOpt" -> JsString(masterOpt),
+          "transportDetails" -> JsObject(
+            Map(
+              "transportID" -> JsString(transportId),
+              "transportMode" -> JsString(transportMode),
+              "transportNationality" -> JsString(transportNationality)
+            )
+          )
+        )
+      )
+    )
+  )
 
   def exampleDepartureRequestXML: Elem =
     <inventoryLinkingMovementRequest>
@@ -202,30 +206,35 @@ object MovementsTestData {
       </transportDetails>
     </inventoryLinkingMovementRequest>
 
-  val exampleDepartureRequestJson: JsValue = JsObject(Map(
-    "inventoryLinkingMovementRequest" -> JsObject(Map(
-      "messageCode" -> JsString(MessageCodes.EDL),
-      "agentDetails" -> JsObject(Map(
-        "EORI" -> JsString(validEori),
-        "agentLocation" -> JsString(location),
-        "agentRole" -> JsString(agentRole)
-      )),
-      "ucrBlock" -> JsObject(Map(
-        "ucr" -> JsString(ucr),
-        "ucrType" -> JsString("D")
-      )),
-      "goodsLocation" -> JsString(location),
-      "goodsDepartureDateTime" -> JsString("2019-07-12T13:14:54.000Z"),
-      "shedOPID" -> JsString(shedOPID),
-      "movementReference" -> JsString(movementReference),
-      "masterUCR" -> JsString(ucr_2),
-      "masterOpt" -> JsString(masterOpt),
-      "transportDetails" -> JsObject(Map(
-        "transportID" -> JsString(transportId),
-        "transportMode" -> JsString(transportMode),
-        "transportNationality" -> JsString(transportNationality)
-      ))
-    ))
-  ))
+  val exampleDepartureRequestJson: JsValue = JsObject(
+    Map(
+      "inventoryLinkingMovementRequest" -> JsObject(
+        Map(
+          "messageCode" -> JsString(MessageCodes.EDL),
+          "agentDetails" -> JsObject(
+            Map(
+              "EORI" -> JsString(validEori),
+              "agentLocation" -> JsString(location),
+              "agentRole" -> JsString(agentRole)
+            )
+          ),
+          "ucrBlock" -> JsObject(Map("ucr" -> JsString(ucr), "ucrType" -> JsString("D"))),
+          "goodsLocation" -> JsString(location),
+          "goodsDepartureDateTime" -> JsString("2019-07-12T13:14:54.000Z"),
+          "shedOPID" -> JsString(shedOPID),
+          "movementReference" -> JsString(movementReference),
+          "masterUCR" -> JsString(ucr_2),
+          "masterOpt" -> JsString(masterOpt),
+          "transportDetails" -> JsObject(
+            Map(
+              "transportID" -> JsString(transportId),
+              "transportMode" -> JsString(transportMode),
+              "transportNationality" -> JsString(transportNationality)
+            )
+          )
+        )
+      )
+    )
+  )
 
 }

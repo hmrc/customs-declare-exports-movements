@@ -64,20 +64,11 @@ class SubmissionControllerSpec
     reset(mockAuthConnector, submissionServiceMock)
   }
 
-
-  private def routePost(
-    headers: Map[String, String] = ValidHeaders,
-    xmlBody: Elem,
-    uri: String
-  ): Future[Result] =
+  private def routePost(headers: Map[String, String] = ValidHeaders, xmlBody: Elem, uri: String): Future[Result] =
     route(app, FakeRequest(POST, uri).withHeaders(headers.toSeq: _*).withXmlBody(xmlBody)).get
 
-  private def routeGet(
-    headers: Map[String, String] = ValidHeaders,
-    uri: String
-  ): Future[Result] =
+  private def routeGet(headers: Map[String, String] = ValidHeaders, uri: String): Future[Result] =
     route(app, FakeRequest(GET, uri).withHeaders(headers.toSeq: _*)).get
-
 
   //  val xmlBody: String = randomSubmitDeclaration.toXml
 //
