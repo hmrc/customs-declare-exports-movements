@@ -28,15 +28,12 @@ import uk.gov.hmrc.exports.movements.models.submissions.Submission.ActionTypes
 import uk.gov.hmrc.wco.dec.inventorylinking.common.{AgentDetails, TransportDetails, UcrBlock}
 import uk.gov.hmrc.wco.dec.inventorylinking.movement.request.InventoryLinkingMovementRequest
 import uk.gov.hmrc.wco.dec.{DateTimeString, MetaData, ResponseDateTimeElement, Declaration => WcoDeclaration}
+import utils.TestDataHelper.randomAlphanumericString
 
-import scala.util.Random
 import scala.xml.Elem
 
 object MovementsTestData {
 
-  private lazy val responseFunctionCodes: Seq[String] =
-    Seq("01", "02", "03", "05", "06", "07", "08", "09", "10", "11", "16", "17", "18")
-  private def randomResponseFunctionCode: String = responseFunctionCodes(Random.nextInt(responseFunctionCodes.length))
   object MessageCodes {
     val EAA = "EAA"
     val EAL = "EAL"
@@ -55,7 +52,7 @@ object MovementsTestData {
   val conversationId_5: String = "b1c09f1b-7c94-4e90-b754-7c5c71c44e55"
   val ucr = "9GB025115188654-IAZ1"
   val ucr_2 = "7GB123456789000-123ABC456DEFQWERT"
-  val randomUcr: String = randomString(16)
+  val randomUcr: String = randomAlphanumericString(16)
 
   val location = "LOCATION"
   val agentRole = "ARL"
@@ -75,21 +72,17 @@ object MovementsTestData {
   val declarantMrnValue: String = "MyMucrValue1234"
   val ContentTypeHeader: (String, String) = CONTENT_TYPE -> ContentTypes.XML(Codec.utf_8)
   val ValidXEoriIdentifierHeader: (String, String) = XEoriIdentifierHeaderName -> validEori
-  val ValidLrnHeader: (String, String) = XLrnHeaderName -> declarantLrnValue
   val ValidAuthorizationHeader: (String, String) = HeaderNames.AUTHORIZATION -> dummyToken
   val ValidConversationIdHeader: (String, String) = XConversationIdName -> conversationId
   val ValidUcrHeader: (String, String) = XUcrHeaderName -> declarantUcrValue
+  val ValidLrnHeader: (String, String) = XLrnHeaderName -> declarantLrnValue
   val ValidMovementTypeHeader: (String, String) = XMovementTypeHeaderName -> "Arrival"
 
   val ValidHeaders: Map[String, String] = Map(
     ContentTypeHeader,
     ValidAuthorizationHeader,
     ValidConversationIdHeader,
-    ValidXEoriIdentifierHeader,
-    // TODO: This is not needed
-    ValidLrnHeader,
-    ValidUcrHeader,
-    ValidMovementTypeHeader
+    ValidXEoriIdentifierHeader
   )
 
   def exampleSubmission(
@@ -121,9 +114,8 @@ object MovementsTestData {
   )
 
   def randomSubmitDeclaration: MetaData =
-    MetaData(declaration = Option(WcoDeclaration(functionalReferenceId = Some(randomString(35)))))
+    MetaData(declaration = Option(WcoDeclaration(functionalReferenceId = Some(randomAlphanumericString(35)))))
 
-  protected def randomString(length: Int): String = Random.alphanumeric.take(length).mkString
 
   def exampleArrivalRequestXML: Elem =
     <inventoryLinkingMovementRequest>
