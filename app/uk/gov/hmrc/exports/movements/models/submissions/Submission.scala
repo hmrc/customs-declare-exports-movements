@@ -14,26 +14,31 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.exports.movements.models
+package uk.gov.hmrc.exports.movements.models.submissions
+
+import java.time.Instant
+import java.util.UUID
 
 import play.api.libs.json._
-import reactivemongo.bson.BSONObjectID
-import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
-import uk.gov.hmrc.mongo.json.ReactiveMongoFormats.mongoEntity
+import uk.gov.hmrc.exports.movements.models.notifications.UcrBlock
 
 case class Submission(
+  uuid: String = UUID.randomUUID().toString,
   eori: String,
   conversationId: String,
-  ucr: String,
-  movementType: String,
-  id: BSONObjectID = BSONObjectID.generate(),
-  submittedTimestamp: Long = System.currentTimeMillis(),
-  status: Option[String] = Some("Pending")
+  ucrBlocks: Seq[UcrBlock],
+  actionType: String,
+  requestTimestamp: Instant = Instant.now()
 )
 
 object Submission {
-  implicit val objectIdFormats = ReactiveMongoFormats.objectIdFormats
-  implicit val formats = mongoEntity {
-    Json.format[Submission]
+  implicit val formats = Json.format[Submission]
+
+  object ActionTypes {
+    val Arrival = "Arrival"
+    val Departure = "Departure"
+    val DucrAssociation = "Association"
+    val DucrDisassociation = "Disassociation"
+    val ShutMucr = "ShutMucr"
   }
 }

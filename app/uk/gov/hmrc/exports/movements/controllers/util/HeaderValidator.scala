@@ -18,19 +18,11 @@ package uk.gov.hmrc.exports.movements.controllers.util
 
 import javax.inject.Singleton
 import play.api.Logger
-import play.api.http.HeaderNames
-import uk.gov.hmrc.exports.movements.models._
 
 @Singleton
 class HeaderValidator {
 
   private val logger = Logger(this.getClass)
-
-  def extractUcrHeader(headers: Map[String, String]): Option[String] =
-    extractHeader(CustomsHeaderNames.XUcrHeaderName, headers)
-
-  def extractMovementTypeHeader(headers: Map[String, String]): Option[String] =
-    extractHeader(CustomsHeaderNames.XMovementTypeHeaderName, headers)
 
   def extractConversationIdHeader(headers: Map[String, String]): Option[String] =
     extractHeader(CustomsHeaderNames.XConversationIdName, headers)
@@ -43,18 +35,4 @@ class HeaderValidator {
         None
     }
 
-  def validateAndExtractMovementSubmissionHeaders(
-    implicit headers: Map[String, String]
-  ): Either[ErrorResponse, ValidatedHeadersRequest] = {
-    val result = for {
-      ucr <- extractUcrHeader(headers)
-      movementType <- extractMovementTypeHeader(headers)
-    } yield ValidatedHeadersRequest(ucr, movementType)
-    result match {
-      case Some(request) => Right(request)
-      case None =>
-        logger.error("Error validating and extracting headers")
-        Left(ErrorResponse.ErrorInvalidPayload)
-    }
-  }
 }

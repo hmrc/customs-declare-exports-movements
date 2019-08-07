@@ -43,5 +43,4 @@ class NotificationRepository @Inject()(mc: ReactiveMongoComponent)(implicit ec: 
 
   def findNotificationsByConversationId(conversationId: String): Future[Seq[Notification]] =
     find("conversationId" -> JsString(conversationId))
-
 }

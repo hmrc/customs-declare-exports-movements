@@ -14,19 +14,8 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.exports.movements.models.consolidations
+package uk.gov.hmrc.exports.movements.services.context
 
-import java.util.UUID
+import scala.xml.NodeSeq
 
-import play.api.libs.json.Json
-
-case class ConsolidationSubmission(
-  uuid: String = UUID.randomUUID().toString,
-  eori: String,
-  conversationId: String,
-  ucr: String
-)
-
-object ConsolidationSubmission {
-  implicit val format = Json.format[ConsolidationSubmission]
-}
+final case class SubmissionRequestContext(eori: String, actionType: String, requestXml: NodeSeq)

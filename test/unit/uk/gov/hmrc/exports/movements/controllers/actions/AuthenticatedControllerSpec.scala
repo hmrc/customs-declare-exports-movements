@@ -18,19 +18,24 @@ package unit.uk.gov.hmrc.exports.movements.controllers.actions
 
 import java.util.UUID
 
-import org.scalatest.concurrent.ScalaFutures
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import play.api.http.ContentTypes
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import reactivemongo.core.errors.GenericDatabaseException
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
-import unit.uk.gov.hmrc.exports.movements.base.CustomsExportsBaseSpec
+import uk.gov.hmrc.exports.movements.models.submissions.Submission
+import unit.uk.gov.hmrc.exports.movements.base.{CustomsExportsBaseSpec, UnitTestMockBuilder}
 import utils.MovementsTestData._
 
-class AuthenticatedControllerSpec extends CustomsExportsBaseSpec with ScalaFutures {
-  val uri = "/save-movement-submission"
+import scala.concurrent.Future
+
+class AuthenticatedControllerSpec extends CustomsExportsBaseSpec {
+  val uri = "/movements/arrival"
   val xmlBody: String = "<iamXml></iamXml>"
   val fakeXmlRequest: FakeRequest[String] = FakeRequest("POST", uri).withBody(xmlBody)
   val fakeXmlRequestWithHeaders: FakeRequest[String] =
@@ -42,7 +47,7 @@ class AuthenticatedControllerSpec extends CustomsExportsBaseSpec with ScalaFutur
         CONTENT_TYPE -> ContentTypes.XML
       )
 
-  val jsonBody: String = Json.toJson(movementSubmission()).toString()
+  val jsonBody: String = Json.toJson(exampleSubmission()).toString()
   val fakeJsonRequest: FakeRequest[String] = FakeRequest("POST", uri).withBody(jsonBody)
   val fakeJsonRequestWithHeaders: FakeRequest[String] =
     fakeJsonRequest
@@ -65,8 +70,9 @@ class AuthenticatedControllerSpec extends CustomsExportsBaseSpec with ScalaFutur
 
     "return 202 status when a valid request with Enrollments is processed" in {
       withAuthorizedUser()
-      withDataSaved(true)
       withConnectorCall(CustomsInventoryLinkingResponse(ACCEPTED, Some(UUID.randomUUID().toString)))
+      when(mockMovementsRepository.insert(any[Submission])(any()))
+        .thenReturn(Future.successful(UnitTestMockBuilder.dummyWriteResultSuccess))
 
       val result = route(app, fakeXmlRequestWithHeaders).get
 
@@ -75,8 +81,9 @@ class AuthenticatedControllerSpec extends CustomsExportsBaseSpec with ScalaFutur
 
     "return 500 status when there is a problem with the service" in {
       withAuthorizedUser()
-      withDataSaved(false)
       withConnectorCall(CustomsInventoryLinkingResponse(ACCEPTED, Some(UUID.randomUUID().toString)))
+      when(mockMovementsRepository.insert(any[Submission])(any()))
+        .thenReturn(Future.failed(GenericDatabaseException("Problem with DB", None)))
 
       val result = route(app, fakeXmlRequestWithHeaders).get
 
@@ -112,7 +119,7 @@ class AuthenticatedControllerSpec extends CustomsExportsBaseSpec with ScalaFutur
 
       val result = route(app, fakeXmlRequest).get
 
-      status(result) must be(BAD_REQUEST)
+      status(result) must be(INTERNAL_SERVER_ERROR)
     }
   }
 }

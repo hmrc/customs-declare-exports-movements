@@ -2,13 +2,16 @@
 
 POST        /customs-declare-exports/notifyMovement         uk.gov.hmrc.exports.movements.controllers.NotificationController.saveNotification()
 
-POST        /save-movement-submission                       uk.gov.hmrc.exports.movements.controllers.SubmissionController.submitMovement()
-
-GET         /movements                                      uk.gov.hmrc.exports.movements.controllers.SubmissionController.getMovements()
-
 GET         /notifications/:conversationId                  uk.gov.hmrc.exports.movements.controllers.NotificationController.listOfNotifications(conversationId: String)
+
+POST        /movements/arrival                              uk.gov.hmrc.exports.movements.controllers.SubmissionController.submitArrival()
+POST        /movements/departure                            uk.gov.hmrc.exports.movements.controllers.SubmissionController.submitDeparture()
+
+GET         /movements                                      uk.gov.hmrc.exports.movements.controllers.SubmissionController.getAllSubmissions()
 
 # Movements Consolidations
 
-POST        /consolidations/submit                          uk.gov.hmrc.exports.movements.controllers.ConsolidationController.submitMovementConsolidation()
+POST        /consolidations/shut                            uk.gov.hmrc.exports.movements.controllers.ConsolidationController.shutMucr()
+POST        /consolidations/associate                       uk.gov.hmrc.exports.movements.controllers.ConsolidationController.associateMucr()
+POST        /consolidations/disassociate                    uk.gov.hmrc.exports.movements.controllers.ConsolidationController.disassociateMucr()
 

@@ -45,7 +45,7 @@ class NotificationRepositorySpec
     repo.removeAll().futureValue
   }
 
-  "Notification Repository on insert" when {
+  "NotificationRepository on insert" when {
 
     "the operation was successful" should {
       "result in a success" in {

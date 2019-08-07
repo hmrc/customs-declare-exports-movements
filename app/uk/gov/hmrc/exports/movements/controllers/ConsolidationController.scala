@@ -21,32 +21,37 @@ import play.api.Logger
 import play.api.mvc._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.exports.movements.controllers.actions.AuthenticatedController
-import uk.gov.hmrc.exports.movements.models.ErrorResponse
-import uk.gov.hmrc.exports.movements.services.ConsolidationService
+import uk.gov.hmrc.exports.movements.models.submissions.Submission.ActionTypes
+import uk.gov.hmrc.exports.movements.models.{AuthorizedSubmissionRequest, ErrorResponse}
+import uk.gov.hmrc.exports.movements.services.SubmissionService
+import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.xml.NodeSeq
 
 @Singleton
 class ConsolidationController @Inject()(
   authConnector: AuthConnector,
-  consolidationService: ConsolidationService,
+  consolidationService: SubmissionService,
   cc: ControllerComponents
 ) extends AuthenticatedController(authConnector, cc) {
 
   private val logger = Logger(this.getClass)
 
-  def submitMovementConsolidation(): Action[AnyContent] =
+  def shutMucr(): Action[AnyContent] =
     authorisedAction(bodyParser = xmlOrEmptyBody) { implicit request =>
-      request.body.asXml match {
-        case Some(requestXml) =>
-          forwardMovementConsolidationRequest(request.eori.value, requestXml)
-        case None =>
-          logger.error("Body is not xml")
-          Future.successful(ErrorResponse.ErrorInvalidPayload.XmlResult)
-      }
+      submitMovementConsolidation(ActionTypes.ShutMucr)
+    }
+
+  def associateMucr(): Action[AnyContent] =
+    authorisedAction(bodyParser = xmlOrEmptyBody) { implicit request =>
+      submitMovementConsolidation(ActionTypes.DucrAssociation)
+    }
+
+  def disassociateMucr(): Action[AnyContent] =
+    authorisedAction(bodyParser = xmlOrEmptyBody) { implicit request =>
+      submitMovementConsolidation(ActionTypes.DucrDisassociation)
     }
 
   private def xmlOrEmptyBody: BodyParser[AnyContent] =
@@ -60,10 +65,23 @@ class ConsolidationController @Inject()(
       }
     )
 
-  private def forwardMovementConsolidationRequest(eori: String, requestXml: NodeSeq)(
-    implicit hc: HeaderCarrier
-  ): Future[Result] =
-    consolidationService.submitConsolidationRequest(eori, requestXml).map {
+  private def submitMovementConsolidation(
+    actionType: String
+  )(implicit hc: HeaderCarrier, request: AuthorizedSubmissionRequest[AnyContent]): Future[Result] =
+    request.body.asXml match {
+      case Some(requestXml) =>
+        val context =
+          SubmissionRequestContext(eori = request.eori.value, actionType = actionType, requestXml = requestXml)
+        forwardMovementConsolidationRequest(context)
+      case None =>
+        logger.error("Body is not xml")
+        Future.successful(ErrorResponse.ErrorInvalidPayload.XmlResult)
+    }
+
+  private def forwardMovementConsolidationRequest(
+    context: SubmissionRequestContext
+  )(implicit hc: HeaderCarrier): Future[Result] =
+    consolidationService.submitRequest(context).map {
       case Right(_)       => Accepted("Consolidation request submitted successfully")
       case Left(errorMsg) => ErrorResponse.errorInternalServerError(errorMsg).XmlResult
     }

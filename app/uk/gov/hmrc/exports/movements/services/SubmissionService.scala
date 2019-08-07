@@ -18,71 +18,68 @@ package uk.gov.hmrc.exports.movements.services
 
 import javax.inject.{Inject, Singleton}
 import play.api.Logger
-import play.api.libs.json.Json
-import play.api.mvc.Result
-import play.api.mvc.Results.{Accepted, InternalServerError, Ok}
-import play.mvc.Http.Status.ACCEPTED
+import play.api.http.Status.ACCEPTED
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
-import uk.gov.hmrc.exports.movements.models.Submission
+import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
+import uk.gov.hmrc.exports.movements.models.notifications.UcrBlock
+import uk.gov.hmrc.exports.movements.models.submissions.Submission
 import uk.gov.hmrc.exports.movements.repositories.SubmissionRepository
+import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.util.{Failure, Try}
 import scala.xml.NodeSeq
 
 @Singleton
 class SubmissionService @Inject()(
-  linkingExportsConnector: CustomsInventoryLinkingExportsConnector,
-  movementsRepo: SubmissionRepository
+  customsInventoryLinkingExportsConnector: CustomsInventoryLinkingExportsConnector,
+  submissionRepository: SubmissionRepository
 ) {
 
-  // TODO return Option[String] as conversation ID and handle result in Controller
-  def handleMovementSubmission(eori: String, ucr: String, movementType: String, xml: NodeSeq)(
-    implicit hc: HeaderCarrier
-  ): Future[Result] =
-    linkingExportsConnector
-      .sendInventoryLinkingRequest(eori, xml)
-      .flatMap(
-        response =>
-          response.status match {
-            case ACCEPTED =>
-              response.conversationId.fold({
-                Logger.info(s"No ConversationID returned for submission with Eori: $eori")
-                Future.successful(InternalServerError("No conversation Id Returned"))
-              }) { conversationId =>
-                persistMovementsData(eori, conversationId, ucr, movementType).map(
-                  result =>
-                    if (result) {
-                      Accepted("Movement Submission submitted and persisted ok")
-                    } else {
-                      InternalServerError("Unable to persist data something bad happened")
-                  }
-                )
-              }
-            case _ =>
-              Logger
-                .info(s"Non Accepted status ${response.status} returned by Customs Declaration Service for Eori: $eori")
-              Future.successful(InternalServerError("Non Accepted status returned by Customs Declaration Service"))
-        }
-      )
+  private val logger = Logger(this.getClass)
 
-  def getMovementsByEori(eori: String): Future[Seq[Submission]] = movementsRepo.findByEori(eori)
+  def submitRequest(context: SubmissionRequestContext)(implicit hc: HeaderCarrier): Future[Either[String, Unit]] =
+    customsInventoryLinkingExportsConnector.sendInventoryLinkingRequest(context.eori, context.requestXml).flatMap {
 
-  private def persistMovementsData(
-    eori: String,
-    conversationId: String,
-    ucr: String,
-    movementType: String
-  ): Future[Boolean] = {
-    val movementSubmission = Submission(eori, conversationId, ucr, movementType)
-    movementsRepo
-      .save(movementSubmission)
-      .map(res => {
-        if (res) Logger.debug("movement submission data saved to DB")
-        else Logger.error("error  saving movement submission data to DB")
-        res
-      })
-  }
+      case CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId)) =>
+        val newSubmission = Submission(
+          eori = context.eori,
+          conversationId = conversationId,
+          ucrBlocks = extractUcrListFrom(context.requestXml),
+          actionType = context.actionType
+        )
+
+        submissionRepository
+          .insert(newSubmission)
+          .map(_ => Right((): Unit))
+          .recover {
+            case exc: Throwable =>
+              logger.error(exc.getMessage)
+              Left(exc.getMessage)
+          }
+
+      case CustomsInventoryLinkingResponse(status, _) =>
+        logger
+          .error(s"Customs Inventory Linking Exports returned $status for Eori: ${context.eori}")
+        Future.successful(Left("Non Accepted status returned by Customs Inventory Linking Exports"))
+    }
+
+  private def extractUcrListFrom(request: NodeSeq): Seq[UcrBlock] =
+    Try {
+      val ucrBlocksNodes = request \ "ucrBlock"
+      ucrBlocksNodes.map { node =>
+        val ucr = (node \ "ucr").text
+        val ucrType = (node \ "ucrType").text
+        UcrBlock(ucr = ucr, ucrType = ucrType)
+      }
+    }.recoverWith {
+      case exc =>
+        logger.error(s"Exception thrown during UCR extraction from request: ${exc.getMessage}")
+        Failure(exc)
+    }.getOrElse(Seq.empty)
+
+  def getSubmissionsByEori(eori: String): Future[Seq[Submission]] = submissionRepository.findByEori(eori)
 
 }

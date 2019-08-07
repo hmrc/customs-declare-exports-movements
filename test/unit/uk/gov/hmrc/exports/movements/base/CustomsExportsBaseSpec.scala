@@ -36,8 +36,10 @@ import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.exports.movements.config.AppConfig
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
 import uk.gov.hmrc.exports.movements.metrics.MovementsMetrics
-import uk.gov.hmrc.exports.movements.models.{CustomsInventoryLinkingResponse, Submission}
+import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
+import uk.gov.hmrc.exports.movements.models.submissions.Submission
 import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, SubmissionRepository}
+import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder.buildSubmissionRepositoryMock
 
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
@@ -55,7 +57,7 @@ trait CustomsExportsBaseSpec
       )
       .build()
   val mockMovementNotificationsRepository: NotificationRepository = mock[NotificationRepository]
-  val mockMovementsRepository: SubmissionRepository = mock[SubmissionRepository]
+  val mockMovementsRepository: SubmissionRepository = buildSubmissionRepositoryMock
   val mockCustomsInventoryLinkingConnector: CustomsInventoryLinkingExportsConnector =
     mock[CustomsInventoryLinkingExportsConnector]
   val mockMetrics: MovementsMetrics = mock[MovementsMetrics]
@@ -82,9 +84,6 @@ trait CustomsExportsBaseSpec
   protected def withConnectorCall(response: CustomsInventoryLinkingResponse) =
     when(mockCustomsInventoryLinkingConnector.sendInventoryLinkingRequest(any(), any())(any()))
       .thenReturn(Future.successful(response))
-
-  protected def withDataSaved(ok: Boolean): OngoingStubbing[Future[Boolean]] =
-    when(mockMovementsRepository.save(any())).thenReturn(Future.successful(ok))
 
   protected def withMovements(movements: Seq[Submission]): OngoingStubbing[Future[Seq[Submission]]] =
     when(mockMovementsRepository.findByEori(any())).thenReturn(Future.successful(movements))

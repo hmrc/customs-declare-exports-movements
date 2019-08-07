@@ -17,7 +17,7 @@
 package unit.uk.gov.hmrc.exports.movements.controllers
 
 import org.mockito.ArgumentCaptor
-import org.mockito.ArgumentMatchers.{any, eq => meq}
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, verify, verifyZeroInteractions, when}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{BeforeAndAfterEach, MustMatchers, WordSpec}
@@ -32,115 +32,306 @@ import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames.XEoriIdentifierHeaderName
 import uk.gov.hmrc.exports.movements.controllers.util.HeaderValidator
 import uk.gov.hmrc.exports.movements.metrics.MovementsMetrics
-import uk.gov.hmrc.exports.movements.services.ConsolidationService
+import uk.gov.hmrc.exports.movements.models.submissions.Submission.ActionTypes
+import uk.gov.hmrc.exports.movements.services.SubmissionService
+import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
 import unit.uk.gov.hmrc.exports.movements.base.AuthTestSupport
-import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder.buildConsolidationServiceMock
+import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder.buildSubmissionServiceMock
 import utils.ConsolidationTestData._
 
 import scala.concurrent.Future
-import scala.xml.{Elem, NodeSeq}
+import scala.xml.Elem
 
 class ConsolidationControllerSpec
     extends WordSpec with GuiceOneAppPerSuite with AuthTestSupport with BeforeAndAfterEach with ScalaFutures
     with MustMatchers {
 
-  val submitMovementConsolidationUri = "/consolidations/submit"
-
-  private val consolidationServiceMock = buildConsolidationServiceMock
   override lazy val app: Application = GuiceApplicationBuilder()
-    .overrides(bind[AuthConnector].to(mockAuthConnector), bind[ConsolidationService].to(consolidationServiceMock))
+    .overrides(bind[AuthConnector].to(mockAuthConnector), bind[SubmissionService].to(submissionServiceMock))
     .build()
 
+  private val shutMucrUri = "/consolidations/shut"
+  private val associateDucrUri = "/consolidations/associate"
+  private val disassociateDucrUri = "/consolidations/disassociate"
+
+  private val submissionServiceMock = buildSubmissionServiceMock
   private val metrics: MovementsMetrics = app.injector.instanceOf[MovementsMetrics]
   private val headerValidator: HeaderValidator = app.injector.instanceOf[HeaderValidator]
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    reset(mockAuthConnector, consolidationServiceMock)
+    reset(mockAuthConnector, submissionServiceMock)
   }
 
-  "MovementConsolidationController on submitMovementConsolidation" when {
+  "ConsolidationController" when {
+    "on shutMucr" when {
 
-    "everything works correctly" should {
+      "everything works correctly" should {
 
-      "return Accepted status" in {
-        withAuthorizedUser()
-        when(consolidationServiceMock.submitConsolidationRequest(any(), any())(any()))
-          .thenReturn(Future.successful(Right((): Unit)))
+        "return Accepted status" in {
+          withAuthorizedUser()
+          when(submissionServiceMock.submitRequest(any())(any()))
+            .thenReturn(Future.successful(Right((): Unit)))
 
-        val result = routePostSubmitMovementConsolidation()
+          val result = routePostSubmitMovementConsolidation(uri = shutMucrUri)
 
-        status(result) must be(ACCEPTED)
+          status(result) must be(ACCEPTED)
+        }
+
+        "call SubmissionService once, passing EORI and request payload" in {
+          withAuthorizedUser()
+          when(submissionServiceMock.submitRequest(any())(any()))
+            .thenReturn(Future.successful(Right((): Unit)))
+
+          routePostSubmitMovementConsolidation(uri = shutMucrUri).futureValue
+
+          val expectedEori = ValidConsolidationRequestHeaders(XEoriIdentifierHeaderName)
+          val contextCaptor: ArgumentCaptor[SubmissionRequestContext] =
+            ArgumentCaptor.forClass(classOf[SubmissionRequestContext])
+
+          verify(submissionServiceMock).submitRequest(contextCaptor.capture())(any())
+
+          contextCaptor.getValue.eori must equal(expectedEori)
+          contextCaptor.getValue.actionType must equal(ActionTypes.ShutMucr)
+          contextCaptor.getValue.requestXml must equal(exampleShutMucrConsolidationRequest)
+        }
       }
 
-      "call ConsolidationService once, passing EORI and request payload" in {
-        withAuthorizedUser()
-        when(consolidationServiceMock.submitConsolidationRequest(any(), any())(any()))
-          .thenReturn(Future.successful(Right((): Unit)))
+      "SubmissionService returns Either.Left" should {
 
-        routePostSubmitMovementConsolidation().futureValue
+        "return InternalServerError" in {
+          withAuthorizedUser()
+          when(submissionServiceMock.submitRequest(any())(any()))
+            .thenReturn(Future.successful(Left("")))
 
-        val expectedEori = ValidConsolidationRequestHeaders(XEoriIdentifierHeaderName)
-        val requestBodyCaptor: ArgumentCaptor[NodeSeq] = ArgumentCaptor.forClass(classOf[NodeSeq])
-        verify(consolidationServiceMock)
-          .submitConsolidationRequest(meq(expectedEori), requestBodyCaptor.capture())(any())
+          val result = routePostSubmitMovementConsolidation(uri = shutMucrUri)
 
-        requestBodyCaptor.getValue must equal(exampleShutMucrConsolidationRequest)
+          status(result) must be(INTERNAL_SERVER_ERROR)
+        }
+      }
+
+      "provided with invalid request format" should {
+
+        "return ErrorResponse for invalid payload" in {
+          withAuthorizedUser()
+          when(submissionServiceMock.submitRequest(any())(any()))
+            .thenReturn(Future.successful(Right((): Unit)))
+
+          val result = route(
+            app,
+            FakeRequest(POST, shutMucrUri)
+              .withHeaders(ValidConsolidationRequestHeaders.toSeq: _*)
+              .withJsonBody(exampleShutMucrConsolidationRequestJson)
+          ).get
+
+          status(result) must be(BAD_REQUEST)
+          contentAsString(result) must include("Invalid payload")
+        }
+
+        "not call SubmissionService" in {
+          withAuthorizedUser()
+          when(submissionServiceMock.submitRequest(any())(any()))
+            .thenReturn(Future.successful(Right((): Unit)))
+
+          route(
+            app,
+            FakeRequest(POST, shutMucrUri)
+              .withHeaders(ValidConsolidationRequestHeaders.toSeq: _*)
+              .withJsonBody(exampleShutMucrConsolidationRequestJson)
+          ).get.futureValue
+
+          verifyZeroInteractions(submissionServiceMock)
+        }
       }
     }
 
-    "ConsolidationService returns Either.Left" should {
+    "on associateMucr" when {
 
-      "return InternalServerError" in {
-        withAuthorizedUser()
-        when(consolidationServiceMock.submitConsolidationRequest(any(), any())(any()))
-          .thenReturn(Future.successful(Left("")))
+      "everything works correctly" should {
 
-        val result = routePostSubmitMovementConsolidation()
+        "return Accepted status" in {
+          withAuthorizedUser()
+          when(submissionServiceMock.submitRequest(any())(any()))
+            .thenReturn(Future.successful(Right((): Unit)))
 
-        status(result) must be(INTERNAL_SERVER_ERROR)
+          val result = routePostSubmitMovementConsolidation(
+            xmlBody = exampleAssociateDucrConsolidationRequest,
+            uri = associateDucrUri
+          )
+
+          status(result) must be(ACCEPTED)
+        }
+
+        "call SubmissionService once, passing EORI and request payload" in {
+          withAuthorizedUser()
+          when(submissionServiceMock.submitRequest(any())(any()))
+            .thenReturn(Future.successful(Right((): Unit)))
+
+          routePostSubmitMovementConsolidation(
+            xmlBody = exampleAssociateDucrConsolidationRequest,
+            uri = associateDucrUri
+          ).futureValue
+
+          val expectedEori = ValidConsolidationRequestHeaders(XEoriIdentifierHeaderName)
+          val contextCaptor: ArgumentCaptor[SubmissionRequestContext] =
+            ArgumentCaptor.forClass(classOf[SubmissionRequestContext])
+
+          verify(submissionServiceMock).submitRequest(contextCaptor.capture())(any())
+
+          contextCaptor.getValue.eori must equal(expectedEori)
+          contextCaptor.getValue.actionType must equal(ActionTypes.DucrAssociation)
+          contextCaptor.getValue.requestXml must equal(exampleAssociateDucrConsolidationRequest)
+        }
+      }
+
+      "SubmissionService returns Either.Left" should {
+
+        "return InternalServerError" in {
+          withAuthorizedUser()
+          when(submissionServiceMock.submitRequest(any())(any()))
+            .thenReturn(Future.successful(Left("")))
+
+          val result = routePostSubmitMovementConsolidation(
+            xmlBody = exampleAssociateDucrConsolidationRequest,
+            uri = associateDucrUri
+          )
+
+          status(result) must be(INTERNAL_SERVER_ERROR)
+        }
+      }
+
+      "provided with invalid request format" should {
+
+        "return ErrorResponse for invalid payload" in {
+          withAuthorizedUser()
+          when(submissionServiceMock.submitRequest(any())(any()))
+            .thenReturn(Future.successful(Right((): Unit)))
+
+          val result = route(
+            app,
+            FakeRequest(POST, associateDucrUri)
+              .withHeaders(ValidConsolidationRequestHeaders.toSeq: _*)
+              .withJsonBody(exampleAssociateDucrConsolidationRequestJson)
+          ).get
+
+          status(result) must be(BAD_REQUEST)
+          contentAsString(result) must include("Invalid payload")
+        }
+
+        "not call SubmissionService" in {
+          withAuthorizedUser()
+          when(submissionServiceMock.submitRequest(any())(any()))
+            .thenReturn(Future.successful(Right((): Unit)))
+
+          route(
+            app,
+            FakeRequest(POST, associateDucrUri)
+              .withHeaders(ValidConsolidationRequestHeaders.toSeq: _*)
+              .withJsonBody(exampleAssociateDucrConsolidationRequestJson)
+          ).get.futureValue
+
+          verifyZeroInteractions(submissionServiceMock)
+        }
       }
     }
 
-    "provided with invalid request format" should {
+    "on disassociateMucr" when {
 
-      "return ErrorResponse for invalid payload" in {
-        withAuthorizedUser()
-        when(consolidationServiceMock.submitConsolidationRequest(any(), any())(any()))
-          .thenReturn(Future.successful(Right((): Unit)))
+      "everything works correctly" should {
 
-        val result = route(
-          app,
-          FakeRequest(POST, submitMovementConsolidationUri)
-            .withHeaders(ValidConsolidationRequestHeaders.toSeq: _*)
-            .withJsonBody(exampleShutMucrConsolidationRequestJson)
-        ).get
+        "return Accepted status" in {
+          withAuthorizedUser()
+          when(submissionServiceMock.submitRequest(any())(any()))
+            .thenReturn(Future.successful(Right((): Unit)))
 
-        status(result) must be(BAD_REQUEST)
-        contentAsString(result) must include("Invalid payload")
+          val result = routePostSubmitMovementConsolidation(
+            xmlBody = exampleDisassociateDucrConsolidationRequest,
+            uri = disassociateDucrUri
+          )
+
+          status(result) must be(ACCEPTED)
+        }
+
+        "call SubmissionService once, passing EORI and request payload" in {
+          withAuthorizedUser()
+          when(submissionServiceMock.submitRequest(any())(any()))
+            .thenReturn(Future.successful(Right((): Unit)))
+
+          routePostSubmitMovementConsolidation(
+            xmlBody = exampleDisassociateDucrConsolidationRequest,
+            uri = disassociateDucrUri
+          ).futureValue
+
+          val expectedEori = ValidConsolidationRequestHeaders(XEoriIdentifierHeaderName)
+          val contextCaptor: ArgumentCaptor[SubmissionRequestContext] =
+            ArgumentCaptor.forClass(classOf[SubmissionRequestContext])
+
+          verify(submissionServiceMock).submitRequest(contextCaptor.capture())(any())
+
+          contextCaptor.getValue.eori must equal(expectedEori)
+          contextCaptor.getValue.actionType must equal(ActionTypes.DucrDisassociation)
+          contextCaptor.getValue.requestXml must equal(exampleDisassociateDucrConsolidationRequest)
+        }
       }
 
-      "not call ConsolidationService" in {
-        withAuthorizedUser()
-        when(consolidationServiceMock.submitConsolidationRequest(any(), any())(any()))
-          .thenReturn(Future.successful(Right((): Unit)))
+      "SubmissionService returns Either.Left" should {
 
-        route(
-          app,
-          FakeRequest(POST, submitMovementConsolidationUri)
-            .withHeaders(ValidConsolidationRequestHeaders.toSeq: _*)
-            .withJsonBody(exampleShutMucrConsolidationRequestJson)
-        ).get.futureValue
+        "return InternalServerError" in {
+          withAuthorizedUser()
+          when(submissionServiceMock.submitRequest(any())(any()))
+            .thenReturn(Future.successful(Left("")))
 
-        verifyZeroInteractions(consolidationServiceMock)
+          val result = routePostSubmitMovementConsolidation(
+            xmlBody = exampleDisassociateDucrConsolidationRequest,
+            uri = disassociateDucrUri
+          )
+
+          status(result) must be(INTERNAL_SERVER_ERROR)
+        }
+      }
+
+      "provided with invalid request format" should {
+
+        "return ErrorResponse for invalid payload" in {
+          withAuthorizedUser()
+          when(submissionServiceMock.submitRequest(any())(any()))
+            .thenReturn(Future.successful(Right((): Unit)))
+
+          val result = route(
+            app,
+            FakeRequest(POST, disassociateDucrUri)
+              .withHeaders(ValidConsolidationRequestHeaders.toSeq: _*)
+              .withJsonBody(exampleDisassociateDucrConsolidationRequestJson)
+          ).get
+
+          status(result) must be(BAD_REQUEST)
+          contentAsString(result) must include("Invalid payload")
+        }
+
+        "not call SubmissionService" in {
+          withAuthorizedUser()
+          when(submissionServiceMock.submitRequest(any())(any()))
+            .thenReturn(Future.successful(Right((): Unit)))
+
+          route(
+            app,
+            FakeRequest(POST, disassociateDucrUri)
+              .withHeaders(ValidConsolidationRequestHeaders.toSeq: _*)
+              .withJsonBody(exampleDisassociateDucrConsolidationRequestJson)
+          ).get.futureValue
+
+          verifyZeroInteractions(submissionServiceMock)
+        }
       }
     }
+
   }
 
   def routePostSubmitMovementConsolidation(
     headers: Map[String, String] = ValidConsolidationRequestHeaders,
-    xmlBody: Elem = exampleShutMucrConsolidationRequest
+    xmlBody: Elem = exampleShutMucrConsolidationRequest,
+    uri: String
   ): Future[Result] =
-    route(app, FakeRequest(POST, submitMovementConsolidationUri).withHeaders(headers.toSeq: _*).withXmlBody(xmlBody)).get
+    route(app, FakeRequest(POST, uri).withHeaders(headers.toSeq: _*).withXmlBody(xmlBody)).get
 
 }

@@ -18,7 +18,6 @@ package unit.uk.gov.hmrc.exports.movements.controllers.util
 
 import org.scalatest.mockito.MockitoSugar
 import uk.gov.hmrc.exports.movements.controllers.util.HeaderValidator
-import uk.gov.hmrc.exports.movements.models._
 import unit.uk.gov.hmrc.exports.movements.base.UnitSpec
 import utils.MovementsTestData._
 
@@ -32,18 +31,6 @@ class HeaderValidatorSpec extends UnitSpec with MockitoSugar {
 
     "header is present" should {
 
-      "return UCR from header when extract is called" in new SetUp {
-        val extractedUcr: Option[String] =
-          validator.extractUcrHeader(ValidHeaders)
-        extractedUcr shouldBe Some(declarantUcrValue)
-      }
-
-      "return movementType from header when extract is called" in new SetUp {
-        val extractedMovementType: Option[String] =
-          validator.extractMovementTypeHeader(ValidHeaders)
-        extractedMovementType shouldBe Some("Arrival")
-      }
-
       "return conversationId from header when extract is called" in new SetUp {
         val extractedConversationId: Option[String] =
           validator.extractConversationIdHeader(ValidHeaders)
@@ -53,16 +40,6 @@ class HeaderValidatorSpec extends UnitSpec with MockitoSugar {
 
     "header is not present" should {
 
-      "return None from header when extract is called (no DUCR)" in new SetUp {
-        val extractedDucr: Option[String] = validator.extractUcrHeader(Map.empty)
-        extractedDucr shouldBe None
-      }
-
-      "return None from header when extract is called (no MovementType)" in new SetUp {
-        val extractedMovementType: Option[String] = validator.extractMovementTypeHeader(Map.empty)
-        extractedMovementType shouldBe None
-      }
-
       "return None from header when extract is called (no ConversationId)" in new SetUp {
         val extractedConversationId: Option[String] =
           validator.extractConversationIdHeader(Map.empty)
@@ -71,19 +48,4 @@ class HeaderValidatorSpec extends UnitSpec with MockitoSugar {
     }
   }
 
-  "Validate Submission Headers" should {
-
-    "return Right of validatedHeaderResponse when validateHeaders is called on valid headers" in new SetUp {
-      val result: Either[ErrorResponse, ValidatedHeadersRequest] =
-        validator.validateAndExtractMovementSubmissionHeaders(ValidHeaders)
-      result should be(Right(ValidatedHeadersRequest(declarantUcrValue, "Arrival")))
-    }
-
-    "return Left ErrorResponse when validateHeaders is called with invalid headers" in new SetUp {
-      val result: Either[ErrorResponse, ValidatedHeadersRequest] =
-        validator.validateAndExtractMovementSubmissionHeaders(Map.empty)
-      result shouldBe Left(ErrorResponse.ErrorInvalidPayload)
-    }
-
-  }
 }

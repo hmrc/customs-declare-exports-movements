@@ -20,7 +20,10 @@ import org.scalatest.{MustMatchers, WordSpec}
 import uk.gov.hmrc.exports.movements.models.notifications.NotificationData
 import uk.gov.hmrc.exports.movements.models.notifications.parsers.MovementResponseParser
 import utils.MovementsTestData.MessageCodes
-import utils.NotificationTestData.{exampleInventoryLinkingMovementResponseNotification, exampleInventoryLinkingMovementResponseXML}
+import utils.NotificationTestData.{
+  exampleInventoryLinkingMovementResponseNotification,
+  exampleInventoryLinkingMovementResponseXML
+}
 
 import scala.xml.Utility
 

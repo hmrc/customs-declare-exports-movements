@@ -27,8 +27,11 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.exports.movements.models.Submission
+import reactivemongo.api.commands.WriteResult
+import reactivemongo.core.errors.GenericDatabaseException
+import uk.gov.hmrc.exports.movements.models.submissions.Submission
 import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, SubmissionRepository}
+import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder.dummyWriteResultSuccess
 import utils.ExternalServicesConfig.{Host, Port}
 import utils.stubs.CustomsMovementsAPIService
 import utils.{AuthService, CustomsMovementsAPIConfig}
@@ -39,8 +42,8 @@ trait ComponentTestSpec
     extends FeatureSpec with GivenWhenThen with GuiceOneAppPerSuite with BeforeAndAfterAll with BeforeAndAfterEach
     with Eventually with MockitoSugar with Matchers with OptionValues with AuthService with CustomsMovementsAPIService {
 
-  private val mockMovementNotificationsRepository = mock[NotificationRepository]
-  private val mockMovementSubmissionsRepository = mock[SubmissionRepository]
+  private val movementNotificationsRepositoryMock = mock[NotificationRepository]
+  val movementSubmissionsRepositoryMock = mock[SubmissionRepository]
 
   override protected def beforeAll() {
 
@@ -49,8 +52,8 @@ trait ComponentTestSpec
 
   override protected def beforeEach() {
 
-    reset(mockMovementNotificationsRepository)
-    reset(mockMovementSubmissionsRepository)
+    reset(movementNotificationsRepositoryMock)
+    reset(movementSubmissionsRepositoryMock)
     resetMockServer()
   }
 
@@ -60,22 +63,26 @@ trait ComponentTestSpec
   }
 
   // movements submission
-  def withMovementSubmissionRepository(saveResponse: Boolean): OngoingStubbing[Future[Boolean]] =
-    when(mockMovementSubmissionsRepository.save(any())).thenReturn(Future.successful(saveResponse))
+  def withMovementSubmissionRepository(saveResponse: Boolean): OngoingStubbing[Future[WriteResult]] =
+    when(movementSubmissionsRepositoryMock.insert(any())(any())).thenReturn(if (saveResponse) {
+      Future.successful(dummyWriteResultSuccess)
+    } else {
+      Future.failed(GenericDatabaseException("ERROR", None))
+    })
 
   def verifyMovementSubmissionRepositoryIsCorrectlyCalled(eoriValue: String) {
     val submissionCaptor: ArgumentCaptor[Submission] = ArgumentCaptor.forClass(classOf[Submission])
-    verify(mockMovementSubmissionsRepository).save(submissionCaptor.capture())
+    verify(movementSubmissionsRepositoryMock).insert(submissionCaptor.capture())(any())
     submissionCaptor.getValue.eori shouldBe eoriValue
   }
 
   def verifyMovementSubmissionRepositoryWasNotCalled(): Unit =
-    verifyZeroInteractions(mockMovementSubmissionsRepository)
+    verifyZeroInteractions(movementSubmissionsRepositoryMock)
 
   override implicit lazy val app: Application =
     GuiceApplicationBuilder()
-      .overrides(bind[SubmissionRepository].toInstance(mockMovementSubmissionsRepository))
-      .overrides(bind[NotificationRepository].toInstance(mockMovementNotificationsRepository))
+      .overrides(bind[SubmissionRepository].toInstance(movementSubmissionsRepositoryMock))
+      .overrides(bind[NotificationRepository].toInstance(movementNotificationsRepositoryMock))
       .configure(
         Map(
           "microservice.services.auth.host" -> Host,
