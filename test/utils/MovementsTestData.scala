@@ -95,6 +95,9 @@ object MovementsTestData {
       actionType = actionType
     )
 
+  def emptySubmission: Submission =
+    Submission(uuid = "", eori = "", conversationId = "", ucrBlocks = Seq.empty, actionType = "")
+
   def dateTimeElement(dateTimeVal: DateTime) =
     Some(ResponseDateTimeElement(DateTimeString("102", dateTimeVal.toString("yyyyMMdd"))))
 

@@ -79,7 +79,7 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
         consolidationService.submitRequest(exampleShutMucrContext).futureValue
 
         verify(customsInventoryLinkingExportsConnectorMock)
-          .sendInventoryLinkingRequest(meq(validEori), meq(exampleShutMucrConsolidationRequest))(any())
+          .sendInventoryLinkingRequest(meq(validEori), meq(exampleShutMucrConsolidationRequestXML))(any())
       }
 
       "call ConsolidationRepository with correctly built ConsolidationSubmission" in new HappyPathSaveTest {
@@ -94,7 +94,7 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
         actualConsolidationSubmission.uuid mustNot be(empty)
         actualConsolidationSubmission.eori must equal(validEori)
         actualConsolidationSubmission.conversationId must equal(conversationId)
-        actualConsolidationSubmission.ucrBlocks.head.ucr must equal("4GB123456789000-123ABC456DEFIIIII")
+        actualConsolidationSubmission.ucrBlocks.head.ucr must equal("5GB123456789000-123ABC456DEFIIIII")
       }
 
     }
@@ -106,7 +106,7 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
         val context = SubmissionRequestContext(
           eori = validEori,
           actionType = ActionTypes.ShutMucr,
-          requestXml = exampleShutMucrConsolidationRequestWithoutUcrBlock
+          requestXml = exampleShutMucrConsolidationRequestWithoutUcrBlockXML
         )
         val submissionResult =
           consolidationService

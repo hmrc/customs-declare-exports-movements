@@ -28,14 +28,10 @@ import scala.xml.Elem
 
 object ConsolidationTestData {
 
-  val exampleShutMucrConsolidationRequest: Elem =
+  val exampleShutMucrConsolidationRequestXML: Elem =
     <inventoryLinkingConsolidationRequest>
       <messageCode>CST</messageCode>
       <masterUCR>5GB123456789000-123ABC456DEFIIIII</masterUCR>
-      <ucrBlock>
-        <ucr>4GB123456789000-123ABC456DEFIIIII</ucr>
-        <ucrType>D</ucrType>
-      </ucrBlock>
     </inventoryLinkingConsolidationRequest>
 
   val exampleShutMucrConsolidationRequestJson: JsValue = JsObject(
@@ -43,16 +39,13 @@ object ConsolidationTestData {
       "inventoryLinkingConsolidationRequest" -> JsObject(
         Map(
           "messMovementRepositorySpecageCode" -> JsString("CST"),
-          "masterUCR" -> JsString("5GB123456789000-123ABC456DEFIIIII"),
-          "ucrBlock" -> JsObject(
-            Map("ucr" -> JsString("4GB123456789000-123ABC456DEFIIIII"), "ucrType" -> JsString("D"))
-          )
+          "masterUCR" -> JsString("5GB123456789000-123ABC456DEFIIIII")
         )
       )
     )
   )
 
-  val exampleAssociateDucrConsolidationRequest: Elem =
+  val exampleAssociateDucrConsolidationRequestXML: Elem =
     <inventoryLinkingConsolidationRequest>
       <messageCode>EAC</messageCode>
       <masterUCR>5GB123456789000-123ABC456DEFIIIII</masterUCR>
@@ -76,7 +69,7 @@ object ConsolidationTestData {
     )
   )
 
-  val exampleDisassociateDucrConsolidationRequest: Elem =
+  val exampleDisassociateDucrConsolidationRequestXML: Elem =
     <inventoryLinkingConsolidationRequest>
       <messageCode>EAC</messageCode>
       <ucrBlock>
@@ -98,7 +91,7 @@ object ConsolidationTestData {
     )
   )
 
-  val exampleShutMucrConsolidationRequestWithoutUcrBlock: Elem =
+  val exampleShutMucrConsolidationRequestWithoutUcrBlockXML: Elem =
     <inventoryLinkingConsolidationRequest>
       <messageCode>CST</messageCode>
       <masterUCR>5GB123456789000-123ABC456DEFIIIII</masterUCR>
@@ -114,7 +107,7 @@ object ConsolidationTestData {
   val exampleShutMucrContext: SubmissionRequestContext = SubmissionRequestContext(
     eori = validEori,
     actionType = ActionTypes.ShutMucr,
-    requestXml = exampleShutMucrConsolidationRequest
+    requestXml = exampleShutMucrConsolidationRequestXML
   )
 
 }
