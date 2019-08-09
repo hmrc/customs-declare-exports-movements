@@ -37,10 +37,7 @@ object ConsolidationTestData {
   val exampleShutMucrConsolidationRequestJson: JsValue = JsObject(
     Map(
       "inventoryLinkingConsolidationRequest" -> JsObject(
-        Map(
-          "messMovementRepositorySpecageCode" -> JsString(MessageCodes.CST),
-          "masterUCR" -> JsString(ucr_2)
-        )
+        Map("messMovementRepositorySpecageCode" -> JsString(MessageCodes.CST), "masterUCR" -> JsString(ucr_2))
       )
     )
   )
@@ -61,9 +58,7 @@ object ConsolidationTestData {
         Map(
           "messageCode" -> JsString(MessageCodes.EAC),
           "masterUCR" -> JsString(ucr_2),
-          "ucrBlock" -> JsObject(
-            Map("ucr" -> JsString(ucr), "ucrType" -> JsString("D"))
-          )
+          "ucrBlock" -> JsObject(Map("ucr" -> JsString(ucr), "ucrType" -> JsString("D")))
         )
       )
     )
@@ -83,9 +78,7 @@ object ConsolidationTestData {
       "inventoryLinkingConsolidationRequest" -> JsObject(
         Map(
           "messageCode" -> JsString(MessageCodes.EAC),
-          "ucrBlock" -> JsObject(
-            Map("ucr" -> JsString(ucr), "ucrType" -> JsString("D"))
-          )
+          "ucrBlock" -> JsObject(Map("ucr" -> JsString(ucr), "ucrType" -> JsString("D")))
         )
       )
     )

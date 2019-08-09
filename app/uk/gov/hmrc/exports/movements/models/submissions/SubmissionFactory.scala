@@ -41,7 +41,7 @@ class SubmissionFactory {
       UcrBlock(ucr = ucr, ucrType = ucrType)
     }
 
-    val masterUcr = (request \ XmlTags.masterUCR).map( node => UcrBlock(ucr = node.text, ucrType = "M") )
+    val masterUcr = (request \ XmlTags.masterUCR).map(node => UcrBlock(ucr = node.text, ucrType = "M"))
 
     masterUcr ++ ucrBlocks
   }
