@@ -91,7 +91,7 @@ class SubmissionServiceSpec
         )
         val result = movementsService.submitRequest(context).futureValue
 
-        result should equal(Right())
+        result should equal(Right((): Unit))
       }
 
       "Departure is persisted" in {
@@ -106,7 +106,7 @@ class SubmissionServiceSpec
         )
         val result = movementsService.submitRequest(context).futureValue
 
-        result should equal(Right())
+        result should equal(Right((): Unit))
       }
     }
 

@@ -23,9 +23,7 @@ import uk.gov.hmrc.exports.movements.models.submissions.Submission
 import uk.gov.hmrc.exports.movements.models.submissions.Submission.ActionTypes
 import uk.gov.hmrc.wco.dec.inventorylinking.common.{AgentDetails, TransportDetails, UcrBlock}
 import uk.gov.hmrc.wco.dec.inventorylinking.movement.request.InventoryLinkingMovementRequest
-import uk.gov.hmrc.wco.dec.{DateTimeString, MetaData, ResponseDateTimeElement, Declaration => WcoDeclaration}
 import utils.CommonTestData._
-import utils.TestDataHelper.randomAlphanumericString
 
 import scala.xml.Elem
 
@@ -48,9 +46,6 @@ object MovementsTestData {
   def emptySubmission: Submission =
     Submission(uuid = "", eori = "", conversationId = "", ucrBlocks = Seq.empty, actionType = "")
 
-  def dateTimeElement(dateTimeVal: DateTime) =
-    Some(ResponseDateTimeElement(DateTimeString("102", dateTimeVal.toString("yyyyMMdd"))))
-
   val now: DateTime = DateTime.now.withZone(DateTimeZone.UTC)
   def validInventoryLinkingExportRequest = InventoryLinkingMovementRequest(
     messageCode = "11",
@@ -62,11 +57,7 @@ object MovementsTestData {
     transportDetails = Some(TransportDetails(transportID = Some("transportId"), transportMode = Some("mode")))
   )
 
-  // TODO: Remove
-  def randomSubmitDeclaration: MetaData =
-    MetaData(declaration = Option(WcoDeclaration(functionalReferenceId = Some(randomAlphanumericString(35)))))
-
-  def exampleArrivalRequestXML: Elem =
+  val exampleArrivalRequestXML: Elem =
     <inventoryLinkingMovementRequest>
       <messageCode>{MessageCodes.EAL}</messageCode>
       <agentDetails>
@@ -122,7 +113,7 @@ object MovementsTestData {
     )
   )
 
-  def exampleDepartureRequestXML: Elem =
+  val exampleDepartureRequestXML: Elem =
     <inventoryLinkingMovementRequest>
       <messageCode>{MessageCodes.EDL}</messageCode>
       <agentDetails>
