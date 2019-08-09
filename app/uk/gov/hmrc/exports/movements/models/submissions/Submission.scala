@@ -27,18 +27,10 @@ case class Submission(
   eori: String,
   conversationId: String,
   ucrBlocks: Seq[UcrBlock],
-  actionType: String,
+  actionType: ActionType,
   requestTimestamp: Instant = Instant.now()
 )
 
 object Submission {
   implicit val formats = Json.format[Submission]
-
-  object ActionTypes {
-    val Arrival = "Arrival"
-    val Departure = "Departure"
-    val DucrAssociation = "Association"
-    val DucrDisassociation = "Disassociation"
-    val ShutMucr = "ShutMucr"
-  }
 }

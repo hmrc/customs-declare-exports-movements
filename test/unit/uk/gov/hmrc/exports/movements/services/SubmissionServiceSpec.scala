@@ -26,8 +26,8 @@ import org.scalatest.{MustMatchers, WordSpec}
 import play.api.http.Status.{ACCEPTED, BAD_REQUEST}
 import reactivemongo.api.commands.WriteResult
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
-import uk.gov.hmrc.exports.movements.models.submissions.Submission
-import uk.gov.hmrc.exports.movements.models.submissions.Submission.ActionTypes
+import uk.gov.hmrc.exports.movements.models.notifications.UcrBlock
+import uk.gov.hmrc.exports.movements.models.submissions.{ActionType, Submission}
 import uk.gov.hmrc.exports.movements.services.SubmissionService
 import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
 import uk.gov.hmrc.http.HeaderCarrier
@@ -172,7 +172,7 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
           Submission(
             eori = validEori,
             conversationId = conversationId,
-            actionType = ActionTypes.ShutMucr,
+            actionType = ActionType.ShutMucr,
             ucrBlocks = Seq(UcrBlock(ucr = "5GB123456789000-123ABC456DEFIIIII", ucrType = "M"))
           )
         )

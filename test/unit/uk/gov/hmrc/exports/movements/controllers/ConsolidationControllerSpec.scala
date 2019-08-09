@@ -32,7 +32,7 @@ import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames.XEoriIdentifierHeaderName
 import uk.gov.hmrc.exports.movements.controllers.util.HeaderValidator
 import uk.gov.hmrc.exports.movements.metrics.MovementsMetrics
-import uk.gov.hmrc.exports.movements.models.submissions.Submission.ActionTypes
+import uk.gov.hmrc.exports.movements.models.submissions.ActionType
 import uk.gov.hmrc.exports.movements.services.SubmissionService
 import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
 import unit.uk.gov.hmrc.exports.movements.base.AuthTestSupport
@@ -92,7 +92,7 @@ class ConsolidationControllerSpec
           verify(submissionServiceMock).submitRequest(contextCaptor.capture())(any())
 
           contextCaptor.getValue.eori must equal(expectedEori)
-          contextCaptor.getValue.actionType must equal(ActionTypes.ShutMucr)
+          contextCaptor.getValue.actionType must equal(ActionType.ShutMucr)
           contextCaptor.getValue.requestXml must equal(exampleShutMucrConsolidationRequestXML)
         }
       }
@@ -179,7 +179,7 @@ class ConsolidationControllerSpec
           verify(submissionServiceMock).submitRequest(contextCaptor.capture())(any())
 
           contextCaptor.getValue.eori must equal(expectedEori)
-          contextCaptor.getValue.actionType must equal(ActionTypes.DucrAssociation)
+          contextCaptor.getValue.actionType must equal(ActionType.DucrAssociation)
           contextCaptor.getValue.requestXml must equal(exampleAssociateDucrConsolidationRequestXML)
         }
       }
@@ -269,7 +269,7 @@ class ConsolidationControllerSpec
           verify(submissionServiceMock).submitRequest(contextCaptor.capture())(any())
 
           contextCaptor.getValue.eori must equal(expectedEori)
-          contextCaptor.getValue.actionType must equal(ActionTypes.DucrDisassociation)
+          contextCaptor.getValue.actionType must equal(ActionType.DucrDisassociation)
           contextCaptor.getValue.requestXml must equal(exampleDisassociateDucrConsolidationRequestXML)
         }
       }

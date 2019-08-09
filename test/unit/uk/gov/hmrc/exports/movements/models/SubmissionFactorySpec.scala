@@ -19,8 +19,7 @@ package unit.uk.gov.hmrc.exports.movements.models
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{MustMatchers, WordSpec}
 import uk.gov.hmrc.exports.movements.models.notifications.UcrBlock
-import uk.gov.hmrc.exports.movements.models.submissions.Submission.ActionTypes
-import uk.gov.hmrc.exports.movements.models.submissions.{Submission, SubmissionFactory}
+import uk.gov.hmrc.exports.movements.models.submissions.{ActionType, Submission, SubmissionFactory}
 import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
 import utils.CommonTestData._
 import utils.ConsolidationTestData._
@@ -39,7 +38,7 @@ class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar
       "provided with Arrival request" in new Test {
         val context = SubmissionRequestContext(
           eori = validEori,
-          actionType = ActionTypes.Arrival,
+          actionType = ActionType.Arrival,
           requestXml = exampleArrivalRequestXML
         )
 
@@ -48,7 +47,7 @@ class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar
         val expectedSubmission = Submission(
           eori = validEori,
           conversationId = conversationId,
-          actionType = ActionTypes.Arrival,
+          actionType = ActionType.Arrival,
           ucrBlocks = Seq(UcrBlock(ucr = ucr_2, ucrType = "M"), UcrBlock(ucr = ucr, ucrType = "D"))
         )
 
@@ -58,7 +57,7 @@ class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar
       "provided with Departure request" in new Test {
         val context = SubmissionRequestContext(
           eori = validEori,
-          actionType = ActionTypes.Departure,
+          actionType = ActionType.Departure,
           requestXml = exampleDepartureRequestXML
         )
 
@@ -67,7 +66,7 @@ class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar
         val expectedSubmission = Submission(
           eori = validEori,
           conversationId = conversationId,
-          actionType = ActionTypes.Departure,
+          actionType = ActionType.Departure,
           ucrBlocks = Seq(UcrBlock(ucr = ucr_2, ucrType = "M"), UcrBlock(ucr = ucr, ucrType = "D"))
         )
 
@@ -77,7 +76,7 @@ class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar
       "provided with Association request" in new Test {
         val context = SubmissionRequestContext(
           eori = validEori,
-          actionType = ActionTypes.DucrAssociation,
+          actionType = ActionType.DucrAssociation,
           requestXml = exampleAssociateDucrConsolidationRequestXML
         )
 
@@ -86,7 +85,7 @@ class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar
         val expectedSubmission = Submission(
           eori = validEori,
           conversationId = conversationId,
-          actionType = ActionTypes.DucrAssociation,
+          actionType = ActionType.DucrAssociation,
           ucrBlocks = Seq(UcrBlock(ucr = ucr_2, ucrType = "M"), UcrBlock(ucr = ucr, ucrType = "D"))
         )
 
@@ -96,7 +95,7 @@ class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar
       "provided with Disassociation request" in new Test {
         val context = SubmissionRequestContext(
           eori = validEori,
-          actionType = ActionTypes.DucrDisassociation,
+          actionType = ActionType.DucrDisassociation,
           requestXml = exampleDisassociateDucrConsolidationRequestXML
         )
 
@@ -105,7 +104,7 @@ class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar
         val expectedSubmission = Submission(
           eori = validEori,
           conversationId = conversationId,
-          actionType = ActionTypes.DucrDisassociation,
+          actionType = ActionType.DucrDisassociation,
           ucrBlocks = Seq(UcrBlock(ucr = ucr, ucrType = "D"))
         )
 
@@ -115,7 +114,7 @@ class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar
       "provided with Shut MUCR request" in new Test {
         val context = SubmissionRequestContext(
           eori = validEori,
-          actionType = ActionTypes.ShutMucr,
+          actionType = ActionType.ShutMucr,
           requestXml = exampleShutMucrConsolidationRequestXML
         )
 
@@ -124,7 +123,7 @@ class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar
         val expectedSubmission = Submission(
           eori = validEori,
           conversationId = conversationId,
-          actionType = ActionTypes.ShutMucr,
+          actionType = ActionType.ShutMucr,
           ucrBlocks = Seq(UcrBlock(ucr = ucr_2, ucrType = "M"))
         )
 

@@ -21,7 +21,7 @@ import play.api.Logger
 import play.api.mvc._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.exports.movements.controllers.actions.AuthenticatedController
-import uk.gov.hmrc.exports.movements.models.submissions.Submission.ActionTypes
+import uk.gov.hmrc.exports.movements.models.submissions.ActionType
 import uk.gov.hmrc.exports.movements.models.{AuthorizedSubmissionRequest, ErrorResponse}
 import uk.gov.hmrc.exports.movements.services.SubmissionService
 import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
@@ -41,17 +41,17 @@ class ConsolidationController @Inject()(
 
   def shutMucr(): Action[AnyContent] =
     authorisedAction(bodyParser = xmlOrEmptyBody) { implicit request =>
-      submitMovementConsolidation(ActionTypes.ShutMucr)
+      submitMovementConsolidation(ActionType.ShutMucr)
     }
 
   def associateMucr(): Action[AnyContent] =
     authorisedAction(bodyParser = xmlOrEmptyBody) { implicit request =>
-      submitMovementConsolidation(ActionTypes.DucrAssociation)
+      submitMovementConsolidation(ActionType.DucrAssociation)
     }
 
   def disassociateMucr(): Action[AnyContent] =
     authorisedAction(bodyParser = xmlOrEmptyBody) { implicit request =>
-      submitMovementConsolidation(ActionTypes.DucrDisassociation)
+      submitMovementConsolidation(ActionType.DucrDisassociation)
     }
 
   private def xmlOrEmptyBody: BodyParser[AnyContent] =
@@ -66,7 +66,7 @@ class ConsolidationController @Inject()(
     )
 
   private def submitMovementConsolidation(
-    actionType: String
+    actionType: ActionType
   )(implicit hc: HeaderCarrier, request: AuthorizedSubmissionRequest[AnyContent]): Future[Result] =
     request.body.asXml match {
       case Some(requestXml) =>

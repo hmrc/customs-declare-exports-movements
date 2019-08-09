@@ -19,8 +19,7 @@ package utils
 import org.joda.time.{DateTime, DateTimeZone}
 import play.api.libs.json.{JsObject, JsString, JsValue}
 import uk.gov.hmrc.exports.movements.models.notifications.{UcrBlock => UcrBlockModel}
-import uk.gov.hmrc.exports.movements.models.submissions.Submission
-import uk.gov.hmrc.exports.movements.models.submissions.Submission.ActionTypes
+import uk.gov.hmrc.exports.movements.models.submissions.{ActionType, Submission}
 import uk.gov.hmrc.wco.dec.inventorylinking.common.{AgentDetails, TransportDetails, UcrBlock}
 import uk.gov.hmrc.wco.dec.inventorylinking.movement.request.InventoryLinkingMovementRequest
 import utils.CommonTestData._
@@ -34,7 +33,7 @@ object MovementsTestData {
     conversationId: String = conversationId,
     ucr: String = randomUcr,
     ucrType: String = "D",
-    actionType: String = ActionTypes.Arrival
+    actionType: ActionType = ActionType.Arrival
   ): Submission =
     Submission(
       eori = eori,
@@ -44,7 +43,7 @@ object MovementsTestData {
     )
 
   def emptySubmission: Submission =
-    Submission(uuid = "", eori = "", conversationId = "", ucrBlocks = Seq.empty, actionType = "")
+    Submission(uuid = "", eori = "", conversationId = "", ucrBlocks = Seq.empty, actionType = ActionType.Arrival)
 
   val now: DateTime = DateTime.now.withZone(DateTimeZone.UTC)
   def validInventoryLinkingExportRequest = InventoryLinkingMovementRequest(

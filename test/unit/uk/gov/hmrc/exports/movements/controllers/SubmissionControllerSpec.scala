@@ -33,7 +33,7 @@ import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames.XEoriIdentifierHeaderName
 import uk.gov.hmrc.exports.movements.controllers.util.HeaderValidator
 import uk.gov.hmrc.exports.movements.metrics.MovementsMetrics
-import uk.gov.hmrc.exports.movements.models.submissions.Submission.ActionTypes
+import uk.gov.hmrc.exports.movements.models.submissions.ActionType
 import uk.gov.hmrc.exports.movements.services.SubmissionService
 import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
 import unit.uk.gov.hmrc.exports.movements.base.AuthTestSupport
@@ -99,7 +99,7 @@ class SubmissionControllerSpec
         verify(submissionServiceMock).submitRequest(contextCaptor.capture())(any())
 
         contextCaptor.getValue.eori must equal(expectedEori)
-        contextCaptor.getValue.actionType must equal(ActionTypes.Arrival)
+        contextCaptor.getValue.actionType must equal(ActionType.Arrival)
         contextCaptor.getValue.requestXml must equal(exampleArrivalRequestXML)
       }
     }
@@ -181,7 +181,7 @@ class SubmissionControllerSpec
         verify(submissionServiceMock).submitRequest(contextCaptor.capture())(any())
 
         contextCaptor.getValue.eori must equal(expectedEori)
-        contextCaptor.getValue.actionType must equal(ActionTypes.Departure)
+        contextCaptor.getValue.actionType must equal(ActionType.Departure)
         contextCaptor.getValue.requestXml must equal(exampleDepartureRequestXML)
       }
     }
