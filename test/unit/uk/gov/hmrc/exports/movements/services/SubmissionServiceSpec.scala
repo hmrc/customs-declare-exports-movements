@@ -35,7 +35,7 @@ import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
 import utils.ConsolidationTestData._
 import utils.MovementsTestData.{conversationId, validEori}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NoStackTrace
 
 class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures with MustMatchers {
@@ -50,7 +50,7 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
     val consolidationService = new SubmissionService(
       customsInventoryLinkingExportsConnector = customsInventoryLinkingExportsConnectorMock,
       submissionRepository = submissionRepositoryMock
-    )
+    )(ExecutionContext.global)
   }
 
   "ConsolidationService on submitConsolidationRequest" when {

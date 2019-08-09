@@ -21,14 +21,13 @@ import play.api.Logger
 import uk.gov.hmrc.exports.movements.models.notifications.{Notification, NotificationPresentation}
 import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, SubmissionRepository}
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class NotificationService @Inject()(
   notificationRepository: NotificationRepository,
   submissionRepository: SubmissionRepository
-) {
+)(implicit executionContext: ExecutionContext) {
 
   private val logger = Logger(this.getClass)
 

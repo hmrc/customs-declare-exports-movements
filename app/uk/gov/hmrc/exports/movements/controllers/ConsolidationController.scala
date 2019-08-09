@@ -27,15 +27,15 @@ import uk.gov.hmrc.exports.movements.services.SubmissionService
 import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
 import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class ConsolidationController @Inject()(
   authConnector: AuthConnector,
   consolidationService: SubmissionService,
   cc: ControllerComponents
-) extends AuthenticatedController(authConnector, cc) {
+)(implicit executionContext: ExecutionContext)
+    extends AuthenticatedController(authConnector, cc) {
 
   private val logger = Logger(this.getClass)
 

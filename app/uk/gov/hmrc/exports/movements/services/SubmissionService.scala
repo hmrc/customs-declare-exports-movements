@@ -27,8 +27,7 @@ import uk.gov.hmrc.exports.movements.repositories.SubmissionRepository
 import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
 import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Try}
 import scala.xml.NodeSeq
 
@@ -36,7 +35,7 @@ import scala.xml.NodeSeq
 class SubmissionService @Inject()(
   customsInventoryLinkingExportsConnector: CustomsInventoryLinkingExportsConnector,
   submissionRepository: SubmissionRepository
-) {
+)(implicit executionContext: ExecutionContext) {
 
   private val logger = Logger(this.getClass)
 

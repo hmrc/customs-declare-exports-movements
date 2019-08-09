@@ -31,7 +31,7 @@ import unit.uk.gov.hmrc.exports.movements.base.AuthTestSupport
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
 import utils.NotificationTestData._
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class NotificationControllerSpecNoApp
     extends WordSpec with MustMatchers with MockitoSugar with ScalaFutures with AuthTestSupport {
@@ -51,7 +51,7 @@ class NotificationControllerSpecNoApp
       notificationServiceMock,
       notificationFactoryMock,
       stubControllerComponents()
-    )
+    )(ExecutionContext.global)
 
     implicit val actorSystem: ActorSystem = ActorSystem()
     implicit val materializer: ActorMaterializer = ActorMaterializer()
