@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.exports.movements.models.notifications.parsers
 
+import uk.gov.hmrc.exports.movements.models.XmlTags
 import uk.gov.hmrc.exports.movements.models.notifications._
 
 import scala.xml.NodeSeq
