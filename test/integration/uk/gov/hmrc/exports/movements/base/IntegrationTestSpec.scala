@@ -16,9 +16,10 @@
 
 package integration.uk.gov.hmrc.exports.movements.base
 
+import com.codahale.metrics.SharedMetricRegistries
 import com.google.inject.AbstractModule
-import org.scalatest.concurrent.Eventually
 import org.scalatest._
+import org.scalatest.concurrent.Eventually
 import play.api.inject.guice.GuiceableModule
 import unit.uk.gov.hmrc.exports.movements.base.UnitSpec
 
@@ -40,5 +41,6 @@ trait IntegrationTestSpec
 
   override protected def afterAll() {
     stopMockServer()
+    SharedMetricRegistries.clear()
   }
 }

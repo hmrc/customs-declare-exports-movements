@@ -40,12 +40,12 @@ class SubmissionRepositorySpec
   override def beforeEach(): Unit = {
     super.beforeEach()
     repo.removeAll().futureValue
-    SharedMetricRegistries.clear()
   }
 
   override def afterEach(): Unit = {
     super.beforeEach()
     repo.removeAll().futureValue
+    SharedMetricRegistries.clear()
   }
 
   "SubmissionRepository on insert" when {
