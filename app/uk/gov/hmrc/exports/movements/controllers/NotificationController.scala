@@ -29,8 +29,7 @@ import uk.gov.hmrc.exports.movements.metrics.MovementsMetrics
 import uk.gov.hmrc.exports.movements.models.notifications.{Notification, NotificationFactory}
 import uk.gov.hmrc.exports.movements.services.NotificationService
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.xml.NodeSeq
 
 @Singleton
@@ -41,7 +40,8 @@ class NotificationController @Inject()(
   notificationService: NotificationService,
   notificationFactory: NotificationFactory,
   cc: ControllerComponents
-) extends AuthenticatedController(authConnector, cc) {
+)(implicit executionContext: ExecutionContext)
+    extends AuthenticatedController(authConnector, cc) {
 
   val logger = Logger(this.getClass)
 

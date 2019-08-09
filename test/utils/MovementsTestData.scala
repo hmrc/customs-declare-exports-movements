@@ -78,12 +78,8 @@ object MovementsTestData {
   val ValidLrnHeader: (String, String) = XLrnHeaderName -> declarantLrnValue
   val ValidMovementTypeHeader: (String, String) = XMovementTypeHeaderName -> "Arrival"
 
-  val ValidHeaders: Map[String, String] = Map(
-    ContentTypeHeader,
-    ValidAuthorizationHeader,
-    ValidConversationIdHeader,
-    ValidXEoriIdentifierHeader
-  )
+  val ValidHeaders: Map[String, String] =
+    Map(ContentTypeHeader, ValidAuthorizationHeader, ValidConversationIdHeader, ValidXEoriIdentifierHeader)
 
   def exampleSubmission(
     eori: String = validEori,
@@ -115,7 +111,6 @@ object MovementsTestData {
 
   def randomSubmitDeclaration: MetaData =
     MetaData(declaration = Option(WcoDeclaration(functionalReferenceId = Some(randomAlphanumericString(35)))))
-
 
   def exampleArrivalRequestXML: Elem =
     <inventoryLinkingMovementRequest>

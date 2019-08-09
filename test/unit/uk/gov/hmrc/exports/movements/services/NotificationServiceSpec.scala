@@ -29,7 +29,7 @@ import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
 import utils.MovementsTestData.conversationId
 import utils.NotificationTestData._
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NoStackTrace
 
 class NotificationServiceSpec extends WordSpec with MockitoSugar with ScalaFutures with MustMatchers {
@@ -37,7 +37,8 @@ class NotificationServiceSpec extends WordSpec with MockitoSugar with ScalaFutur
   trait Test {
     val notificationRepositoryMock: NotificationRepository = buildNotificationRepositoryMock
     val submissionRepositoryMock: SubmissionRepository = buildSubmissionRepositoryMock
-    val notificationService = new NotificationService(notificationRepositoryMock, submissionRepositoryMock)
+    val notificationService =
+      new NotificationService(notificationRepositoryMock, submissionRepositoryMock)(ExecutionContext.global)
   }
 
   "NotificationService on save" when {
