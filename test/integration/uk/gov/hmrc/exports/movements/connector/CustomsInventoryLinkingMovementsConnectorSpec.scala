@@ -19,7 +19,7 @@ package integration.uk.gov.hmrc.exports.movements.connector
 import com.github.tomakehurst.wiremock.http.Fault
 import integration.uk.gov.hmrc.exports.movements.base.IntegrationTestSpec
 import integration.uk.gov.hmrc.exports.movements.util.TestModule
-import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
@@ -38,7 +38,7 @@ import scala.concurrent.Future
 
 class CustomsInventoryLinkingMovementsConnectorSpec
     extends IntegrationTestSpec with GuiceOneAppPerSuite with MockitoSugar with CustomsMovementsAPIService
-    with ScalaFutures {
+    with ScalaFutures with IntegrationPatience {
 
   private lazy val connector = app.injector.instanceOf[CustomsInventoryLinkingExportsConnector]
   private implicit val hc: HeaderCarrier = HeaderCarrier()
