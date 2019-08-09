@@ -21,20 +21,18 @@ import play.api.Logger
 import play.api.http.Status.ACCEPTED
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
-import uk.gov.hmrc.exports.movements.models.notifications.UcrBlock
-import uk.gov.hmrc.exports.movements.models.submissions.Submission
+import uk.gov.hmrc.exports.movements.models.submissions.{Submission, SubmissionFactory}
 import uk.gov.hmrc.exports.movements.repositories.SubmissionRepository
 import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Try}
-import scala.xml.NodeSeq
 
 @Singleton
 class SubmissionService @Inject()(
   customsInventoryLinkingExportsConnector: CustomsInventoryLinkingExportsConnector,
-  submissionRepository: SubmissionRepository
+  submissionRepository: SubmissionRepository,
+  submissionFactory: SubmissionFactory
 )(implicit executionContext: ExecutionContext) {
 
   private val logger = Logger(this.getClass)
@@ -43,12 +41,7 @@ class SubmissionService @Inject()(
     customsInventoryLinkingExportsConnector.sendInventoryLinkingRequest(context.eori, context.requestXml).flatMap {
 
       case CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId)) =>
-        val newSubmission = Submission(
-          eori = context.eori,
-          conversationId = conversationId,
-          ucrBlocks = extractUcrListFrom(context.requestXml),
-          actionType = context.actionType
-        )
+        val newSubmission = submissionFactory.buildMovementSubmission(conversationId, context)
 
         submissionRepository
           .insert(newSubmission)
@@ -64,20 +57,6 @@ class SubmissionService @Inject()(
           .error(s"Customs Inventory Linking Exports returned $status for Eori: ${context.eori}")
         Future.successful(Left("Non Accepted status returned by Customs Inventory Linking Exports"))
     }
-
-  private def extractUcrListFrom(request: NodeSeq): Seq[UcrBlock] =
-    Try {
-      val ucrBlocksNodes = request \ "ucrBlock"
-      ucrBlocksNodes.map { node =>
-        val ucr = (node \ "ucr").text
-        val ucrType = (node \ "ucrType").text
-        UcrBlock(ucr = ucr, ucrType = ucrType)
-      }
-    }.recoverWith {
-      case exc =>
-        logger.error(s"Exception thrown during UCR extraction from request: ${exc.getMessage}")
-        Failure(exc)
-    }.getOrElse(Seq.empty)
 
   def getSubmissionsByEori(eori: String): Future[Seq[Submission]] = submissionRepository.findByEori(eori)
 

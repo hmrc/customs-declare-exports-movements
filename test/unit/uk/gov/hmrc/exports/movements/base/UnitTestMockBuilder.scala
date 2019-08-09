@@ -31,8 +31,11 @@ import uk.gov.hmrc.exports.movements.models.notifications.parsers.{
   ResponseParserFactory
 }
 import uk.gov.hmrc.exports.movements.models.notifications.{Notification, NotificationData, NotificationFactory}
+import uk.gov.hmrc.exports.movements.models.submissions.SubmissionFactory
 import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, SubmissionRepository}
+import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
 import uk.gov.hmrc.exports.movements.services.{NotificationService, SubmissionService}
+import utils.MovementsTestData.emptySubmission
 
 import scala.concurrent.Future
 import scala.xml.NodeSeq
@@ -88,6 +91,15 @@ object UnitTestMockBuilder extends MockitoSugar {
       .thenReturn(Notification.empty)
 
     movementNotificationFactoryMock
+  }
+
+  def buildSubmissionFactoryMock: SubmissionFactory = {
+    val submissionFactory = mock[SubmissionFactory]
+
+    when(submissionFactory.buildMovementSubmission(any[String], any[SubmissionRequestContext]))
+      .thenReturn(emptySubmission)
+
+    submissionFactory
   }
 
   def buildCustomsInventoryLinkingExportsConnectorMock: CustomsInventoryLinkingExportsConnector = {
