@@ -19,7 +19,7 @@ package unit.uk.gov.hmrc.exports.movements.controllers.util
 import org.scalatest.mockito.MockitoSugar
 import uk.gov.hmrc.exports.movements.controllers.util.HeaderValidator
 import unit.uk.gov.hmrc.exports.movements.base.UnitSpec
-import utils.MovementsTestData._
+import utils.CommonTestData.{ValidHeaders, conversationId}
 
 class HeaderValidatorSpec extends UnitSpec with MockitoSugar {
 

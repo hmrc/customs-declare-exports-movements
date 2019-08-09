@@ -22,8 +22,9 @@ import uk.gov.hmrc.exports.movements.models.notifications.UcrBlock
 import uk.gov.hmrc.exports.movements.models.submissions.Submission.ActionTypes
 import uk.gov.hmrc.exports.movements.models.submissions.{Submission, SubmissionFactory}
 import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
+import utils.CommonTestData._
 import utils.ConsolidationTestData._
-import utils.MovementsTestData._
+import utils.MovementsTestData.{exampleArrivalRequestXML, exampleDepartureRequestXML}
 
 class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar {
 
@@ -87,8 +88,8 @@ class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar
           conversationId = conversationId,
           actionType = ActionTypes.DucrAssociation,
           ucrBlocks = Seq(
-            UcrBlock(ucr = "5GB123456789000-123ABC456DEFIIIII", ucrType = "M"),
-            UcrBlock(ucr = "4GB123456789000-123ABC456DEFIIIII", ucrType = "D")
+            UcrBlock(ucr = ucr_2, ucrType = "M"),
+            UcrBlock(ucr = ucr, ucrType = "D")
           )
         )
 
@@ -108,7 +109,7 @@ class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar
           eori = validEori,
           conversationId = conversationId,
           actionType = ActionTypes.DucrDisassociation,
-          ucrBlocks = Seq(UcrBlock(ucr = "4GB123456789000-123ABC456DEFIIIII", ucrType = "D"))
+          ucrBlocks = Seq(UcrBlock(ucr = ucr, ucrType = "D"))
         )
 
         compareSubmissions(submission, expectedSubmission)
@@ -127,7 +128,7 @@ class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar
           eori = validEori,
           conversationId = conversationId,
           actionType = ActionTypes.ShutMucr,
-          ucrBlocks = Seq(UcrBlock(ucr = "5GB123456789000-123ABC456DEFIIIII", ucrType = "M"))
+          ucrBlocks = Seq(UcrBlock(ucr = ucr_2, ucrType = "M"))
         )
 
         compareSubmissions(submission, expectedSubmission)

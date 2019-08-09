@@ -32,8 +32,8 @@ import uk.gov.hmrc.exports.movements.services.SubmissionService
 import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
 import uk.gov.hmrc.http.HeaderCarrier
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
+import utils.CommonTestData.{conversationId, validEori}
 import utils.ConsolidationTestData._
-import utils.MovementsTestData.{conversationId, validEori}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NoStackTrace
@@ -110,24 +110,6 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
         actualConsolidationSubmission.ucrBlocks.head.ucr must equal("5GB123456789000-123ABC456DEFIIIII")
       }
 
-    }
-
-    "everything works correctly, but provided with XML missing UCR" should {
-
-      "return Either.Right" in new HappyPathSaveTest {
-
-        val context = SubmissionRequestContext(
-          eori = validEori,
-          actionType = ActionTypes.ShutMucr,
-          requestXml = exampleShutMucrConsolidationRequestWithoutUcrBlockXML
-        )
-        val submissionResult =
-          consolidationService
-            .submitRequest(context)
-            .futureValue
-
-        submissionResult must equal(Right((): Unit))
-      }
     }
 
     "CustomsInventoryLinkingExportsConnector returns status other than ACCEPTED" should {

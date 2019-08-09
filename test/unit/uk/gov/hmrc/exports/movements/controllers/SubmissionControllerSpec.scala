@@ -38,6 +38,7 @@ import uk.gov.hmrc.exports.movements.services.SubmissionService
 import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
 import unit.uk.gov.hmrc.exports.movements.base.AuthTestSupport
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder.buildSubmissionServiceMock
+import utils.CommonTestData.ValidHeaders
 import utils.MovementsTestData._
 
 import scala.concurrent.Future
@@ -69,21 +70,6 @@ class SubmissionControllerSpec
 
   private def routeGet(headers: Map[String, String] = ValidHeaders, uri: String): Future[Result] =
     route(app, FakeRequest(GET, uri).withHeaders(headers.toSeq: _*)).get
-
-  //  val xmlBody: String = randomSubmitDeclaration.toXml
-//
-//  val fakeXmlRequest: FakeRequest[String] = FakeRequest("POST", arrivalUri).withBody(xmlBody)
-//  val fakeXmlRequestWithHeaders: FakeRequest[String] =
-//    fakeXmlRequest
-//      .withHeaders(
-//        CustomsHeaderNames.XUcrHeaderName -> declarantUcrValue,
-//        CustomsHeaderNames.XMovementTypeHeaderName -> "Arrival",
-//        AUTHORIZATION -> dummyToken,
-//        CONTENT_TYPE -> ContentTypes.XML
-//      )
-//
-//  def fakeRequestWithPayload(uri: String, payload: String): FakeRequest[String] =
-//    FakeRequest("POST", uri).withBody(payload)
 
   "SubmissionController on submitArrival" when {
 

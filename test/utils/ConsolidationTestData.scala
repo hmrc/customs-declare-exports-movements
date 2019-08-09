@@ -22,7 +22,7 @@ import play.api.mvc.Codec
 import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames
 import uk.gov.hmrc.exports.movements.models.submissions.Submission.ActionTypes
 import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
-import utils.MovementsTestData._
+import utils.CommonTestData._
 
 import scala.xml.Elem
 
@@ -30,16 +30,16 @@ object ConsolidationTestData {
 
   val exampleShutMucrConsolidationRequestXML: Elem =
     <inventoryLinkingConsolidationRequest>
-      <messageCode>CST</messageCode>
-      <masterUCR>5GB123456789000-123ABC456DEFIIIII</masterUCR>
+      <messageCode>{MessageCodes.CST}</messageCode>
+      <masterUCR>{ucr_2}</masterUCR>
     </inventoryLinkingConsolidationRequest>
 
   val exampleShutMucrConsolidationRequestJson: JsValue = JsObject(
     Map(
       "inventoryLinkingConsolidationRequest" -> JsObject(
         Map(
-          "messMovementRepositorySpecageCode" -> JsString("CST"),
-          "masterUCR" -> JsString("5GB123456789000-123ABC456DEFIIIII")
+          "messMovementRepositorySpecageCode" -> JsString(MessageCodes.CST),
+          "masterUCR" -> JsString(ucr_2)
         )
       )
     )
@@ -47,10 +47,10 @@ object ConsolidationTestData {
 
   val exampleAssociateDucrConsolidationRequestXML: Elem =
     <inventoryLinkingConsolidationRequest>
-      <messageCode>EAC</messageCode>
-      <masterUCR>5GB123456789000-123ABC456DEFIIIII</masterUCR>
+      <messageCode>{MessageCodes.EAC}</messageCode>
+      <masterUCR>{ucr_2}</masterUCR>
       <ucrBlock>
-        <ucr>4GB123456789000-123ABC456DEFIIIII</ucr>
+        <ucr>{ucr}</ucr>
         <ucrType>D</ucrType>
       </ucrBlock>
     </inventoryLinkingConsolidationRequest>
@@ -59,10 +59,10 @@ object ConsolidationTestData {
     Map(
       "inventoryLinkingConsolidationRequest" -> JsObject(
         Map(
-          "messageCode" -> JsString("EAC"),
-          "masterUCR" -> JsString("5GB123456789000-123ABC456DEFIIIII"),
+          "messageCode" -> JsString(MessageCodes.EAC),
+          "masterUCR" -> JsString(ucr_2),
           "ucrBlock" -> JsObject(
-            Map("ucr" -> JsString("4GB123456789000-123ABC456DEFIIIII"), "ucrType" -> JsString("D"))
+            Map("ucr" -> JsString(ucr), "ucrType" -> JsString("D"))
           )
         )
       )
@@ -71,9 +71,9 @@ object ConsolidationTestData {
 
   val exampleDisassociateDucrConsolidationRequestXML: Elem =
     <inventoryLinkingConsolidationRequest>
-      <messageCode>EAC</messageCode>
+      <messageCode>{MessageCodes.EAC}</messageCode>
       <ucrBlock>
-        <ucr>4GB123456789000-123ABC456DEFIIIII</ucr>
+        <ucr>{ucr}</ucr>
         <ucrType>D</ucrType>
       </ucrBlock>
     </inventoryLinkingConsolidationRequest>
@@ -82,20 +82,14 @@ object ConsolidationTestData {
     Map(
       "inventoryLinkingConsolidationRequest" -> JsObject(
         Map(
-          "messageCode" -> JsString("EAC"),
+          "messageCode" -> JsString(MessageCodes.EAC),
           "ucrBlock" -> JsObject(
-            Map("ucr" -> JsString("4GB123456789000-123ABC456DEFIIIII"), "ucrType" -> JsString("D"))
+            Map("ucr" -> JsString(ucr), "ucrType" -> JsString("D"))
           )
         )
       )
     )
   )
-
-  val exampleShutMucrConsolidationRequestWithoutUcrBlockXML: Elem =
-    <inventoryLinkingConsolidationRequest>
-      <messageCode>CST</messageCode>
-      <masterUCR>5GB123456789000-123ABC456DEFIIIII</masterUCR>
-    </inventoryLinkingConsolidationRequest>
 
   val ValidConsolidationRequestHeaders = Map(
     HeaderNames.CONTENT_TYPE -> ContentTypes.XML(Codec.utf_8),
