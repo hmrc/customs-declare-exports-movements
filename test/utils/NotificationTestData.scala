@@ -20,7 +20,7 @@ import play.api.http.{ContentTypes, HeaderNames}
 import play.api.mvc.Codec
 import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames
 import uk.gov.hmrc.exports.movements.models.notifications._
-import utils.CommonTestData.{MessageCodes, conversationId, conversationId_2}
+import utils.CommonTestData._
 
 import scala.xml.{Elem, Utility}
 
@@ -32,7 +32,17 @@ object NotificationTestData {
 
   val movementUri = "/customs-declare-exports/notifyMovement"
 
-  val errorCode = "21"
+  val crcCode_success = "000"
+  val crcCode_prelodgedDeclarationNotArrived = "101"
+  val crcCode_declarationNotArrived = "102"
+
+  val actionCode_acknowledgedAndProcessed = "1"
+  val actionCode_partiallyProcessed = "2"
+  val actionCode_rejected = "3"
+
+  val errorCode_1 = "21"
+  val errorCode_2 = "13"
+  val errorCode_3 = "47"
   val goodsLocation = "Location"
   val declarationCount = 123
   val commodityCode_1 = 12345678
@@ -48,22 +58,49 @@ object NotificationTestData {
     payload = Utility.trim(exampleRejectInventoryLinkingControlResponseXML).toString(),
     data = NotificationData(
       messageCode = Some(MessageCodes.CST),
-      actionCode = Some("3"),
-      entries = Seq(Entry(ucrBlock = Some(UcrBlock(ucr = "5GB123456789000-123ABC456DEFIIIII", ucrType = "M")))),
-      errorCode = Some(errorCode)
+      actionCode = Some(actionCode_rejected),
+      entries = Seq(Entry(ucrBlock = Some(UcrBlock(ucr = ucr, ucrType = "M")))),
+      errorCode = Seq(errorCode_1)
     )
   )
 
   def exampleRejectInventoryLinkingControlResponseXML: Elem =
     <inventoryLinkingControlResponse>
       <messageCode>{MessageCodes.CST}</messageCode>
-      <actionCode>3</actionCode>
+      <actionCode>{actionCode_rejected}</actionCode>
       <ucr>
-        <ucr>5GB123456789000-123ABC456DEFIIIII</ucr>
+        <ucr>{ucr}</ucr>
         <ucrType>M</ucrType>
       </ucr>
       <error>
-        <errorCode>21</errorCode>
+        <errorCode>{errorCode_1}</errorCode>
+      </error>
+    </inventoryLinkingControlResponse>
+
+  val exampleRejectInventoryLinkingControlResponseMultipleErrorsNotification: Notification = Notification(
+    conversationId = conversationId,
+    responseType = "inventoryLinkingControlResponse",
+    payload = Utility.trim(exampleRejectInventoryLinkingControlResponseXML).toString(),
+    data = NotificationData(
+      messageCode = Some(MessageCodes.CST),
+      actionCode = Some(actionCode_rejected),
+      entries = Seq(Entry(ucrBlock = Some(UcrBlock(ucr = ucr, ucrType = "M")))),
+      errorCode = Seq(errorCode_1, errorCode_2, errorCode_3)
+    )
+  )
+
+  def exampleRejectInventoryLinkingControlResponseMultipleErrorsXML: Elem =
+    <inventoryLinkingControlResponse>
+      <messageCode>{MessageCodes.CST}</messageCode>
+      <actionCode>{actionCode_rejected}</actionCode>
+      <ucr>
+        <ucr>{ucr}</ucr>
+        <ucrType>M</ucrType>
+      </ucr>
+      <error>
+        <errorCode>{errorCode_1}</errorCode>
+        <errorCode>{errorCode_2}</errorCode>
+        <errorCode>{errorCode_3}</errorCode>
       </error>
     </inventoryLinkingControlResponse>
 
@@ -73,11 +110,11 @@ object NotificationTestData {
     payload = Utility.trim(exampleInventoryLinkingMovementTotalsResponseXML).toString(),
     data = NotificationData(
       messageCode = Some(MessageCodes.ERS),
-      crcCode = Some("CRC"),
+      crcCode = Some(crcCode_success),
       declarationCount = Some(declarationCount),
       entries = Seq(
         Entry(
-          ucrBlock = Some(UcrBlock(ucr = "9GB025115188654-IAZ1", ucrType = "D")),
+          ucrBlock = Some(UcrBlock(ucr = ucr, ucrType = "D")),
           entryStatus = Some(EntryStatus(ics = Some("7"), roe = Some("6"), soe = Some("3"))),
           goodsItem = Seq(
             GoodsItem(
@@ -97,7 +134,7 @@ object NotificationTestData {
       goodsLocation = Some(goodsLocation),
       masterRoe = Some("RE"),
       masterSoe = Some("SO"),
-      masterUcr = Some("7GB123456789000-123ABC456DEFQWERT"),
+      masterUcr = Some(ucr_2),
       movementReference = Some("MovRef001234")
     )
   )
@@ -105,17 +142,17 @@ object NotificationTestData {
   def exampleInventoryLinkingMovementTotalsResponseXML: Elem =
     <inventoryLinkingMovementTotalsResponse>
       <messageCode>{MessageCodes.ERS}</messageCode>
-      <crc>CRC</crc>
+      <crc>{crcCode_success}</crc>
       <goodsLocation>{goodsLocation}</goodsLocation>
       <goodsArrivalDateTime>2019-07-12T13:14:54.000Z</goodsArrivalDateTime>
       <movementReference>MovRef001234</movementReference>
       <declarationCount>{declarationCount}</declarationCount>
-      <masterUCR>7GB123456789000-123ABC456DEFQWERT</masterUCR>
+      <masterUCR>{ucr_2}</masterUCR>
       <masterROE>RE</masterROE>
       <masterSOE>SO</masterSOE>
       <entry>
         <ucrBlock>
-          <ucr>9GB025115188654-IAZ1</ucr>
+          <ucr>{ucr}</ucr>
           <ucrType>D</ucrType>
         </ucrBlock>
         <entryStatus>
@@ -143,13 +180,13 @@ object NotificationTestData {
     payload = Utility.trim(exampleInventoryLinkingMovementTotalsResponseXML).toString(),
     data = NotificationData(
       messageCode = Some(MessageCodes.EAL),
-      crcCode = Some("CRC"),
+      crcCode = Some(crcCode_success),
       goodsArrivalDateTime = Some("2019-07-12T13:14:54.000Z"),
       goodsLocation = Some("Location"),
       movementReference = Some("MovRef001234"),
       entries = Seq(
         Entry(
-          ucrBlock = Some(UcrBlock(ucr = "9GB025115188654-IAZ1", ucrType = "D")),
+          ucrBlock = Some(UcrBlock(ucr = ucr, ucrType = "D")),
           entryStatus = Some(EntryStatus(ics = Some("7"), roe = Some("6"), soe = Some("3"))),
           goodsItem = Seq(
             GoodsItem(
@@ -171,13 +208,13 @@ object NotificationTestData {
   def exampleInventoryLinkingMovementResponseXML: Elem =
     <inventoryLinkingMovementResponse>
       <messageCode>{MessageCodes.EAL}</messageCode>
-      <crc>CRC</crc>
+      <crc>{crcCode_success}</crc>
       <goodsLocation>{goodsLocation}</goodsLocation>
       <goodsArrivalDateTime>2019-07-12T13:14:54.000Z</goodsArrivalDateTime>
       <movementReference>MovRef001234</movementReference>
       <submitRole>SubmitRole</submitRole>
       <ucrBlock>
-        <ucr>9GB025115188654-IAZ1</ucr>
+        <ucr>{ucr}</ucr>
         <ucrType>D</ucrType>
       </ucrBlock>
       <goodsItem>

@@ -20,7 +20,12 @@ import org.scalatest.{MustMatchers, WordSpec}
 import uk.gov.hmrc.exports.movements.models.notifications.NotificationData
 import uk.gov.hmrc.exports.movements.models.notifications.parsers.ControlResponseParser
 import utils.CommonTestData.MessageCodes
-import utils.NotificationTestData.{exampleRejectInventoryLinkingControlResponseNotification, exampleRejectInventoryLinkingControlResponseXML}
+import utils.NotificationTestData.{
+  exampleRejectInventoryLinkingControlResponseMultipleErrorsNotification,
+  exampleRejectInventoryLinkingControlResponseMultipleErrorsXML,
+  exampleRejectInventoryLinkingControlResponseNotification,
+  exampleRejectInventoryLinkingControlResponseXML
+}
 
 import scala.xml.{Utility, XML}
 
@@ -42,6 +47,23 @@ class ControlResponseParserSpec extends WordSpec with MustMatchers {
                 Utility.trim(XML.loadString(exampleRejectInventoryLinkingControlResponseNotification.payload)).toString
             )
             .data
+
+        val resultNotificationData = parser.parse(xml)
+
+        resultNotificationData must equal(expectedNotificationData)
+      }
+    }
+
+    "provided with multiple errorCodes" should {
+      "return NotificationData" in new Test {
+        val xml = exampleRejectInventoryLinkingControlResponseMultipleErrorsXML
+        val expectedNotificationData = exampleRejectInventoryLinkingControlResponseMultipleErrorsNotification
+          .copy(
+            payload = Utility
+              .trim(XML.loadString(exampleRejectInventoryLinkingControlResponseMultipleErrorsNotification.payload))
+              .toString
+          )
+          .data
 
         val resultNotificationData = parser.parse(xml)
 

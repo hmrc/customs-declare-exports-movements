@@ -39,8 +39,8 @@ object CommonTestData {
   val conversationId_3: String = "b1c09f1b-7c94-4e90-b754-7c5c71c44e33"
   val conversationId_4: String = "b1c09f1b-7c94-4e90-b754-7c5c71c44e44"
   val conversationId_5: String = "b1c09f1b-7c94-4e90-b754-7c5c71c44e55"
-  val ucr = "9GB025115188654-IAZ1"
-  val ucr_2 = "7GB123456789000-123ABC456DEFQWERT"
+  val ucr = "7GB123456789000-123ABC456DEFQWERT"
+  val ucr_2 = "9GB025115188654-IAZ1"
   val randomUcr: String = randomAlphanumericString(16)
 
   val location = "LOCATION"
