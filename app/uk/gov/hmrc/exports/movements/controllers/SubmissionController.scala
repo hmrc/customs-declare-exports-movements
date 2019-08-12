@@ -23,7 +23,7 @@ import play.api.mvc._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.exports.movements.controllers.actions.AuthenticatedController
 import uk.gov.hmrc.exports.movements.controllers.util.HeaderValidator
-import uk.gov.hmrc.exports.movements.models.submissions.Submission.ActionTypes
+import uk.gov.hmrc.exports.movements.models.submissions.ActionType
 import uk.gov.hmrc.exports.movements.models.{AuthorizedSubmissionRequest, ErrorResponse}
 import uk.gov.hmrc.exports.movements.services.SubmissionService
 import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
@@ -44,12 +44,12 @@ class SubmissionController @Inject()(
 
   def submitArrival(): Action[AnyContent] =
     authorisedAction(bodyParser = xmlOrEmptyBody) { implicit request =>
-      submitMovementSubmission(ActionTypes.Arrival)
+      submitMovementSubmission(ActionType.Arrival)
     }
 
   def submitDeparture(): Action[AnyContent] =
     authorisedAction(bodyParser = xmlOrEmptyBody) { implicit request =>
-      submitMovementSubmission(ActionTypes.Departure)
+      submitMovementSubmission(ActionType.Departure)
     }
 
   private def xmlOrEmptyBody: BodyParser[AnyContent] =
@@ -64,7 +64,7 @@ class SubmissionController @Inject()(
     )
 
   private def submitMovementSubmission(
-    actionType: String
+    actionType: ActionType
   )(implicit request: AuthorizedSubmissionRequest[AnyContent], hc: HeaderCarrier): Future[Result] =
     request.body.asXml match {
       case Some(requestXml) =>

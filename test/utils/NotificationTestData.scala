@@ -20,7 +20,7 @@ import play.api.http.{ContentTypes, HeaderNames}
 import play.api.mvc.Codec
 import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames
 import uk.gov.hmrc.exports.movements.models.notifications._
-import utils.MovementsTestData._
+import utils.CommonTestData.{MessageCodes, conversationId, conversationId_2}
 
 import scala.xml.{Elem, Utility}
 

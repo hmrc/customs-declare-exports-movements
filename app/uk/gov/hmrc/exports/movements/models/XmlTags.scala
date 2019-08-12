@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.exports.movements.models.notifications.parsers
+package uk.gov.hmrc.exports.movements.models
 
-private[parsers] object XmlTags {
+object XmlTags {
   val messageCode = "messageCode"
   val actionCode = "actionCode"
   val crc = "crc"

@@ -27,6 +27,12 @@ class ResponseParserFactory {
   private val inventoryLinkingMovementTotalsResponseLabel = "inventoryLinkingMovementTotalsResponse"
   private val inventoryLinkingControlResponseLabel = "inventoryLinkingControlResponse"
 
+  def buildResponseParserContext(responseXml: NodeSeq): ResponseParserContext =
+    if (responseXml.nonEmpty)
+      ResponseParserContext(responseXml.head.label, buildResponseParser(responseXml))
+    else
+      throw new IllegalArgumentException(s"Cannot find root element in: $responseXml")
+
   def buildResponseParser(responseXml: NodeSeq): ResponseParser =
     if (responseXml.nonEmpty) {
       responseXml.head.label match {
@@ -37,16 +43,4 @@ class ResponseParserFactory {
       }
     } else throw new IllegalArgumentException(s"Cannot find root element in: $responseXml")
 
-  def buildResponseParserContext(responseXml: NodeSeq): ResponseParserContext =
-    if (responseXml.nonEmpty) {
-      responseXml.head.label match {
-        case `inventoryLinkingMovementResponseLabel` =>
-          ResponseParserContext(inventoryLinkingMovementResponseLabel, new MovementResponseParser)
-        case `inventoryLinkingMovementTotalsResponseLabel` =>
-          ResponseParserContext(inventoryLinkingMovementTotalsResponseLabel, new MovementTotalsResponseParser)
-        case `inventoryLinkingControlResponseLabel` =>
-          ResponseParserContext(inventoryLinkingControlResponseLabel, new ControlResponseParser)
-        case unknownLabel => throw new IllegalArgumentException(s"Unknown Inventory Linking Response: $unknownLabel")
-      }
-    } else throw new IllegalArgumentException(s"Cannot find root element in: $responseXml")
 }

@@ -19,7 +19,7 @@ package integration.uk.gov.hmrc.exports.movements.services
 import integration.uk.gov.hmrc.exports.movements.base.IntegrationTestSpec
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
-import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
@@ -27,18 +27,16 @@ import play.api.inject.bind
 import play.api.inject.guice.{GuiceApplicationBuilder, GuiceableModule}
 import play.api.test.Helpers._
 import reactivemongo.core.errors.GenericDatabaseException
-import uk.gov.hmrc.exports.movements.models.submissions.Submission.ActionTypes
+import uk.gov.hmrc.exports.movements.models.submissions.ActionType
 import uk.gov.hmrc.exports.movements.repositories.SubmissionRepository
 import uk.gov.hmrc.exports.movements.services.SubmissionService
 import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
 import uk.gov.hmrc.http.HeaderCarrier
-import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder.{
-  buildSubmissionRepositoryMock,
-  dummyWriteResultSuccess
-}
+import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder.{buildSubmissionRepositoryMock, dummyWriteResultSuccess}
+import utils.CommonTestData.validEori
 import utils.CustomsMovementsAPIConfig
 import utils.ExternalServicesConfig.{Host, Port}
-import utils.MovementsTestData._
+import utils.MovementsTestData.validInventoryLinkingExportRequest
 import utils.stubs.CustomsMovementsAPIService
 
 import scala.concurrent.Future
@@ -46,7 +44,7 @@ import scala.xml.XML
 
 class SubmissionServiceSpec
     extends IntegrationTestSpec with GuiceOneAppPerSuite with MockitoSugar with CustomsMovementsAPIService
-    with ScalaFutures {
+    with ScalaFutures with IntegrationPatience {
 
   val mockMovementsRepository: SubmissionRepository = buildSubmissionRepositoryMock
 
@@ -88,12 +86,12 @@ class SubmissionServiceSpec
 
         val context = SubmissionRequestContext(
           eori = validEori,
-          actionType = ActionTypes.Arrival,
+          actionType = ActionType.Arrival,
           requestXml = XML.loadString(validInventoryLinkingExportRequest.toXml)
         )
         val result = movementsService.submitRequest(context).futureValue
 
-        result should equal(Right())
+        result should equal(Right((): Unit))
       }
 
       "Departure is persisted" in {
@@ -103,12 +101,12 @@ class SubmissionServiceSpec
 
         val context = SubmissionRequestContext(
           eori = validEori,
-          actionType = ActionTypes.Departure,
+          actionType = ActionType.Departure,
           requestXml = XML.loadString(validInventoryLinkingExportRequest.toXml)
         )
         val result = movementsService.submitRequest(context).futureValue
 
-        result should equal(Right())
+        result should equal(Right((): Unit))
       }
     }
 
@@ -121,7 +119,7 @@ class SubmissionServiceSpec
 
         val context = SubmissionRequestContext(
           eori = validEori,
-          actionType = ActionTypes.Arrival,
+          actionType = ActionType.Arrival,
           requestXml = XML.loadString(validInventoryLinkingExportRequest.toXml)
         )
         val result = movementsService.submitRequest(context).futureValue
@@ -136,7 +134,7 @@ class SubmissionServiceSpec
 
         val context = SubmissionRequestContext(
           eori = validEori,
-          actionType = ActionTypes.Departure,
+          actionType = ActionType.Departure,
           requestXml = XML.loadString(validInventoryLinkingExportRequest.toXml)
         )
         val result = movementsService.submitRequest(context).futureValue
@@ -151,7 +149,7 @@ class SubmissionServiceSpec
 
         val context = SubmissionRequestContext(
           eori = validEori,
-          actionType = ActionTypes.Arrival,
+          actionType = ActionType.Arrival,
           requestXml = XML.loadString(validInventoryLinkingExportRequest.toXml)
         )
         val result = movementsService.submitRequest(context).futureValue
@@ -166,7 +164,7 @@ class SubmissionServiceSpec
 
         val context = SubmissionRequestContext(
           eori = validEori,
-          actionType = ActionTypes.Departure,
+          actionType = ActionType.Departure,
           requestXml = XML.loadString(validInventoryLinkingExportRequest.toXml)
         )
         val result = movementsService.submitRequest(context).futureValue
@@ -181,7 +179,7 @@ class SubmissionServiceSpec
 
         val context = SubmissionRequestContext(
           eori = validEori,
-          actionType = ActionTypes.Arrival,
+          actionType = ActionType.Arrival,
           requestXml = XML.loadString(validInventoryLinkingExportRequest.toXml)
         )
         val result = movementsService.submitRequest(context).futureValue
@@ -196,7 +194,7 @@ class SubmissionServiceSpec
 
         val context = SubmissionRequestContext(
           eori = validEori,
-          actionType = ActionTypes.Arrival,
+          actionType = ActionType.Arrival,
           requestXml = XML.loadString(validInventoryLinkingExportRequest.toXml)
         )
         val result = movementsService.submitRequest(context).futureValue
@@ -211,7 +209,7 @@ class SubmissionServiceSpec
 
         val context = SubmissionRequestContext(
           eori = validEori,
-          actionType = ActionTypes.Arrival,
+          actionType = ActionType.Arrival,
           requestXml = XML.loadString(validInventoryLinkingExportRequest.toXml)
         )
         val result = movementsService.submitRequest(context).futureValue
@@ -226,7 +224,7 @@ class SubmissionServiceSpec
 
         val context = SubmissionRequestContext(
           eori = validEori,
-          actionType = ActionTypes.Arrival,
+          actionType = ActionType.Arrival,
           requestXml = XML.loadString(validInventoryLinkingExportRequest.toXml)
         )
         val result = movementsService.submitRequest(context).futureValue

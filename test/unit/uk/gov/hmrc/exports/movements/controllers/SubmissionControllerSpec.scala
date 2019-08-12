@@ -33,11 +33,12 @@ import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames.XEoriIdentifierHeaderName
 import uk.gov.hmrc.exports.movements.controllers.util.HeaderValidator
 import uk.gov.hmrc.exports.movements.metrics.MovementsMetrics
-import uk.gov.hmrc.exports.movements.models.submissions.Submission.ActionTypes
+import uk.gov.hmrc.exports.movements.models.submissions.ActionType
 import uk.gov.hmrc.exports.movements.services.SubmissionService
 import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
 import unit.uk.gov.hmrc.exports.movements.base.AuthTestSupport
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder.buildSubmissionServiceMock
+import utils.CommonTestData.ValidHeaders
 import utils.MovementsTestData._
 
 import scala.concurrent.Future
@@ -70,21 +71,6 @@ class SubmissionControllerSpec
   private def routeGet(headers: Map[String, String] = ValidHeaders, uri: String): Future[Result] =
     route(app, FakeRequest(GET, uri).withHeaders(headers.toSeq: _*)).get
 
-  //  val xmlBody: String = randomSubmitDeclaration.toXml
-//
-//  val fakeXmlRequest: FakeRequest[String] = FakeRequest("POST", arrivalUri).withBody(xmlBody)
-//  val fakeXmlRequestWithHeaders: FakeRequest[String] =
-//    fakeXmlRequest
-//      .withHeaders(
-//        CustomsHeaderNames.XUcrHeaderName -> declarantUcrValue,
-//        CustomsHeaderNames.XMovementTypeHeaderName -> "Arrival",
-//        AUTHORIZATION -> dummyToken,
-//        CONTENT_TYPE -> ContentTypes.XML
-//      )
-//
-//  def fakeRequestWithPayload(uri: String, payload: String): FakeRequest[String] =
-//    FakeRequest("POST", uri).withBody(payload)
-
   "SubmissionController on submitArrival" when {
 
     "everything works correctly" should {
@@ -113,7 +99,7 @@ class SubmissionControllerSpec
         verify(submissionServiceMock).submitRequest(contextCaptor.capture())(any())
 
         contextCaptor.getValue.eori must equal(expectedEori)
-        contextCaptor.getValue.actionType must equal(ActionTypes.Arrival)
+        contextCaptor.getValue.actionType must equal(ActionType.Arrival)
         contextCaptor.getValue.requestXml must equal(exampleArrivalRequestXML)
       }
     }
@@ -195,7 +181,7 @@ class SubmissionControllerSpec
         verify(submissionServiceMock).submitRequest(contextCaptor.capture())(any())
 
         contextCaptor.getValue.eori must equal(expectedEori)
-        contextCaptor.getValue.actionType must equal(ActionTypes.Departure)
+        contextCaptor.getValue.actionType must equal(ActionType.Departure)
         contextCaptor.getValue.requestXml must equal(exampleDepartureRequestXML)
       }
     }

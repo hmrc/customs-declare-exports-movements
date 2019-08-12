@@ -17,21 +17,22 @@
 package integration.uk.gov.hmrc.exports.movements.repositories
 
 import com.codahale.metrics.SharedMetricRegistries
-import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.{BeforeAndAfterEach, MustMatchers, WordSpec}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.JsString
 import reactivemongo.core.errors.DatabaseException
-import uk.gov.hmrc.exports.movements.models.submissions.Submission.ActionTypes
+import uk.gov.hmrc.exports.movements.models.submissions.ActionType
 import uk.gov.hmrc.exports.movements.repositories.SubmissionRepository
+import utils.CommonTestData._
 import utils.MovementsTestData._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class SubmissionRepositorySpec
-    extends WordSpec with GuiceOneAppPerSuite with BeforeAndAfterEach with ScalaFutures with MustMatchers {
+    extends WordSpec with GuiceOneAppPerSuite with BeforeAndAfterEach with ScalaFutures with MustMatchers with IntegrationPatience {
 
   override lazy val app: Application = GuiceApplicationBuilder().build()
   private val repo = app.injector.instanceOf[SubmissionRepository]
@@ -39,12 +40,12 @@ class SubmissionRepositorySpec
   override def beforeEach(): Unit = {
     super.beforeEach()
     repo.removeAll().futureValue
-    SharedMetricRegistries.clear()
   }
 
   override def afterEach(): Unit = {
     super.beforeEach()
     repo.removeAll().futureValue
+    SharedMetricRegistries.clear()
   }
 
   "SubmissionRepository on insert" when {
@@ -63,8 +64,8 @@ class SubmissionRepositorySpec
     "trying to insert Submission with the same ConversationID twice" should {
 
       "throw DatabaseException" in {
-        val submission_1 = exampleSubmission(conversationId = conversationId, actionType = ActionTypes.Arrival)
-        val submission_2 = exampleSubmission(conversationId = conversationId, actionType = ActionTypes.ShutMucr)
+        val submission_1 = exampleSubmission(conversationId = conversationId, actionType = ActionType.Arrival)
+        val submission_2 = exampleSubmission(conversationId = conversationId, actionType = ActionType.ShutMucr)
 
         repo.insert(submission_1).futureValue.ok must be(true)
         val exc = repo.insert(submission_2).failed.futureValue
@@ -76,8 +77,8 @@ class SubmissionRepositorySpec
       }
 
       "result in having only the first Submission persisted" in {
-        val submission_1 = exampleSubmission(conversationId = conversationId, actionType = ActionTypes.Arrival)
-        val submission_2 = exampleSubmission(conversationId = conversationId, actionType = ActionTypes.ShutMucr)
+        val submission_1 = exampleSubmission(conversationId = conversationId, actionType = ActionType.Arrival)
+        val submission_2 = exampleSubmission(conversationId = conversationId, actionType = ActionType.ShutMucr)
 
         repo.insert(submission_1).futureValue.ok must be(true)
         repo.insert(submission_2).failed.futureValue
@@ -112,22 +113,22 @@ class SubmissionRepositorySpec
     "there are multiple Submissions with given EORI" should {
       "return all the Submissions" in {
         val submission =
-          exampleSubmission(eori = validEori, conversationId = conversationId, actionType = ActionTypes.Arrival)
+          exampleSubmission(eori = validEori, conversationId = conversationId, actionType = ActionType.Arrival)
         val submission_2 =
-          exampleSubmission(eori = validEori, conversationId = conversationId_2, actionType = ActionTypes.Departure)
+          exampleSubmission(eori = validEori, conversationId = conversationId_2, actionType = ActionType.Departure)
         val submission_3 =
-          exampleSubmission(eori = validEori, conversationId = conversationId_3, actionType = ActionTypes.ShutMucr)
+          exampleSubmission(eori = validEori, conversationId = conversationId_3, actionType = ActionType.ShutMucr)
         val submission_4 =
           exampleSubmission(
             eori = validEori,
             conversationId = conversationId_4,
-            actionType = ActionTypes.DucrAssociation
+            actionType = ActionType.DucrAssociation
           )
         val submission_5 =
           exampleSubmission(
             eori = validEori,
             conversationId = conversationId_5,
-            actionType = ActionTypes.DucrDisassociation
+            actionType = ActionType.DucrDisassociation
           )
         repo.insert(submission).futureValue.ok must be(true)
         repo.insert(submission_2).futureValue.ok must be(true)

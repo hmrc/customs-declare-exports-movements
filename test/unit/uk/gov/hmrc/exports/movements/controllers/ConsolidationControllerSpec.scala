@@ -32,7 +32,7 @@ import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames.XEoriIdentifierHeaderName
 import uk.gov.hmrc.exports.movements.controllers.util.HeaderValidator
 import uk.gov.hmrc.exports.movements.metrics.MovementsMetrics
-import uk.gov.hmrc.exports.movements.models.submissions.Submission.ActionTypes
+import uk.gov.hmrc.exports.movements.models.submissions.ActionType
 import uk.gov.hmrc.exports.movements.services.SubmissionService
 import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
 import unit.uk.gov.hmrc.exports.movements.base.AuthTestSupport
@@ -92,8 +92,8 @@ class ConsolidationControllerSpec
           verify(submissionServiceMock).submitRequest(contextCaptor.capture())(any())
 
           contextCaptor.getValue.eori must equal(expectedEori)
-          contextCaptor.getValue.actionType must equal(ActionTypes.ShutMucr)
-          contextCaptor.getValue.requestXml must equal(exampleShutMucrConsolidationRequest)
+          contextCaptor.getValue.actionType must equal(ActionType.ShutMucr)
+          contextCaptor.getValue.requestXml must equal(exampleShutMucrConsolidationRequestXML)
         }
       }
 
@@ -155,7 +155,7 @@ class ConsolidationControllerSpec
             .thenReturn(Future.successful(Right((): Unit)))
 
           val result = routePostSubmitMovementConsolidation(
-            xmlBody = exampleAssociateDucrConsolidationRequest,
+            xmlBody = exampleAssociateDucrConsolidationRequestXML,
             uri = associateDucrUri
           )
 
@@ -168,7 +168,7 @@ class ConsolidationControllerSpec
             .thenReturn(Future.successful(Right((): Unit)))
 
           routePostSubmitMovementConsolidation(
-            xmlBody = exampleAssociateDucrConsolidationRequest,
+            xmlBody = exampleAssociateDucrConsolidationRequestXML,
             uri = associateDucrUri
           ).futureValue
 
@@ -179,8 +179,8 @@ class ConsolidationControllerSpec
           verify(submissionServiceMock).submitRequest(contextCaptor.capture())(any())
 
           contextCaptor.getValue.eori must equal(expectedEori)
-          contextCaptor.getValue.actionType must equal(ActionTypes.DucrAssociation)
-          contextCaptor.getValue.requestXml must equal(exampleAssociateDucrConsolidationRequest)
+          contextCaptor.getValue.actionType must equal(ActionType.DucrAssociation)
+          contextCaptor.getValue.requestXml must equal(exampleAssociateDucrConsolidationRequestXML)
         }
       }
 
@@ -192,7 +192,7 @@ class ConsolidationControllerSpec
             .thenReturn(Future.successful(Left("")))
 
           val result = routePostSubmitMovementConsolidation(
-            xmlBody = exampleAssociateDucrConsolidationRequest,
+            xmlBody = exampleAssociateDucrConsolidationRequestXML,
             uri = associateDucrUri
           )
 
@@ -245,7 +245,7 @@ class ConsolidationControllerSpec
             .thenReturn(Future.successful(Right((): Unit)))
 
           val result = routePostSubmitMovementConsolidation(
-            xmlBody = exampleDisassociateDucrConsolidationRequest,
+            xmlBody = exampleDisassociateDucrConsolidationRequestXML,
             uri = disassociateDucrUri
           )
 
@@ -258,7 +258,7 @@ class ConsolidationControllerSpec
             .thenReturn(Future.successful(Right((): Unit)))
 
           routePostSubmitMovementConsolidation(
-            xmlBody = exampleDisassociateDucrConsolidationRequest,
+            xmlBody = exampleDisassociateDucrConsolidationRequestXML,
             uri = disassociateDucrUri
           ).futureValue
 
@@ -269,8 +269,8 @@ class ConsolidationControllerSpec
           verify(submissionServiceMock).submitRequest(contextCaptor.capture())(any())
 
           contextCaptor.getValue.eori must equal(expectedEori)
-          contextCaptor.getValue.actionType must equal(ActionTypes.DucrDisassociation)
-          contextCaptor.getValue.requestXml must equal(exampleDisassociateDucrConsolidationRequest)
+          contextCaptor.getValue.actionType must equal(ActionType.DucrDisassociation)
+          contextCaptor.getValue.requestXml must equal(exampleDisassociateDucrConsolidationRequestXML)
         }
       }
 
@@ -282,7 +282,7 @@ class ConsolidationControllerSpec
             .thenReturn(Future.successful(Left("")))
 
           val result = routePostSubmitMovementConsolidation(
-            xmlBody = exampleDisassociateDucrConsolidationRequest,
+            xmlBody = exampleDisassociateDucrConsolidationRequestXML,
             uri = disassociateDucrUri
           )
 
@@ -329,7 +329,7 @@ class ConsolidationControllerSpec
 
   def routePostSubmitMovementConsolidation(
     headers: Map[String, String] = ValidConsolidationRequestHeaders,
-    xmlBody: Elem = exampleShutMucrConsolidationRequest,
+    xmlBody: Elem = exampleShutMucrConsolidationRequestXML,
     uri: String
   ): Future[Result] =
     route(app, FakeRequest(POST, uri).withHeaders(headers.toSeq: _*).withXmlBody(xmlBody)).get

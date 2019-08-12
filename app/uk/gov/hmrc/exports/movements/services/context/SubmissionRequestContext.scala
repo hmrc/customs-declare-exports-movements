@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.exports.movements.services.context
 
+import uk.gov.hmrc.exports.movements.models.submissions.ActionType
+
 import scala.xml.NodeSeq
 
-final case class SubmissionRequestContext(eori: String, actionType: String, requestXml: NodeSeq)
+final case class SubmissionRequestContext(eori: String, actionType: ActionType, requestXml: NodeSeq)

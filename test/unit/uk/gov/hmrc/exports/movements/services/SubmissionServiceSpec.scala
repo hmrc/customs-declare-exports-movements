@@ -26,30 +26,34 @@ import org.scalatest.{MustMatchers, WordSpec}
 import play.api.http.Status.{ACCEPTED, BAD_REQUEST}
 import reactivemongo.api.commands.WriteResult
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
-import uk.gov.hmrc.exports.movements.models.submissions.Submission
-import uk.gov.hmrc.exports.movements.models.submissions.Submission.ActionTypes
+import uk.gov.hmrc.exports.movements.models.notifications.UcrBlock
+import uk.gov.hmrc.exports.movements.models.submissions.{ActionType, Submission}
 import uk.gov.hmrc.exports.movements.services.SubmissionService
 import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
 import uk.gov.hmrc.http.HeaderCarrier
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
+import utils.CommonTestData.{conversationId, validEori}
 import utils.ConsolidationTestData._
-import utils.MovementsTestData.{conversationId, validEori}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NoStackTrace
+import uk.gov.hmrc.exports.movements.models.notifications.UcrBlock
+import scala.concurrent.{ExecutionContext, Future}
 
 class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures with MustMatchers {
 
   implicit val defaultPatience: PatienceConfig =
-    PatienceConfig(timeout = Span(5, Seconds), interval = Span(100, Millis))
+    PatienceConfig(timeout = Span(5, Seconds), interval = Span(10, Millis))
 
   private trait Test {
     implicit val hc: HeaderCarrier = mock[HeaderCarrier]
     val customsInventoryLinkingExportsConnectorMock = buildCustomsInventoryLinkingExportsConnectorMock
     val submissionRepositoryMock = buildSubmissionRepositoryMock
+    val submissionFactoryMock = buildSubmissionFactoryMock
     val consolidationService = new SubmissionService(
       customsInventoryLinkingExportsConnector = customsInventoryLinkingExportsConnectorMock,
-      submissionRepository = submissionRepositoryMock
+      submissionRepository = submissionRepositoryMock,
+      submissionFactory = submissionFactoryMock
     )(ExecutionContext.global)
   }
 
@@ -65,12 +69,14 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
         submissionResult must equal(Right((): Unit))
       }
 
-      "call CustomsInventoryLinkingExportsConnector and ConsolidationRepository afterwards" in new HappyPathSaveTest {
+      "call CustomsInventoryLinkingExportsConnector, SubmissionFactory and ConsolidationRepository" in new HappyPathSaveTest {
 
         consolidationService.submitRequest(exampleShutMucrContext).futureValue
 
-        val inOrder: InOrder = Mockito.inOrder(customsInventoryLinkingExportsConnectorMock, submissionRepositoryMock)
+        val inOrder: InOrder =
+          Mockito.inOrder(customsInventoryLinkingExportsConnectorMock, submissionFactoryMock, submissionRepositoryMock)
         inOrder.verify(customsInventoryLinkingExportsConnectorMock).sendInventoryLinkingRequest(any(), any())(any())
+        inOrder.verify(submissionFactoryMock).buildMovementSubmission(any(), any())
         inOrder.verify(submissionRepositoryMock).insert(any())(any())
       }
 
@@ -79,10 +85,17 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
         consolidationService.submitRequest(exampleShutMucrContext).futureValue
 
         verify(customsInventoryLinkingExportsConnectorMock)
-          .sendInventoryLinkingRequest(meq(validEori), meq(exampleShutMucrConsolidationRequest))(any())
+          .sendInventoryLinkingRequest(meq(validEori), meq(exampleShutMucrConsolidationRequestXML))(any())
       }
 
-      "call ConsolidationRepository with correctly built ConsolidationSubmission" in new HappyPathSaveTest {
+      "call SubmissionFactory with ConversationID and context" in new HappyPathSaveTest {
+
+        consolidationService.submitRequest(exampleShutMucrContext).futureValue
+
+        verify(submissionFactoryMock).buildMovementSubmission(meq(conversationId), meq(exampleShutMucrContext))
+      }
+
+      "call ConsolidationRepository with Submission returned from SubmissionFactory" in new HappyPathSaveTest {
 
         consolidationService.submitRequest(exampleShutMucrContext).futureValue
 
@@ -94,50 +107,9 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
         actualConsolidationSubmission.uuid mustNot be(empty)
         actualConsolidationSubmission.eori must equal(validEori)
         actualConsolidationSubmission.conversationId must equal(conversationId)
-        actualConsolidationSubmission.ucrBlocks.head.ucr must equal("4GB123456789000-123ABC456DEFIIIII")
+        actualConsolidationSubmission.ucrBlocks.head.ucr must equal("5GB123456789000-123ABC456DEFIIIII")
       }
 
-    }
-
-    "everything works correctly, but provided with XML missing UCR" should {
-
-      "return Either.Right" in new HappyPathSaveTest {
-
-        val context = SubmissionRequestContext(
-          eori = validEori,
-          actionType = ActionTypes.ShutMucr,
-          requestXml = exampleShutMucrConsolidationRequestWithoutUcrBlock
-        )
-        val submissionResult =
-          consolidationService
-            .submitRequest(context)
-            .futureValue
-
-        submissionResult must equal(Right((): Unit))
-      }
-
-      "call ConsolidationRepository with ConsolidationSubmission containing empty ucr element" in new HappyPathSaveTest {
-
-        val context = SubmissionRequestContext(
-          eori = validEori,
-          actionType = ActionTypes.ShutMucr,
-          requestXml = exampleShutMucrConsolidationRequestWithoutUcrBlock
-        )
-        consolidationService
-          .submitRequest(context)
-          .futureValue
-
-        val consolidationSubmissionCaptor: ArgumentCaptor[Submission] =
-          ArgumentCaptor.forClass(classOf[Submission])
-
-        verify(submissionRepositoryMock).insert(consolidationSubmissionCaptor.capture())(any())
-
-        val actualConsolidationSubmission = consolidationSubmissionCaptor.getValue
-        actualConsolidationSubmission.uuid mustNot be(empty)
-        actualConsolidationSubmission.eori must equal(validEori)
-        actualConsolidationSubmission.conversationId must equal(conversationId)
-        actualConsolidationSubmission.ucrBlocks must be(empty)
-      }
     }
 
     "CustomsInventoryLinkingExportsConnector returns status other than ACCEPTED" should {
@@ -150,6 +122,15 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
           consolidationService.submitRequest(exampleShutMucrContext).futureValue
 
         submissionResult must equal(Left("Non Accepted status returned by Customs Inventory Linking Exports"))
+      }
+
+      "not call SubmissionFactory" in new Test {
+        when(customsInventoryLinkingExportsConnectorMock.sendInventoryLinkingRequest(any(), any())(any()))
+          .thenReturn(Future.successful(CustomsInventoryLinkingResponse(status = BAD_REQUEST, None)))
+
+        consolidationService.submitRequest(exampleShutMucrContext).futureValue
+
+        verifyZeroInteractions(submissionFactoryMock)
       }
 
       "not call ConsolidationRepository" in new Test {
@@ -185,6 +166,17 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
         .thenReturn(
           Future.successful(CustomsInventoryLinkingResponse(status = ACCEPTED, conversationId = Some(conversationId)))
         )
+
+      when(submissionFactoryMock.buildMovementSubmission(any[String], any[SubmissionRequestContext]))
+        .thenReturn(
+          Submission(
+            eori = validEori,
+            conversationId = conversationId,
+            actionType = ActionType.ShutMucr,
+            ucrBlocks = Seq(UcrBlock(ucr = "5GB123456789000-123ABC456DEFIIIII", ucrType = "M"))
+          )
+        )
+
       when(submissionRepositoryMock.insert(any())(any())).thenReturn(Future.successful(dummyWriteResultSuccess))
     }
   }

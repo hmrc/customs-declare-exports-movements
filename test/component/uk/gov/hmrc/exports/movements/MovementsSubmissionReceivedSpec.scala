@@ -24,6 +24,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import reactivemongo.core.actors.Exceptions.PrimaryUnavailableException
 import reactivemongo.core.errors.ConnectionException
+import utils.CommonTestData.{ValidHeaders, validEori}
 import utils.MovementsTestData._
 
 import scala.concurrent.Future
