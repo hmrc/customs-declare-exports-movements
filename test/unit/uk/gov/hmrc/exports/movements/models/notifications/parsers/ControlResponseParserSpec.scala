@@ -20,12 +20,7 @@ import org.scalatest.{MustMatchers, WordSpec}
 import uk.gov.hmrc.exports.movements.models.notifications.NotificationData
 import uk.gov.hmrc.exports.movements.models.notifications.parsers.ControlResponseParser
 import utils.CommonTestData.MessageCodes
-import utils.NotificationTestData.{
-  exampleRejectInventoryLinkingControlResponseMultipleErrorsNotification,
-  exampleRejectInventoryLinkingControlResponseMultipleErrorsXML,
-  exampleRejectInventoryLinkingControlResponseNotification,
-  exampleRejectInventoryLinkingControlResponseXML
-}
+import utils.NotificationTestData._
 
 import scala.xml.{Utility, XML}
 
@@ -76,10 +71,12 @@ class ControlResponseParserSpec extends WordSpec with MustMatchers {
         val xml =
           <inventoryLinkingControlResponse>
             <messageCode>{MessageCodes.ERS}</messageCode>
-            <actionCode>1</actionCode>
+            <actionCode>{actionCode_acknowledgedAndProcessed}</actionCode>
           </inventoryLinkingControlResponse>
+
         val expectedNotificationData =
-          NotificationData.empty.copy(messageCode = Some(MessageCodes.ERS), actionCode = Some("1"))
+          NotificationData.empty
+            .copy(messageCode = Some(MessageCodes.ERS), actionCode = Some(actionCode_acknowledgedAndProcessed))
 
         val resultNotificationData = parser.parse(xml)
 
