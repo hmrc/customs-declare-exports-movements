@@ -26,6 +26,7 @@ class NotificationFactory @Inject()(responseParserFactory: ResponseParserFactory
 
   def buildMovementNotification(conversationId: String, xml: NodeSeq): Notification = {
     val context = responseParserFactory.buildResponseParserContext(xml)
+
     val notificationData = context.parser.parse(xml)
     Notification(
       conversationId = conversationId,

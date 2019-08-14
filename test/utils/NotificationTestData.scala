@@ -43,7 +43,10 @@ object NotificationTestData {
   val errorCode_1 = "21"
   val errorCode_2 = "13"
   val errorCode_3 = "47"
+  val errorCodeDescriptive = "error in CDS ILE processing"
   val goodsLocation = "Location"
+  val submitRole = "SubmitRoleBeing35CharactersInLength"
+  val movementReference = "MovRef001234"
   val declarationCount = 123
   val commodityCode_1 = 12345678
   val commodityCode_2 = 11122233
@@ -59,21 +62,28 @@ object NotificationTestData {
     data = NotificationData(
       messageCode = Some(MessageCodes.CST),
       actionCode = Some(actionCode_rejected),
+      movementReference = Some(movementReference),
       entries = Seq(Entry(ucrBlock = Some(UcrBlock(ucr = ucr, ucrType = "M")))),
-      errorCode = Seq(errorCode_1)
+      errorCode = Seq(errorCode_1, errorCodeDescriptive)
     )
   )
 
   def exampleRejectInventoryLinkingControlResponseXML: Elem =
-    <inventoryLinkingControlResponse>
+    <inventoryLinkingControlResponse
+        xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
+        xmlns="http://gov.uk/customs/inventoryLinking/v1">
       <messageCode>{MessageCodes.CST}</messageCode>
       <actionCode>{actionCode_rejected}</actionCode>
       <ucr>
         <ucr>{ucr}</ucr>
         <ucrType>M</ucrType>
       </ucr>
+      <movementReference>{movementReference}</movementReference>
       <error>
         <errorCode>{errorCode_1}</errorCode>
+      </error>
+      <error>
+        <errorCode>{errorCodeDescriptive}</errorCode>
       </error>
     </inventoryLinkingControlResponse>
 
@@ -84,22 +94,30 @@ object NotificationTestData {
     data = NotificationData(
       messageCode = Some(MessageCodes.CST),
       actionCode = Some(actionCode_rejected),
+      movementReference = Some(movementReference),
       entries = Seq(Entry(ucrBlock = Some(UcrBlock(ucr = ucr, ucrType = "M")))),
       errorCode = Seq(errorCode_1, errorCode_2, errorCode_3)
     )
   )
 
   def exampleRejectInventoryLinkingControlResponseMultipleErrorsXML: Elem =
-    <inventoryLinkingControlResponse>
+    <inventoryLinkingControlResponse
+        xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
+        xmlns="http://gov.uk/customs/inventoryLinking/v1">
       <messageCode>{MessageCodes.CST}</messageCode>
       <actionCode>{actionCode_rejected}</actionCode>
       <ucr>
         <ucr>{ucr}</ucr>
         <ucrType>M</ucrType>
       </ucr>
+      <movementReference>{movementReference}</movementReference>
       <error>
         <errorCode>{errorCode_1}</errorCode>
+      </error>
+      <error>
         <errorCode>{errorCode_2}</errorCode>
+      </error>
+      <error>
         <errorCode>{errorCode_3}</errorCode>
       </error>
     </inventoryLinkingControlResponse>
@@ -140,14 +158,16 @@ object NotificationTestData {
   )
 
   def exampleInventoryLinkingMovementTotalsResponseXML: Elem =
-    <inventoryLinkingMovementTotalsResponse>
+    <inventoryLinkingMovementTotalsResponse
+        xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
+        xmlns="http://gov.uk/customs/inventoryLinking/v1">
       <messageCode>{MessageCodes.ERS}</messageCode>
       <crc>{crcCode_success}</crc>
       <goodsLocation>{goodsLocation}</goodsLocation>
-      <goodsArrivalDateTime>2019-07-12T13:14:54.000Z</goodsArrivalDateTime>
-      <movementReference>MovRef001234</movementReference>
-      <declarationCount>{declarationCount}</declarationCount>
       <masterUCR>{ucr_2}</masterUCR>
+      <declarationCount>{declarationCount}</declarationCount>
+      <goodsArrivalDateTime>2019-07-12T13:14:54.000Z</goodsArrivalDateTime>
+      <movementReference>{movementReference}</movementReference>
       <masterROE>RE</masterROE>
       <masterSOE>SO</masterSOE>
       <entry>
@@ -155,12 +175,6 @@ object NotificationTestData {
           <ucr>{ucr}</ucr>
           <ucrType>D</ucrType>
         </ucrBlock>
-        <entryStatus>
-          <ics>7</ics>
-          <roe>6</roe>
-          <soe>3</soe>
-        </entryStatus>
-        <submitRole>SubmitRole</submitRole>
         <goodsItem>
           <commodityCode>{commodityCode_1}</commodityCode>
           <totalPackages>{totalPackages_1}</totalPackages>
@@ -171,7 +185,21 @@ object NotificationTestData {
           <totalPackages>{totalPackages_2}</totalPackages>
           <totalNetMass>{totalNetMass_2}</totalNetMass>
         </goodsItem>
+        <submitRole>{submitRole}</submitRole>
+        <entryStatus>
+          <ics>7</ics>
+          <roe>6</roe>
+          <soe>3</soe>
+        </entryStatus>
       </entry>
+    </inventoryLinkingMovementTotalsResponse>
+
+  val exampleInventoryLinkingMovementTotalsResponseMinimalXML: Elem =
+    <inventoryLinkingMovementTotalsResponse
+        xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
+        xmlns="http://gov.uk/customs/inventoryLinking/v1">
+      <messageCode>{MessageCodes.ERS}</messageCode>
+      <goodsLocation>{goodsLocation}</goodsLocation>
     </inventoryLinkingMovementTotalsResponse>
 
   val exampleInventoryLinkingMovementResponseNotification: Notification = Notification(
@@ -206,13 +234,15 @@ object NotificationTestData {
   )
 
   def exampleInventoryLinkingMovementResponseXML: Elem =
-    <inventoryLinkingMovementResponse>
+    <inventoryLinkingMovementResponse
+        xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
+        xmlns="http://gov.uk/customs/inventoryLinking/v1">
       <messageCode>{MessageCodes.EAL}</messageCode>
       <crc>{crcCode_success}</crc>
-      <goodsLocation>{goodsLocation}</goodsLocation>
       <goodsArrivalDateTime>2019-07-12T13:14:54.000Z</goodsArrivalDateTime>
-      <movementReference>MovRef001234</movementReference>
-      <submitRole>SubmitRole</submitRole>
+      <goodsLocation>{goodsLocation}</goodsLocation>
+      <movementReference>{movementReference}</movementReference>
+      <submitRole>{submitRole}</submitRole>
       <ucrBlock>
         <ucr>{ucr}</ucr>
         <ucrType>D</ucrType>
@@ -232,6 +262,13 @@ object NotificationTestData {
         <roe>6</roe>
         <soe>3</soe>
       </entryStatus>
+    </inventoryLinkingMovementResponse>
+
+  val exampleInventoryLinkingMovementResponseMinimalXML: Elem =
+    <inventoryLinkingMovementResponse
+        xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
+        xmlns="http://gov.uk/customs/inventoryLinking/v1">
+      <messageCode>{MessageCodes.EAL}</messageCode>
     </inventoryLinkingMovementResponse>
 
   def unknownFormatResponseXML: Elem =

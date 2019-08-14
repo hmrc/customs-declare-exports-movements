@@ -37,7 +37,7 @@ import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
 import utils.NotificationTestData._
 
 import scala.concurrent.Future
-import scala.xml.{Elem, NodeSeq, Utility}
+import scala.xml._
 
 class NotificationControllerSpec
     extends WordSpec with GuiceOneAppPerSuite with AuthTestSupport with BeforeAndAfterEach with ScalaFutures
@@ -141,10 +141,20 @@ class NotificationControllerSpec
           .buildMovementNotification(conversationIdCaptor.capture(), requestBodyCaptor.capture())
 
         conversationIdCaptor.getValue must equal(validHeaders(CustomsHeaderNames.XConversationIdName))
-        Utility.trim(requestBodyCaptor.getValue).toString must equal(
-          Utility.trim(exampleInventoryLinkingMovementTotalsResponseXML).toString
+        assertSkippingNamespaces(requestBodyCaptor.getValue, exampleInventoryLinkingMovementTotalsResponseXML)
+      }
+
+      def assertSkippingNamespaces(actual: Node, expected: Node): Unit = {
+        def clearScope(x: Node): Node = x match {
+          case e:Elem => e.copy(scope = TopScope, child = e.child.map(clearScope))
+          case o => o
+        }
+
+        Utility.trim(clearScope(actual)).toString must equal(
+          Utility.trim(clearScope(expected)).toString
         )
       }
+
 
       "call NotificationService once, passing parsed MovementNotification" in new HappyPathSaveTotalsResponseTest {
 
