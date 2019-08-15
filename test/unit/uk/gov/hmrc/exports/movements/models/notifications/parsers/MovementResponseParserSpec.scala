@@ -20,9 +20,7 @@ import org.scalatest.{MustMatchers, WordSpec}
 import uk.gov.hmrc.exports.movements.models.notifications.NotificationData
 import uk.gov.hmrc.exports.movements.models.notifications.parsers.MovementResponseParser
 import utils.testdata.CommonTestData.MessageCodes
-import utils.testdata.NotificationTestData.{exampleInventoryLinkingMovementResponseNotification, exampleInventoryLinkingMovementResponseXML}
-
-import scala.xml.Utility
+import utils.testdata.notifications.ExampleInventoryLinkingMovementResponse
 
 class MovementResponseParserSpec extends WordSpec with MustMatchers {
 
@@ -34,13 +32,11 @@ class MovementResponseParserSpec extends WordSpec with MustMatchers {
 
     "provided with correct inventoryLinkingMovementResponse" should {
       "return NotificationData" in new Test {
-        val xml = exampleInventoryLinkingMovementResponseXML
-        val expectedNotificationData =
-          exampleInventoryLinkingMovementResponseNotification
-            .copy(payload = Utility.trim(exampleInventoryLinkingMovementResponseXML).toString)
-            .data
+        val xml = ExampleInventoryLinkingMovementResponse.Correct.AllElements.asXml
+        val expectedNotificationData: NotificationData =
+          ExampleInventoryLinkingMovementResponse.Correct.AllElements.asNotificationData
 
-        val resultNotificationData = parser.parse(xml)
+        val resultNotificationData: NotificationData = parser.parse(xml)
 
         resultNotificationData must equal(expectedNotificationData)
       }
@@ -48,10 +44,7 @@ class MovementResponseParserSpec extends WordSpec with MustMatchers {
 
     "provided with inventoryLinkingMovementResponse containing only mandatory data" should {
       "return NotificationData" in new Test {
-        val xml =
-          <inventoryLinkingMovementResponse>
-            <messageCode>{MessageCodes.EAL}</messageCode>
-          </inventoryLinkingMovementResponse>
+        val xml = ExampleInventoryLinkingMovementResponse.Correct.MandatoryElementsOnly.asXml
         val expectedNotificationData = NotificationData(messageCode = Some(MessageCodes.EAL))
 
         val resultNotificationData = parser.parse(xml)
@@ -62,7 +55,7 @@ class MovementResponseParserSpec extends WordSpec with MustMatchers {
 
     "provided with missing mandatory fields" should {
       "return NotificationData with empty messageCode field" in new Test {
-        val xml = <inventoryLinkingMovementResponse></inventoryLinkingMovementResponse>
+        val xml = ExampleInventoryLinkingMovementResponse.Incorrect.NoMessageCode.asXml
         val expectedNotificationData = NotificationData.empty
 
         val resultNotificationData = parser.parse(xml)

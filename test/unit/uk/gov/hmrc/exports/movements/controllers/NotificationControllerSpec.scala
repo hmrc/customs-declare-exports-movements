@@ -34,7 +34,9 @@ import uk.gov.hmrc.exports.movements.models.notifications.{Notification, Notific
 import uk.gov.hmrc.exports.movements.services.NotificationService
 import unit.uk.gov.hmrc.exports.movements.base.AuthTestSupport
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
-import utils.testdata.NotificationTestData._
+import utils.testdata.CommonTestData.conversationId
+import utils.testdata.notifications.NotificationTestData._
+import utils.testdata.notifications.{ExampleInventoryLinkingControlResponse, ExampleInventoryLinkingMovementTotalsResponse}
 
 import scala.concurrent.Future
 import scala.xml._
@@ -91,7 +93,7 @@ class NotificationControllerSpec
           .buildMovementNotification(conversationIdCaptor.capture(), requestBodyCaptor.capture())
 
         conversationIdCaptor.getValue must equal(validHeaders(CustomsHeaderNames.XConversationIdName))
-        requestBodyCaptor.getValue must equal(exampleRejectInventoryLinkingControlResponseXML)
+        requestBodyCaptor.getValue must equal(ExampleInventoryLinkingControlResponse.Correct.Rejected.asXml)
       }
 
       "call NotificationService once, passing parsed MovementNotification" in new HappyPathSaveControlResponseTest {
@@ -101,14 +103,21 @@ class NotificationControllerSpec
         val notificationCaptor: ArgumentCaptor[Notification] =
           ArgumentCaptor.forClass(classOf[Notification])
         verify(notificationServiceMock, times(1)).save(notificationCaptor.capture())
-        notificationCaptor.getValue must equal(exampleRejectInventoryLinkingControlResponseNotification)
+        notificationCaptor.getValue must equal(defaultNotification)
       }
 
       trait HappyPathSaveControlResponseTest {
         withAuthorizedUser()
         when(notificationServiceMock.save(any())).thenReturn(Future.successful(Right((): Unit)))
+
+        val defaultNotification = Notification(
+          conversationId = conversationId,
+          responseType = "inventoryLinkingControlResponse",
+          payload = Utility.trim(ExampleInventoryLinkingControlResponse.Correct.Rejected.asXml).toString(),
+          data = ExampleInventoryLinkingControlResponse.Correct.Rejected.asNotificationData
+        )
         when(movementNotificationFactoryMock.buildMovementNotification(any(), any()))
-          .thenReturn(exampleRejectInventoryLinkingControlResponseNotification)
+          .thenReturn(defaultNotification)
       }
     }
 
@@ -116,14 +125,15 @@ class NotificationControllerSpec
 
       "return Accepted status" in new HappyPathSaveTotalsResponseTest {
 
-        val result = routePostSaveNotification(xmlBody = exampleInventoryLinkingMovementTotalsResponseXML)
+        val result =
+          routePostSaveNotification(xmlBody = ExampleInventoryLinkingMovementTotalsResponse.Correct.AllElements.asXml)
 
         status(result) must be(ACCEPTED)
       }
 
       "call MovementNotificationFactory and NotificationService afterwards" in new HappyPathSaveTotalsResponseTest {
 
-        routePostSaveNotification(xmlBody = exampleInventoryLinkingMovementTotalsResponseXML).futureValue
+        routePostSaveNotification(xmlBody = ExampleInventoryLinkingMovementTotalsResponse.Correct.AllElements.asXml).futureValue
 
         val inOrder: InOrder = Mockito.inOrder(movementNotificationFactoryMock, notificationServiceMock)
         inOrder.verify(movementNotificationFactoryMock, times(1)).buildMovementNotification(any(), any())
@@ -133,7 +143,7 @@ class NotificationControllerSpec
       "call MovementNotificationFactory once, " +
         "passing conversationId from headers and request body" in new HappyPathSaveTotalsResponseTest {
 
-        routePostSaveNotification(xmlBody = exampleInventoryLinkingMovementTotalsResponseXML).futureValue
+        routePostSaveNotification(xmlBody = ExampleInventoryLinkingMovementTotalsResponse.Correct.AllElements.asXml).futureValue
 
         val conversationIdCaptor: ArgumentCaptor[String] = ArgumentCaptor.forClass(classOf[String])
         val requestBodyCaptor: ArgumentCaptor[Elem] = ArgumentCaptor.forClass(classOf[Elem])
@@ -142,25 +152,34 @@ class NotificationControllerSpec
 
         conversationIdCaptor.getValue must equal(validHeaders(CustomsHeaderNames.XConversationIdName))
         Utility.trim(clearNamespaces(requestBodyCaptor.getValue)).toString must equal(
-          Utility.trim(clearNamespaces(exampleInventoryLinkingMovementTotalsResponseXML)).toString
+          Utility
+            .trim(clearNamespaces(ExampleInventoryLinkingMovementTotalsResponse.Correct.AllElements.asXml))
+            .toString
         )
       }
 
       "call NotificationService once, passing parsed MovementNotification" in new HappyPathSaveTotalsResponseTest {
 
-        routePostSaveNotification(xmlBody = exampleInventoryLinkingMovementTotalsResponseXML).futureValue
+        routePostSaveNotification(xmlBody = ExampleInventoryLinkingMovementTotalsResponse.Correct.AllElements.asXml).futureValue
 
         val notificationCaptor: ArgumentCaptor[Notification] =
           ArgumentCaptor.forClass(classOf[Notification])
         verify(notificationServiceMock, times(1)).save(notificationCaptor.capture())
-        notificationCaptor.getValue must equal(exampleInventoryLinkingMovementTotalsResponseNotification)
+        notificationCaptor.getValue must equal(defaultNotification)
       }
 
       trait HappyPathSaveTotalsResponseTest {
         withAuthorizedUser()
         when(notificationServiceMock.save(any())).thenReturn(Future.successful(Right((): Unit)))
+
+        val defaultNotification = Notification(
+          conversationId = conversationId,
+          responseType = "inventoryLinkingMovementTotalsResponse",
+          payload = Utility.trim(ExampleInventoryLinkingMovementTotalsResponse.Correct.AllElements.asXml).toString(),
+          data = ExampleInventoryLinkingMovementTotalsResponse.Correct.AllElements.asNotificationData
+        )
         when(movementNotificationFactoryMock.buildMovementNotification(any(), any()))
-          .thenReturn(exampleInventoryLinkingMovementTotalsResponseNotification)
+          .thenReturn(defaultNotification)
       }
     }
 
@@ -202,7 +221,7 @@ class NotificationControllerSpec
 
   def routePostSaveNotification(
     headers: Map[String, String] = validHeaders,
-    xmlBody: Elem = exampleRejectInventoryLinkingControlResponseXML
+    xmlBody: Elem = ExampleInventoryLinkingControlResponse.Correct.Rejected.asXml
   ): Future[Result] =
     route(
       app,

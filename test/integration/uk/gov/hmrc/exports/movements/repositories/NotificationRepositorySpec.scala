@@ -24,7 +24,7 @@ import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.exports.movements.repositories.NotificationRepository
 import utils.testdata.CommonTestData.conversationId
-import utils.testdata.NotificationTestData._
+import utils.testdata.notifications.NotificationTestData._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 

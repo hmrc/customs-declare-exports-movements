@@ -18,8 +18,9 @@ package unit.uk.gov.hmrc.exports.movements.models.notifications
 
 import org.scalatest.{MustMatchers, WordSpec}
 import uk.gov.hmrc.exports.movements.models.notifications.ResponseValidator
-import utils.testdata.CommonTestData.{MessageCodes, ucr, ucr_2}
-import utils.testdata.NotificationTestData._
+import utils.testdata.CommonTestData.MessageCodes
+import utils.testdata.notifications.NotificationTestData._
+import utils.testdata.notifications._
 
 import scala.util.Success
 import scala.xml.{NodeSeq, SAXParseException}
@@ -33,16 +34,13 @@ class ResponseValidatorSpec extends WordSpec with MustMatchers {
       "provided with correct inventoryLinkingMovementResponse" which {
 
         "contains all possible nodes" in {
-          testSuccessScenario(exampleInventoryLinkingMovementResponseXML)
+          val response = ExampleInventoryLinkingMovementResponse.Correct.AllElements.asXml
+
+          testSuccessScenario(response)
         }
 
         "contains only mandatory nodes" in {
-          val response =
-            <inventoryLinkingMovementResponse
-                xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
-                xmlns="http://gov.uk/customs/inventoryLinking/v1">
-              <messageCode>{MessageCodes.EAL}</messageCode>
-            </inventoryLinkingMovementResponse>
+          val response = ExampleInventoryLinkingMovementResponse.Correct.MandatoryElementsOnly.asXml
 
           testSuccessScenario(response)
         }
@@ -51,17 +49,13 @@ class ResponseValidatorSpec extends WordSpec with MustMatchers {
       "provided with correct inventoryLinkingMovementTotalsResponse" which {
 
         "contains all possible nodes" in {
-          testSuccessScenario(exampleInventoryLinkingMovementTotalsResponseXML)
+          val response = ExampleInventoryLinkingMovementTotalsResponse.Correct.AllElements.asXml
+
+          testSuccessScenario(response)
         }
 
         "contains only mandatory nodes" in {
-          val response =
-            <inventoryLinkingMovementTotalsResponse
-                xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
-                xmlns="http://gov.uk/customs/inventoryLinking/v1">
-              <messageCode>{MessageCodes.ERS}</messageCode>
-              <goodsLocation>{goodsLocation}</goodsLocation>
-            </inventoryLinkingMovementTotalsResponse>
+          val response = ExampleInventoryLinkingMovementTotalsResponse.Correct.MandatoryElementsOnly.asXml
 
           testSuccessScenario(response)
         }
@@ -70,96 +64,31 @@ class ResponseValidatorSpec extends WordSpec with MustMatchers {
       "provided with correct inventoryLinkingControlResponse" which {
 
         "contains no error node" in {
-          val response =
-            <inventoryLinkingControlResponse
-                xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
-                xmlns="http://gov.uk/customs/inventoryLinking/v1">
-              <messageCode>{MessageCodes.CST}</messageCode>
-              <actionCode>{actionCode_acknowledgedAndProcessed}</actionCode>
-              <ucr>
-                <ucr>{ucr}</ucr>
-                <ucrType>M</ucrType>
-              </ucr>
-              <movementReference>{movementReference}</movementReference>
-            </inventoryLinkingControlResponse>
+          val response = ExampleInventoryLinkingControlResponse.Correct.Acknowledged.asXml
 
           testSuccessScenario(response)
         }
 
         "contains single errorCode" in {
-          val response =
-            <inventoryLinkingControlResponse
-                xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
-                xmlns="http://gov.uk/customs/inventoryLinking/v1">
-              <messageCode>{MessageCodes.CST}</messageCode>
-              <actionCode>{actionCode_rejected}</actionCode>
-              <ucr>
-                <ucr>{ucr}</ucr>
-                <ucrType>M</ucrType>
-              </ucr>
-              <movementReference>{movementReference}</movementReference>
-              <error>
-                <errorCode>{errorCode_1}</errorCode>
-              </error>
-            </inventoryLinkingControlResponse>
+          val response = ExampleInventoryLinkingControlResponse.Correct.RejectedSingleError.asXml
 
           testSuccessScenario(response)
         }
 
         "contains descriptive errorCode" in {
-          val response =
-            <inventoryLinkingControlResponse
-                xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
-                xmlns="http://gov.uk/customs/inventoryLinking/v1">
-              <messageCode>{MessageCodes.CST}</messageCode>
-              <actionCode>{actionCode_rejected}</actionCode>
-              <ucr>
-                <ucr>{ucr}</ucr>
-                <ucrType>M</ucrType>
-              </ucr>
-              <movementReference>{movementReference}</movementReference>
-              <error>
-                <errorCode>{errorCodeDescriptive}</errorCode>
-              </error>
-            </inventoryLinkingControlResponse>
+          val response = ExampleInventoryLinkingControlResponse.Correct.RejectedDescriptiveError.asXml
 
           testSuccessScenario(response)
         }
 
         "contains multiple errorCodes" in {
-          val response =
-            <inventoryLinkingControlResponse
-                xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
-                xmlns="http://gov.uk/customs/inventoryLinking/v1">
-              <messageCode>{MessageCodes.CST}</messageCode>
-              <actionCode>{actionCode_rejected}</actionCode>
-              <ucr>
-                <ucr>{ucr}</ucr>
-                <ucrType>M</ucrType>
-              </ucr>
-              <movementReference>{movementReference}</movementReference>
-              <error>
-                <errorCode>{errorCode_1}</errorCode>
-              </error>
-              <error>
-                <errorCode>{errorCodeDescriptive}</errorCode>
-              </error>
-              <error>
-                <errorCode>{errorCode_2}</errorCode>
-              </error>
-            </inventoryLinkingControlResponse>
+          val response = ExampleInventoryLinkingControlResponse.Correct.RejectedMultipleErrors.asXml
 
           testSuccessScenario(response)
         }
 
         "contains only mandatory nodes" in {
-          val response =
-            <inventoryLinkingControlResponse
-                xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
-                xmlns="http://gov.uk/customs/inventoryLinking/v1">
-              <messageCode>{MessageCodes.CST}</messageCode>
-              <actionCode>{actionCode_acknowledgedAndProcessed}</actionCode>
-            </inventoryLinkingControlResponse>
+          val response = ExampleInventoryLinkingControlResponse.Correct.AcknowledgedMandatoryElementsOnly.asXml
 
           testSuccessScenario(response)
         }
@@ -199,22 +128,13 @@ class ResponseValidatorSpec extends WordSpec with MustMatchers {
       "provided with inventoryLinkingMovementResponse" which {
 
         "contains no messageCode node" in {
-          val response =
-            <inventoryLinkingMovementResponse
-                xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
-                xmlns="http://gov.uk/customs/inventoryLinking/v1">
-            </inventoryLinkingMovementResponse>
+          val response = ExampleInventoryLinkingMovementResponse.Incorrect.NoMessageCode.asXml
 
           testFailureScenario(response)
         }
 
         "contains incorrect messageCode" in {
-          val response =
-            <inventoryLinkingMovementResponse
-                xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
-                xmlns="http://gov.uk/customs/inventoryLinking/v1">
-              <messageCode>{MessageCodes.EAC}</messageCode>
-            </inventoryLinkingMovementResponse>
+          val response = ExampleInventoryLinkingMovementResponse.Incorrect.WrongMessageCode.asXml
 
           testFailureScenario(response)
         }
@@ -223,72 +143,31 @@ class ResponseValidatorSpec extends WordSpec with MustMatchers {
       "provided with inventoryLinkingMovementTotalsResponse" which {
 
         "contains no messageCode node" in {
-          val response =
-            <inventoryLinkingMovementTotalsResponse
-                xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
-                xmlns="http://gov.uk/customs/inventoryLinking/v1">
-              <goodsLocation>{goodsLocation}</goodsLocation>
-            </inventoryLinkingMovementTotalsResponse>
+          val response = ExampleInventoryLinkingMovementTotalsResponse.Incorrect.NoMessageCode.asXml
 
           testFailureScenario(response)
         }
 
         "contains no goodsLocation node" in {
-          val response =
-            <inventoryLinkingMovementTotalsResponse
-                xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
-                xmlns="http://gov.uk/customs/inventoryLinking/v1">
-              <messageCode>{MessageCodes.ERS}</messageCode>
-            </inventoryLinkingMovementTotalsResponse>
+          val response = ExampleInventoryLinkingMovementTotalsResponse.Incorrect.NoGoodsLocation.asXml
 
           testFailureScenario(response)
         }
 
         "contains incorrect messageCode" in {
-          val response =
-            <inventoryLinkingMovementTotalsResponse
-                xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
-                xmlns="http://gov.uk/customs/inventoryLinking/v1">
-              <messageCode>{MessageCodes.EAC}</messageCode>
-              <goodsLocation>{goodsLocation}</goodsLocation>
-            </inventoryLinkingMovementTotalsResponse>
+          val response = ExampleInventoryLinkingMovementTotalsResponse.Incorrect.WrongMessageCode.asXml
 
           testFailureScenario(response)
         }
 
         "contains incorrect goodsLocation" in {
-          val response =
-            <inventoryLinkingMovementTotalsResponse
-                xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
-                xmlns="http://gov.uk/customs/inventoryLinking/v1">
-              <messageCode>{MessageCodes.ERS}</messageCode>
-              <goodsLocation>GoodsLocationThatIsTooLong</goodsLocation>
-            </inventoryLinkingMovementTotalsResponse>
+          val response = ExampleInventoryLinkingMovementTotalsResponse.Incorrect.WrongGoodsLocation.asXml
 
           testFailureScenario(response)
         }
 
         "contains entry node without ucrBlock node" in {
-          val response =
-            <inventoryLinkingMovementTotalsResponse
-                xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
-                xmlns="http://gov.uk/customs/inventoryLinking/v1">
-              <messageCode>{MessageCodes.ERS}</messageCode>
-              <goodsLocation>{goodsLocation}</goodsLocation>
-              <entry>
-                <entryStatus>
-                  <ics>7</ics>
-                  <roe>6</roe>
-                  <soe>3</soe>
-                </entryStatus>
-                <submitRole>{submitRole}</submitRole>
-                <goodsItem>
-                  <commodityCode>{commodityCode_1}</commodityCode>
-                  <totalPackages>{totalPackages_1}</totalPackages>
-                  <totalNetMass>{totalNetMass_1}</totalNetMass>
-                </goodsItem>
-              </entry>
-            </inventoryLinkingMovementTotalsResponse>
+          val response = ExampleInventoryLinkingMovementTotalsResponse.Incorrect.EntryNodeWithoutUcrBlockNode.asXml
 
           testFailureScenario(response)
         }
@@ -297,87 +176,37 @@ class ResponseValidatorSpec extends WordSpec with MustMatchers {
       "provided with inventoryLinkingControlResponse" which {
 
         "contains no messageCode node" in {
-          val response =
-            <inventoryLinkingControlResponse
-                xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
-                xmlns="http://gov.uk/customs/inventoryLinking/v1">
-              <actionCode>{actionCode_acknowledgedAndProcessed}</actionCode>
-            </inventoryLinkingControlResponse>
+          val response = ExampleInventoryLinkingControlResponse.Incorrect.NoMessageCode.asXml
 
           testFailureScenario(response)
         }
 
         "contains no actionCode node" in {
-          val response =
-            <inventoryLinkingControlResponse
-                xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
-                xmlns="http://gov.uk/customs/inventoryLinking/v1">
-              <messageCode>{MessageCodes.CST}</messageCode>
-            </inventoryLinkingControlResponse>
+          val response = ExampleInventoryLinkingControlResponse.Incorrect.NoActionCode.asXml
 
           testFailureScenario(response)
         }
 
         "contains incorrect actionCode" in {
-          val response =
-            <inventoryLinkingControlResponse
-                xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
-                xmlns="http://gov.uk/customs/inventoryLinking/v1">
-              <messageCode>{MessageCodes.CST}</messageCode>
-              <actionCode>12</actionCode>
-            </inventoryLinkingControlResponse>
+          val response = ExampleInventoryLinkingControlResponse.Incorrect.WrongActionCode.asXml
 
           testFailureScenario(response)
         }
 
         "contains 2 ucrBlock nodes" in {
-          val response =
-            <inventoryLinkingControlResponse
-                xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
-                xmlns="http://gov.uk/customs/inventoryLinking/v1">
-              <messageCode>{MessageCodes.CST}</messageCode>
-              <actionCode>{actionCode_acknowledgedAndProcessed}</actionCode>
-              <ucr>
-                <ucr>{ucr}</ucr>
-                <ucrType>M</ucrType>
-              </ucr>
-              <ucr>
-                <ucr>{ucr_2}</ucr>
-                <ucrType>D</ucrType>
-              </ucr>
-            </inventoryLinkingControlResponse>
+          val response = ExampleInventoryLinkingControlResponse.Incorrect.DoubleUcrBlock.asXml
 
           testFailureScenario(response)
         }
 
         "contains 2 movementReference nodes" in {
-          val response =
-            <inventoryLinkingControlResponse
-                xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
-                xmlns="http://gov.uk/customs/inventoryLinking/v1">
-              <messageCode>{MessageCodes.CST}</messageCode>
-              <actionCode>{actionCode_acknowledgedAndProcessed}</actionCode>
-              <movementReference>{movementReference}</movementReference>
-              <movementReference>{movementReference}</movementReference>
-            </inventoryLinkingControlResponse>
+          val response = ExampleInventoryLinkingControlResponse.Incorrect.DoubleMovementReference.asXml
 
           testFailureScenario(response)
         }
 
         "contains multiple errorCode nodes inside error node" in {
-          val response =
-            <inventoryLinkingControlResponse
-                xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
-                xmlns="http://gov.uk/customs/inventoryLinking/v1">
-              <messageCode>{MessageCodes.CST}</messageCode>
-              <actionCode>{actionCode_acknowledgedAndProcessed}</actionCode>
-              <error>
-                <errorCode>{errorCodeDescriptive}</errorCode>
-                <errorCode>{errorCode_1}</errorCode>
-                <errorCode>{errorCode_2}</errorCode>
-                <errorCode>{errorCode_3}</errorCode>
-              </error>
-            </inventoryLinkingControlResponse>
+          val response = ExampleInventoryLinkingControlResponse.Incorrect.MultipleErrorCodesInsideErrorNode.asXml
 
           testFailureScenario(response)
         }
