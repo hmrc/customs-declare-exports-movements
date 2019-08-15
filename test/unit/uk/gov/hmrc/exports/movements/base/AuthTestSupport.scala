@@ -25,7 +25,7 @@ import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals._
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
 import uk.gov.hmrc.exports.movements.models.SignedInUser
-import utils.CommonTestData.validEori
+import utils.testdata.CommonTestData.validEori
 
 import scala.concurrent.Future
 

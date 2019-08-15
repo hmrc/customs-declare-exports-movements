@@ -29,7 +29,7 @@ import uk.gov.hmrc.exports.movements.controllers.NotificationController
 import uk.gov.hmrc.exports.movements.controllers.util.HeaderValidator
 import unit.uk.gov.hmrc.exports.movements.base.AuthTestSupport
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
-import utils.NotificationTestData._
+import utils.testdata.NotificationTestData._
 
 import scala.concurrent.{ExecutionContext, Future}
 

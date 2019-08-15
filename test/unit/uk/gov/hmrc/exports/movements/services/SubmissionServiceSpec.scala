@@ -32,13 +32,11 @@ import uk.gov.hmrc.exports.movements.services.SubmissionService
 import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
 import uk.gov.hmrc.http.HeaderCarrier
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
-import utils.CommonTestData.{conversationId, validEori}
-import utils.ConsolidationTestData._
+import utils.testdata.CommonTestData.{conversationId, validEori}
+import utils.testdata.ConsolidationTestData._
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NoStackTrace
-import uk.gov.hmrc.exports.movements.models.notifications.UcrBlock
-import scala.concurrent.{ExecutionContext, Future}
 
 class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures with MustMatchers {
 

@@ -38,8 +38,8 @@ import uk.gov.hmrc.exports.movements.services.SubmissionService
 import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
 import unit.uk.gov.hmrc.exports.movements.base.AuthTestSupport
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder.buildSubmissionServiceMock
-import utils.CommonTestData.ValidHeaders
-import utils.MovementsTestData._
+import utils.testdata.CommonTestData.ValidHeaders
+import utils.testdata.MovementsTestData._
 
 import scala.concurrent.Future
 import scala.xml.Elem

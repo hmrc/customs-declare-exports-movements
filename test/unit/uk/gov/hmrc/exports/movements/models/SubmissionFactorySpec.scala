@@ -21,9 +21,9 @@ import org.scalatest.{MustMatchers, WordSpec}
 import uk.gov.hmrc.exports.movements.models.notifications.UcrBlock
 import uk.gov.hmrc.exports.movements.models.submissions.{ActionType, Submission, SubmissionFactory}
 import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
-import utils.CommonTestData._
-import utils.ConsolidationTestData._
-import utils.MovementsTestData.{exampleArrivalRequestXML, exampleDepartureRequestXML}
+import utils.testdata.CommonTestData._
+import utils.testdata.ConsolidationTestData._
+import utils.testdata.MovementsTestData.{exampleArrivalRequestXML, exampleDepartureRequestXML}
 
 class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar {
 

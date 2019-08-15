@@ -23,8 +23,8 @@ import org.scalatest.{MustMatchers, WordSpec}
 import uk.gov.hmrc.exports.movements.models.notifications.parsers.ResponseParserContext
 import uk.gov.hmrc.exports.movements.models.notifications.{NotificationData, NotificationFactory}
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder
-import utils.CommonTestData.conversationId
-import utils.NotificationTestData._
+import utils.testdata.CommonTestData.conversationId
+import utils.testdata.NotificationTestData._
 
 import scala.xml.{Utility, XML}
 

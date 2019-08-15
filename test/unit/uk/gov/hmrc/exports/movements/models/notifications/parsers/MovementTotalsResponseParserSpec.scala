@@ -19,8 +19,8 @@ package unit.uk.gov.hmrc.exports.movements.models.notifications.parsers
 import org.scalatest.{MustMatchers, WordSpec}
 import uk.gov.hmrc.exports.movements.models.notifications.NotificationData
 import uk.gov.hmrc.exports.movements.models.notifications.parsers.MovementTotalsResponseParser
-import utils.CommonTestData.MessageCodes
-import utils.NotificationTestData.{exampleInventoryLinkingMovementTotalsResponseNotification, exampleInventoryLinkingMovementTotalsResponseXML, goodsLocation}
+import utils.testdata.CommonTestData.MessageCodes
+import utils.testdata.NotificationTestData.{exampleInventoryLinkingMovementTotalsResponseNotification, exampleInventoryLinkingMovementTotalsResponseXML, goodsLocation}
 
 import scala.xml.{Utility, XML}
 

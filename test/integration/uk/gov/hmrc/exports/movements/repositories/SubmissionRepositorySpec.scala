@@ -26,8 +26,8 @@ import play.api.libs.json.JsString
 import reactivemongo.core.errors.DatabaseException
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType
 import uk.gov.hmrc.exports.movements.repositories.SubmissionRepository
-import utils.CommonTestData._
-import utils.MovementsTestData._
+import utils.testdata.CommonTestData._
+import utils.testdata.MovementsTestData._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 

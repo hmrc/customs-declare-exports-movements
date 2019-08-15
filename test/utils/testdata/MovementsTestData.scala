@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package utils
+package utils.testdata
 
 import org.joda.time.{DateTime, DateTimeZone}
 import play.api.libs.json.{JsObject, JsString, JsValue}
@@ -22,7 +22,7 @@ import uk.gov.hmrc.exports.movements.models.notifications.{UcrBlock => UcrBlockM
 import uk.gov.hmrc.exports.movements.models.submissions.{ActionType, Submission}
 import uk.gov.hmrc.wco.dec.inventorylinking.common.{AgentDetails, TransportDetails, UcrBlock}
 import uk.gov.hmrc.wco.dec.inventorylinking.movement.request.InventoryLinkingMovementRequest
-import utils.CommonTestData._
+import utils.testdata.CommonTestData._
 
 import scala.xml.Elem
 

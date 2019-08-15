@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package utils
+package utils.testdata
 
 import play.api.http.{ContentTypes, HeaderNames}
 import play.api.mvc.Codec
 import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames
 import uk.gov.hmrc.exports.movements.models.notifications._
-import utils.CommonTestData._
+import utils.testdata.CommonTestData._
 
 import scala.xml.{Elem, Utility}
 
@@ -194,14 +194,6 @@ object NotificationTestData {
       </entry>
     </inventoryLinkingMovementTotalsResponse>
 
-  val exampleInventoryLinkingMovementTotalsResponseMinimalXML: Elem =
-    <inventoryLinkingMovementTotalsResponse
-        xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
-        xmlns="http://gov.uk/customs/inventoryLinking/v1">
-      <messageCode>{MessageCodes.ERS}</messageCode>
-      <goodsLocation>{goodsLocation}</goodsLocation>
-    </inventoryLinkingMovementTotalsResponse>
-
   val exampleInventoryLinkingMovementResponseNotification: Notification = Notification(
     conversationId = conversationId,
     responseType = "inventoryLinkingMovementResponse",
@@ -262,13 +254,6 @@ object NotificationTestData {
         <roe>6</roe>
         <soe>3</soe>
       </entryStatus>
-    </inventoryLinkingMovementResponse>
-
-  val exampleInventoryLinkingMovementResponseMinimalXML: Elem =
-    <inventoryLinkingMovementResponse
-        xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
-        xmlns="http://gov.uk/customs/inventoryLinking/v1">
-      <messageCode>{MessageCodes.EAL}</messageCode>
     </inventoryLinkingMovementResponse>
 
   def unknownFormatResponseXML: Elem =

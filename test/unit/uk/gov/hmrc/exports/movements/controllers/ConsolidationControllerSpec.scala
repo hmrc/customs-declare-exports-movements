@@ -37,7 +37,7 @@ import uk.gov.hmrc.exports.movements.services.SubmissionService
 import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
 import unit.uk.gov.hmrc.exports.movements.base.AuthTestSupport
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder.buildSubmissionServiceMock
-import utils.ConsolidationTestData._
+import utils.testdata.ConsolidationTestData._
 
 import scala.concurrent.Future
 import scala.xml.Elem

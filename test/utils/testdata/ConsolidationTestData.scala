@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package utils
+package utils.testdata
 
 import play.api.http.{ContentTypes, HeaderNames}
 import play.api.libs.json.{JsObject, JsString, JsValue}
@@ -22,7 +22,7 @@ import play.api.mvc.Codec
 import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType
 import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
-import utils.CommonTestData._
+import utils.testdata.CommonTestData._
 
 import scala.xml.Elem
 

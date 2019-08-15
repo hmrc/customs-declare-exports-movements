@@ -34,7 +34,7 @@ import uk.gov.hmrc.exports.movements.models.notifications.{Notification, Notific
 import uk.gov.hmrc.exports.movements.services.NotificationService
 import unit.uk.gov.hmrc.exports.movements.base.AuthTestSupport
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
-import utils.NotificationTestData._
+import utils.testdata.NotificationTestData._
 
 import scala.concurrent.Future
 import scala.xml._

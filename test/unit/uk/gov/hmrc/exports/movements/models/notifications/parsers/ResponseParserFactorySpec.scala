@@ -17,13 +17,8 @@
 package unit.uk.gov.hmrc.exports.movements.models.notifications.parsers
 
 import org.scalatest.{MustMatchers, WordSpec}
-import uk.gov.hmrc.exports.movements.models.notifications.parsers.{
-  ControlResponseParser,
-  MovementResponseParser,
-  MovementTotalsResponseParser,
-  ResponseParserFactory
-}
-import utils.NotificationTestData._
+import uk.gov.hmrc.exports.movements.models.notifications.parsers.{ControlResponseParser, MovementResponseParser, MovementTotalsResponseParser, ResponseParserFactory}
+import utils.testdata.NotificationTestData._
 
 class ResponseParserFactorySpec extends WordSpec with MustMatchers {
 

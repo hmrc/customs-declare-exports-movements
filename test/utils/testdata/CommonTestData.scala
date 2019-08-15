@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package utils
+package utils.testdata
+
 import play.api.http.HeaderNames.CONTENT_TYPE
 import play.api.http.{ContentTypes, HeaderNames}
 import play.api.mvc.Codec
 import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames._
-import utils.TestDataHelper.randomAlphanumericString
+import TestDataHelper.randomAlphanumericString
 
 object CommonTestData {
 

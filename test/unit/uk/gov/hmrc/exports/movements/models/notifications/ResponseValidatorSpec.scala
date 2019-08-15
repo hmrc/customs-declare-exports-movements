@@ -18,8 +18,8 @@ package unit.uk.gov.hmrc.exports.movements.models.notifications
 
 import org.scalatest.{MustMatchers, WordSpec}
 import uk.gov.hmrc.exports.movements.models.notifications.ResponseValidator
-import utils.CommonTestData.{MessageCodes, ucr, ucr_2}
-import utils.NotificationTestData._
+import utils.testdata.CommonTestData.{MessageCodes, ucr, ucr_2}
+import utils.testdata.NotificationTestData._
 
 import scala.util.Success
 import scala.xml.{NodeSeq, SAXParseException}
@@ -37,7 +37,14 @@ class ResponseValidatorSpec extends WordSpec with MustMatchers {
         }
 
         "contains only mandatory nodes" in {
-          testSuccessScenario(exampleInventoryLinkingMovementResponseMinimalXML)
+          val response =
+            <inventoryLinkingMovementResponse
+                xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
+                xmlns="http://gov.uk/customs/inventoryLinking/v1">
+              <messageCode>{MessageCodes.EAL}</messageCode>
+            </inventoryLinkingMovementResponse>
+
+          testSuccessScenario(response)
         }
       }
 
@@ -48,7 +55,15 @@ class ResponseValidatorSpec extends WordSpec with MustMatchers {
         }
 
         "contains only mandatory nodes" in {
-          testSuccessScenario(exampleInventoryLinkingMovementTotalsResponseMinimalXML)
+          val response =
+            <inventoryLinkingMovementTotalsResponse
+                xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
+                xmlns="http://gov.uk/customs/inventoryLinking/v1">
+              <messageCode>{MessageCodes.ERS}</messageCode>
+              <goodsLocation>{goodsLocation}</goodsLocation>
+            </inventoryLinkingMovementTotalsResponse>
+
+          testSuccessScenario(response)
         }
       }
 
@@ -300,7 +315,7 @@ class ResponseValidatorSpec extends WordSpec with MustMatchers {
               <messageCode>{MessageCodes.CST}</messageCode>
             </inventoryLinkingControlResponse>
 
-            testFailureScenario(response)
+          testFailureScenario(response)
         }
 
         "contains incorrect actionCode" in {
@@ -312,7 +327,7 @@ class ResponseValidatorSpec extends WordSpec with MustMatchers {
               <actionCode>12</actionCode>
             </inventoryLinkingControlResponse>
 
-            testFailureScenario(response)
+          testFailureScenario(response)
         }
 
         "contains 2 ucrBlock nodes" in {
@@ -332,7 +347,7 @@ class ResponseValidatorSpec extends WordSpec with MustMatchers {
               </ucr>
             </inventoryLinkingControlResponse>
 
-            testFailureScenario(response)
+          testFailureScenario(response)
         }
 
         "contains 2 movementReference nodes" in {
@@ -346,7 +361,7 @@ class ResponseValidatorSpec extends WordSpec with MustMatchers {
               <movementReference>{movementReference}</movementReference>
             </inventoryLinkingControlResponse>
 
-            testFailureScenario(response)
+          testFailureScenario(response)
         }
 
         "contains multiple errorCode nodes inside error node" in {
@@ -364,7 +379,7 @@ class ResponseValidatorSpec extends WordSpec with MustMatchers {
               </error>
             </inventoryLinkingControlResponse>
 
-            testFailureScenario(response)
+          testFailureScenario(response)
         }
       }
 

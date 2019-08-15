@@ -28,11 +28,11 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
 import uk.gov.hmrc.http.HeaderCarrier
-import utils.CommonTestData.validEori
 import utils.CustomsMovementsAPIConfig
 import utils.ExternalServicesConfig.{Host, Port}
-import utils.MovementsTestData._
 import utils.stubs.CustomsMovementsAPIService
+import utils.testdata.CommonTestData.validEori
+import utils.testdata.MovementsTestData._
 
 import scala.concurrent.Future
 
