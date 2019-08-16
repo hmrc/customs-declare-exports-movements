@@ -22,7 +22,7 @@ import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames
 import uk.gov.hmrc.exports.movements.models.notifications._
 import utils.testdata.CommonTestData._
 
-import scala.xml.{Elem, Utility}
+import scala.xml.{Elem, Node, TopScope, Utility}
 
 object NotificationTestData {
 
@@ -54,6 +54,11 @@ object NotificationTestData {
   val totalPackages_2 = 13
   val totalNetMass_1 = "123456789012.3456"
   val totalNetMass_2 = "123.45"
+
+  def clearNamespaces(xml: Node): Node = xml match {
+    case e:Elem => e.copy(scope = TopScope, child = e.child.map(clearNamespaces))
+    case o => o
+  }
 
   val exampleRejectInventoryLinkingControlResponseNotification: Notification = Notification(
     conversationId = conversationId,

@@ -141,20 +141,10 @@ class NotificationControllerSpec
           .buildMovementNotification(conversationIdCaptor.capture(), requestBodyCaptor.capture())
 
         conversationIdCaptor.getValue must equal(validHeaders(CustomsHeaderNames.XConversationIdName))
-        assertSkippingNamespaces(requestBodyCaptor.getValue, exampleInventoryLinkingMovementTotalsResponseXML)
-      }
-
-      def assertSkippingNamespaces(actual: Node, expected: Node): Unit = {
-        def clearScope(x: Node): Node = x match {
-          case e:Elem => e.copy(scope = TopScope, child = e.child.map(clearScope))
-          case o => o
-        }
-
-        Utility.trim(clearScope(actual)).toString must equal(
-          Utility.trim(clearScope(expected)).toString
+        Utility.trim(clearNamespaces(requestBodyCaptor.getValue)).toString must equal(
+          Utility.trim(clearNamespaces(exampleInventoryLinkingMovementTotalsResponseXML)).toString
         )
       }
-
 
       "call NotificationService once, passing parsed MovementNotification" in new HappyPathSaveTotalsResponseTest {
 

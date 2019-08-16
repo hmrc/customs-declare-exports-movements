@@ -17,15 +17,22 @@
 package uk.gov.hmrc.exports.movements.models.notifications
 
 import javax.inject.{Inject, Singleton}
+import play.api.Logger
 import uk.gov.hmrc.exports.movements.models.notifications.parsers.ResponseParserFactory
 
-import scala.xml.{NodeSeq, Utility}
+import scala.xml.{NodeSeq, SAXParseException, Utility}
 
 @Singleton
-class NotificationFactory @Inject()(responseParserFactory: ResponseParserFactory) {
+class NotificationFactory @Inject()(
+  responseValidator: ResponseValidator,
+  responseParserFactory: ResponseParserFactory
+) {
+
+  private val logger = Logger(this.getClass)
 
   def buildMovementNotification(conversationId: String, xml: NodeSeq): Notification = {
     val context = responseParserFactory.buildResponseParserContext(xml)
+    checkResponseCompliance(conversationId, xml)
 
     val notificationData = context.parser.parse(xml)
     Notification(
@@ -35,5 +42,14 @@ class NotificationFactory @Inject()(responseParserFactory: ResponseParserFactory
       payload = Utility.trim(xml.head).toString
     )
   }
+
+  private def checkResponseCompliance(conversationId: String, xml: NodeSeq): Unit =
+    responseValidator.validate(xml).recover {
+      case exc: SAXParseException =>
+        logger
+          .error(
+            s"Received Notification for Conversation ID: [$conversationId] does not match the schema: ${exc.getMessage}"
+          )
+    }
 
 }
