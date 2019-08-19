@@ -16,8 +16,13 @@
 
 package unit.uk.gov.hmrc.exports.movements.models.notifications
 
+import com.typesafe.config.ConfigFactory
 import org.scalatest.{MustMatchers, WordSpec}
+import play.api.Configuration
+import play.api.Mode.Test
+import uk.gov.hmrc.exports.movements.config.AppConfig
 import uk.gov.hmrc.exports.movements.models.notifications.ResponseValidator
+import uk.gov.hmrc.play.bootstrap.config.{RunMode, ServicesConfig}
 import utils.testdata.CommonTestData.MessageCodes
 import utils.testdata.notifications.NotificationTestData._
 import utils.testdata.notifications._
@@ -26,6 +31,15 @@ import scala.util.Success
 import scala.xml.{NodeSeq, SAXParseException}
 
 class ResponseValidatorSpec extends WordSpec with MustMatchers {
+
+  private val DefaultConfiguration = Configuration(
+    ConfigFactory.parseString(
+      "microservice.services.customs-inventory-linking-exports.schema-file-path=conf/schemas/exports/inventoryLinkingResponseExternal.xsd".stripMargin
+    )
+  )
+
+  private def appConfig(conf: Configuration = DefaultConfiguration): AppConfig =
+    new AppConfig(conf, new ServicesConfig(conf, new RunMode(conf, Test)))
 
   "ResponseValidator on validate" should {
 
@@ -95,7 +109,7 @@ class ResponseValidatorSpec extends WordSpec with MustMatchers {
       }
 
       def testSuccessScenario(input: NodeSeq): Unit = {
-        val validator = new ResponseValidator()
+        val validator = new ResponseValidator(appConfig())
 
         validator.validate(input) must equal(Success((): Unit))
       }
@@ -213,7 +227,7 @@ class ResponseValidatorSpec extends WordSpec with MustMatchers {
       }
 
       def testFailureScenario(input: NodeSeq): Unit = {
-        val validator = new ResponseValidator()
+        val validator = new ResponseValidator(appConfig())
 
         validator.validate(input).isFailure must be(true)
         validator.validate(input).failed.get mustBe a[SAXParseException]

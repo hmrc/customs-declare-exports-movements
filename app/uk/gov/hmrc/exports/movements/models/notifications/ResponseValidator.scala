@@ -16,33 +16,30 @@
 
 package uk.gov.hmrc.exports.movements.models.notifications
 
-import java.io.{File, StringReader}
+import java.io._
 
-import javax.inject.Singleton
+import javax.inject.{Inject, Singleton}
 import javax.xml.XMLConstants
 import javax.xml.transform.stream.StreamSource
 import javax.xml.validation.{SchemaFactory, ValidatorHandler}
 import org.xml.sax.helpers.XMLReaderFactory
+import uk.gov.hmrc.exports.movements.config.AppConfig
 
 import scala.util.Try
 import scala.xml.parsing._
 import scala.xml.{NodeSeq, _}
 
 @Singleton
-class ResponseValidator {
+class ResponseValidator @Inject()(appConfig: AppConfig) {
 
-  private val xsdPath = "conf/schemas/exports/inventoryLinkingResponseExternal.xsd"
+  private val XSDFilePath = appConfig.ileSchemasFilePath
+  private val schema =
+    SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI).newSchema(new StreamSource(XSDFilePath))
 
   def validate(xml: NodeSeq): Try[Unit] = {
     implicit def toInputSource(xml: NodeSeq) = new InputSource(new StringReader(xml.toString))
 
-    // XSD file cannot be read as stream, cause the validator won't find root element definition.
-    val xsdFile = new File(xsdPath)
-    val schemaLang = XMLConstants.W3C_XML_SCHEMA_NS_URI
-    val xsdStream = new StreamSource(xsdFile)
-    val schema = SchemaFactory.newInstance(schemaLang).newSchema(xsdStream)
-
-    val validatorHandler = schema.newValidatorHandler()
+    val validatorHandler: ValidatorHandler = schema.newValidatorHandler()
     validatorHandler.setContentHandler(new NoBindingFactoryAdapter)
 
     val xmlReader = XMLReaderFactory.createXMLReader()
@@ -51,7 +48,5 @@ class ResponseValidator {
 
     Try(xmlReader.parse(xml))
   }
-
-  private def createValidatorHandler(): ValidatorHandler = ???
 
 }

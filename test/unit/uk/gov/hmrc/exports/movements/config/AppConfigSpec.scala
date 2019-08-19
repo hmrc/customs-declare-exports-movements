@@ -32,13 +32,13 @@ class AppConfigSpec extends UnitSpec with MockitoSugar {
   private val validAppConfig: Config =
     ConfigFactory.parseString("""
         |urls.login="http://localhost:9949/auth-login-stub/gg-sign-in"
-        |microservice.services.auth.host=localhostauth
-        |microservice.services.auth.port=9988
-        |microservice.services.customs-inventory-linking-exports.host=localhostile
-        |microservice.services.customs-inventory-linking-exports.port=9875
+        |microservice.services.auth.host=localhost.auth
+        |microservice.services.auth.port=8500
+        |microservice.services.customs-inventory-linking-exports.host=localhost.ile
+        |microservice.services.customs-inventory-linking-exports.port=9823
         |microservice.services.customs-inventory-linking-exports.sendArrival=/
-        |microservice.services.customs-inventory-linking-exports.client-id=xx1445
-
+        |microservice.services.customs-inventory-linking-exports.client-id=5c68d3b5-d8a7-4212-8688-6b67f18bbce7
+        |microservice.services.customs-inventory-linking-exports.schema-file-path=conf/schemas/exports/inventoryLinkingResponseExternal.xsd
       """.stripMargin)
   private val emptyAppConfig: Config = ConfigFactory.parseString("")
   private val validServicesConfiguration = Configuration(validAppConfig)
@@ -51,12 +51,12 @@ class AppConfigSpec extends UnitSpec with MockitoSugar {
   "AppConfig" should {
 
     "return config as object model when configuration is valid" in {
-      val configService: AppConfig = appConfig(validServicesConfiguration)
+      val serviceConfig: AppConfig = appConfig(validServicesConfiguration)
 
-      configService.authUrl shouldBe "http://localhostauth:9988"
-      configService.customsInventoryLinkingExports shouldBe "http://localhostile:9875"
-      configService.sendArrival shouldBe "/"
-      configService.clientIdInventory shouldBe "xx1445"
+      serviceConfig.authUrl shouldEqual "http://localhost.auth:8500"
+      serviceConfig.customsInventoryLinkingExportsUrl shouldEqual "http://localhost.ile:9823"
+      serviceConfig.sendArrivalUrlSuffix shouldEqual "/"
+      serviceConfig.clientIdInventory shouldEqual "5c68d3b5-d8a7-4212-8688-6b67f18bbce7"
     }
 
     "throw an exception when mandatory configuration is invalid" in {
@@ -65,10 +65,10 @@ class AppConfigSpec extends UnitSpec with MockitoSugar {
       val caught: RuntimeException = intercept[RuntimeException](configService.authUrl)
       caught.getMessage shouldBe "Could not find config auth.host"
 
-      val caught2: Exception = intercept[Exception](configService.customsInventoryLinkingExports)
+      val caught2: Exception = intercept[Exception](configService.customsInventoryLinkingExportsUrl)
       caught2.getMessage shouldBe "Could not find config customs-inventory-linking-exports.host"
 
-      val caught3: Exception = intercept[Exception](configService.sendArrival)
+      val caught3: Exception = intercept[Exception](configService.sendArrivalUrlSuffix)
       caught3.getMessage shouldBe "Missing configuration for Customs Inventory Linking send arrival URI"
 
       val caught4: Exception = intercept[Exception](configService.clientIdInventory)
@@ -78,7 +78,13 @@ class AppConfigSpec extends UnitSpec with MockitoSugar {
     "contain correct Inventory Linking url" in {
       val serviceConfig: AppConfig = appConfig(validServicesConfiguration)
 
-      println(s"${serviceConfig.sendArrival}")
+      serviceConfig.customsInventoryLinkingExportsUrl shouldEqual "http://localhost.ile:9823"
+    }
+
+    "contain correct path to Inventory Linking Export schemas" in {
+      val serviceConfig: AppConfig = appConfig(validServicesConfiguration)
+
+      serviceConfig.ileSchemasFilePath shouldEqual "conf/schemas/exports/inventoryLinkingResponseExternal.xsd"
     }
   }
 }

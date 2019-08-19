@@ -59,7 +59,7 @@ class CustomsInventoryLinkingExportsConnectorSpec extends CustomsExportsBaseSpec
     body: NodeSeq,
     hc: HeaderCarrier = HeaderCarrier(authorization = Some(Authorization(Random.alphanumeric.take(255).mkString)))
   )(test: Future[CustomsInventoryLinkingResponse] => Unit): Unit = {
-    val expectedUrl: String = s"${appConfig.customsInventoryLinkingExports}${appConfig.sendArrival}"
+    val expectedUrl: String = s"${appConfig.customsInventoryLinkingExportsUrl}${appConfig.sendArrivalUrlSuffix}"
     val falseServerError: Boolean = false
     val expectedHeaders: Seq[(String, String)] = headers
     val http = new MockHttpClient(
