@@ -34,7 +34,7 @@ import uk.gov.hmrc.exports.movements.services.{NotificationService, SubmissionSe
 import utils.testdata.MovementsTestData.emptySubmission
 
 import scala.concurrent.Future
-import scala.util.Try
+import scala.util.Failure
 import scala.xml.NodeSeq
 
 object UnitTestMockBuilder extends MockitoSugar {
@@ -138,7 +138,7 @@ object UnitTestMockBuilder extends MockitoSugar {
   def buildResponseValidatorMock: ResponseValidator = {
     val responseValidatorMock = mock[ResponseValidator]
 
-    when(responseValidatorMock.validate(any[NodeSeq])).thenReturn(Try((): Unit))
+    when(responseValidatorMock.validate(any[NodeSeq])).thenReturn(Failure(new Exception("")))
 
     responseValidatorMock
   }
