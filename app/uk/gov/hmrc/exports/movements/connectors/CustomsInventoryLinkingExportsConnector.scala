@@ -56,7 +56,7 @@ class CustomsInventoryLinkingExportsConnector @Inject()(appConfig: AppConfig, ht
     Logger.debug(s"CUSTOMS_INVENTORY_LINKING_EXPORTS request payload is -> $body")
     httpClient
       .POSTString[CustomsInventoryLinkingResponse](
-        s"${appConfig.customsInventoryLinkingExportsUrl}${appConfig.sendArrivalUrlSuffix}",
+        s"${appConfig.customsInventoryLinkingExportsRootUrl}${appConfig.sendArrivalUrlSuffix}",
         body,
         headers = headers(eori)
       )(responseReader, hc, ec)

@@ -25,7 +25,7 @@ class AppConfig @Inject()(runModeConfiguration: Configuration, servicesConfig: S
 
   lazy val authUrl: String = servicesConfig.baseUrl("auth")
 
-  lazy val customsInventoryLinkingExportsUrl = servicesConfig.baseUrl("customs-inventory-linking-exports")
+  lazy val customsInventoryLinkingExportsRootUrl = servicesConfig.baseUrl("customs-inventory-linking-exports")
 
   lazy val sendArrivalUrlSuffix = servicesConfig.getConfString(
     "customs-inventory-linking-exports.sendArrival",

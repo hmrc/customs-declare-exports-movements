@@ -54,7 +54,7 @@ class AppConfigSpec extends UnitSpec with MockitoSugar {
       val serviceConfig: AppConfig = appConfig(validServicesConfiguration)
 
       serviceConfig.authUrl shouldEqual "http://localhost.auth:8500"
-      serviceConfig.customsInventoryLinkingExportsUrl shouldEqual "http://localhost.ile:9823"
+      serviceConfig.customsInventoryLinkingExportsRootUrl shouldEqual "http://localhost.ile:9823"
       serviceConfig.sendArrivalUrlSuffix shouldEqual "/"
       serviceConfig.clientIdInventory shouldEqual "5c68d3b5-d8a7-4212-8688-6b67f18bbce7"
     }
@@ -65,7 +65,7 @@ class AppConfigSpec extends UnitSpec with MockitoSugar {
       val caught: RuntimeException = intercept[RuntimeException](configService.authUrl)
       caught.getMessage shouldBe "Could not find config auth.host"
 
-      val caught2: Exception = intercept[Exception](configService.customsInventoryLinkingExportsUrl)
+      val caught2: Exception = intercept[Exception](configService.customsInventoryLinkingExportsRootUrl)
       caught2.getMessage shouldBe "Could not find config customs-inventory-linking-exports.host"
 
       val caught3: Exception = intercept[Exception](configService.sendArrivalUrlSuffix)
@@ -78,7 +78,7 @@ class AppConfigSpec extends UnitSpec with MockitoSugar {
     "contain correct Inventory Linking url" in {
       val serviceConfig: AppConfig = appConfig(validServicesConfiguration)
 
-      serviceConfig.customsInventoryLinkingExportsUrl shouldEqual "http://localhost.ile:9823"
+      serviceConfig.customsInventoryLinkingExportsRootUrl shouldEqual "http://localhost.ile:9823"
     }
 
     "contain correct path to Inventory Linking Export schemas" in {
