@@ -30,8 +30,8 @@ import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
 import uk.gov.hmrc.exports.movements.models.submissions.Submission
 import unit.uk.gov.hmrc.exports.movements.base.{CustomsExportsBaseSpec, UnitTestMockBuilder}
-import utils.CommonTestData.{declarantLrnValue, declarantUcrValue, dummyToken}
-import utils.MovementsTestData._
+import utils.testdata.CommonTestData.{declarantLrnValue, declarantUcrValue, dummyToken}
+import utils.testdata.MovementsTestData._
 
 import scala.concurrent.Future
 

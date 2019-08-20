@@ -25,13 +25,20 @@ class AppConfig @Inject()(runModeConfiguration: Configuration, servicesConfig: S
 
   lazy val authUrl: String = servicesConfig.baseUrl("auth")
 
-  lazy val customsInventoryLinkingExports = servicesConfig.baseUrl("customs-inventory-linking-exports")
-  lazy val sendArrival = servicesConfig.getConfString(
+  lazy val customsInventoryLinkingExportsRootUrl = servicesConfig.baseUrl("customs-inventory-linking-exports")
+
+  lazy val sendArrivalUrlSuffix = servicesConfig.getConfString(
     "customs-inventory-linking-exports.sendArrival",
     throw new IllegalStateException("Missing configuration for Customs Inventory Linking send arrival URI")
   )
+
   lazy val clientIdInventory = servicesConfig.getConfString(
     "customs-inventory-linking-exports.client-id",
     throw new IllegalStateException("Missing configuration for Customs Inventory Linking Client Id")
+  )
+
+  lazy val ileSchemasFilePath = servicesConfig.getConfString(
+    "customs-inventory-linking-exports.schema-file-path",
+    throw new IllegalStateException("Missing configuration for ILE schemas file path")
   )
 }

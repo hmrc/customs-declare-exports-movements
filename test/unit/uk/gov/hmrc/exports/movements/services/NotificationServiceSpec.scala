@@ -26,8 +26,8 @@ import uk.gov.hmrc.exports.movements.models.notifications.NotificationPresentati
 import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, SubmissionRepository}
 import uk.gov.hmrc.exports.movements.services.NotificationService
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
-import utils.CommonTestData.conversationId
-import utils.NotificationTestData._
+import utils.testdata.CommonTestData.conversationId
+import utils.testdata.notifications.NotificationTestData._
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NoStackTrace

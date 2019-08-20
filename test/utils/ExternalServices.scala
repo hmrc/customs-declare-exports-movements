@@ -25,7 +25,7 @@ import play.mvc.Http.Status._
 import uk.gov.hmrc.auth.core.Enrolment
 import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.exports.movements.models.Eori
-import utils.CommonTestData.{authToken, validEori}
+import utils.testdata.CommonTestData.{authToken, validEori}
 
 trait AuditService extends WireMockRunner {
 

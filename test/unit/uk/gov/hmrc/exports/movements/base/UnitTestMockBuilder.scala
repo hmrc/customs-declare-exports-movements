@@ -25,19 +25,16 @@ import reactivemongo.core.errors.GenericDatabaseException
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
 import uk.gov.hmrc.exports.movements.metrics.MovementsMetrics
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
-import uk.gov.hmrc.exports.movements.models.notifications.parsers.{
-  ResponseParser,
-  ResponseParserContext,
-  ResponseParserFactory
-}
-import uk.gov.hmrc.exports.movements.models.notifications.{Notification, NotificationData, NotificationFactory}
+import uk.gov.hmrc.exports.movements.models.notifications.parsers.{ResponseParser, ResponseParserContext, ResponseParserFactory}
+import uk.gov.hmrc.exports.movements.models.notifications.{Notification, NotificationData, NotificationFactory, ResponseValidator}
 import uk.gov.hmrc.exports.movements.models.submissions.SubmissionFactory
 import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, SubmissionRepository}
 import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
 import uk.gov.hmrc.exports.movements.services.{NotificationService, SubmissionService}
-import utils.MovementsTestData.emptySubmission
+import utils.testdata.MovementsTestData.emptySubmission
 
 import scala.concurrent.Future
+import scala.util.Failure
 import scala.xml.NodeSeq
 
 object UnitTestMockBuilder extends MockitoSugar {
@@ -136,5 +133,13 @@ object UnitTestMockBuilder extends MockitoSugar {
     when(responseParserMock.parse(any())).thenReturn(NotificationData.empty)
 
     responseParserMock
+  }
+
+  def buildResponseValidatorMock: ResponseValidator = {
+    val responseValidatorMock = mock[ResponseValidator]
+
+    when(responseValidatorMock.validate(any[NodeSeq])).thenReturn(Failure(new Exception("")))
+
+    responseValidatorMock
   }
 }

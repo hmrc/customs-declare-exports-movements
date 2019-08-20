@@ -17,13 +17,9 @@
 package unit.uk.gov.hmrc.exports.movements.models.notifications.parsers
 
 import org.scalatest.{MustMatchers, WordSpec}
-import uk.gov.hmrc.exports.movements.models.notifications.parsers.{
-  ControlResponseParser,
-  MovementResponseParser,
-  MovementTotalsResponseParser,
-  ResponseParserFactory
-}
-import utils.NotificationTestData._
+import uk.gov.hmrc.exports.movements.models.notifications.parsers._
+import utils.testdata.notifications.NotificationTestData._
+import utils.testdata.notifications._
 
 class ResponseParserFactorySpec extends WordSpec with MustMatchers {
 
@@ -35,7 +31,7 @@ class ResponseParserFactorySpec extends WordSpec with MustMatchers {
 
     "provided with inventoryLinkingMovementResponse" should {
       "return MovementResponseParser" in new Test {
-        val responseXml = exampleInventoryLinkingMovementResponseXML
+        val responseXml = ExampleInventoryLinkingMovementResponse.Correct.AllElements.asXml
 
         val parser = parserFactory.buildResponseParser(responseXml)
 
@@ -45,7 +41,7 @@ class ResponseParserFactorySpec extends WordSpec with MustMatchers {
 
     "provided with inventoryLinkingMovementTotalsResponse" should {
       "return MovementTotalsResponseParser" in new Test {
-        val responseXml = exampleInventoryLinkingMovementTotalsResponseXML
+        val responseXml = ExampleInventoryLinkingMovementTotalsResponse.Correct.AllElements.asXml
 
         val parser = parserFactory.buildResponseParser(responseXml)
 
@@ -55,7 +51,7 @@ class ResponseParserFactorySpec extends WordSpec with MustMatchers {
 
     "provided with inventoryLinkingControlResponse" should {
       "return ControlResponseParser" in new Test {
-        val responseXml = exampleRejectInventoryLinkingControlResponseXML
+        val responseXml = ExampleInventoryLinkingControlResponse.Correct.Rejected.asXml
 
         val parser = parserFactory.buildResponseParser(responseXml)
 
@@ -80,7 +76,7 @@ class ResponseParserFactorySpec extends WordSpec with MustMatchers {
 
     "provided with inventoryLinkingMovementResponse" should {
       "return ResponseParserContext with MovementResponseParser" in new Test {
-        val responseXml = exampleInventoryLinkingMovementResponseXML
+        val responseXml = ExampleInventoryLinkingMovementResponse.Correct.AllElements.asXml
 
         val parserContext = parserFactory.buildResponseParserContext(responseXml)
 
@@ -91,7 +87,7 @@ class ResponseParserFactorySpec extends WordSpec with MustMatchers {
 
     "provided with inventoryLinkingMovementTotalsResponse" should {
       "return ResponseParserContext with MovementTotalsResponseParser" in new Test {
-        val responseXml = exampleInventoryLinkingMovementTotalsResponseXML
+        val responseXml = ExampleInventoryLinkingMovementTotalsResponse.Correct.AllElements.asXml
 
         val parserContext = parserFactory.buildResponseParserContext(responseXml)
 
@@ -102,7 +98,7 @@ class ResponseParserFactorySpec extends WordSpec with MustMatchers {
 
     "provided with inventoryLinkingControlResponse" should {
       "return ResponseParserContext with ControlResponseParser" in new Test {
-        val responseXml = exampleRejectInventoryLinkingControlResponseXML
+        val responseXml = ExampleInventoryLinkingControlResponse.Correct.Rejected.asXml
 
         val parserContext = parserFactory.buildResponseParserContext(responseXml)
 

@@ -33,11 +33,11 @@ import uk.gov.hmrc.exports.movements.services.SubmissionService
 import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
 import uk.gov.hmrc.http.HeaderCarrier
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder.{buildSubmissionRepositoryMock, dummyWriteResultSuccess}
-import utils.CommonTestData.validEori
 import utils.CustomsMovementsAPIConfig
 import utils.ExternalServicesConfig.{Host, Port}
-import utils.MovementsTestData.validInventoryLinkingExportRequest
 import utils.stubs.CustomsMovementsAPIService
+import utils.testdata.CommonTestData.validEori
+import utils.testdata.MovementsTestData.validInventoryLinkingExportRequest
 
 import scala.concurrent.Future
 import scala.xml.XML

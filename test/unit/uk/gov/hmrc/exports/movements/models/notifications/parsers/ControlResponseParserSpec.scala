@@ -19,15 +19,9 @@ package unit.uk.gov.hmrc.exports.movements.models.notifications.parsers
 import org.scalatest.{MustMatchers, WordSpec}
 import uk.gov.hmrc.exports.movements.models.notifications.NotificationData
 import uk.gov.hmrc.exports.movements.models.notifications.parsers.ControlResponseParser
-import utils.CommonTestData.MessageCodes
-import utils.NotificationTestData.{
-  exampleRejectInventoryLinkingControlResponseMultipleErrorsNotification,
-  exampleRejectInventoryLinkingControlResponseMultipleErrorsXML,
-  exampleRejectInventoryLinkingControlResponseNotification,
-  exampleRejectInventoryLinkingControlResponseXML
-}
-
-import scala.xml.{Utility, XML}
+import utils.testdata.CommonTestData.MessageCodes
+import utils.testdata.notifications.ExampleInventoryLinkingControlResponse
+import utils.testdata.notifications.NotificationTestData._
 
 class ControlResponseParserSpec extends WordSpec with MustMatchers {
 
@@ -39,14 +33,9 @@ class ControlResponseParserSpec extends WordSpec with MustMatchers {
 
     "provided with correct inventoryLinkingControlResponse" should {
       "return NotificationData" in new Test {
-        val xml = exampleRejectInventoryLinkingControlResponseXML
+        val xml = ExampleInventoryLinkingControlResponse.Correct.Rejected.asXml
         val expectedNotificationData =
-          exampleRejectInventoryLinkingControlResponseNotification
-            .copy(
-              payload =
-                Utility.trim(XML.loadString(exampleRejectInventoryLinkingControlResponseNotification.payload)).toString
-            )
-            .data
+          ExampleInventoryLinkingControlResponse.Correct.Rejected.asNotificationData
 
         val resultNotificationData = parser.parse(xml)
 
@@ -56,14 +45,9 @@ class ControlResponseParserSpec extends WordSpec with MustMatchers {
 
     "provided with multiple errorCodes" should {
       "return NotificationData" in new Test {
-        val xml = exampleRejectInventoryLinkingControlResponseMultipleErrorsXML
-        val expectedNotificationData = exampleRejectInventoryLinkingControlResponseMultipleErrorsNotification
-          .copy(
-            payload = Utility
-              .trim(XML.loadString(exampleRejectInventoryLinkingControlResponseMultipleErrorsNotification.payload))
-              .toString
-          )
-          .data
+        val xml = ExampleInventoryLinkingControlResponse.Correct.RejectedMultipleErrors.asXml
+        val expectedNotificationData =
+          ExampleInventoryLinkingControlResponse.Correct.RejectedMultipleErrors.asNotificationData
 
         val resultNotificationData = parser.parse(xml)
 
@@ -76,10 +60,12 @@ class ControlResponseParserSpec extends WordSpec with MustMatchers {
         val xml =
           <inventoryLinkingControlResponse>
             <messageCode>{MessageCodes.ERS}</messageCode>
-            <actionCode>1</actionCode>
+            <actionCode>{actionCode_acknowledgedAndProcessed}</actionCode>
           </inventoryLinkingControlResponse>
+
         val expectedNotificationData =
-          NotificationData.empty.copy(messageCode = Some(MessageCodes.ERS), actionCode = Some("1"))
+          NotificationData.empty
+            .copy(messageCode = Some(MessageCodes.ERS), actionCode = Some(actionCode_acknowledgedAndProcessed))
 
         val resultNotificationData = parser.parse(xml)
 

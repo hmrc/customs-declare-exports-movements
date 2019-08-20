@@ -19,10 +19,9 @@ package unit.uk.gov.hmrc.exports.movements.models.notifications.parsers
 import org.scalatest.{MustMatchers, WordSpec}
 import uk.gov.hmrc.exports.movements.models.notifications.NotificationData
 import uk.gov.hmrc.exports.movements.models.notifications.parsers.MovementTotalsResponseParser
-import utils.CommonTestData.MessageCodes
-import utils.NotificationTestData.{exampleInventoryLinkingMovementTotalsResponseNotification, exampleInventoryLinkingMovementTotalsResponseXML, goodsLocation}
-
-import scala.xml.{Utility, XML}
+import utils.testdata.CommonTestData.MessageCodes
+import utils.testdata.notifications.ExampleInventoryLinkingMovementTotalsResponse
+import utils.testdata.notifications.NotificationTestData.goodsLocation
 
 class MovementTotalsResponseParserSpec extends WordSpec with MustMatchers {
 
@@ -34,14 +33,9 @@ class MovementTotalsResponseParserSpec extends WordSpec with MustMatchers {
 
     "provided with correct inventoryLinkingMovementTotalsResponse" should {
       "return NotificationData" in new Test {
-        val xml = exampleInventoryLinkingMovementTotalsResponseXML
+        val xml = ExampleInventoryLinkingMovementTotalsResponse.Correct.AllElements.asXml
         val expectedNotificationData =
-          exampleInventoryLinkingMovementTotalsResponseNotification
-            .copy(
-              payload =
-                Utility.trim(XML.loadString(exampleInventoryLinkingMovementTotalsResponseNotification.payload)).toString
-            )
-            .data
+          ExampleInventoryLinkingMovementTotalsResponse.Correct.AllElements.asNotificationData
 
         val resultNotificationData = parser.parse(xml)
 
