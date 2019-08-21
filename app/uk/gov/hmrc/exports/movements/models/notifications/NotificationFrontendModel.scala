@@ -20,7 +20,7 @@ import java.time.Instant
 
 import play.api.libs.json.Json
 
-final case class NotificationContract(
+final case class NotificationFrontendModel(
   timestampReceived: Instant = Instant.now(),
   conversationId: String,
   ucrBlocks: Seq[UcrBlock],
@@ -28,10 +28,10 @@ final case class NotificationContract(
   soe: Option[String]
 )
 
-object NotificationContract {
-  implicit val format = Json.format[NotificationContract]
+object NotificationFrontendModel {
+  implicit val format = Json.format[NotificationFrontendModel]
 
-  def apply(notification: Notification): NotificationContract = NotificationContract(
+  def apply(notification: Notification): NotificationFrontendModel = NotificationFrontendModel(
     timestampReceived = notification.timestampReceived,
     conversationId = notification.conversationId,
     ucrBlocks = notification.data.entries.flatMap(_.ucrBlock),
