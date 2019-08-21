@@ -38,7 +38,7 @@ import uk.gov.hmrc.exports.movements.services.SubmissionService
 import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
 import unit.uk.gov.hmrc.exports.movements.base.AuthTestSupport
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder.buildSubmissionServiceMock
-import utils.testdata.CommonTestData.ValidHeaders
+import utils.testdata.CommonTestData.{ValidHeaders, conversationId, conversationId_2, conversationId_3}
 import utils.testdata.MovementsTestData._
 
 import scala.concurrent.Future
@@ -55,10 +55,11 @@ class SubmissionControllerSpec
   private val arrivalUri = "/movements/arrival"
   private val departureUri = "/movements/departure"
   private val getAllSubmissionsUri = "/movements"
+  private def getSubmissionUri(conversationId: String) = s"/movements/$conversationId"
 
   private val submissionServiceMock = buildSubmissionServiceMock
-  private val metrics: MovementsMetrics = app.injector.instanceOf[MovementsMetrics]
-  private val headerValidator: HeaderValidator = app.injector.instanceOf[HeaderValidator]
+  implicit private val metrics: MovementsMetrics = app.injector.instanceOf[MovementsMetrics]
+  implicit private val headerValidator: HeaderValidator = app.injector.instanceOf[HeaderValidator]
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -239,8 +240,7 @@ class SubmissionControllerSpec
 
     "return Ok status" in {
       withAuthorizedUser()
-      when(submissionServiceMock.getSubmissionsByEori(any[String]))
-        .thenReturn(Future.successful(Seq(exampleSubmission())))
+      when(submissionServiceMock.getSubmissionsByEori(any[String])).thenReturn(Future.successful(Seq.empty))
 
       val result = routeGet(uri = getAllSubmissionsUri)
 
@@ -249,7 +249,11 @@ class SubmissionControllerSpec
 
     "return what SubmissionService returns in the body" in {
       withAuthorizedUser()
-      val serviceResponseContent = Seq(exampleSubmission(), exampleSubmission(), exampleSubmission())
+      val serviceResponseContent = Seq(
+        exampleSubmission(),
+        exampleSubmission(conversationId = conversationId_2),
+        exampleSubmission(conversationId = conversationId_3)
+      )
       when(submissionServiceMock.getSubmissionsByEori(any[String]))
         .thenReturn(Future.successful(serviceResponseContent))
 
@@ -260,4 +264,27 @@ class SubmissionControllerSpec
     }
   }
 
+  "SubmissionController on getSubmission" should {
+
+    "return Ok status" in {
+      withAuthorizedUser()
+      when(submissionServiceMock.getSubmissionByConversationId(any[String])).thenReturn(Future.successful(None))
+
+      val result = routeGet(uri = getSubmissionUri(conversationId))
+
+      status(result) must be(OK)
+    }
+
+    "return what SubmissionService returns in the body" in {
+      withAuthorizedUser()
+      val serviceResponseContent = Some(exampleSubmission())
+      when(submissionServiceMock.getSubmissionByConversationId(any[String]))
+        .thenReturn(Future.successful(serviceResponseContent))
+
+      val result = routeGet(uri = getSubmissionUri(conversationId))
+
+      status(result) must be(OK)
+      contentAsJson(result) must equal(Json.toJson(serviceResponseContent))
+    }
+  }
 }
