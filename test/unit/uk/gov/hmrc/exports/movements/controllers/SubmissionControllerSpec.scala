@@ -58,8 +58,8 @@ class SubmissionControllerSpec
   private def getSubmissionUri(conversationId: String) = s"/movements/$conversationId"
 
   private val submissionServiceMock = buildSubmissionServiceMock
-  implicit private val metrics: MovementsMetrics = app.injector.instanceOf[MovementsMetrics]
-  implicit private val headerValidator: HeaderValidator = app.injector.instanceOf[HeaderValidator]
+  private val metrics: MovementsMetrics = app.injector.instanceOf[MovementsMetrics]
+  private val headerValidator: HeaderValidator = app.injector.instanceOf[HeaderValidator]
 
   override def beforeEach(): Unit = {
     super.beforeEach()

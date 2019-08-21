@@ -89,14 +89,15 @@ class SubmissionController @Inject()(
       }
 
   def getAllSubmissions: Action[AnyContent] = authorisedAction(parse.default) { implicit authorizedRequest =>
-    submissionService.getSubmissionsByEori(authorizedRequest.eori.value)
-      .map(movements =>
-        Ok(Json.toJson(movements)))
+    submissionService
+      .getSubmissionsByEori(authorizedRequest.eori.value)
+      .map(movements => Ok(Json.toJson(movements)))
   }
 
   def getSubmission(conversationId: String): Action[AnyContent] = authorisedAction(parse.default) {
     implicit authorizedRequest =>
-      submissionService.getSubmissionByConversationId(conversationId)
+      submissionService
+        .getSubmissionByConversationId(conversationId)
         .map(submission => Ok(Json.toJson(submission)))
   }
 }
