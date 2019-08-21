@@ -31,8 +31,6 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames.XEoriIdentifierHeaderName
-import uk.gov.hmrc.exports.movements.controllers.util.HeaderValidator
-import uk.gov.hmrc.exports.movements.metrics.MovementsMetrics
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType
 import uk.gov.hmrc.exports.movements.services.SubmissionService
 import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
@@ -58,8 +56,6 @@ class SubmissionControllerSpec
   private def getSubmissionUri(conversationId: String) = s"/movements/$conversationId"
 
   private val submissionServiceMock = buildSubmissionServiceMock
-  implicit private val metrics: MovementsMetrics = app.injector.instanceOf[MovementsMetrics]
-  implicit private val headerValidator: HeaderValidator = app.injector.instanceOf[HeaderValidator]
 
   override def beforeEach(): Unit = {
     super.beforeEach()
