@@ -22,7 +22,7 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{MustMatchers, WordSpec}
 import reactivemongo.api.commands.WriteResult
-import uk.gov.hmrc.exports.movements.models.notifications.NotificationPresentation
+import uk.gov.hmrc.exports.movements.models.notifications.NotificationContract
 import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, SubmissionRepository}
 import uk.gov.hmrc.exports.movements.services.NotificationService
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
@@ -95,8 +95,8 @@ class NotificationServiceSpec extends WordSpec with MockitoSugar with ScalaFutur
 
         val returnedNotifications = notificationService.getAllNotifications("convId").futureValue
 
-        val expectedFirstNotificationPresentationData = NotificationPresentation(firstNotification)
-        val expectedSecondNotificationPresentationData = NotificationPresentation(secondNotification)
+        val expectedFirstNotificationPresentationData = NotificationContract(firstNotification)
+        val expectedSecondNotificationPresentationData = NotificationContract(secondNotification)
         returnedNotifications.length must equal(2)
         returnedNotifications must contain(expectedFirstNotificationPresentationData)
         returnedNotifications must contain(expectedSecondNotificationPresentationData)
