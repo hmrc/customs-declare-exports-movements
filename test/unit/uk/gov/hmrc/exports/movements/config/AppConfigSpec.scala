@@ -30,7 +30,8 @@ class AppConfigSpec extends UnitSpec with MockitoSugar {
   private val appNameConfiguration = PrivateMethod[Configuration]('appNameConfiguration)
 
   private val validAppConfig: Config =
-    ConfigFactory.parseString("""
+    ConfigFactory.parseString(
+      """
         |urls.login="http://localhost:9949/auth-login-stub/gg-sign-in"
         |microservice.services.auth.host=localhost.auth
         |microservice.services.auth.port=8500
@@ -39,7 +40,8 @@ class AppConfigSpec extends UnitSpec with MockitoSugar {
         |microservice.services.customs-inventory-linking-exports.sendArrival=/
         |microservice.services.customs-inventory-linking-exports.client-id=5c68d3b5-d8a7-4212-8688-6b67f18bbce7
         |microservice.services.customs-inventory-linking-exports.schema-file-path=conf/schemas/exports/inventoryLinkingResponseExternal.xsd
-      """.stripMargin)
+      """.stripMargin
+    )
   private val emptyAppConfig: Config = ConfigFactory.parseString("")
   private val validServicesConfiguration = Configuration(validAppConfig)
   private val emptyServicesConfiguration = Configuration(emptyAppConfig)

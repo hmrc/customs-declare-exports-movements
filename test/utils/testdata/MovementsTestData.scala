@@ -46,6 +46,7 @@ object MovementsTestData {
     Submission(uuid = "", eori = "", conversationId = "", ucrBlocks = Seq.empty, actionType = ActionType.Arrival)
 
   val now: DateTime = DateTime.now.withZone(DateTimeZone.UTC)
+
   def validInventoryLinkingExportRequest = InventoryLinkingMovementRequest(
     messageCode = "11",
     agentDetails = Some(AgentDetails(eori = Some(validEori), agentLocation = Some("location"))),

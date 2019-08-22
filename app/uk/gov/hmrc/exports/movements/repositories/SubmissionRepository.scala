@@ -41,4 +41,7 @@ class SubmissionRepository @Inject()(implicit mc: ReactiveMongoComponent, ec: Ex
 
   def findByEori(eori: String): Future[Seq[Submission]] = find("eori" -> JsString(eori))
 
+  def findByConversationId(conversationId: String): Future[Option[Submission]] =
+    find("conversationId" -> JsString(conversationId)).map(_.headOption)
+
 }

@@ -149,4 +149,25 @@ class SubmissionRepositorySpec
     }
   }
 
+  "SubmissionRepository on findByConversationId" when {
+
+    "there is no Submission with given conversationId" should {
+      "return empty Option" in {
+        repo.findByConversationId(conversationId).futureValue must equal(None)
+      }
+    }
+
+    "there is single Submission with given conversationId" should {
+      "return this Submission" in {
+        val submission = exampleSubmission(conversationId = conversationId)
+        repo.insert(submission).futureValue.ok must be(true)
+
+        val foundSubmissions = repo.findByConversationId(conversationId).futureValue
+
+        foundSubmissions must be(defined)
+        foundSubmissions.get must equal(submission)
+      }
+    }
+  }
+
 }

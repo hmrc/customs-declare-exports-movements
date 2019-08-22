@@ -88,8 +88,16 @@ class SubmissionController @Inject()(
         case Left(errorMsg) => ErrorResponse.errorInternalServerError(errorMsg).XmlResult
       }
 
-  def getAllSubmissions: Action[AnyContent] =
-    authorisedAction(parse.default) { implicit authorizedRequest =>
-      submissionService.getSubmissionsByEori(authorizedRequest.eori.value).map(movements => Ok(Json.toJson(movements)))
-    }
+  def getAllSubmissions: Action[AnyContent] = authorisedAction(parse.default) { implicit authorizedRequest =>
+    submissionService
+      .getSubmissionsByEori(authorizedRequest.eori.value)
+      .map(movements => Ok(Json.toJson(movements)))
+  }
+
+  def getSubmission(conversationId: String): Action[AnyContent] = authorisedAction(parse.default) {
+    implicit authorizedRequest =>
+      submissionService
+        .getSubmissionByConversationId(conversationId)
+        .map(submission => Ok(Json.toJson(submission)))
+  }
 }

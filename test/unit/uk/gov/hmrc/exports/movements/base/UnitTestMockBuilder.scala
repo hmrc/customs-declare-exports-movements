@@ -57,6 +57,7 @@ object UnitTestMockBuilder extends MockitoSugar {
     val submissionRepositoryMock = mock[SubmissionRepository]
 
     when(submissionRepositoryMock.findByEori(any())).thenReturn(Future.successful(Seq.empty))
+    when(submissionRepositoryMock.findByConversationId(any())).thenReturn(Future.successful(None))
     when(submissionRepositoryMock.insert(any())(any()))
       .thenReturn(Future.failed(GenericDatabaseException("ERROR", None)))
 
@@ -75,8 +76,9 @@ object UnitTestMockBuilder extends MockitoSugar {
   def buildSubmissionServiceMock: SubmissionService = {
     val submissionServiceMock = mock[SubmissionService]
 
-    when(submissionServiceMock.submitRequest(any())(any()))
-      .thenReturn(Future.successful(Left("")))
+    when(submissionServiceMock.submitRequest(any())(any())).thenReturn(Future.successful(Left("")))
+    when(submissionServiceMock.getSubmissionsByEori(any())).thenReturn(Future.successful(Seq.empty))
+    when(submissionServiceMock.getSubmissionByConversationId(any())).thenReturn(Future.successful(None))
 
     submissionServiceMock
   }
