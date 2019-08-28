@@ -23,19 +23,26 @@ import play.api.libs.json.Json
 final case class NotificationFrontendModel(
   timestampReceived: Instant = Instant.now(),
   conversationId: String,
+  responseType: String,
   ucrBlocks: Seq[UcrBlock],
-  roe: Option[String],
-  soe: Option[String]
+  masterRoe: Option[String],
+  masterSoe: Option[String],
+  crcCode: Option[String],
+  actionCode: Option[String]
 )
 
 object NotificationFrontendModel {
   implicit val format = Json.format[NotificationFrontendModel]
 
-  def apply(notification: Notification): NotificationFrontendModel = NotificationFrontendModel(
-    timestampReceived = notification.timestampReceived,
-    conversationId = notification.conversationId,
-    ucrBlocks = notification.data.entries.flatMap(_.ucrBlock),
-    roe = notification.data.masterRoe,
-    soe = notification.data.masterSoe
-  )
+  def apply(notification: Notification): NotificationFrontendModel =
+    NotificationFrontendModel(
+      timestampReceived = notification.timestampReceived,
+      conversationId = notification.conversationId,
+      responseType = notification.responseType,
+      ucrBlocks = notification.data.entries.flatMap(_.ucrBlock),
+      masterRoe = notification.data.masterRoe,
+      masterSoe = notification.data.masterSoe,
+      crcCode = notification.data.crcCode,
+      actionCode = notification.data.actionCode
+    )
 }
