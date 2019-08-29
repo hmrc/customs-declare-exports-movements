@@ -20,7 +20,4 @@ import uk.gov.hmrc.exports.movements.models.notifications.NotificationData
 
 import scala.xml.Elem
 
-case class ExampleResponse(
-  asXml: Elem = <empty/>,
-  asNotificationData: NotificationData = NotificationData.empty
-)
+case class ExampleResponse(asXml: Elem = <empty/>, asNotificationData: NotificationData = NotificationData.empty)

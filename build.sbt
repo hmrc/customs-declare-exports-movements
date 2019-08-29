@@ -36,8 +36,7 @@ lazy val microservice = Project(appName, file("."))
     dependencyOverrides ++= AppDependencies.jettyOverrides,
     evictionWarningOptions in update := EvictionWarningOptions.default.withWarnScalaVersionEviction(false),
     majorVersion := 0,
-    scalaVersion := "2.12.8",
-    scalafmtFailTest in ThisBuild := false
+    scalaVersion := "2.12.8"
   )
   .settings(publishingSettings: _*)
   .configs(testConfig: _*)

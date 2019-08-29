@@ -98,7 +98,8 @@ class NotificationFactorySpec extends WordSpec with MustMatchers with MockitoSug
 
       "return Notification containing correct payload" in new Test {
         val responseXml = ExampleInventoryLinkingControlResponse.Correct.Rejected.asXml
-        val expectedPayload = clearNamespaces(Utility.trim(ExampleInventoryLinkingControlResponse.Correct.Rejected.asXml))
+        val expectedPayload =
+          clearNamespaces(Utility.trim(ExampleInventoryLinkingControlResponse.Correct.Rejected.asXml))
 
         val resultNotification = notificationFactory.buildMovementNotification(conversationId, responseXml)
 

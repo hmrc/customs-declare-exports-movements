@@ -216,7 +216,8 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
 
     "return result of calling SubmissionRepository" in new Test {
       val expectedSubmission = exampleSubmission()
-      when(submissionRepositoryMock.findByConversationId(any[String])).thenReturn(Future.successful(Some(expectedSubmission)))
+      when(submissionRepositoryMock.findByConversationId(any[String]))
+        .thenReturn(Future.successful(Some(expectedSubmission)))
 
       val result: Option[Submission] = submissionService.getSubmissionByConversationId(conversationId).futureValue
 
