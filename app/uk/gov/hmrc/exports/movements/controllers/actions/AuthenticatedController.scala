@@ -32,16 +32,18 @@ class AuthenticatedController @Inject()(override val authConnector: AuthConnecto
   implicit ec: ExecutionContext
 ) extends BackendController(cc) with AuthorisedFunctions {
 
+  private val logger = Logger(this.getClass)
+
   def authorisedAction[A](
     bodyParser: BodyParser[A]
   )(body: AuthorizedSubmissionRequest[A] => Future[Result]): Action[A] =
     Action.async(bodyParser) { implicit request =>
       authorisedWithEori.flatMap {
         case Right(authorisedRequest) =>
-          Logger.info(s"Authorised request for ${authorisedRequest.eori.value}")
+          logger.info(s"Authorised request for ${authorisedRequest.eori.value}")
           body(authorisedRequest)
         case Left(error) =>
-          Logger.error("Problems with Authorisation")
+          logger.error("Problems with Authorisation")
           Future.successful(error.JsonResult)
       }
     }
@@ -58,13 +60,13 @@ class AuthenticatedController @Inject()(override val authConnector: AuthConnecto
       }
     } recover {
       case _: InsufficientEnrolments =>
-        Logger.warn(s"Unauthorised access for ${request.uri}")
+        logger.warn(s"Unauthorised access for ${request.uri}")
         Left(ErrorResponse.errorUnauthorized("Unauthorized for exports"))
       case e: AuthorisationException =>
-        Logger.warn(s"Unauthorised Exception for ${request.uri} ${e.reason}")
+        logger.warn(s"Unauthorised Exception for ${request.uri} ${e.reason}")
         Left(ErrorResponse.errorUnauthorized("Unauthorized for exports"))
       case ex: Throwable =>
-        Logger.error("Internal server error is " + ex.getMessage)
+        logger.error("Internal server error is " + ex.getMessage)
         Left(ErrorResponse.ErrorInternalServerError)
     }
 

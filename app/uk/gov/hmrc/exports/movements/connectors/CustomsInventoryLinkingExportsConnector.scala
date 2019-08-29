@@ -35,11 +35,13 @@ class CustomsInventoryLinkingExportsConnector @Inject()(appConfig: AppConfig, ht
   implicit ec: ExecutionContext
 ) {
 
+  private val logger = Logger(this.getClass)
+
   def sendInventoryLinkingRequest(eori: String, body: NodeSeq)(
     implicit hc: HeaderCarrier
   ): Future[CustomsInventoryLinkingResponse] =
     post(eori, body.toString).map { response =>
-      Logger.debug(s"CUSTOMS_INVENTORY_LINKING_EXPORTS response is --> ${response.toString}")
+      logger.debug(s"CUSTOMS_INVENTORY_LINKING_EXPORTS response is --> ${response.toString}")
       response
     }
 
@@ -53,7 +55,7 @@ class CustomsInventoryLinkingExportsConnector @Inject()(appConfig: AppConfig, ht
   private[connectors] def post(eori: String, body: String)(
     implicit hc: HeaderCarrier
   ): Future[CustomsInventoryLinkingResponse] = {
-    Logger.debug(s"CUSTOMS_INVENTORY_LINKING_EXPORTS request payload is -> $body")
+    logger.debug(s"CUSTOMS_INVENTORY_LINKING_EXPORTS request payload is -> $body")
     httpClient
       .POSTString[CustomsInventoryLinkingResponse](
         s"${appConfig.customsInventoryLinkingExportsRootUrl}${appConfig.sendArrivalUrlSuffix}",
@@ -62,8 +64,8 @@ class CustomsInventoryLinkingExportsConnector @Inject()(appConfig: AppConfig, ht
       )(responseReader, hc, ec)
       .recover {
         case error: Throwable =>
-          Logger.error(s"Error to check development environment ${error.toString}")
-          Logger.error(s"Error to check development environment (GET MESSAGE) ${error.getMessage}")
+          logger.error(s"Error to check development environment ${error.toString}")
+          logger.error(s"Error to check development environment (GET MESSAGE) ${error.getMessage}")
           CustomsInventoryLinkingResponse(Status.INTERNAL_SERVER_ERROR, None)
       }
   }

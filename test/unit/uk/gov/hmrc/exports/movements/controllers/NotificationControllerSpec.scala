@@ -36,7 +36,10 @@ import unit.uk.gov.hmrc.exports.movements.base.AuthTestSupport
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
 import utils.testdata.CommonTestData.conversationId
 import utils.testdata.notifications.NotificationTestData._
-import utils.testdata.notifications.{ExampleInventoryLinkingControlResponse, ExampleInventoryLinkingMovementTotalsResponse}
+import utils.testdata.notifications.{
+  ExampleInventoryLinkingControlResponse,
+  ExampleInventoryLinkingMovementTotalsResponse
+}
 
 import scala.concurrent.Future
 import scala.xml._

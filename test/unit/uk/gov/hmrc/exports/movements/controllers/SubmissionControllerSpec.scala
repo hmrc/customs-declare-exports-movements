@@ -36,7 +36,7 @@ import uk.gov.hmrc.exports.movements.services.SubmissionService
 import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
 import unit.uk.gov.hmrc.exports.movements.base.AuthTestSupport
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder.buildSubmissionServiceMock
-import utils.testdata.CommonTestData.{ValidHeaders, conversationId, conversationId_2, conversationId_3}
+import utils.testdata.CommonTestData.{conversationId, conversationId_2, conversationId_3, ValidHeaders}
 import utils.testdata.MovementsTestData._
 
 import scala.concurrent.Future
