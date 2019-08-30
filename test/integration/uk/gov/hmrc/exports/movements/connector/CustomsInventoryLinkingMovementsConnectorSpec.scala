@@ -20,7 +20,7 @@ import com.github.tomakehurst.wiremock.http.Fault
 import integration.uk.gov.hmrc.exports.movements.base.IntegrationTestSpec
 import integration.uk.gov.hmrc.exports.movements.util.TestModule
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder

@@ -16,7 +16,7 @@
 
 package unit.uk.gov.hmrc.exports.movements.controllers.util
 
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.exports.movements.controllers.util.HeaderValidator
 import unit.uk.gov.hmrc.exports.movements.base.UnitSpec
 import utils.testdata.CommonTestData.{conversationId, ValidHeaders}

@@ -22,7 +22,7 @@ import org.mockito.Mockito.{reset, verify, verifyZeroInteractions, when}
 import org.mockito.stubbing.OngoingStubbing
 import org.scalatest._
 import org.scalatest.concurrent.Eventually
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.bind
