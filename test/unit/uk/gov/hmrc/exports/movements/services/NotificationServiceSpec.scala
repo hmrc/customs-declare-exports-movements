@@ -19,7 +19,7 @@ package unit.uk.gov.hmrc.exports.movements.services
 import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.{MustMatchers, WordSpec}
 import reactivemongo.api.commands.WriteResult
 import uk.gov.hmrc.exports.movements.models.notifications.NotificationFrontendModel

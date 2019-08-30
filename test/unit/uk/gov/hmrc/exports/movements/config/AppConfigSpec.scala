@@ -18,7 +18,7 @@ package unit.uk.gov.hmrc.exports.movements.config
 
 import com.typesafe.config.{Config, ConfigFactory}
 import org.scalatest.PrivateMethodTester.PrivateMethod
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.Configuration
 import play.api.Mode.Test
 import uk.gov.hmrc.exports.movements.config.AppConfig
