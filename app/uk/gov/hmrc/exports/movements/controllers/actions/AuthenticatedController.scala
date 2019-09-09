@@ -66,9 +66,6 @@ class AuthenticatedController @Inject()(override val authConnector: AuthConnecto
       case e: AuthorisationException =>
         logger.warn(s"Unauthorised Exception for ${request.uri} ${e.reason}")
         Left(ErrorResponse.errorUnauthorized("Unauthorized for exports"))
-      case ex: Throwable =>
-        logger.error("Internal server error is " + ex.getMessage)
-        Left(ErrorResponse.ErrorInternalServerError)
     }
 
   private def hasEnrolment(allEnrolments: Enrolments): Option[EnrolmentIdentifier] =
