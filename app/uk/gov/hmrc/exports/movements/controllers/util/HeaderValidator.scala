@@ -31,7 +31,7 @@ class HeaderValidator {
     headers.get(headerName) match {
       case Some(header) if !header.isEmpty => Some(header)
       case _ =>
-        logger.error(s"Error Extracting $headerName")
+        logger.warn(s"Error Extracting $headerName")
         None
     }
 
