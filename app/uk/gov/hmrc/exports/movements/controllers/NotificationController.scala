@@ -70,7 +70,7 @@ class NotificationController @Inject()(
       Some(notificationFactory.buildMovementNotification(conversationId, responseXml))
     } catch {
       case exc: IllegalArgumentException =>
-        logger.error(s"There is a problem during parsing notification with exception: ${exc.getMessage}")
+        logger.warn(s"There is a problem during parsing notification with exception: ${exc.getMessage}")
         None
     }
 
