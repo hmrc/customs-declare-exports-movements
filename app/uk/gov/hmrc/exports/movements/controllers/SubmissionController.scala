@@ -58,7 +58,7 @@ class SubmissionController @Inject()(
         parse.tolerantXml(rq).map {
           case Right(xml) => Right(AnyContentAsXml(xml))
           case _ =>
-            logger.error("Invalid xml payload")
+            logger.warn("Invalid xml payload")
             Left(ErrorResponse.ErrorInvalidPayload.XmlResult)
       }
     )
@@ -72,7 +72,7 @@ class SubmissionController @Inject()(
           SubmissionRequestContext(eori = request.eori.value, actionType = actionType, requestXml = requestXml)
         forwardMovementSubmissionRequest(context)
       case None =>
-        logger.error("Body is not xml")
+        logger.warn("Body is not xml")
         Future.successful(ErrorResponse.ErrorInvalidPayload.XmlResult)
     }
 
