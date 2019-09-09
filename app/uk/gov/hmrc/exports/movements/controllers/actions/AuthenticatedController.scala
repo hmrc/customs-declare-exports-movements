@@ -43,7 +43,6 @@ class AuthenticatedController @Inject()(override val authConnector: AuthConnecto
           logger.info(s"Authorised request for ${authorisedRequest.eori.value}")
           body(authorisedRequest)
         case Left(error) =>
-          logger.error("Problems with Authorisation")
           Future.successful(error.JsonResult)
       }
     }
@@ -56,7 +55,9 @@ class AuthenticatedController @Inject()(override val authConnector: AuthConnecto
       hasEnrolment(enrolments) match {
         case Some(eori) =>
           Future.successful(Right(AuthorizedSubmissionRequest(Eori(eori.value), request)))
-        case _ => Future.successful(Left(ErrorResponse.ErrorUnauthorized))
+        case _ =>
+          logger.warn("User is does not have EORI number in enrollments")
+          Future.successful(Left(ErrorResponse.ErrorUnauthorized))
       }
     } recover {
       case _: InsufficientEnrolments =>
