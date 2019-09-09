@@ -17,6 +17,7 @@
 package uk.gov.hmrc.exports.movements.models.notifications
 
 import javax.inject.{Inject, Singleton}
+import org.slf4j.MDC
 import play.api.Logger
 import uk.gov.hmrc.exports.movements.models.notifications.parsers.ResponseParserFactory
 
@@ -46,10 +47,12 @@ class NotificationFactory @Inject()(
   private def checkResponseCompliance(conversationId: String, xml: NodeSeq): Unit =
     responseValidator.validate(xml).recover {
       case exc: SAXParseException =>
+        MDC.put("conversationId", conversationId)
         logger
-          .error(
+          .warn(
             s"Received Notification for Conversation ID: [$conversationId] does not match the schema: ${exc.getMessage}"
           )
+        MDC.remove("conversationId")
     }
 
 }
