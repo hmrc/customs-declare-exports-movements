@@ -31,23 +31,3 @@ case class SignedInUser(
   affinityGroup: Option[AffinityGroup],
   enrolments: Enrolments
 )
-
-case class NotifyResponse(code: String, message: String) {
-  def toXml: Elem = <errorResponse>
-    <code>
-      {code}
-    </code> <message>
-      {message}
-    </message>
-  </errorResponse>
-}
-
-object NotAcceptableResponse extends NotifyResponse("ACCEPT_HEADER_INVALID", "Missing or invalid Accept header")
-
-object HeaderMissingErrorResponse
-    extends NotifyResponse(
-      "INTERNAL_SERVER_ERROR",
-      "ClientId or ConversationId or EORI is missing in the request headers"
-    )
-
-object NotificationFailedErrorResponse extends NotifyResponse("INTERNAL_SERVER_ERROR", "Failed to save notifications")
