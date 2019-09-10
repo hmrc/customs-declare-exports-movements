@@ -32,7 +32,10 @@ import uk.gov.hmrc.exports.movements.repositories.SubmissionRepository
 import uk.gov.hmrc.exports.movements.services.{CustomsInventoryLinkingUpstreamException, SubmissionService}
 import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
 import uk.gov.hmrc.http.HeaderCarrier
-import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder.{buildSubmissionRepositoryMock, dummyWriteResultSuccess}
+import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder.{
+  buildSubmissionRepositoryMock,
+  dummyWriteResultSuccess
+}
 import utils.CustomsMovementsAPIConfig
 import utils.ExternalServicesConfig.{Host, Port}
 import utils.stubs.CustomsMovementsAPIService
@@ -198,7 +201,7 @@ class SubmissionServiceSpec
           requestXml = XML.loadString(validInventoryLinkingExportRequest.toXml)
         )
         a[CustomsInventoryLinkingUpstreamException] mustBe thrownBy {
-            Await.result(movementsService.submitRequest(context), patienceConfig.timeout)
+          Await.result(movementsService.submitRequest(context), patienceConfig.timeout)
         }
       }
 

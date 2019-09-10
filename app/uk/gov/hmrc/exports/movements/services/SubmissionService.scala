@@ -67,9 +67,8 @@ class SubmissionService @Inject()(
 class CustomsInventoryLinkingUpstreamException(status: Int, coversationId: Option[String], message: String)
     extends Exception(message) {
   override def getMessage: String = {
-    val formattedConversation = coversationId.map(id =>  s"'$id'").getOrElse("Not preset")
+    val formattedConversation = coversationId.map(id => s"'$id'").getOrElse("Not preset")
     s"Status: $status. ConverstationId: $formattedConversation . ${super.getMessage}"
   }
-
 
 }

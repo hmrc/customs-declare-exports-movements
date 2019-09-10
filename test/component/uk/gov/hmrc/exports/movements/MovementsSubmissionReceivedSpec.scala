@@ -25,7 +25,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import reactivemongo.core.actors.Exceptions.PrimaryUnavailableException
 import reactivemongo.core.errors.ConnectionException
-import utils.testdata.CommonTestData.{ValidHeaders, validEori}
+import utils.testdata.CommonTestData.{validEori, ValidHeaders}
 import utils.testdata.MovementsTestData._
 
 import scala.concurrent.{Await, Future}
@@ -120,7 +120,6 @@ class MovementsSubmissionReceivedSpec extends ComponentTestSpec with Integration
       When("a POST request with data is sent to the movements API")
       val result: Future[Result] = route(app = app, request).value
 
-
       Then("a response with a 500 (INTERNAL_SERVER_ERROR) status is received")
       status(result) shouldBe INTERNAL_SERVER_ERROR
 
@@ -159,7 +158,6 @@ class MovementsSubmissionReceivedSpec extends ComponentTestSpec with Integration
           )
         )
       val request: FakeRequest[AnyContentAsXml] = validMovementSubmissionRequest
-
 
       When("a POST request with data is sent to the movements API")
       an[Exception] mustBe thrownBy {
@@ -225,7 +223,7 @@ class MovementsSubmissionReceivedSpec extends ComponentTestSpec with Integration
       And("movements submission should be handled")
       withMovementSubmissionRepository(moveSubRepoMockedResult)
 
-      if(!moveSubRepoMockedResult){
+      if (!moveSubRepoMockedResult) {
         Then(s"a response with a $expectedResponseStatus status is received")
         val exception = the[Exception] thrownBy {
           Await.result(result, patienceConfig.timeout)
