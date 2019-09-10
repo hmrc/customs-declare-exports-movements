@@ -32,17 +32,14 @@ import uk.gov.hmrc.exports.movements.repositories.SubmissionRepository
 import uk.gov.hmrc.exports.movements.services.{CustomsInventoryLinkingUpstreamException, SubmissionService}
 import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
 import uk.gov.hmrc.http.HeaderCarrier
-import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder.{
-  buildSubmissionRepositoryMock,
-  dummyWriteResultSuccess
-}
+import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder.{buildSubmissionRepositoryMock, dummyWriteResultSuccess}
 import utils.CustomsMovementsAPIConfig
 import utils.ExternalServicesConfig.{Host, Port}
 import utils.stubs.CustomsMovementsAPIService
 import utils.testdata.CommonTestData.validEori
 import utils.testdata.MovementsTestData.validInventoryLinkingExportRequest
 
-import scala.concurrent.Future
+import scala.concurrent.{Await, Future}
 import scala.xml.XML
 
 class SubmissionServiceSpec
@@ -83,7 +80,6 @@ class SubmissionServiceSpec
     "save movement submission in DB" when {
 
       "Arrival is persisted" in {
-
         startInventoryLinkingService(ACCEPTED)
         withMovementSubmissionPersisted(true)
 
@@ -123,7 +119,7 @@ class SubmissionServiceSpec
         )
 
         an[Exception] mustBe thrownBy {
-          movementsService.submitRequest(context).futureValue
+          Await.result(movementsService.submitRequest(context), patienceConfig.timeout)
         }
       }
 
@@ -139,7 +135,7 @@ class SubmissionServiceSpec
         )
 
         an[GenericDatabaseException] mustBe thrownBy {
-          movementsService.submitRequest(context).futureValue
+          Await.result(movementsService.submitRequest(context), patienceConfig.timeout)
         }
       }
 
@@ -154,9 +150,9 @@ class SubmissionServiceSpec
           requestXml = XML.loadString(validInventoryLinkingExportRequest.toXml)
         )
 
-        a[CustomsInventoryLinkingUpstreamException] mustBe thrownBy {
-          movementsService.submitRequest(context).futureValue
-        }
+        the[CustomsInventoryLinkingUpstreamException] thrownBy {
+          Await.result(movementsService.submitRequest(context), patienceConfig.timeout)
+        } should have message "Status: 202. ConverstationId: Not preset . Non Accepted status returned by Customs Inventory Linking Exports"
       }
 
       "Departure is not persisted (ACCEPTED but, no conversationID)" in {
@@ -169,9 +165,9 @@ class SubmissionServiceSpec
           actionType = ActionType.Departure,
           requestXml = XML.loadString(validInventoryLinkingExportRequest.toXml)
         )
-        a[CustomsInventoryLinkingUpstreamException] mustBe thrownBy {
-          movementsService.submitRequest(context).futureValue
-        }
+        the[CustomsInventoryLinkingUpstreamException] thrownBy {
+          Await.result(movementsService.submitRequest(context), patienceConfig.timeout)
+        } should have message "Status: 202. ConverstationId: Not preset . Non Accepted status returned by Customs Inventory Linking Exports"
       }
 
       "it is Not Accepted (BAD_REQUEST)" in {
@@ -185,9 +181,10 @@ class SubmissionServiceSpec
           requestXml = XML.loadString(validInventoryLinkingExportRequest.toXml)
         )
 
-        a[CustomsInventoryLinkingUpstreamException] mustBe thrownBy {
-          movementsService.submitRequest(context).futureValue
+        val result = the[CustomsInventoryLinkingUpstreamException] thrownBy {
+          Await.result(movementsService.submitRequest(context), patienceConfig.timeout)
         }
+        result.getMessage should fullyMatch regex "Status: 400. ConverstationId: '.*' . Non Accepted status returned by Customs Inventory Linking Exports"
       }
 
       "it is Not Accepted (NOT_FOUND)" in {
@@ -201,7 +198,7 @@ class SubmissionServiceSpec
           requestXml = XML.loadString(validInventoryLinkingExportRequest.toXml)
         )
         a[CustomsInventoryLinkingUpstreamException] mustBe thrownBy {
-          movementsService.submitRequest(context).futureValue
+            Await.result(movementsService.submitRequest(context), patienceConfig.timeout)
         }
       }
 
@@ -217,7 +214,7 @@ class SubmissionServiceSpec
         )
 
         a[CustomsInventoryLinkingUpstreamException] mustBe thrownBy {
-          movementsService.submitRequest(context).futureValue
+          Await.result(movementsService.submitRequest(context), patienceConfig.timeout)
         }
       }
 
@@ -232,7 +229,7 @@ class SubmissionServiceSpec
           requestXml = XML.loadString(validInventoryLinkingExportRequest.toXml)
         )
         a[CustomsInventoryLinkingUpstreamException] mustBe thrownBy {
-          movementsService.submitRequest(context).futureValue
+          Await.result(movementsService.submitRequest(context), patienceConfig.timeout)
         }
       }
     }

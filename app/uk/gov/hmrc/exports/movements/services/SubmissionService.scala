@@ -47,10 +47,11 @@ class SubmissionService @Inject()(
           .insert(newSubmission)
           .map(_ => (): Unit)
 
-      case CustomsInventoryLinkingResponse(status, _) =>
+      case CustomsInventoryLinkingResponse(status, conversationId) =>
         Future.failed(
           new CustomsInventoryLinkingUpstreamException(
             status,
+            conversationId,
             "Non Accepted status returned by Customs Inventory Linking Exports"
           )
         )
@@ -63,6 +64,12 @@ class SubmissionService @Inject()(
 
 }
 
-class CustomsInventoryLinkingUpstreamException(status: Int, message: String) extends Exception(message) {
-  override def getMessage: String = s"Status: $status. ${super.getMessage}"
+class CustomsInventoryLinkingUpstreamException(status: Int, coversationId: Option[String], message: String)
+    extends Exception(message) {
+  override def getMessage: String = {
+    val formattedConversation = coversationId.map(id =>  s"'$id'").getOrElse("Not preset")
+    s"Status: $status. ConverstationId: $formattedConversation . ${super.getMessage}"
+  }
+
+
 }
