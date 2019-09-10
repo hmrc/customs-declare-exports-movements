@@ -48,7 +48,12 @@ class SubmissionService @Inject()(
           .map(_ => (): Unit)
 
       case CustomsInventoryLinkingResponse(status, _) =>
-        Future.failed(new CustomsInventoryLinkingUpstreamException(status, "Non Accepted status returned by Customs Inventory Linking Exports"))
+        Future.failed(
+          new CustomsInventoryLinkingUpstreamException(
+            status,
+            "Non Accepted status returned by Customs Inventory Linking Exports"
+          )
+        )
     }
 
   def getSubmissionsByEori(eori: String): Future[Seq[Submission]] = submissionRepository.findByEori(eori)

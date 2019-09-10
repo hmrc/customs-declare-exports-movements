@@ -84,8 +84,9 @@ class SubmissionController @Inject()(
         SubmissionRequestContext(eori = context.eori, actionType = context.actionType, requestXml = context.requestXml)
       )
       .map(_ => Accepted("Movement Submission submitted successfully"))
-    .recover {
-        case e: CustomsInventoryLinkingUpstreamException => ErrorResponse.errorInternalServerError(e.getMessage).XmlResult
+      .recover {
+        case e: CustomsInventoryLinkingUpstreamException =>
+          ErrorResponse.errorInternalServerError(e.getMessage).XmlResult
       }
 
   def getAllSubmissions: Action[AnyContent] = authorisedAction(parse.default) { implicit authorizedRequest =>

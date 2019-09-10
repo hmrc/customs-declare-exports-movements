@@ -17,7 +17,7 @@
 package unit.uk.gov.hmrc.exports.movements.base
 
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{when, reset}
+import org.mockito.Mockito.{reset, when}
 import org.mockito.{ArgumentMatcher, ArgumentMatchers}
 import org.scalatest.{BeforeAndAfterEach, Suite}
 import org.scalatestplus.mockito.MockitoSugar
@@ -36,7 +36,6 @@ trait AuthTestSupport extends MockitoSugar with BeforeAndAfterEach { self: Suite
 
   val enrolment: Predicate = Enrolment("HMRC-CUS-ORG")
   val userEori = validEori
-
 
   override protected def afterEach(): Unit = {
     reset(mockAuthConnector)

@@ -20,7 +20,7 @@ import java.util.UUID
 
 import akka.stream.Materializer
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{when, reset}
+import org.mockito.Mockito.{reset, when}
 import org.mockito.stubbing.OngoingStubbing
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.ScalaFutures
@@ -30,7 +30,7 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.i18n.MessagesApi
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.inject.{Injector, bind}
+import play.api.inject.{bind, Injector}
 import play.api.libs.ws.WSClient
 import play.filters.csrf.{CSRFConfig, CSRFConfigProvider, CSRFFilter}
 import uk.gov.hmrc.auth.core._
@@ -46,7 +46,8 @@ import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
 
 trait CustomsExportsBaseSpec
-    extends PlaySpec with GuiceOneAppPerSuite with MockitoSugar with ScalaFutures with AuthTestSupport with BeforeAndAfterEach {
+    extends PlaySpec with GuiceOneAppPerSuite with MockitoSugar with ScalaFutures with AuthTestSupport
+    with BeforeAndAfterEach {
   override lazy val app: Application =
     GuiceApplicationBuilder()
       .overrides(
@@ -64,7 +65,6 @@ trait CustomsExportsBaseSpec
   val mockMetrics: MovementsMetrics = mock[MovementsMetrics]
   val cfg: CSRFConfig = injector.instanceOf[CSRFConfigProvider].get
   val token: String = injector.instanceOf[CSRFFilter].tokenProvider.generateToken
-
 
   override protected def afterEach(): Unit = {
     reset(mockMovementNotificationsRepository, mockCustomsInventoryLinkingConnector, mockMovementsRepository)

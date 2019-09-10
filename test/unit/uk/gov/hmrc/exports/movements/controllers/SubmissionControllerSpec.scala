@@ -195,7 +195,6 @@ class SubmissionControllerSpec
 
         val result = routePost(xmlBody = exampleDepartureRequestXML, uri = departureUri)
 
-
         an[Exception] shouldBe thrownBy {
           await(result)
         }
