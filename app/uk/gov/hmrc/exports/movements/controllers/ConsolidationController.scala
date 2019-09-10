@@ -23,7 +23,7 @@ import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.exports.movements.controllers.actions.AuthenticatedController
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType
 import uk.gov.hmrc.exports.movements.models.{AuthorizedSubmissionRequest, ErrorResponse}
-import uk.gov.hmrc.exports.movements.services.SubmissionService
+import uk.gov.hmrc.exports.movements.services.{CustomsInventoryLinkingUpstreamException, SubmissionService}
 import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -81,9 +81,12 @@ class ConsolidationController @Inject()(
   private def forwardMovementConsolidationRequest(
     context: SubmissionRequestContext
   )(implicit hc: HeaderCarrier): Future[Result] =
-    consolidationService.submitRequest(context).map {
-      case Right(_)       => Accepted("Consolidation request submitted successfully")
-      case Left(errorMsg) => ErrorResponse.errorInternalServerError(errorMsg).XmlResult
-    }
+    consolidationService
+      .submitRequest(context)
+      .map(_ => Accepted("Consolidation request submitted successfully"))
+      .recover {
+        case e: CustomsInventoryLinkingUpstreamException =>
+          ErrorResponse.errorInternalServerError(e.getMessage).XmlResult
+      }
 
 }

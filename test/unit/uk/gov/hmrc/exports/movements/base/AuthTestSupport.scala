@@ -17,8 +17,9 @@
 package unit.uk.gov.hmrc.exports.movements.base
 
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{when, reset}
 import org.mockito.{ArgumentMatcher, ArgumentMatchers}
+import org.scalatest.{BeforeAndAfterEach, Suite}
 import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.authorise.Predicate
@@ -29,12 +30,18 @@ import utils.testdata.CommonTestData.validEori
 
 import scala.concurrent.Future
 
-trait AuthTestSupport extends MockitoSugar {
+trait AuthTestSupport extends MockitoSugar with BeforeAndAfterEach { self: Suite =>
 
   lazy val mockAuthConnector: AuthConnector = mock[AuthConnector]
 
   val enrolment: Predicate = Enrolment("HMRC-CUS-ORG")
   val userEori = validEori
+
+
+  override protected def afterEach(): Unit = {
+    reset(mockAuthConnector)
+    super.afterEach()
+  }
 
   def cdsEnrollmentMatcher(user: SignedInUser): ArgumentMatcher[Predicate] = new ArgumentMatcher[Predicate] {
     override def matches(p: Predicate): Boolean =

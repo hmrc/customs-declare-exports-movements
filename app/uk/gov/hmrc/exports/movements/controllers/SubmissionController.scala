@@ -25,8 +25,8 @@ import uk.gov.hmrc.exports.movements.controllers.actions.AuthenticatedController
 import uk.gov.hmrc.exports.movements.controllers.util.HeaderValidator
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType
 import uk.gov.hmrc.exports.movements.models.{AuthorizedSubmissionRequest, ErrorResponse}
-import uk.gov.hmrc.exports.movements.services.SubmissionService
 import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
+import uk.gov.hmrc.exports.movements.services.{CustomsInventoryLinkingUpstreamException, SubmissionService}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -83,9 +83,9 @@ class SubmissionController @Inject()(
       .submitRequest(
         SubmissionRequestContext(eori = context.eori, actionType = context.actionType, requestXml = context.requestXml)
       )
-      .map {
-        case Right(_)       => Accepted("Movement Submission submitted successfully")
-        case Left(errorMsg) => ErrorResponse.errorInternalServerError(errorMsg).XmlResult
+      .map(_ => Accepted("Movement Submission submitted successfully"))
+    .recover {
+        case e: CustomsInventoryLinkingUpstreamException => ErrorResponse.errorInternalServerError(e.getMessage).XmlResult
       }
 
   def getAllSubmissions: Action[AnyContent] = authorisedAction(parse.default) { implicit authorizedRequest =>

@@ -80,15 +80,16 @@ class AuthenticatedControllerSpec extends CustomsExportsBaseSpec {
       status(result) must be(ACCEPTED)
     }
 
-    "return 500 status when there is a problem with the service" in {
+    "pass error to framework when there is a problem with the service" in {
       withAuthorizedUser()
       withConnectorCall(CustomsInventoryLinkingResponse(ACCEPTED, Some(UUID.randomUUID().toString)))
       when(mockMovementsRepository.insert(any[Submission])(any()))
         .thenReturn(Future.failed(GenericDatabaseException("Problem with DB", None)))
 
-      val result = route(app, fakeXmlRequestWithHeaders).get
+      an[Exception] mustBe thrownBy {
+        await(route(app, fakeXmlRequestWithHeaders).get)
 
-      status(result) must be(INTERNAL_SERVER_ERROR)
+      }
     }
 
     "handle InsufficientEnrolments error" in {
@@ -110,17 +111,9 @@ class AuthenticatedControllerSpec extends CustomsExportsBaseSpec {
     "handle rest of errors as InternalServerError" in {
       unauthorizedUser(new IllegalArgumentException())
 
-      val result = route(app, fakeXmlRequestWithHeaders).get
-
-      status(result) must be(INTERNAL_SERVER_ERROR)
-    }
-
-    "handle request without headers" in {
-      withAuthorizedUser()
-
-      val result = route(app, fakeXmlRequest).get
-
-      status(result) must be(INTERNAL_SERVER_ERROR)
+      an[IllegalArgumentException] mustBe thrownBy {
+        await(route(app, fakeXmlRequestWithHeaders).get)
+      }
     }
   }
 }

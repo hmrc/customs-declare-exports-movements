@@ -76,7 +76,7 @@ object UnitTestMockBuilder extends MockitoSugar {
   def buildNotificationServiceMock: NotificationService = {
     val notificationServiceMock = mock[NotificationService]
 
-    when(notificationServiceMock.save(any[Notification])).thenReturn(Future.successful(Left("")))
+    when(notificationServiceMock.save(any[Notification])).thenReturn(Future.failed(new Exception("")))
     when(notificationServiceMock.getAllNotifications(any())).thenReturn(Future.successful(Seq.empty))
 
     notificationServiceMock
@@ -85,7 +85,7 @@ object UnitTestMockBuilder extends MockitoSugar {
   def buildSubmissionServiceMock: SubmissionService = {
     val submissionServiceMock = mock[SubmissionService]
 
-    when(submissionServiceMock.submitRequest(any())(any())).thenReturn(Future.successful(Left("")))
+    when(submissionServiceMock.submitRequest(any())(any())).thenReturn(Future.failed(new Exception("")))
     when(submissionServiceMock.getSubmissionsByEori(any())).thenReturn(Future.successful(Seq.empty))
     when(submissionServiceMock.getSubmissionByConversationId(any())).thenReturn(Future.successful(None))
 

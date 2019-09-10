@@ -28,7 +28,7 @@ import reactivemongo.api.commands.WriteResult
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
 import uk.gov.hmrc.exports.movements.models.notifications.UcrBlock
 import uk.gov.hmrc.exports.movements.models.submissions.{ActionType, Submission}
-import uk.gov.hmrc.exports.movements.services.SubmissionService
+import uk.gov.hmrc.exports.movements.services.{CustomsInventoryLinkingUpstreamException, SubmissionService}
 import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
 import uk.gov.hmrc.http.HeaderCarrier
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
@@ -36,7 +36,7 @@ import utils.testdata.CommonTestData._
 import utils.testdata.ConsolidationTestData._
 import utils.testdata.MovementsTestData.exampleSubmission
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.util.control.NoStackTrace
 
 class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures with MustMatchers {
@@ -61,11 +61,7 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
     "everything works correctly" should {
 
       "return Either.Right" in new HappyPathSaveTest {
-
-        val submissionResult =
-          submissionService.submitRequest(exampleShutMucrContext).futureValue
-
-        submissionResult must equal(Right((): Unit))
+        submissionService.submitRequest(exampleShutMucrContext).futureValue
       }
 
       "call CustomsInventoryLinkingExportsConnector, SubmissionFactory and SubmissionRepository" in new HappyPathSaveTest {
@@ -117,17 +113,16 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
         when(customsInventoryLinkingExportsConnectorMock.sendInventoryLinkingRequest(any(), any())(any()))
           .thenReturn(Future.successful(CustomsInventoryLinkingResponse(status = BAD_REQUEST, None)))
 
-        val submissionResult =
-          submissionService.submitRequest(exampleShutMucrContext).futureValue
-
-        submissionResult must equal(Left("Non Accepted status returned by Customs Inventory Linking Exports"))
+        an[CustomsInventoryLinkingUpstreamException] mustBe thrownBy {
+          Await.result(submissionService.submitRequest(exampleShutMucrContext), defaultPatience.timeout)
+        }
       }
 
       "not call SubmissionFactory" in new Test {
         when(customsInventoryLinkingExportsConnectorMock.sendInventoryLinkingRequest(any(), any())(any()))
           .thenReturn(Future.successful(CustomsInventoryLinkingResponse(status = BAD_REQUEST, None)))
 
-        submissionService.submitRequest(exampleShutMucrContext).futureValue
+        Await.ready(submissionService.submitRequest(exampleShutMucrContext), defaultPatience.timeout)
 
         verifyZeroInteractions(submissionFactoryMock)
       }
@@ -136,7 +131,7 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
         when(customsInventoryLinkingExportsConnectorMock.sendInventoryLinkingRequest(any(), any())(any()))
           .thenReturn(Future.successful(CustomsInventoryLinkingResponse(status = BAD_REQUEST, None)))
 
-        submissionService.submitRequest(exampleShutMucrContext).futureValue
+        Await.ready(submissionService.submitRequest(exampleShutMucrContext), defaultPatience.timeout)
 
         verifyZeroInteractions(submissionRepositoryMock)
       }
@@ -150,13 +145,12 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
             Future.successful(CustomsInventoryLinkingResponse(status = ACCEPTED, conversationId = Some(conversationId)))
           )
         val exceptionMsg = "Test Exception message"
-        when(submissionRepositoryMock.insert(any())(any()))
-          .thenReturn(Future.failed[WriteResult](new Exception(exceptionMsg) with NoStackTrace))
+        private val exception = new Exception(exceptionMsg) with NoStackTrace
+        when(submissionRepositoryMock.insert(any())(any())).thenReturn(Future.failed[WriteResult](exception))
 
-        val submissionResult =
+        an[Exception] mustBe thrownBy {
           submissionService.submitRequest(exampleShutMucrContext).futureValue
-
-        submissionResult must equal(Left(exceptionMsg))
+        }
       }
     }
 

@@ -29,13 +29,10 @@ import play.api.test.Helpers._
 import reactivemongo.core.errors.GenericDatabaseException
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType
 import uk.gov.hmrc.exports.movements.repositories.SubmissionRepository
-import uk.gov.hmrc.exports.movements.services.SubmissionService
+import uk.gov.hmrc.exports.movements.services.{CustomsInventoryLinkingUpstreamException, SubmissionService}
 import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
 import uk.gov.hmrc.http.HeaderCarrier
-import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder.{
-  buildSubmissionRepositoryMock,
-  dummyWriteResultSuccess
-}
+import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder.{buildSubmissionRepositoryMock, dummyWriteResultSuccess}
 import utils.CustomsMovementsAPIConfig
 import utils.ExternalServicesConfig.{Host, Port}
 import utils.stubs.CustomsMovementsAPIService
@@ -92,9 +89,7 @@ class SubmissionServiceSpec
           actionType = ActionType.Arrival,
           requestXml = XML.loadString(validInventoryLinkingExportRequest.toXml)
         )
-        val result = movementsService.submitRequest(context).futureValue
-
-        result should equal(Right((): Unit))
+        movementsService.submitRequest(context).futureValue should equal((): Unit)
       }
 
       "Departure is persisted" in {
@@ -107,9 +102,7 @@ class SubmissionServiceSpec
           actionType = ActionType.Departure,
           requestXml = XML.loadString(validInventoryLinkingExportRequest.toXml)
         )
-        val result = movementsService.submitRequest(context).futureValue
-
-        result should equal(Right((): Unit))
+        movementsService.submitRequest(context).futureValue should equal((): Unit)
       }
     }
 
@@ -125,9 +118,10 @@ class SubmissionServiceSpec
           actionType = ActionType.Arrival,
           requestXml = XML.loadString(validInventoryLinkingExportRequest.toXml)
         )
-        val result = movementsService.submitRequest(context).futureValue
 
-        result should equal(Left("DatabaseException['There was a problem with Database']"))
+        an[Exception] mustBe thrownBy {
+          movementsService.submitRequest(context).futureValue
+        }
       }
 
       "Departure is not persisted" in {
@@ -140,9 +134,10 @@ class SubmissionServiceSpec
           actionType = ActionType.Departure,
           requestXml = XML.loadString(validInventoryLinkingExportRequest.toXml)
         )
-        val result = movementsService.submitRequest(context).futureValue
 
-        result should equal(Left("DatabaseException['There was a problem with Database']"))
+        an[GenericDatabaseException] mustBe thrownBy {
+          movementsService.submitRequest(context).futureValue
+        }
       }
 
       "Arrival is not persisted (ACCEPTED but, no conversationID)" in {
@@ -155,9 +150,10 @@ class SubmissionServiceSpec
           actionType = ActionType.Arrival,
           requestXml = XML.loadString(validInventoryLinkingExportRequest.toXml)
         )
-        val result = movementsService.submitRequest(context).futureValue
 
-        result should equal(Left("Non Accepted status returned by Customs Inventory Linking Exports"))
+        a[CustomsInventoryLinkingUpstreamException] mustBe thrownBy {
+          movementsService.submitRequest(context).futureValue
+        }
       }
 
       "Departure is not persisted (ACCEPTED but, no conversationID)" in {
@@ -170,9 +166,9 @@ class SubmissionServiceSpec
           actionType = ActionType.Departure,
           requestXml = XML.loadString(validInventoryLinkingExportRequest.toXml)
         )
-        val result = movementsService.submitRequest(context).futureValue
-
-        result should equal(Left("Non Accepted status returned by Customs Inventory Linking Exports"))
+        a[CustomsInventoryLinkingUpstreamException] mustBe thrownBy {
+          movementsService.submitRequest(context).futureValue
+        }
       }
 
       "it is Not Accepted (BAD_REQUEST)" in {
@@ -185,9 +181,10 @@ class SubmissionServiceSpec
           actionType = ActionType.Arrival,
           requestXml = XML.loadString(validInventoryLinkingExportRequest.toXml)
         )
-        val result = movementsService.submitRequest(context).futureValue
 
-        result should equal(Left("Non Accepted status returned by Customs Inventory Linking Exports"))
+        a[CustomsInventoryLinkingUpstreamException] mustBe thrownBy {
+          movementsService.submitRequest(context).futureValue
+        }
       }
 
       "it is Not Accepted (NOT_FOUND)" in {
@@ -200,9 +197,9 @@ class SubmissionServiceSpec
           actionType = ActionType.Arrival,
           requestXml = XML.loadString(validInventoryLinkingExportRequest.toXml)
         )
-        val result = movementsService.submitRequest(context).futureValue
-
-        result should equal(Left("Non Accepted status returned by Customs Inventory Linking Exports"))
+        a[CustomsInventoryLinkingUpstreamException] mustBe thrownBy {
+          movementsService.submitRequest(context).futureValue
+        }
       }
 
       "it is Not Accepted (UNAUTHORIZED)" in {
@@ -215,9 +212,10 @@ class SubmissionServiceSpec
           actionType = ActionType.Arrival,
           requestXml = XML.loadString(validInventoryLinkingExportRequest.toXml)
         )
-        val result = movementsService.submitRequest(context).futureValue
 
-        result should equal(Left("Non Accepted status returned by Customs Inventory Linking Exports"))
+        a[CustomsInventoryLinkingUpstreamException] mustBe thrownBy {
+          movementsService.submitRequest(context).futureValue
+        }
       }
 
       "it is Not Accepted (INTERNAL_SERVER_ERROR)" in {
@@ -230,9 +228,9 @@ class SubmissionServiceSpec
           actionType = ActionType.Arrival,
           requestXml = XML.loadString(validInventoryLinkingExportRequest.toXml)
         )
-        val result = movementsService.submitRequest(context).futureValue
-
-        result should equal(Left("Non Accepted status returned by Customs Inventory Linking Exports"))
+        a[CustomsInventoryLinkingUpstreamException] mustBe thrownBy {
+          movementsService.submitRequest(context).futureValue
+        }
       }
     }
   }

@@ -37,7 +37,7 @@ class SubmissionService @Inject()(
 
   private val logger = Logger(this.getClass)
 
-  def submitRequest(context: SubmissionRequestContext)(implicit hc: HeaderCarrier): Future[Either[String, Unit]] =
+  def submitRequest(context: SubmissionRequestContext)(implicit hc: HeaderCarrier): Future[Unit] =
     customsInventoryLinkingExportsConnector.sendInventoryLinkingRequest(context.eori, context.requestXml).flatMap {
 
       case CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId)) =>
@@ -45,17 +45,10 @@ class SubmissionService @Inject()(
 
         submissionRepository
           .insert(newSubmission)
-          .map(_ => Right((): Unit))
-          .recover {
-            case exc: Throwable =>
-              logger.error(exc.getMessage)
-              Left(exc.getMessage)
-          }
+          .map(_ => (): Unit)
 
       case CustomsInventoryLinkingResponse(status, _) =>
-        logger
-          .error(s"Customs Inventory Linking Exports returned $status for Eori: ${context.eori}")
-        Future.successful(Left("Non Accepted status returned by Customs Inventory Linking Exports"))
+        Future.failed(new CustomsInventoryLinkingUpstreamException(status, "Non Accepted status returned by Customs Inventory Linking Exports"))
     }
 
   def getSubmissionsByEori(eori: String): Future[Seq[Submission]] = submissionRepository.findByEori(eori)
@@ -63,4 +56,8 @@ class SubmissionService @Inject()(
   def getSubmissionByConversationId(conversationId: String): Future[Option[Submission]] =
     submissionRepository.findByConversationId(conversationId)
 
+}
+
+class CustomsInventoryLinkingUpstreamException(status: Int, message: String) extends Exception(message) {
+  override def getMessage: String = s"Status: $status. ${super.getMessage}"
 }

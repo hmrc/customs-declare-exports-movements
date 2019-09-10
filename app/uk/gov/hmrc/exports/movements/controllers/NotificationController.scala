@@ -76,7 +76,7 @@ class NotificationController @Inject()(
     }
 
   private def forwardNotificationToService(notification: Notification): Future[Status] =
-    notificationService.save(notification).map(_ => Accepted()).andThen {
+    notificationService.save(notification).map(_ => Accepted).andThen {
       case Success(_) =>
         metrics.incrementCounter(movementMetric)
     }
