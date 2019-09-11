@@ -16,6 +16,7 @@
 
 package integration.uk.gov.hmrc.exports.movements.services
 
+import com.codahale.metrics.SharedMetricRegistries
 import integration.uk.gov.hmrc.exports.movements.base.IntegrationTestSpec
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -54,7 +55,8 @@ class SubmissionServiceSpec
 
   def overrideModules: Seq[GuiceableModule] = Nil
 
-  override implicit lazy val app: Application =
+  override def fakeApplication: Application = {
+    SharedMetricRegistries.clear()
     GuiceApplicationBuilder()
       .overrides(overrideModules: _*)
       .overrides(bind[SubmissionRepository].to(mockMovementsRepository))
@@ -67,6 +69,7 @@ class SubmissionServiceSpec
         )
       )
       .build()
+  }
 
   private lazy val movementsService = app.injector.instanceOf[SubmissionService]
 

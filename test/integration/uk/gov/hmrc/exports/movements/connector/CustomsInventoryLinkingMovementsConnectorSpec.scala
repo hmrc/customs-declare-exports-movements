@@ -16,6 +16,7 @@
 
 package integration.uk.gov.hmrc.exports.movements.connector
 
+import com.codahale.metrics.SharedMetricRegistries
 import com.github.tomakehurst.wiremock.http.Fault
 import integration.uk.gov.hmrc.exports.movements.base.IntegrationTestSpec
 import integration.uk.gov.hmrc.exports.movements.util.TestModule
@@ -43,7 +44,8 @@ class CustomsInventoryLinkingMovementsConnectorSpec
   private lazy val connector = app.injector.instanceOf[CustomsInventoryLinkingExportsConnector]
   private implicit val hc: HeaderCarrier = HeaderCarrier()
 
-  override implicit lazy val app: Application =
+  override def fakeApplication: Application = {
+    SharedMetricRegistries.clear()
     GuiceApplicationBuilder(overrides = Seq(TestModule.asGuiceableModule))
       .configure(
         Map(
@@ -54,6 +56,7 @@ class CustomsInventoryLinkingMovementsConnectorSpec
         )
       )
       .build()
+  }
 
   "Customs Inventory Linking Movements Connector" should {
 
