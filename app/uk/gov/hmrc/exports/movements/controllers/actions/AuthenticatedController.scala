@@ -40,7 +40,6 @@ class AuthenticatedController @Inject()(override val authConnector: AuthConnecto
     Action.async(bodyParser) { implicit request =>
       authorisedWithEori.flatMap {
         case Right(authorisedRequest) =>
-          logger.info(s"Authorised request for ${authorisedRequest.eori.value}")
           body(authorisedRequest)
         case Left(error) =>
           Future.successful(error.JsonResult)
