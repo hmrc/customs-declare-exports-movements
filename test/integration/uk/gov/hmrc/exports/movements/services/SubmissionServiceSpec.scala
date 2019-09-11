@@ -27,15 +27,13 @@ import play.api.inject.bind
 import play.api.inject.guice.{GuiceApplicationBuilder, GuiceableModule}
 import play.api.test.Helpers._
 import reactivemongo.core.errors.GenericDatabaseException
+import uk.gov.hmrc.exports.movements.exceptions.CustomsInventoryLinkingUpstreamException
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType
 import uk.gov.hmrc.exports.movements.repositories.SubmissionRepository
-import uk.gov.hmrc.exports.movements.services.{CustomsInventoryLinkingUpstreamException, SubmissionService}
+import uk.gov.hmrc.exports.movements.services.SubmissionService
 import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
 import uk.gov.hmrc.http.HeaderCarrier
-import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder.{
-  buildSubmissionRepositoryMock,
-  dummyWriteResultSuccess
-}
+import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder.{buildSubmissionRepositoryMock, dummyWriteResultSuccess}
 import utils.CustomsMovementsAPIConfig
 import utils.ExternalServicesConfig.{Host, Port}
 import utils.stubs.CustomsMovementsAPIService

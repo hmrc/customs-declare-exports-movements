@@ -21,9 +21,10 @@ import play.api.Logger
 import play.api.mvc._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.exports.movements.controllers.actions.AuthenticatedController
+import uk.gov.hmrc.exports.movements.exceptions.CustomsInventoryLinkingUpstreamException
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType
 import uk.gov.hmrc.exports.movements.models.{AuthorizedSubmissionRequest, ErrorResponse}
-import uk.gov.hmrc.exports.movements.services.{CustomsInventoryLinkingUpstreamException, SubmissionService}
+import uk.gov.hmrc.exports.movements.services.SubmissionService
 import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -39,44 +40,35 @@ class ConsolidationController @Inject()(
 
   private val logger = Logger(this.getClass)
 
-  def shutMucr(): Action[AnyContent] =
-    authorisedAction(bodyParser = xmlOrEmptyBody) { implicit request =>
-      submitMovementConsolidation(ActionType.ShutMucr)
+  val shutMucr: Action[AnyContentAsXml] = movementConsolidationAction(ActionType.ShutMucr)
+
+  val associateMucr: Action[AnyContentAsXml] = movementConsolidationAction(ActionType.DucrAssociation)
+
+  val disassociateMucr: Action[AnyContentAsXml] = movementConsolidationAction(ActionType.DucrDisassociation)
+
+  private def movementConsolidationAction(action: ActionType): Action[AnyContentAsXml] =
+    authorisedAction(bodyParser = xmlOrEmptyBody(action)) { implicit request =>
+     submitMovementConsolidation(action)
     }
 
-  def associateMucr(): Action[AnyContent] =
-    authorisedAction(bodyParser = xmlOrEmptyBody) { implicit request =>
-      submitMovementConsolidation(ActionType.DucrAssociation)
-    }
-
-  def disassociateMucr(): Action[AnyContent] =
-    authorisedAction(bodyParser = xmlOrEmptyBody) { implicit request =>
-      submitMovementConsolidation(ActionType.DucrDisassociation)
-    }
-
-  private def xmlOrEmptyBody: BodyParser[AnyContent] =
+  private def xmlOrEmptyBody(action: ActionType): BodyParser[AnyContentAsXml] =
     BodyParser(
       rq =>
         parse.tolerantXml(rq).map {
           case Right(xml) => Right(AnyContentAsXml(xml))
           case _ =>
-            logger.warn("Invalid xml payload")
+            logger.warn(s"Bad Consolidation Request: Invalid XML. Action ${action.value}")
             Left(ErrorResponse.ErrorInvalidPayload.XmlResult)
       }
     )
 
   private def submitMovementConsolidation(
     actionType: ActionType
-  )(implicit hc: HeaderCarrier, request: AuthorizedSubmissionRequest[AnyContent]): Future[Result] =
-    request.body.asXml match {
-      case Some(requestXml) =>
-        val context =
-          SubmissionRequestContext(eori = request.eori.value, actionType = actionType, requestXml = requestXml)
-        forwardMovementConsolidationRequest(context)
-      case None =>
-        logger.warn("Body is not xml")
-        Future.successful(ErrorResponse.ErrorInvalidPayload.XmlResult)
-    }
+  )(implicit hc: HeaderCarrier, request: AuthorizedSubmissionRequest[AnyContentAsXml]): Future[Result] = {
+    val context =
+      SubmissionRequestContext(eori = request.eori.value, actionType = actionType, requestXml = request.body.xml)
+    forwardMovementConsolidationRequest(context)
+  }
 
   private def forwardMovementConsolidationRequest(
     context: SubmissionRequestContext

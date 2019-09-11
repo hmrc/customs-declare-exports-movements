@@ -20,6 +20,7 @@ import javax.inject.{Inject, Singleton}
 import play.api.Logger
 import play.api.http.Status.ACCEPTED
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
+import uk.gov.hmrc.exports.movements.exceptions.CustomsInventoryLinkingUpstreamException
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
 import uk.gov.hmrc.exports.movements.models.submissions.{Submission, SubmissionFactory}
 import uk.gov.hmrc.exports.movements.repositories.SubmissionRepository
@@ -61,14 +62,5 @@ class SubmissionService @Inject()(
 
   def getSubmissionByConversationId(conversationId: String): Future[Option[Submission]] =
     submissionRepository.findByConversationId(conversationId)
-
-}
-
-class CustomsInventoryLinkingUpstreamException(status: Int, coversationId: Option[String], message: String)
-    extends Exception(message) {
-  override def getMessage: String = {
-    val formattedConversation = coversationId.map(id => s"'$id'").getOrElse("Not preset")
-    s"Status: $status. ConverstationId: $formattedConversation . ${super.getMessage}"
-  }
 
 }

@@ -55,7 +55,7 @@ class AuthenticatedController @Inject()(override val authConnector: AuthConnecto
         case Some(eori) =>
           Future.successful(Right(AuthorizedSubmissionRequest(Eori(eori.value), request)))
         case _ =>
-          logger.warn("User is does not have EORI number in enrollments")
+          logger.warn("User attempted to access Service with the expected role but without an EORI")
           Future.successful(Left(ErrorResponse.ErrorUnauthorized))
       }
     } recover {

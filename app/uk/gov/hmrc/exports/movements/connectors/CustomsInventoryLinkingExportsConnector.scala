@@ -64,7 +64,7 @@ class CustomsInventoryLinkingExportsConnector @Inject()(appConfig: AppConfig, ht
       )(responseReader, hc, ec)
       .recover {
         case error: Throwable =>
-          logger.warn(s"Error to check development environment. $error")
+          logger.warn(s"Error from Customs Inventory Linking. $error")
           CustomsInventoryLinkingResponse(Status.INTERNAL_SERVER_ERROR, None)
       }
   }

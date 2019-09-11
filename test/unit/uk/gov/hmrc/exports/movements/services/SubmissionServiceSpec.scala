@@ -20,15 +20,16 @@ import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito.{verify, verifyZeroInteractions, when}
 import org.mockito.{ArgumentCaptor, InOrder, Mockito}
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.time.{Millis, Seconds, Span}
 import org.scalatest.{MustMatchers, WordSpec}
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.Status.{ACCEPTED, BAD_REQUEST}
 import reactivemongo.api.commands.WriteResult
+import uk.gov.hmrc.exports.movements.exceptions.CustomsInventoryLinkingUpstreamException
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
 import uk.gov.hmrc.exports.movements.models.notifications.UcrBlock
 import uk.gov.hmrc.exports.movements.models.submissions.{ActionType, Submission}
-import uk.gov.hmrc.exports.movements.services.{CustomsInventoryLinkingUpstreamException, SubmissionService}
+import uk.gov.hmrc.exports.movements.services.SubmissionService
 import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
 import uk.gov.hmrc.http.HeaderCarrier
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
@@ -113,7 +114,7 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
         when(customsInventoryLinkingExportsConnectorMock.sendInventoryLinkingRequest(any(), any())(any()))
           .thenReturn(Future.successful(CustomsInventoryLinkingResponse(status = BAD_REQUEST, None)))
 
-        an[CustomsInventoryLinkingUpstreamException] mustBe thrownBy {
+        a[CustomsInventoryLinkingUpstreamException] mustBe thrownBy {
           Await.result(submissionService.submitRequest(exampleShutMucrContext), defaultPatience.timeout)
         }
       }
