@@ -8,8 +8,8 @@
             </pattern>
         </encoder>
     </appender>
-    <logger name="WireMock" level="INFO">
+    <logger name="WireMock" level="DEBUG">
         <appender-ref ref="STDOUT"/>
     </logger>
-    <root level="ERROR" />
+    <root level="DEBUG" />
 </configuration>
