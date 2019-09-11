@@ -27,6 +27,7 @@ import play.api.inject.bind
 import play.api.inject.guice.{GuiceApplicationBuilder, GuiceableModule}
 import play.api.test.Helpers._
 import reactivemongo.core.errors.GenericDatabaseException
+import uk.gov.hmrc.exports.movements.exceptions.CustomsInventoryLinkingUpstreamException
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType
 import uk.gov.hmrc.exports.movements.repositories.SubmissionRepository
 import uk.gov.hmrc.exports.movements.services.SubmissionService
@@ -42,7 +43,7 @@ import utils.stubs.CustomsMovementsAPIService
 import utils.testdata.CommonTestData.validEori
 import utils.testdata.MovementsTestData.validInventoryLinkingExportRequest
 
-import scala.concurrent.Future
+import scala.concurrent.{Await, Future}
 import scala.xml.XML
 
 class SubmissionServiceSpec
@@ -83,7 +84,6 @@ class SubmissionServiceSpec
     "save movement submission in DB" when {
 
       "Arrival is persisted" in {
-
         startInventoryLinkingService(ACCEPTED)
         withMovementSubmissionPersisted(true)
 
@@ -92,9 +92,7 @@ class SubmissionServiceSpec
           actionType = ActionType.Arrival,
           requestXml = XML.loadString(validInventoryLinkingExportRequest.toXml)
         )
-        val result = movementsService.submitRequest(context).futureValue
-
-        result should equal(Right((): Unit))
+        movementsService.submitRequest(context).futureValue should equal((): Unit)
       }
 
       "Departure is persisted" in {
@@ -107,9 +105,7 @@ class SubmissionServiceSpec
           actionType = ActionType.Departure,
           requestXml = XML.loadString(validInventoryLinkingExportRequest.toXml)
         )
-        val result = movementsService.submitRequest(context).futureValue
-
-        result should equal(Right((): Unit))
+        movementsService.submitRequest(context).futureValue should equal((): Unit)
       }
     }
 
@@ -125,9 +121,10 @@ class SubmissionServiceSpec
           actionType = ActionType.Arrival,
           requestXml = XML.loadString(validInventoryLinkingExportRequest.toXml)
         )
-        val result = movementsService.submitRequest(context).futureValue
 
-        result should equal(Left("DatabaseException['There was a problem with Database']"))
+        an[Exception] mustBe thrownBy {
+          Await.result(movementsService.submitRequest(context), patienceConfig.timeout)
+        }
       }
 
       "Departure is not persisted" in {
@@ -140,9 +137,10 @@ class SubmissionServiceSpec
           actionType = ActionType.Departure,
           requestXml = XML.loadString(validInventoryLinkingExportRequest.toXml)
         )
-        val result = movementsService.submitRequest(context).futureValue
 
-        result should equal(Left("DatabaseException['There was a problem with Database']"))
+        an[GenericDatabaseException] mustBe thrownBy {
+          Await.result(movementsService.submitRequest(context), patienceConfig.timeout)
+        }
       }
 
       "Arrival is not persisted (ACCEPTED but, no conversationID)" in {
@@ -155,9 +153,10 @@ class SubmissionServiceSpec
           actionType = ActionType.Arrival,
           requestXml = XML.loadString(validInventoryLinkingExportRequest.toXml)
         )
-        val result = movementsService.submitRequest(context).futureValue
 
-        result should equal(Left("Non Accepted status returned by Customs Inventory Linking Exports"))
+        the[CustomsInventoryLinkingUpstreamException] thrownBy {
+          Await.result(movementsService.submitRequest(context), patienceConfig.timeout)
+        } should have message "Status: 202. ConverstationId: Not preset . Non Accepted status returned by Customs Inventory Linking Exports"
       }
 
       "Departure is not persisted (ACCEPTED but, no conversationID)" in {
@@ -170,9 +169,9 @@ class SubmissionServiceSpec
           actionType = ActionType.Departure,
           requestXml = XML.loadString(validInventoryLinkingExportRequest.toXml)
         )
-        val result = movementsService.submitRequest(context).futureValue
-
-        result should equal(Left("Non Accepted status returned by Customs Inventory Linking Exports"))
+        the[CustomsInventoryLinkingUpstreamException] thrownBy {
+          Await.result(movementsService.submitRequest(context), patienceConfig.timeout)
+        } should have message "Status: 202. ConverstationId: Not preset . Non Accepted status returned by Customs Inventory Linking Exports"
       }
 
       "it is Not Accepted (BAD_REQUEST)" in {
@@ -185,9 +184,11 @@ class SubmissionServiceSpec
           actionType = ActionType.Arrival,
           requestXml = XML.loadString(validInventoryLinkingExportRequest.toXml)
         )
-        val result = movementsService.submitRequest(context).futureValue
 
-        result should equal(Left("Non Accepted status returned by Customs Inventory Linking Exports"))
+        val result = the[CustomsInventoryLinkingUpstreamException] thrownBy {
+          Await.result(movementsService.submitRequest(context), patienceConfig.timeout)
+        }
+        result.getMessage should fullyMatch regex "Status: 400. ConverstationId: '.*' . Non Accepted status returned by Customs Inventory Linking Exports"
       }
 
       "it is Not Accepted (NOT_FOUND)" in {
@@ -200,9 +201,9 @@ class SubmissionServiceSpec
           actionType = ActionType.Arrival,
           requestXml = XML.loadString(validInventoryLinkingExportRequest.toXml)
         )
-        val result = movementsService.submitRequest(context).futureValue
-
-        result should equal(Left("Non Accepted status returned by Customs Inventory Linking Exports"))
+        a[CustomsInventoryLinkingUpstreamException] mustBe thrownBy {
+          Await.result(movementsService.submitRequest(context), patienceConfig.timeout)
+        }
       }
 
       "it is Not Accepted (UNAUTHORIZED)" in {
@@ -215,9 +216,10 @@ class SubmissionServiceSpec
           actionType = ActionType.Arrival,
           requestXml = XML.loadString(validInventoryLinkingExportRequest.toXml)
         )
-        val result = movementsService.submitRequest(context).futureValue
 
-        result should equal(Left("Non Accepted status returned by Customs Inventory Linking Exports"))
+        a[CustomsInventoryLinkingUpstreamException] mustBe thrownBy {
+          Await.result(movementsService.submitRequest(context), patienceConfig.timeout)
+        }
       }
 
       "it is Not Accepted (INTERNAL_SERVER_ERROR)" in {
@@ -230,9 +232,9 @@ class SubmissionServiceSpec
           actionType = ActionType.Arrival,
           requestXml = XML.loadString(validInventoryLinkingExportRequest.toXml)
         )
-        val result = movementsService.submitRequest(context).futureValue
-
-        result should equal(Left("Non Accepted status returned by Customs Inventory Linking Exports"))
+        a[CustomsInventoryLinkingUpstreamException] mustBe thrownBy {
+          Await.result(movementsService.submitRequest(context), patienceConfig.timeout)
+        }
       }
     }
   }

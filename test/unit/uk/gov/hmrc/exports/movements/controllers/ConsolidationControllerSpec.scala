@@ -67,7 +67,7 @@ class ConsolidationControllerSpec
         "return Accepted status" in {
           withAuthorizedUser()
           when(submissionServiceMock.submitRequest(any())(any()))
-            .thenReturn(Future.successful(Right((): Unit)))
+            .thenReturn(Future.successful((): Unit))
 
           val result = routePostSubmitMovementConsolidation(uri = shutMucrUri)
 
@@ -77,7 +77,7 @@ class ConsolidationControllerSpec
         "call SubmissionService once, passing EORI and request payload" in {
           withAuthorizedUser()
           when(submissionServiceMock.submitRequest(any())(any()))
-            .thenReturn(Future.successful(Right((): Unit)))
+            .thenReturn(Future.successful((): Unit))
 
           routePostSubmitMovementConsolidation(uri = shutMucrUri).futureValue
 
@@ -93,16 +93,16 @@ class ConsolidationControllerSpec
         }
       }
 
-      "SubmissionService returns Either.Left" should {
+      "SubmissionService returns failed future" should {
 
-        "return InternalServerError" in {
+        "delegate error to framework" in {
           withAuthorizedUser()
           when(submissionServiceMock.submitRequest(any())(any()))
-            .thenReturn(Future.successful(Left("")))
+            .thenReturn(Future.failed(new Exception("")))
 
-          val result = routePostSubmitMovementConsolidation(uri = shutMucrUri)
-
-          status(result) must be(INTERNAL_SERVER_ERROR)
+          an[Exception] mustBe thrownBy {
+            await(routePostSubmitMovementConsolidation(uri = shutMucrUri))
+          }
         }
       }
 
@@ -111,7 +111,7 @@ class ConsolidationControllerSpec
         "return ErrorResponse for invalid payload" in {
           withAuthorizedUser()
           when(submissionServiceMock.submitRequest(any())(any()))
-            .thenReturn(Future.successful(Right((): Unit)))
+            .thenReturn(Future.successful((): Unit))
 
           val result = route(
             app,
@@ -127,7 +127,7 @@ class ConsolidationControllerSpec
         "not call SubmissionService" in {
           withAuthorizedUser()
           when(submissionServiceMock.submitRequest(any())(any()))
-            .thenReturn(Future.successful(Right((): Unit)))
+            .thenReturn(Future.successful((): Unit))
 
           route(
             app,
@@ -148,7 +148,7 @@ class ConsolidationControllerSpec
         "return Accepted status" in {
           withAuthorizedUser()
           when(submissionServiceMock.submitRequest(any())(any()))
-            .thenReturn(Future.successful(Right((): Unit)))
+            .thenReturn(Future.successful((): Unit))
 
           val result = routePostSubmitMovementConsolidation(
             xmlBody = exampleAssociateDucrConsolidationRequestXML,
@@ -161,7 +161,7 @@ class ConsolidationControllerSpec
         "call SubmissionService once, passing EORI and request payload" in {
           withAuthorizedUser()
           when(submissionServiceMock.submitRequest(any())(any()))
-            .thenReturn(Future.successful(Right((): Unit)))
+            .thenReturn(Future.successful((): Unit))
 
           routePostSubmitMovementConsolidation(
             xmlBody = exampleAssociateDucrConsolidationRequestXML,
@@ -180,19 +180,21 @@ class ConsolidationControllerSpec
         }
       }
 
-      "SubmissionService returns Either.Left" should {
+      "SubmissionService returns failed future" should {
 
-        "return InternalServerError" in {
+        "delegate error to framework" in {
           withAuthorizedUser()
           when(submissionServiceMock.submitRequest(any())(any()))
-            .thenReturn(Future.successful(Left("")))
+            .thenReturn(Future.failed(new Exception("")))
 
           val result = routePostSubmitMovementConsolidation(
             xmlBody = exampleAssociateDucrConsolidationRequestXML,
             uri = associateDucrUri
           )
 
-          status(result) must be(INTERNAL_SERVER_ERROR)
+          an[Exception] mustBe thrownBy {
+            await(result)
+          }
         }
       }
 
@@ -201,7 +203,7 @@ class ConsolidationControllerSpec
         "return ErrorResponse for invalid payload" in {
           withAuthorizedUser()
           when(submissionServiceMock.submitRequest(any())(any()))
-            .thenReturn(Future.successful(Right((): Unit)))
+            .thenReturn(Future.successful((): Unit))
 
           val result = route(
             app,
@@ -217,7 +219,7 @@ class ConsolidationControllerSpec
         "not call SubmissionService" in {
           withAuthorizedUser()
           when(submissionServiceMock.submitRequest(any())(any()))
-            .thenReturn(Future.successful(Right((): Unit)))
+            .thenReturn(Future.successful((): Unit))
 
           route(
             app,
@@ -238,7 +240,7 @@ class ConsolidationControllerSpec
         "return Accepted status" in {
           withAuthorizedUser()
           when(submissionServiceMock.submitRequest(any())(any()))
-            .thenReturn(Future.successful(Right((): Unit)))
+            .thenReturn(Future.successful((): Unit))
 
           val result = routePostSubmitMovementConsolidation(
             xmlBody = exampleDisassociateDucrConsolidationRequestXML,
@@ -251,7 +253,7 @@ class ConsolidationControllerSpec
         "call SubmissionService once, passing EORI and request payload" in {
           withAuthorizedUser()
           when(submissionServiceMock.submitRequest(any())(any()))
-            .thenReturn(Future.successful(Right((): Unit)))
+            .thenReturn(Future.successful((): Unit))
 
           routePostSubmitMovementConsolidation(
             xmlBody = exampleDisassociateDucrConsolidationRequestXML,
@@ -270,19 +272,21 @@ class ConsolidationControllerSpec
         }
       }
 
-      "SubmissionService returns Either.Left" should {
+      "SubmissionService returns failed future" should {
 
-        "return InternalServerError" in {
+        "delegate error to framework" in {
           withAuthorizedUser()
           when(submissionServiceMock.submitRequest(any())(any()))
-            .thenReturn(Future.successful(Left("")))
+            .thenReturn(Future.failed(new Exception("")))
 
           val result = routePostSubmitMovementConsolidation(
             xmlBody = exampleDisassociateDucrConsolidationRequestXML,
             uri = disassociateDucrUri
           )
 
-          status(result) must be(INTERNAL_SERVER_ERROR)
+          an[Exception] mustBe thrownBy {
+            await(result)
+          }
         }
       }
 
@@ -291,7 +295,7 @@ class ConsolidationControllerSpec
         "return ErrorResponse for invalid payload" in {
           withAuthorizedUser()
           when(submissionServiceMock.submitRequest(any())(any()))
-            .thenReturn(Future.successful(Right((): Unit)))
+            .thenReturn(Future.successful((): Unit))
 
           val result = route(
             app,
@@ -307,7 +311,7 @@ class ConsolidationControllerSpec
         "not call SubmissionService" in {
           withAuthorizedUser()
           when(submissionServiceMock.submitRequest(any())(any()))
-            .thenReturn(Future.successful(Right((): Unit)))
+            .thenReturn(Future.successful((): Unit))
 
           route(
             app,

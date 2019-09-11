@@ -29,17 +29,10 @@ class NotificationService @Inject()(
   submissionRepository: SubmissionRepository
 )(implicit executionContext: ExecutionContext) {
 
-  private val logger = Logger(this.getClass)
-
-  def save(notification: Notification): Future[Either[String, Unit]] =
+  def save(notification: Notification): Future[Unit] =
     notificationRepository
       .insert(notification)
-      .map(_ => Right((): Unit))
-      .recover {
-        case exc: Throwable =>
-          logger.error(exc.getMessage)
-          Left(exc.getMessage)
-      }
+      .map(_ => (): Unit)
 
   def getAllNotifications(conversationId: String): Future[Seq[NotificationFrontendModel]] =
     for {

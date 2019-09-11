@@ -20,6 +20,7 @@ import javax.inject.{Inject, Singleton}
 import play.api.Logger
 import play.api.http.Status.ACCEPTED
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
+import uk.gov.hmrc.exports.movements.exceptions.CustomsInventoryLinkingUpstreamException
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
 import uk.gov.hmrc.exports.movements.models.submissions.{Submission, SubmissionFactory}
 import uk.gov.hmrc.exports.movements.repositories.SubmissionRepository
@@ -37,7 +38,7 @@ class SubmissionService @Inject()(
 
   private val logger = Logger(this.getClass)
 
-  def submitRequest(context: SubmissionRequestContext)(implicit hc: HeaderCarrier): Future[Either[String, Unit]] =
+  def submitRequest(context: SubmissionRequestContext)(implicit hc: HeaderCarrier): Future[Unit] =
     customsInventoryLinkingExportsConnector.sendInventoryLinkingRequest(context.eori, context.requestXml).flatMap {
 
       case CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId)) =>
@@ -45,17 +46,16 @@ class SubmissionService @Inject()(
 
         submissionRepository
           .insert(newSubmission)
-          .map(_ => Right((): Unit))
-          .recover {
-            case exc: Throwable =>
-              logger.error(exc.getMessage)
-              Left(exc.getMessage)
-          }
+          .map(_ => (): Unit)
 
-      case CustomsInventoryLinkingResponse(status, _) =>
-        logger
-          .error(s"Customs Inventory Linking Exports returned $status for Eori: ${context.eori}")
-        Future.successful(Left("Non Accepted status returned by Customs Inventory Linking Exports"))
+      case CustomsInventoryLinkingResponse(status, conversationId) =>
+        Future.failed(
+          new CustomsInventoryLinkingUpstreamException(
+            status,
+            conversationId,
+            "Non Accepted status returned by Customs Inventory Linking Exports"
+          )
+        )
     }
 
   def getSubmissionsByEori(eori: String): Future[Seq[Submission]] = submissionRepository.findByEori(eori)

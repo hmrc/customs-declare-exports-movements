@@ -29,7 +29,7 @@ import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
 import utils.testdata.CommonTestData.conversationId
 import utils.testdata.notifications.NotificationTestData._
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.util.control.NoStackTrace
 
 class NotificationServiceSpec extends WordSpec with MockitoSugar with ScalaFutures with MustMatchers {
@@ -48,7 +48,7 @@ class NotificationServiceSpec extends WordSpec with MockitoSugar with ScalaFutur
       "return Either.Right" in new Test {
         when(notificationRepositoryMock.insert(any())(any())).thenReturn(Future.successful(dummyWriteResultSuccess))
 
-        notificationService.save(notification_1).futureValue must equal(Right((): Unit))
+        notificationService.save(notification_1).futureValue must equal((): Unit)
       }
 
       "call NotificationRepository, passing Notification provided" in new Test {
@@ -62,14 +62,14 @@ class NotificationServiceSpec extends WordSpec with MockitoSugar with ScalaFutur
 
     "NotificationRepository on insert returns WriteResult with Error" should {
 
-      "return Either.Left with error message" in new Test {
+      "return failed future" in new Test {
         val exceptionMsg = "Test Exception message"
         when(notificationRepositoryMock.insert(any())(any()))
           .thenReturn(Future.failed[WriteResult](new Exception(exceptionMsg) with NoStackTrace))
 
-        val saveResult = notificationService.save(notification_1).futureValue
-
-        saveResult must equal(Left(exceptionMsg))
+        the[Exception] thrownBy {
+          Await.result(notificationService.save(notification_1), patienceConfig.timeout)
+        } must have message exceptionMsg
       }
     }
   }

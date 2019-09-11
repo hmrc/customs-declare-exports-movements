@@ -14,20 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.exports.movements.models
+package uk.gov.hmrc.exports.movements.exceptions
 
-import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
-import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolments}
-
-import scala.xml.Elem
-
-case class SignedInUser(
-  credentials: Credentials,
-  name: Name,
-  email: Option[String],
-  eori: String,
-  externalId: String,
-  internalId: Option[String],
-  affinityGroup: Option[AffinityGroup],
-  enrolments: Enrolments
-)
+class CustomsInventoryLinkingUpstreamException(status: Int, coversationId: Option[String], message: String)
+    extends Exception(message) {
+  override def getMessage: String = {
+    val formattedConversationId = coversationId.map(id => s"'$id'").getOrElse("Not preset")
+    s"Status: $status. ConverstationId: $formattedConversationId . ${super.getMessage}"
+  }
+}

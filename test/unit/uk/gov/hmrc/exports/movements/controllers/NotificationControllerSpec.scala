@@ -111,7 +111,7 @@ class NotificationControllerSpec
 
       trait HappyPathSaveControlResponseTest {
         withAuthorizedUser()
-        when(notificationServiceMock.save(any())).thenReturn(Future.successful(Right((): Unit)))
+        when(notificationServiceMock.save(any())).thenReturn(Future.successful((): Unit))
 
         val defaultNotification = Notification(
           conversationId = conversationId,
@@ -173,7 +173,7 @@ class NotificationControllerSpec
 
       trait HappyPathSaveTotalsResponseTest {
         withAuthorizedUser()
-        when(notificationServiceMock.save(any())).thenReturn(Future.successful(Right((): Unit)))
+        when(notificationServiceMock.save(any())).thenReturn(Future.successful((): Unit))
 
         val defaultNotification = Notification(
           conversationId = conversationId,
@@ -186,15 +186,15 @@ class NotificationControllerSpec
       }
     }
 
-    "NotificationService returns Either.Left" should {
+    "NotificationService returns failure" should {
 
       "return InternalServerError" in {
         withAuthorizedUser()
-        when(notificationServiceMock.save(any())).thenReturn(Future.successful(Left("Error message")))
+        when(notificationServiceMock.save(any())).thenReturn(Future.failed(new Exception("")))
 
-        val result = routePostSaveNotification()
-
-        status(result) must be(INTERNAL_SERVER_ERROR)
+        an[Exception] mustBe thrownBy {
+          await(routePostSaveNotification())
+        }
       }
     }
 

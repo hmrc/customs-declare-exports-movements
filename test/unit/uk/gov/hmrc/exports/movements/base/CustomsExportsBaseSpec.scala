@@ -20,8 +20,9 @@ import java.util.UUID
 
 import akka.stream.Materializer
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{reset, when}
 import org.mockito.stubbing.OngoingStubbing
+import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
@@ -45,7 +46,8 @@ import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
 
 trait CustomsExportsBaseSpec
-    extends PlaySpec with GuiceOneAppPerSuite with MockitoSugar with ScalaFutures with AuthTestSupport {
+    extends PlaySpec with GuiceOneAppPerSuite with MockitoSugar with ScalaFutures with AuthTestSupport
+    with BeforeAndAfterEach {
   override lazy val app: Application =
     GuiceApplicationBuilder()
       .overrides(
@@ -63,6 +65,11 @@ trait CustomsExportsBaseSpec
   val mockMetrics: MovementsMetrics = mock[MovementsMetrics]
   val cfg: CSRFConfig = injector.instanceOf[CSRFConfigProvider].get
   val token: String = injector.instanceOf[CSRFFilter].tokenProvider.generateToken
+
+  override protected def afterEach(): Unit = {
+    reset(mockMovementNotificationsRepository, mockCustomsInventoryLinkingConnector, mockMovementsRepository)
+    super.afterEach()
+  }
 
   def randomConversationId: String = UUID.randomUUID().toString
 

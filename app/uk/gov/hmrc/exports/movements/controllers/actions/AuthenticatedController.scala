@@ -40,10 +40,8 @@ class AuthenticatedController @Inject()(override val authConnector: AuthConnecto
     Action.async(bodyParser) { implicit request =>
       authorisedWithEori.flatMap {
         case Right(authorisedRequest) =>
-          logger.info(s"Authorised request for ${authorisedRequest.eori.value}")
           body(authorisedRequest)
         case Left(error) =>
-          logger.error("Problems with Authorisation")
           Future.successful(error.JsonResult)
       }
     }
@@ -56,7 +54,9 @@ class AuthenticatedController @Inject()(override val authConnector: AuthConnecto
       hasEnrolment(enrolments) match {
         case Some(eori) =>
           Future.successful(Right(AuthorizedSubmissionRequest(Eori(eori.value), request)))
-        case _ => Future.successful(Left(ErrorResponse.ErrorUnauthorized))
+        case _ =>
+          logger.warn("User attempted to access Service with the expected role but without an EORI")
+          Future.successful(Left(ErrorResponse.ErrorUnauthorized))
       }
     } recover {
       case _: InsufficientEnrolments =>
@@ -65,9 +65,6 @@ class AuthenticatedController @Inject()(override val authConnector: AuthConnecto
       case e: AuthorisationException =>
         logger.warn(s"Unauthorised Exception for ${request.uri} ${e.reason}")
         Left(ErrorResponse.errorUnauthorized("Unauthorized for exports"))
-      case ex: Throwable =>
-        logger.error("Internal server error is " + ex.getMessage)
-        Left(ErrorResponse.ErrorInternalServerError)
     }
 
   private def hasEnrolment(allEnrolments: Enrolments): Option[EnrolmentIdentifier] =

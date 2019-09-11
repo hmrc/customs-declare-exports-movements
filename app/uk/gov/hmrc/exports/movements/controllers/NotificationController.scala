@@ -30,6 +30,7 @@ import uk.gov.hmrc.exports.movements.models.notifications.{Notification, Notific
 import uk.gov.hmrc.exports.movements.services.NotificationService
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Success
 import scala.xml.NodeSeq
 
 @Singleton
@@ -70,17 +71,14 @@ class NotificationController @Inject()(
       Some(notificationFactory.buildMovementNotification(conversationId, responseXml))
     } catch {
       case exc: IllegalArgumentException =>
-        logger.error(s"There is a problem during parsing notification with exception: ${exc.getMessage}")
+        logger.warn(s"There is a problem during parsing notification with exception: ${exc.getMessage}")
         None
     }
 
   private def forwardNotificationToService(notification: Notification): Future[Status] =
-    notificationService.save(notification).map {
-      case Right(_) =>
+    notificationService.save(notification).map(_ => Accepted).andThen {
+      case Success(_) =>
         metrics.incrementCounter(movementMetric)
-        Accepted
-      case Left(_) =>
-        InternalServerError
     }
 
   def listOfNotifications(conversationId: String): Action[AnyContent] = authorisedAction(parse.default) {

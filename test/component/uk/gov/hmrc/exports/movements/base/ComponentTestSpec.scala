@@ -46,20 +46,20 @@ trait ComponentTestSpec
   val movementSubmissionsRepositoryMock = mock[SubmissionRepository]
 
   override protected def beforeAll() {
-
+    super.beforeAll()
     startMockServer()
   }
 
-  override protected def beforeEach() {
-
+  override protected def afterEach() {
     reset(movementNotificationsRepositoryMock)
     reset(movementSubmissionsRepositoryMock)
     resetMockServer()
+    super.afterEach()
   }
 
   override protected def afterAll() {
-
     stopMockServer()
+    super.afterAll()
   }
 
   // movements submission

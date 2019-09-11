@@ -75,7 +75,7 @@ class SubmissionControllerSpec
       "return Accepted status" in {
         withAuthorizedUser()
         when(submissionServiceMock.submitRequest(any())(any()))
-          .thenReturn(Future.successful(Right((): Unit)))
+          .thenReturn(Future.successful((): Unit))
 
         val result = routePost(xmlBody = exampleArrivalRequestXML, uri = arrivalUri)
 
@@ -85,7 +85,7 @@ class SubmissionControllerSpec
       "call SubmissionService, passing correctly built RequestContext" in {
         withAuthorizedUser()
         when(submissionServiceMock.submitRequest(any())(any()))
-          .thenReturn(Future.successful(Right((): Unit)))
+          .thenReturn(Future.successful((): Unit))
 
         routePost(xmlBody = exampleArrivalRequestXML, uri = arrivalUri).futureValue
 
@@ -101,17 +101,19 @@ class SubmissionControllerSpec
       }
     }
 
-    "SubmissionService returns Either.Left" should {
+    "SubmissionService returns failure" should {
 
       "return InternalServerError" in {
         withAuthorizedUser()
 
         when(submissionServiceMock.submitRequest(any())(any()))
-          .thenReturn(Future.successful(Left("")))
+          .thenReturn(Future.failed(new Exception("")))
 
-        val result = routePost(xmlBody = exampleArrivalRequestXML, uri = arrivalUri)
+        val response = routePost(xmlBody = exampleArrivalRequestXML, uri = arrivalUri)
 
-        status(result) must be(INTERNAL_SERVER_ERROR)
+        an[Exception] mustBe thrownBy {
+          await(response)
+        }
       }
     }
 
@@ -120,7 +122,7 @@ class SubmissionControllerSpec
       "return ErrorResponse for invalid payload" in {
         withAuthorizedUser()
         when(submissionServiceMock.submitRequest(any())(any()))
-          .thenReturn(Future.successful(Right((): Unit)))
+          .thenReturn(Future.successful((): Unit))
 
         val result = route(
           app,
@@ -136,7 +138,7 @@ class SubmissionControllerSpec
       "not call SubmissionService" in {
         withAuthorizedUser()
         when(submissionServiceMock.submitRequest(any())(any()))
-          .thenReturn(Future.successful(Right((): Unit)))
+          .thenReturn(Future.successful((): Unit))
 
         route(
           app,
@@ -157,7 +159,7 @@ class SubmissionControllerSpec
       "return Accepted status" in {
         withAuthorizedUser()
         when(submissionServiceMock.submitRequest(any())(any()))
-          .thenReturn(Future.successful(Right((): Unit)))
+          .thenReturn(Future.successful((): Unit))
 
         val result = routePost(xmlBody = exampleDepartureRequestXML, uri = departureUri)
 
@@ -167,7 +169,7 @@ class SubmissionControllerSpec
       "call SubmissionService, passing correctly built RequestContext" in {
         withAuthorizedUser()
         when(submissionServiceMock.submitRequest(any())(any()))
-          .thenReturn(Future.successful(Right((): Unit)))
+          .thenReturn(Future.successful((): Unit))
 
         routePost(xmlBody = exampleDepartureRequestXML, uri = departureUri).futureValue
 
@@ -183,17 +185,19 @@ class SubmissionControllerSpec
       }
     }
 
-    "SubmissionService returns Either.Left" should {
+    "SubmissionService returns failure" should {
 
       "return InternalServerError" in {
         withAuthorizedUser()
 
         when(submissionServiceMock.submitRequest(any())(any()))
-          .thenReturn(Future.successful(Left("")))
+          .thenReturn(Future.failed(new Exception("")))
 
         val result = routePost(xmlBody = exampleDepartureRequestXML, uri = departureUri)
 
-        status(result) must be(INTERNAL_SERVER_ERROR)
+        an[Exception] shouldBe thrownBy {
+          await(result)
+        }
       }
     }
 
@@ -202,7 +206,7 @@ class SubmissionControllerSpec
       "return ErrorResponse for invalid payload" in {
         withAuthorizedUser()
         when(submissionServiceMock.submitRequest(any())(any()))
-          .thenReturn(Future.successful(Right((): Unit)))
+          .thenReturn(Future.successful((): Unit))
 
         val result = route(
           app,
@@ -218,7 +222,7 @@ class SubmissionControllerSpec
       "not call SubmissionService" in {
         withAuthorizedUser()
         when(submissionServiceMock.submitRequest(any())(any()))
-          .thenReturn(Future.successful(Right((): Unit)))
+          .thenReturn(Future.successful((): Unit))
 
         route(
           app,
