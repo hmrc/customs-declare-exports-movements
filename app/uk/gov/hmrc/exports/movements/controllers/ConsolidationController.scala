@@ -48,7 +48,7 @@ class ConsolidationController @Inject()(
 
   private def movementConsolidationAction(action: ActionType): Action[AnyContentAsXml] =
     authorisedAction(bodyParser = xmlOrEmptyBody(action)) { implicit request =>
-     submitMovementConsolidation(action)
+      submitMovementConsolidation(action)
     }
 
   private def xmlOrEmptyBody(action: ActionType): BodyParser[AnyContentAsXml] =
