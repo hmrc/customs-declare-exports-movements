@@ -35,7 +35,10 @@ class SubmissionRepositorySpec
     extends WordSpec with GuiceOneAppPerSuite with BeforeAndAfterEach with ScalaFutures with MustMatchers
     with IntegrationPatience {
 
-  override lazy val app: Application = GuiceApplicationBuilder().build()
+  override def fakeApplication: Application = {
+    SharedMetricRegistries.clear()
+    GuiceApplicationBuilder().build()
+  }
   private val repo = app.injector.instanceOf[SubmissionRepository]
 
   override def beforeEach(): Unit = {
@@ -46,7 +49,6 @@ class SubmissionRepositorySpec
   override def afterEach(): Unit = {
     super.beforeEach()
     repo.removeAll().futureValue
-    SharedMetricRegistries.clear()
   }
 
   "SubmissionRepository on insert" when {

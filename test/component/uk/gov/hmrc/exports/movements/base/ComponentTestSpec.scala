@@ -35,6 +35,7 @@ import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder.dummyWriteRes
 import utils.ExternalServicesConfig.{Host, Port}
 import utils.stubs.CustomsMovementsAPIService
 import utils.{AuthService, CustomsMovementsAPIConfig}
+import com.codahale.metrics.SharedMetricRegistries
 
 import scala.concurrent.Future
 
@@ -79,7 +80,8 @@ trait ComponentTestSpec
   def verifyMovementSubmissionRepositoryWasNotCalled(): Unit =
     verifyZeroInteractions(movementSubmissionsRepositoryMock)
 
-  override implicit lazy val app: Application =
+  override def fakeApplication(): Application = {
+    SharedMetricRegistries.clear()
     GuiceApplicationBuilder()
       .overrides(bind[SubmissionRepository].toInstance(movementSubmissionsRepositoryMock))
       .overrides(bind[NotificationRepository].toInstance(movementNotificationsRepositoryMock))
@@ -94,4 +96,5 @@ trait ComponentTestSpec
         )
       )
       .build()
+  }
 }
