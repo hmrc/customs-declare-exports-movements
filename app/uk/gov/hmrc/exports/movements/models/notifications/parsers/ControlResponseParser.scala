@@ -30,7 +30,7 @@ class ControlResponseParser extends ResponseParser {
       Entry(ucrBlock = Some(UcrBlock(ucr = (ucrNode \ XmlTags.ucr).text, ucrType = (ucrNode \ XmlTags.ucrType).text)))
     },
     movementReference = StringOption((responseXml \ XmlTags.movementReference).text),
-    errorCode = (responseXml \ XmlTags.error \ XmlTags.errorCode).map(_.text)
+    errorCodes = (responseXml \ XmlTags.error \ XmlTags.errorCode).map(_.text)
   )
 
 }

@@ -28,7 +28,8 @@ final case class NotificationFrontendModel(
   masterRoe: Option[String],
   masterSoe: Option[String],
   crcCode: Option[String],
-  actionCode: Option[String]
+  actionCode: Option[String],
+  errorCodes: Seq[String]
 )
 
 object NotificationFrontendModel {
@@ -43,6 +44,7 @@ object NotificationFrontendModel {
       masterRoe = notification.data.masterRoe,
       masterSoe = notification.data.masterSoe,
       crcCode = notification.data.crcCode,
-      actionCode = notification.data.actionCode
+      actionCode = notification.data.actionCode,
+      errorCodes = notification.data.errorCodes
     )
 }
