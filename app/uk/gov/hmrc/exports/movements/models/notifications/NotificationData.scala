@@ -30,7 +30,7 @@ final case class NotificationData(
   masterUcr: Option[String] = None,
   movementReference: Option[String] = None,
   actionCode: Option[String] = None,
-  errorCodes: Seq[String] = Seq.empty
+  errorCode: Seq[String] = Seq.empty
 )
 
 object NotificationData {

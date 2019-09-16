@@ -66,7 +66,7 @@ object ExampleInventoryLinkingControlResponse {
         actionCode = Some(actionCode_rejected),
         movementReference = Some(movementReference),
         entries = Seq(Entry(ucrBlock = Some(UcrBlock(ucr = ucr, ucrType = "M")))),
-        errorCodes = Seq(errorCode_1, errorCodeDescriptive)
+        errorCode = Seq(errorCode_1, errorCodeDescriptive)
       )
     )
 
@@ -129,7 +129,7 @@ object ExampleInventoryLinkingControlResponse {
         actionCode = Some(actionCode_rejected),
         movementReference = Some(movementReference),
         entries = Seq(Entry(ucrBlock = Some(UcrBlock(ucr = ucr, ucrType = "M")))),
-        errorCodes = Seq(errorCode_1, errorCode_2, errorCode_3, errorCodeDescriptive)
+        errorCode = Seq(errorCode_1, errorCode_2, errorCode_3, errorCodeDescriptive)
       )
     )
 

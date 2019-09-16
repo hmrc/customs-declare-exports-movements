@@ -45,6 +45,6 @@ object NotificationFrontendModel {
       masterSoe = notification.data.masterSoe,
       crcCode = notification.data.crcCode,
       actionCode = notification.data.actionCode,
-      errorCodes = notification.data.errorCodes
+      errorCodes = notification.data.errorCode
     )
 }
