@@ -48,14 +48,11 @@ object NotificationFrontendModel {
   }
 
   private def buildMucrEntry(notification: Notification): Option[Entry] =
-    for {
-      ucr <- notification.masterUcr
-      roe <- notification.masterRoe
-      soe <- notification.masterSoe
-    } yield
+    notification.masterUcr.map { ucr =>
       Entry(
         ucrBlock = Some(UcrBlock(ucr = ucr, ucrType = "M")),
-        entryStatus = Some(EntryStatus(roe = Some(roe), soe = Some(soe), ics = None)),
+        entryStatus = Some(EntryStatus(roe = notification.masterRoe, soe = notification.masterSoe, ics = None)),
         goodsItem = Seq.empty
       )
+    }
 }
