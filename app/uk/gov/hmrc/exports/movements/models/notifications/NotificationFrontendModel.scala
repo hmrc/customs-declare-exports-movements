@@ -24,9 +24,7 @@ final case class NotificationFrontendModel(
   timestampReceived: Instant = Instant.now(),
   conversationId: String,
   responseType: String,
-  ucrBlocks: Seq[UcrBlock],
-  masterRoe: Option[String],
-  masterSoe: Option[String],
+  entries: Seq[Entry],
   crcCode: Option[String],
   actionCode: Option[String],
   errorCodes: Seq[String]
@@ -35,16 +33,26 @@ final case class NotificationFrontendModel(
 object NotificationFrontendModel {
   implicit val format = Json.format[NotificationFrontendModel]
 
-  def apply(notification: Notification): NotificationFrontendModel =
+  def apply(notification: Notification): NotificationFrontendModel = {
+    val mucrEntry = buildMucrEntry(notification)
+
     NotificationFrontendModel(
       timestampReceived = notification.timestampReceived,
       conversationId = notification.conversationId,
       responseType = notification.responseType,
-      ucrBlocks = notification.data.entries.flatMap(_.ucrBlock),
-      masterRoe = notification.data.masterRoe,
-      masterSoe = notification.data.masterSoe,
-      crcCode = notification.data.crcCode,
-      actionCode = notification.data.actionCode,
-      errorCodes = notification.data.errorCodes
+      entries = mucrEntry.toSeq ++ notification.entries,
+      crcCode = notification.crcCode,
+      actionCode = notification.actionCode,
+      errorCodes = notification.errorCodes
     )
+  }
+
+  private def buildMucrEntry(notification: Notification): Option[Entry] =
+    notification.masterUcr.map { ucr =>
+      Entry(
+        ucrBlock = Some(UcrBlock(ucr = ucr, ucrType = "M")),
+        entryStatus = Some(EntryStatus(roe = notification.masterRoe, soe = notification.masterSoe, ics = None)),
+        goodsItem = Seq.empty
+      )
+    }
 }
