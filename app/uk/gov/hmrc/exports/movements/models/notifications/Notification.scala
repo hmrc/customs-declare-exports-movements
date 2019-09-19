@@ -27,6 +27,7 @@ final case class Notification(
   payload: String,
   data: NotificationData
 ) {
+  def messageCode: Option[String] = data.messageCode
   def crcCode: Option[String] = data.crcCode
   def actionCode: Option[String] = data.actionCode
   def errorCodes: Seq[String] = data.errorCodes
