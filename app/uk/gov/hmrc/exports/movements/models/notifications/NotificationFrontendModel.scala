@@ -34,25 +34,28 @@ object NotificationFrontendModel {
   implicit val format = Json.format[NotificationFrontendModel]
 
   def apply(notification: Notification): NotificationFrontendModel = {
-    val mucrEntry = for {
-      ucr <- notification.data.masterUcr
-      roe <- notification.data.masterRoe
-      soe <- notification.data.masterSoe
+    val mucrEntry = buildMucrEntry(notification)
+
+    NotificationFrontendModel(
+      timestampReceived = notification.timestampReceived,
+      conversationId = notification.conversationId,
+      responseType = notification.responseType,
+      entries = mucrEntry.toSeq ++ notification.entries,
+      crcCode = notification.crcCode,
+      actionCode = notification.actionCode,
+      errorCodes = notification.errorCodes
+    )
+  }
+
+  private def buildMucrEntry(notification: Notification): Option[Entry] =
+    for {
+      ucr <- notification.masterUcr
+      roe <- notification.masterRoe
+      soe <- notification.masterSoe
     } yield
       Entry(
         ucrBlock = Some(UcrBlock(ucr = ucr, ucrType = "M")),
         entryStatus = Some(EntryStatus(roe = Some(roe), soe = Some(soe), ics = None)),
         goodsItem = Seq.empty
       )
-
-    NotificationFrontendModel(
-      timestampReceived = notification.timestampReceived,
-      conversationId = notification.conversationId,
-      responseType = notification.responseType,
-      entries = mucrEntry.toSeq ++ notification.data.entries,
-      crcCode = notification.data.crcCode,
-      actionCode = notification.data.actionCode,
-      errorCodes = notification.data.errorCodes
-    )
-  }
 }
