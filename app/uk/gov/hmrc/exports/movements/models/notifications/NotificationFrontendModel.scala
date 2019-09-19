@@ -27,7 +27,8 @@ final case class NotificationFrontendModel(
   entries: Seq[Entry],
   crcCode: Option[String],
   actionCode: Option[String],
-  errorCodes: Seq[String]
+  errorCodes: Seq[String],
+  messageCode: String
 )
 
 object NotificationFrontendModel {
@@ -43,7 +44,8 @@ object NotificationFrontendModel {
       entries = mucrEntry.toSeq ++ notification.entries,
       crcCode = notification.crcCode,
       actionCode = notification.actionCode,
-      errorCodes = notification.errorCodes
+      errorCodes = notification.errorCodes,
+      messageCode = notification.messageCode.getOrElse("")
     )
   }
 
