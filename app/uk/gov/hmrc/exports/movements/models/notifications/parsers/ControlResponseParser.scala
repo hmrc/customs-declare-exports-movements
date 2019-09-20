@@ -18,6 +18,7 @@ package uk.gov.hmrc.exports.movements.models.notifications.parsers
 
 import uk.gov.hmrc.exports.movements.models.XmlTags
 import uk.gov.hmrc.exports.movements.models.notifications.{Entry, NotificationData, UcrBlock}
+import uk.gov.hmrc.exports.movements.models.notifications.parsers.ErrorParser.validateErrors
 
 import scala.xml.NodeSeq
 
@@ -30,7 +31,6 @@ class ControlResponseParser extends ResponseParser {
       Entry(ucrBlock = Some(UcrBlock(ucr = (ucrNode \ XmlTags.ucr).text, ucrType = (ucrNode \ XmlTags.ucrType).text)))
     },
     movementReference = StringOption((responseXml \ XmlTags.movementReference).text),
-    errorCodes = (responseXml \ XmlTags.error \ XmlTags.errorCode).map(_.text)
+    errorCodes = validateErrors((responseXml \ XmlTags.error \ XmlTags.errorCode).map(_.text))
   )
-
 }

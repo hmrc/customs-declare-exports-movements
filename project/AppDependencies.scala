@@ -13,7 +13,8 @@ object AppDependencies {
     "uk.gov.hmrc" %% "bootstrap-play-26" % "0.45.0",
     "uk.gov.hmrc" %% "wco-dec" % "0.31.0",
     "uk.gov.hmrc" %% "logback-json-logger" % "4.6.0",
-    "com.typesafe.play" %% "play-json-joda" % "2.6.13"
+    "com.typesafe.play" %% "play-json-joda" % "2.6.13",
+    "com.github.tototoshi" %% "scala-csv" % "1.3.6"
   )
 
   def test(scope: String = "test") = Seq(
