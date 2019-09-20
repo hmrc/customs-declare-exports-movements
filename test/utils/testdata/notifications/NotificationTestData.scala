@@ -43,8 +43,9 @@ object NotificationTestData {
 
   val errorCode_1 = "21"
   val errorCode_2 = "13"
-  val errorCode_3 = "47"
-  val errorCodeDescriptive = "error in CDS ILE processing"
+  val errorCode_3 = "30"
+  val errorCodeDescriptive = "6 E408 Unique Consignment reference does not exist"
+  val validatedErrorCodeDescriptive = "E408"
   val goodsLocation = "Location"
   val submitRole = "SubmitRoleBeing35CharactersInLength"
   val declarationCount = 123

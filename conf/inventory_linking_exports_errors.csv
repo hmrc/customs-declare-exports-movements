@@ -1,0 +1,29 @@
+01,"Invalid UCR Format, DUCR or MUCR"
+02,Client ID validation fails
+03,UCR is not at the top of its' consolidation
+04,Cannot consolidate the MUCR as it is not shut
+05,Immediate parent MUCR cannot already be within it's same tree/consolidation
+06,Cannot find the consolidation
+07,Consolidation already shut
+08,UCR Type does not match UCR Format
+10,Declaration does not exist
+11,UCR is already associated to given MUCR
+12,Prior movement for the UCR is not at the same location as given on the EDL
+13,No prior EAL can be found for the UCR at the location given on the EDL
+14,Not all declaration(s) have P2P
+15,Declaration is cancelled/terminated
+16,"Unknown Declaration ID, DUCR or MUCR"
+17,Consolidation has reached maximum number of levels/items within a level
+18,Goods Departure/Arrival Date/Time is invalid
+19,Cannot depart the MUCR from UK as MUCR is not Shut
+20,Message sent with a future date/time (greater than 25hours in the future)
+21,UCR is not for a MUCR
+22,UCR to be disassociated does not exist
+23,UCR to be disassociated is not already associated
+24,Master UCR/UCR field completion does not match the EAC action
+25,MUCR is empty
+26,Exit message failed validation/processing
+27,Location-Based Permission failed
+28,Goods Location is invalid
+29,MUCR has been departed
+30,UCR cannot be associated as it has been rejected upon arrival
