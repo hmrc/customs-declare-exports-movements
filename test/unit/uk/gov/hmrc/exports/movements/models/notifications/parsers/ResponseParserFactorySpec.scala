@@ -24,7 +24,12 @@ import utils.testdata.notifications._
 class ResponseParserFactorySpec extends WordSpec with MustMatchers {
 
   private trait Test {
-    val parserFactory = new ResponseParserFactory
+    val errorValidator = new ErrorValidator
+    val movementResponseParser = new MovementResponseParser
+    val movementTotalsResponseParser = new MovementTotalsResponseParser
+    val controlResponseParser = new ControlResponseParser(errorValidator)
+    val parserFactory =
+      new ResponseParserFactory(movementResponseParser, movementTotalsResponseParser, controlResponseParser)
   }
 
   "ResponseParserFactory on buildResponseParser" when {

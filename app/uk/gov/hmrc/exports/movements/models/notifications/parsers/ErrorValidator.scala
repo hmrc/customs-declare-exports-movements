@@ -17,6 +17,7 @@
 package uk.gov.hmrc.exports.movements.models.notifications.parsers
 
 import java.util.regex.Pattern
+import javax.inject.{Inject, Singleton}
 
 import com.github.tototoshi.csv._
 import play.api.Logger
@@ -37,7 +38,33 @@ object Error {
   }
 }
 
-object ErrorParser {
+@Singleton
+class ErrorValidator @Inject()() {
+
+  private val logger = Logger(this.getClass)
+
+  def hasErrorMessage(error: String): Boolean = {
+
+    val isChiefError =
+      retrieveChiefErrorCode(error).isDefined && errors.map(_.code).contains(retrieveChiefErrorCode(error).get)
+
+    val result = errors.map(_.code).contains(error) || isChiefError
+
+    if (!result) logUnknownErrors(error)
+
+    result
+  }
+
+  def retrieveCode(error: String): Option[String] = {
+
+    val chiefErrorCodeOpt = retrieveChiefErrorCode(error)
+
+    if (chiefErrorCodeOpt.isDefined) {
+      errors.map(_.code).find(_ == chiefErrorCodeOpt.get)
+    } else {
+      errors.map(_.code).find(_ == error)
+    }
+  }
 
   /**
     * CHIEF errors start with capital E following by 3-5 digits.
@@ -65,18 +92,11 @@ object ErrorParser {
     readErrorsFromFile(source)
   }
 
+  private val errors: List[Error] = ileErrors ++ chiefErrors
+
   private def retrieveChiefErrorCode(errorMessage: String): Option[String] =
-    errorMessage.split(" ").filter(chiefErrorPattern.matcher(_).matches).headOption
+    errorMessage.split(" ").find(chiefErrorPattern.matcher(_).matches)
 
-  def validateErrors(errors: Seq[String]): Seq[String] = {
-
-    val correctIleErrors = errors.filter(ileErrors.map(_.code).contains(_))
-
-    val retrievedChiefErrors =
-      errors.diff(correctIleErrors).map(retrieveChiefErrorCode(_)).filter(_.isDefined).map(_.get)
-
-    val correctChiefErrors = retrievedChiefErrors.filter(chiefErrors.map(_.code).contains(_))
-
-    correctIleErrors ++ correctChiefErrors
-  }
+  private def logUnknownErrors(unknownError: String): Unit =
+    logger.warn(s"Error code $unknownError is unknown")
 }

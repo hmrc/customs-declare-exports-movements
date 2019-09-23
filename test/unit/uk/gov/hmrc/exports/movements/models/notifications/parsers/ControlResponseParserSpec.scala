@@ -18,7 +18,7 @@ package unit.uk.gov.hmrc.exports.movements.models.notifications.parsers
 
 import org.scalatest.{MustMatchers, WordSpec}
 import uk.gov.hmrc.exports.movements.models.notifications.NotificationData
-import uk.gov.hmrc.exports.movements.models.notifications.parsers.ControlResponseParser
+import uk.gov.hmrc.exports.movements.models.notifications.parsers.{ControlResponseParser, ErrorValidator}
 import utils.testdata.CommonTestData.MessageCodes
 import utils.testdata.notifications.ExampleInventoryLinkingControlResponse
 import utils.testdata.notifications.NotificationTestData._
@@ -26,7 +26,9 @@ import utils.testdata.notifications.NotificationTestData._
 class ControlResponseParserSpec extends WordSpec with MustMatchers {
 
   private trait Test {
-    val parser = new ControlResponseParser
+
+    val errorValidator = new ErrorValidator
+    val parser = new ControlResponseParser(errorValidator)
   }
 
   "MovementResponseParser on buildNotification" when {

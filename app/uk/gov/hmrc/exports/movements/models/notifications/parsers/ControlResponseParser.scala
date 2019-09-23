@@ -16,13 +16,13 @@
 
 package uk.gov.hmrc.exports.movements.models.notifications.parsers
 
+import javax.inject.Inject
 import uk.gov.hmrc.exports.movements.models.XmlTags
 import uk.gov.hmrc.exports.movements.models.notifications.{Entry, NotificationData, UcrBlock}
-import uk.gov.hmrc.exports.movements.models.notifications.parsers.ErrorParser.validateErrors
 
 import scala.xml.NodeSeq
 
-class ControlResponseParser extends ResponseParser {
+class ControlResponseParser @Inject()(errorValidator: ErrorValidator) extends ResponseParser {
 
   override def parse(responseXml: NodeSeq): NotificationData = NotificationData(
     messageCode = StringOption((responseXml \ XmlTags.messageCode).text),
@@ -31,6 +31,10 @@ class ControlResponseParser extends ResponseParser {
       Entry(ucrBlock = Some(UcrBlock(ucr = (ucrNode \ XmlTags.ucr).text, ucrType = (ucrNode \ XmlTags.ucrType).text)))
     },
     movementReference = StringOption((responseXml \ XmlTags.movementReference).text),
-    errorCodes = validateErrors((responseXml \ XmlTags.error \ XmlTags.errorCode).map(_.text))
+    errorCodes = (responseXml \ XmlTags.error \ XmlTags.errorCode)
+      .map(_.text)
+      .filter(errorValidator.hasErrorMessage)
+      .map(errorValidator.retrieveCode)
+      .flatten
   )
 }
