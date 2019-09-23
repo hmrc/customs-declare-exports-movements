@@ -16,10 +16,10 @@
 
 package unit.uk.gov.hmrc.exports.movements.models.notifications.parsers
 
-import uk.gov.hmrc.exports.movements.models.notifications.parsers.ErrorParser
+import uk.gov.hmrc.exports.movements.models.notifications.parsers.ErrorValidator
 import unit.uk.gov.hmrc.exports.movements.base.UnitSpec
 
-class ErrorParserSpec extends UnitSpec {
+class ErrorValidatorSpec extends UnitSpec {
 
   "Error parser" should {
 
@@ -28,7 +28,7 @@ class ErrorParserSpec extends UnitSpec {
       val errors = Seq("02", "09", "15", "20", "30", "41", "E607", "E1236549", "E10419", "E3464")
       val correctErrors = Seq("02", "15", "20", "30", "E607", "E10419", "E3464")
 
-      ErrorParser.validateErrors(errors) shouldBe correctErrors
+      ErrorValidator.validateErrors(errors) shouldBe correctErrors
     }
   }
 }

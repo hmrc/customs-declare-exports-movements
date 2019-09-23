@@ -37,12 +37,24 @@ object Error {
   }
 }
 
-object ErrorParser {
+object ErrorValidator {
+
+  def validateErrors(errors: Seq[String]): Seq[String] = {
+
+    val correctIleErrors = errors.filter(ileErrors.map(_.code).contains(_))
+
+    val retrievedChiefErrors =
+      errors.diff(correctIleErrors).map(retrieveChiefErrorCode).filter(_.isDefined).map(_.get)
+
+    val correctChiefErrors = retrievedChiefErrors.filter(chiefErrors.map(_.code).contains(_))
+
+    correctIleErrors ++ correctChiefErrors
+  }
 
   /**
-    * CHIEF errors start with capital E following by 3-5 digits.
-    * Error is inside whole error message e.g. "6 E408 Unique Consignment reference does not exist"
-    */
+   * CHIEF errors start with capital E following by 3-5 digits.
+   * Error is inside whole error message e.g. "6 E408 Unique Consignment reference does not exist"
+   */
   private val chiefErrorPattern = Pattern.compile(s"^[E][0-9]{3,5}$$")
 
   private def readErrorsFromFile(source: Source): List[Error] = {
@@ -66,17 +78,5 @@ object ErrorParser {
   }
 
   private def retrieveChiefErrorCode(errorMessage: String): Option[String] =
-    errorMessage.split(" ").filter(chiefErrorPattern.matcher(_).matches).headOption
-
-  def validateErrors(errors: Seq[String]): Seq[String] = {
-
-    val correctIleErrors = errors.filter(ileErrors.map(_.code).contains(_))
-
-    val retrievedChiefErrors =
-      errors.diff(correctIleErrors).map(retrieveChiefErrorCode(_)).filter(_.isDefined).map(_.get)
-
-    val correctChiefErrors = retrievedChiefErrors.filter(chiefErrors.map(_.code).contains(_))
-
-    correctIleErrors ++ correctChiefErrors
-  }
+    errorMessage.split(" ").find(chiefErrorPattern.matcher(_).matches)
 }

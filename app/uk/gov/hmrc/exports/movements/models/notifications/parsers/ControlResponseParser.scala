@@ -18,7 +18,7 @@ package uk.gov.hmrc.exports.movements.models.notifications.parsers
 
 import uk.gov.hmrc.exports.movements.models.XmlTags
 import uk.gov.hmrc.exports.movements.models.notifications.{Entry, NotificationData, UcrBlock}
-import uk.gov.hmrc.exports.movements.models.notifications.parsers.ErrorParser.validateErrors
+import uk.gov.hmrc.exports.movements.models.notifications.parsers.ErrorValidator.validateErrors
 
 import scala.xml.NodeSeq
 
