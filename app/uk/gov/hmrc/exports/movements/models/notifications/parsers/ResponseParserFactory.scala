@@ -16,12 +16,16 @@
 
 package uk.gov.hmrc.exports.movements.models.notifications.parsers
 
-import javax.inject.Singleton
+import javax.inject.{Inject, Singleton}
 
 import scala.xml.NodeSeq
 
 @Singleton
-class ResponseParserFactory {
+class ResponseParserFactory @Inject()(
+  movementResponseParser: MovementResponseParser,
+  movementTotalsResponseParser: MovementTotalsResponseParser,
+  controlResponseParser: ControlResponseParser
+) {
 
   private val inventoryLinkingMovementResponseLabel = "inventoryLinkingMovementResponse"
   private val inventoryLinkingMovementTotalsResponseLabel = "inventoryLinkingMovementTotalsResponse"
@@ -36,9 +40,9 @@ class ResponseParserFactory {
   def buildResponseParser(responseXml: NodeSeq): ResponseParser =
     if (responseXml.nonEmpty) {
       responseXml.head.label match {
-        case `inventoryLinkingMovementResponseLabel`       => new MovementResponseParser
-        case `inventoryLinkingMovementTotalsResponseLabel` => new MovementTotalsResponseParser
-        case `inventoryLinkingControlResponseLabel`        => new ControlResponseParser
+        case `inventoryLinkingMovementResponseLabel`       => movementResponseParser
+        case `inventoryLinkingMovementTotalsResponseLabel` => movementTotalsResponseParser
+        case `inventoryLinkingControlResponseLabel`        => controlResponseParser
         case unknownLabel                                  => throw new IllegalArgumentException(s"Unknown Inventory Linking Response: $unknownLabel")
       }
     } else throw new IllegalArgumentException(s"Cannot find root element in: $responseXml")

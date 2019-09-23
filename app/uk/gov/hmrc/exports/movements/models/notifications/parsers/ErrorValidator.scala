@@ -17,6 +17,7 @@
 package uk.gov.hmrc.exports.movements.models.notifications.parsers
 
 import java.util.regex.Pattern
+import javax.inject.{Inject, Singleton}
 
 import com.github.tototoshi.csv._
 import play.api.Logger
@@ -37,16 +38,17 @@ object Error {
   }
 }
 
-object ErrorValidator {
+@Singleton
+class ErrorValidator @Inject()() {
 
   private val logger = Logger(this.getClass)
 
-  def validateErrors(errors: Seq[String]): Seq[String] = {
+  def validate(errors: Seq[String]): Seq[String] = {
 
     val correctIleErrors = errors.filter(ileErrors.map(_.code).contains(_))
 
     val retrievedChiefErrors =
-      errors.diff(correctIleErrors).map(retrieveChiefErrorCode).filter(_.isDefined).map(_.get)
+      errors.diff(correctIleErrors).map(retrieveChiefErrorCode).flatten
 
     val correctChiefErrors = retrievedChiefErrors.filter(chiefErrors.map(_.code).contains(_))
 
@@ -58,9 +60,9 @@ object ErrorValidator {
   }
 
   /**
-   * CHIEF errors start with capital E following by 3-5 digits.
-   * Error is inside whole error message e.g. "6 E408 Unique Consignment reference does not exist"
-   */
+    * CHIEF errors start with capital E following by 3-5 digits.
+    * Error is inside whole error message e.g. "6 E408 Unique Consignment reference does not exist"
+    */
   private val chiefErrorPattern = Pattern.compile(s"^[E][0-9]{3,5}$$")
 
   private def readErrorsFromFile(source: Source): List[Error] = {

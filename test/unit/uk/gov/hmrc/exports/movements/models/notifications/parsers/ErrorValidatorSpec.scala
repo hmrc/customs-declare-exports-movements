@@ -21,6 +21,8 @@ import unit.uk.gov.hmrc.exports.movements.base.UnitSpec
 
 class ErrorValidatorSpec extends UnitSpec {
 
+  val errorValidator = new ErrorValidator
+
   "Error parser" should {
 
     "successfully retrieve only correct errors" in {
@@ -28,7 +30,7 @@ class ErrorValidatorSpec extends UnitSpec {
       val errors = Seq("02", "09", "15", "20", "30", "41", "E607", "E1236549", "E10419", "E3464")
       val correctErrors = Seq("02", "15", "20", "30", "E607", "E10419", "E3464")
 
-      ErrorValidator.validateErrors(errors) shouldBe correctErrors
+      errorValidator.validate(errors) shouldBe correctErrors
     }
   }
 }
