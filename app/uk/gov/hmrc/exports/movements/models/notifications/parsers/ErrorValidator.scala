@@ -39,6 +39,8 @@ object Error {
 
 object ErrorValidator {
 
+  private val logger = Logger(this.getClass)
+
   def validateErrors(errors: Seq[String]): Seq[String] = {
 
     val correctIleErrors = errors.filter(ileErrors.map(_.code).contains(_))
@@ -48,7 +50,11 @@ object ErrorValidator {
 
     val correctChiefErrors = retrievedChiefErrors.filter(chiefErrors.map(_.code).contains(_))
 
-    correctIleErrors ++ correctChiefErrors
+    val result = correctIleErrors ++ correctChiefErrors
+
+    errors.diff(result).foreach(logUnknownErrors)
+
+    result
   }
 
   /**
@@ -79,4 +85,7 @@ object ErrorValidator {
 
   private def retrieveChiefErrorCode(errorMessage: String): Option[String] =
     errorMessage.split(" ").find(chiefErrorPattern.matcher(_).matches)
+
+  private def logUnknownErrors(unknownError: String): Unit =
+    logger.warn(s"Error code $unknownError is unknown")
 }
