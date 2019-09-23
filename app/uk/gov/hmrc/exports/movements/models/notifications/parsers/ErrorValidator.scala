@@ -43,20 +43,27 @@ class ErrorValidator @Inject()() {
 
   private val logger = Logger(this.getClass)
 
-  def validate(errors: Seq[String]): Seq[String] = {
+  def hasErrorMessage(error: String): Boolean = {
 
-    val correctIleErrors = errors.filter(ileErrors.map(_.code).contains(_))
+    val isChiefError =
+      retrieveChiefErrorCode(error).isDefined && errors.map(_.code).contains(retrieveChiefErrorCode(error).get)
 
-    val retrievedChiefErrors =
-      errors.diff(correctIleErrors).map(retrieveChiefErrorCode).flatten
+    val result = errors.map(_.code).contains(error) || isChiefError
 
-    val correctChiefErrors = retrievedChiefErrors.filter(chiefErrors.map(_.code).contains(_))
-
-    val result = correctIleErrors ++ correctChiefErrors
-
-    errors.diff(result).foreach(logUnknownErrors)
+    if (!result) logUnknownErrors(error)
 
     result
+  }
+
+  def retrieveCode(error: String): Option[String] = {
+
+    val chiefErrorCodeOpt = retrieveChiefErrorCode(error)
+
+    if (chiefErrorCodeOpt.isDefined) {
+      errors.map(_.code).find(_ == chiefErrorCodeOpt.get)
+    } else {
+      errors.map(_.code).find(_ == error)
+    }
   }
 
   /**
@@ -84,6 +91,8 @@ class ErrorValidator @Inject()() {
 
     readErrorsFromFile(source)
   }
+
+  private val errors: List[Error] = ileErrors ++ chiefErrors
 
   private def retrieveChiefErrorCode(errorMessage: String): Option[String] =
     errorMessage.split(" ").find(chiefErrorPattern.matcher(_).matches)

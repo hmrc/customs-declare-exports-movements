@@ -31,6 +31,10 @@ class ControlResponseParser @Inject()(errorValidator: ErrorValidator) extends Re
       Entry(ucrBlock = Some(UcrBlock(ucr = (ucrNode \ XmlTags.ucr).text, ucrType = (ucrNode \ XmlTags.ucrType).text)))
     },
     movementReference = StringOption((responseXml \ XmlTags.movementReference).text),
-    errorCodes = errorValidator.validate((responseXml \ XmlTags.error \ XmlTags.errorCode).map(_.text))
+    errorCodes = (responseXml \ XmlTags.error \ XmlTags.errorCode)
+      .map(_.text)
+      .filter(errorValidator.hasErrorMessage)
+      .map(errorValidator.retrieveCode)
+      .flatten
   )
 }
