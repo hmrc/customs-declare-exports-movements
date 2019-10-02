@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.exports.movements.models
+package uk.gov.hmrc.exports.models
 
 import play.api.http.ContentTypes
 import play.api.libs.json._
@@ -40,17 +40,13 @@ object ResponseContents {
 case class ErrorResponse(httpStatusCode: Int, errorCode: String, message: String, content: ResponseContents*)
     extends Error {
 
+  lazy val JsonResult: Result = Status(httpStatusCode)(responseJson).as(ContentTypes.JSON)
+  lazy val XmlResult: Result = Status(httpStatusCode)(responseXml).as(ContentTypes.XML)
   private lazy val errorContent = JsObject(Seq("code" -> JsString(errorCode), "message" -> JsString(message)))
-
   private lazy val responseJson: JsValue = content match {
     case Seq() => errorContent
     case _     => errorContent + ("errors" -> Json.toJson(content))
   }
-
-  lazy val JsonResult: Result = Status(httpStatusCode)(responseJson).as(ContentTypes.JSON)
-
-  lazy val XmlResult: Result = Status(httpStatusCode)(responseXml).as(ContentTypes.XML)
-
   private lazy val responseXml: String =
     "<?xml version='1.0' encoding='UTF-8'?>\n" +
       <errorResponse>
@@ -64,17 +60,18 @@ object ErrorResponse extends HttpStatusCodeShortDescriptions {
   def errorUnauthorized(errorMessage: String): ErrorResponse =
     ErrorResponse(UNAUTHORIZED, UnauthorizedCode, errorMessage)
 
-  def errorBadRequest(errorMessage: String): ErrorResponse =
-    ErrorResponse(BAD_REQUEST, BadRequestCode, errorMessage)
+  def errorUnauthorized: ErrorResponse = ErrorResponse(UNAUTHORIZED, UnauthorizedCode, "Insufficient Enrolments")
+
+  def errorBadRequest: ErrorResponse = errorBadRequest("Bad Request")
+
+  def errorInvalidPayload: ErrorResponse = errorBadRequest("Invalid payload")
+
+  def errorInvalidHeaders: ErrorResponse = errorBadRequest("Invalid headers")
+
+  def errorBadRequest(errorMessage: String): ErrorResponse = ErrorResponse(BAD_REQUEST, BadRequestCode, errorMessage)
+
+  def errorInternalServerError: ErrorResponse = errorInternalServerError("Internal server error")
 
   def errorInternalServerError(errorMessage: String): ErrorResponse =
     ErrorResponse(INTERNAL_SERVER_ERROR, InternalServerErrorCode, errorMessage)
-
-  val ErrorUnauthorized = ErrorResponse(UNAUTHORIZED, UnauthorizedCode, "Insufficient Enrolments")
-
-  val ErrorGenericBadRequest: ErrorResponse = errorBadRequest("Bad Request")
-
-  val ErrorInvalidPayload: ErrorResponse = errorBadRequest("Invalid payload")
-
-  val ErrorInternalServerError: ErrorResponse = errorInternalServerError("Internal server error")
 }

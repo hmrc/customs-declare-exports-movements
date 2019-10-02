@@ -20,11 +20,12 @@ import javax.inject.{Inject, Singleton}
 import play.api.Logger
 import play.api.mvc._
 import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.exports.models.ErrorResponse
 import uk.gov.hmrc.exports.movements.controllers.actions.AuthenticatedController
 import uk.gov.hmrc.exports.movements.exceptions.CustomsInventoryLinkingUpstreamException
-import uk.gov.hmrc.exports.movements.models.consolidation.{Consolidation, ConsolidationRequest}
+import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationRequest
+import uk.gov.hmrc.exports.movements.models.AuthorizedSubmissionRequest
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType
-import uk.gov.hmrc.exports.movements.models.{AuthorizedSubmissionRequest, ErrorResponse}
 import uk.gov.hmrc.exports.movements.services.SubmissionService
 import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
 import uk.gov.hmrc.http.HeaderCarrier
@@ -59,7 +60,7 @@ class ConsolidationController @Inject()(
           case Right(xml) => Right(AnyContentAsXml(xml))
           case _ =>
             logger.warn(s"Bad Consolidation Request: Invalid XML. Action ${action.value}")
-            Left(ErrorResponse.ErrorInvalidPayload.XmlResult)
+            Left(ErrorResponse.errorInvalidPayload.XmlResult)
       }
     )
 

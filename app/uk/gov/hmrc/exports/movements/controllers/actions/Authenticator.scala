@@ -21,7 +21,6 @@ import play.api.Logger
 import play.api.mvc._
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals._
-import uk.gov.hmrc.exports.movements.controllers.util.JSONResponses
 import uk.gov.hmrc.exports.models.ErrorResponse
 import uk.gov.hmrc.exports.movements.models.{AuthorizedSubmissionRequest, Eori}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -29,10 +28,11 @@ import uk.gov.hmrc.play.bootstrap.controller.BackendController
 
 import scala.concurrent.{ExecutionContext, Future}
 
+// TODO: This needs to be separated from BackendController and be injected instead of inheriting in other controllers
 @Singleton
-class AuthenticatedController @Inject()(override val authConnector: AuthConnector, cc: ControllerComponents)(
+class Authenticator @Inject()(override val authConnector: AuthConnector, cc: ControllerComponents)(
   implicit ec: ExecutionContext
-) extends BackendController(cc) with AuthorisedFunctions with JSONResponses {
+) extends BackendController(cc) with AuthorisedFunctions {
 
   private val logger = Logger(this.getClass)
 
@@ -42,31 +42,35 @@ class AuthenticatedController @Inject()(override val authConnector: AuthConnecto
     Action.async(bodyParser) { implicit request =>
       authorisedWithEori.flatMap {
         case Right(authorisedRequest) =>
+          logger.info(s"Authorised request for ${authorisedRequest.eori.value}")
           body(authorisedRequest)
         case Left(error) =>
-          Future.successful(error.JsonResult)
+          logger.error(s"Problems with Authorisation: ${error.message}")
+          Future.successful(error.XmlResult)
       }
     }
 
-  def authorisedWithEori[A](
+  private def authorisedWithEori[A](
     implicit hc: HeaderCarrier,
     request: Request[A]
   ): Future[Either[ErrorResponse, AuthorizedSubmissionRequest[A]]] =
     authorised(Enrolment("HMRC-CUS-ORG")).retrieve(allEnrolments) { enrolments =>
       hasEnrolment(enrolments) match {
-        case Some(eori) =>
-          Future.successful(Right(AuthorizedSubmissionRequest(Eori(eori.value), request)))
+        case Some(eori) => Future.successful(Right(AuthorizedSubmissionRequest(Eori(eori.value), request)))
         case _ =>
-          logger.warn("User attempted to access Service with the expected role but without an EORI")
+          logger.error("Unauthorised access. User without eori.")
           Future.successful(Left(ErrorResponse.errorUnauthorized))
       }
     } recover {
-      case _: InsufficientEnrolments =>
-        logger.warn(s"Unauthorised access for ${request.uri}")
+      case error: InsufficientEnrolments =>
+        logger.error(s"Unauthorised access for ${request.uri} with error ${error.reason}")
         Left(ErrorResponse.errorUnauthorized("Unauthorized for exports"))
-      case e: AuthorisationException =>
-        logger.warn(s"Unauthorised Exception for ${request.uri} ${e.reason}")
+      case error: AuthorisationException =>
+        logger.error(s"Unauthorised Exception for ${request.uri} with error ${error.reason}")
         Left(ErrorResponse.errorUnauthorized("Unauthorized for exports"))
+      case ex: Throwable =>
+        logger.error("Internal server error is " + ex.getMessage)
+        Left(ErrorResponse.errorInternalServerError)
     }
 
   private def hasEnrolment(allEnrolments: Enrolments): Option[EnrolmentIdentifier] =

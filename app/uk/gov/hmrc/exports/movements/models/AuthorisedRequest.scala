@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.exports.movements.models
 
+import play.api.libs.json.{Json, OFormat}
 import play.api.mvc.{Request, WrappedRequest}
 
 trait HasEori {
@@ -27,6 +28,10 @@ trait HasConversationId {
 }
 
 case class Eori(value: String) extends AnyVal
+object Eori {
+  implicit val format: OFormat[Eori] = Json.format[Eori]
+}
+
 case class ConversationId(value: String) extends AnyVal
 
 case class AuthorizedSubmissionRequest[A](eori: Eori, request: Request[A])
