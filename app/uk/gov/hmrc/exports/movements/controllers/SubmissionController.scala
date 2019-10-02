@@ -21,11 +21,12 @@ import play.api.Logger
 import play.api.libs.json.Json
 import play.api.mvc._
 import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.exports.models.ErrorResponse
 import uk.gov.hmrc.exports.movements.controllers.actions.AuthenticatedController
 import uk.gov.hmrc.exports.movements.controllers.util.HeaderValidator
 import uk.gov.hmrc.exports.movements.exceptions.CustomsInventoryLinkingUpstreamException
+import uk.gov.hmrc.exports.movements.models.AuthorizedSubmissionRequest
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType
-import uk.gov.hmrc.exports.movements.models.{AuthorizedSubmissionRequest, ErrorResponse}
 import uk.gov.hmrc.exports.movements.services.SubmissionService
 import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
 import uk.gov.hmrc.http.HeaderCarrier
@@ -48,11 +49,6 @@ class SubmissionController @Inject()(
       submitMovementSubmission(ActionType.Arrival)
     }
 
-  def submitDeparture(): Action[AnyContent] =
-    authorisedAction(bodyParser = xmlOrEmptyBody) { implicit request =>
-      submitMovementSubmission(ActionType.Departure)
-    }
-
   private def xmlOrEmptyBody: BodyParser[AnyContent] =
     BodyParser(
       rq =>
@@ -60,7 +56,7 @@ class SubmissionController @Inject()(
           case Right(xml) => Right(AnyContentAsXml(xml))
           case _ =>
             logger.warn("Invalid xml payload")
-            Left(ErrorResponse.ErrorInvalidPayload.XmlResult)
+            Left(ErrorResponse.errorInvalidPayload.XmlResult)
       }
     )
 
@@ -74,7 +70,7 @@ class SubmissionController @Inject()(
         forwardMovementSubmissionRequest(context)
       case None =>
         logger.warn("Body is not xml")
-        Future.successful(ErrorResponse.ErrorInvalidPayload.XmlResult)
+        Future.successful(ErrorResponse.errorInvalidPayload.XmlResult)
     }
 
   private def forwardMovementSubmissionRequest(
@@ -89,6 +85,11 @@ class SubmissionController @Inject()(
         case e: CustomsInventoryLinkingUpstreamException =>
           ErrorResponse.errorInternalServerError(e.getMessage).XmlResult
       }
+
+  def submitDeparture(): Action[AnyContent] =
+    authorisedAction(bodyParser = xmlOrEmptyBody) { implicit request =>
+      submitMovementSubmission(ActionType.Departure)
+    }
 
   def getAllSubmissions: Action[AnyContent] = authorisedAction(parse.default) { implicit authorizedRequest =>
     submissionService
