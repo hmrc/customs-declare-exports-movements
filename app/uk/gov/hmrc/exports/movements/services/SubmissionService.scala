@@ -17,11 +17,11 @@
 package uk.gov.hmrc.exports.movements.services
 
 import javax.inject.{Inject, Singleton}
-import play.api.Logger
 import play.api.http.Status.ACCEPTED
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
 import uk.gov.hmrc.exports.movements.exceptions.CustomsInventoryLinkingUpstreamException
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
+import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation
 import uk.gov.hmrc.exports.movements.models.submissions.{Submission, SubmissionFactory}
 import uk.gov.hmrc.exports.movements.repositories.SubmissionRepository
 import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
@@ -33,10 +33,9 @@ import scala.concurrent.{ExecutionContext, Future}
 class SubmissionService @Inject()(
   customsInventoryLinkingExportsConnector: CustomsInventoryLinkingExportsConnector,
   submissionRepository: SubmissionRepository,
-  submissionFactory: SubmissionFactory
+  submissionFactory: SubmissionFactory,
+  wcoMapper: ILEMapper
 )(implicit executionContext: ExecutionContext) {
-
-  private val logger = Logger(this.getClass)
 
   def submitRequest(context: SubmissionRequestContext)(implicit hc: HeaderCarrier): Future[Unit] =
     customsInventoryLinkingExportsConnector.sendInventoryLinkingRequest(context.eori, context.requestXml).flatMap {
@@ -57,6 +56,12 @@ class SubmissionService @Inject()(
           )
         )
     }
+
+  def submitConsolidation(eori: String, consolidation: Consolidation)(implicit hc: HeaderCarrier): Future[Unit] = {
+    val requestXml = wcoMapper.generateConsolidationXml(consolidation)
+
+    submitRequest(consolidation.buildSubmissionContext(eori, requestXml))
+  }
 
   def getSubmissionsByEori(eori: String): Future[Seq[Submission]] = submissionRepository.findByEori(eori)
 

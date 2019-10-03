@@ -21,6 +21,7 @@ import play.api.Logger
 import play.api.mvc._
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals._
+import uk.gov.hmrc.exports.movements.controllers.util.JSONResponses
 import uk.gov.hmrc.exports.movements.models.{AuthorizedSubmissionRequest, Eori, ErrorResponse}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.controller.BackendController
@@ -30,7 +31,7 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class AuthenticatedController @Inject()(override val authConnector: AuthConnector, cc: ControllerComponents)(
   implicit ec: ExecutionContext
-) extends BackendController(cc) with AuthorisedFunctions {
+) extends BackendController(cc) with AuthorisedFunctions with JSONResponses {
 
   private val logger = Logger(this.getClass)
 

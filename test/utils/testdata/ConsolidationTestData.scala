@@ -96,5 +96,4 @@ object ConsolidationTestData {
     actionType = ActionType.ShutMucr,
     requestXml = exampleShutMucrConsolidationRequestXML
   )
-
 }

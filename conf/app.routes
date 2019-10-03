@@ -16,3 +16,7 @@ POST        /consolidations/shut                            uk.gov.hmrc.exports.
 POST        /consolidations/associate                       uk.gov.hmrc.exports.movements.controllers.ConsolidationController.associateMucr()
 POST        /consolidations/disassociate                    uk.gov.hmrc.exports.movements.controllers.ConsolidationController.disassociateMucr()
 
+# New Movements Consolidations
+
+POST        /consolidation                                  uk.gov.hmrc.exports.movements.controllers.ConsolidationController.submitConsolidation()
+
