@@ -16,40 +16,58 @@
 
 package uk.gov.hmrc.exports.movements.controllers
 
-import java.util.UUID
-
 import javax.inject.{Inject, Singleton}
 import play.api.Logger
-import play.api.libs.json.{Json, Writes}
 import play.api.mvc._
-import uk.gov.hmrc.exports.movements.controllers.actions.Authenticator
+import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.exports.models.ErrorResponse
+import uk.gov.hmrc.exports.movements.controllers.actions.AuthenticatedController
 import uk.gov.hmrc.exports.movements.controllers.request.MovementRequest
-import uk.gov.hmrc.exports.movements.models.movements.MovementDeclaration.REST.format
-import uk.gov.hmrc.exports.movements.services.MovementsService
+import uk.gov.hmrc.exports.movements.exceptions.CustomsInventoryLinkingUpstreamException
+import uk.gov.hmrc.exports.movements.models.Eori
+import uk.gov.hmrc.exports.movements.models.submissions.ActionType
+import uk.gov.hmrc.exports.movements.services.SubmissionService
+import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.wco.dec.inventorylinking.movement.request.InventoryLinkingMovementRequest
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class MovementsController @Inject()(
-  movementsService: MovementsService,
-  authenticator: Authenticator,
+  authConnector: AuthConnector,
+  submissionService: SubmissionService,
   override val controllerComponents: ControllerComponents
 )(implicit executionContext: ExecutionContext)
-    extends RESTController(controllerComponents) {
+    extends AuthenticatedController(authConnector, controllerComponents) {
 
   private val logger = Logger(this.getClass)
 
-  def submitMovement(): Action[MovementRequest] =
-    authenticator.authorisedAction(parsingJson[MovementRequest]) { implicit request =>
-      logPayload("Create Declaration Request Received", request.body)
-      movementsService
-        .create(request.body.toMovementsDeclaration(id = UUID.randomUUID().toString, eori = request.eori))
-        .map(logPayload("Create Movements Response", _))
-        .map(declaration => Created(declaration))
+  def submitMovement(): Action[MovementRequest] = authorisedAction(parse.json[MovementRequest]) { implicit request =>
+    val data: InventoryLinkingMovementRequest = request.body.createMovementRequest(request.eori)
+    request.body.choice match {
+      case "EAL" =>
+        submitMovementSubmission(data: InventoryLinkingMovementRequest, request.eori, ActionType.Arrival)
+      case "EDL" =>
+        submitMovementSubmission(data: InventoryLinkingMovementRequest, request.eori, ActionType.Departure)
     }
-
-  private def logPayload[T](prefix: String, payload: T)(implicit wts: Writes[T]): T = {
-    logger.debug(s"Request Received: ${Json.toJson(payload)}")
-    payload
   }
+
+  private def submitMovementSubmission(data: InventoryLinkingMovementRequest, eori: Eori, actionType: ActionType)(
+    implicit hc: HeaderCarrier
+  ): Future[Result] =
+    submissionService
+      .submitRequest(
+        SubmissionRequestContext(
+          eori = eori.value,
+          actionType = actionType,
+          requestXml = xml.XML.loadString(data.toXml)
+        )
+      )
+      .map(_ => Accepted("Movement Submission submitted successfully"))
+      .recover {
+        case e: CustomsInventoryLinkingUpstreamException =>
+          ErrorResponse.errorInternalServerError(e.getMessage).XmlResult
+      }
+
 }

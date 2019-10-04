@@ -40,7 +40,7 @@ import utils.testdata.CommonTestData.{conversationId, conversationId_2, conversa
 import utils.testdata.MovementsTestData._
 
 import scala.concurrent.Future
-import scala.xml.Elem
+import scala.xml.Node
 
 class SubmissionControllerSpec
     extends WordSpec with GuiceOneAppPerSuite with AuthTestSupport with BeforeAndAfterEach with ScalaFutures
@@ -53,8 +53,6 @@ class SubmissionControllerSpec
   private val arrivalUri = "/movements/arrival"
   private val departureUri = "/movements/departure"
   private val getAllSubmissionsUri = "/movements"
-  private def getSubmissionUri(conversationId: String) = s"/movements/$conversationId"
-
   private val submissionServiceMock = buildSubmissionServiceMock
 
   override def beforeEach(): Unit = {
@@ -62,7 +60,9 @@ class SubmissionControllerSpec
     reset(mockAuthConnector, submissionServiceMock)
   }
 
-  private def routePost(headers: Map[String, String] = ValidHeaders, xmlBody: Elem, uri: String): Future[Result] =
+  private def getSubmissionUri(conversationId: String) = s"/movements/$conversationId"
+
+  private def routePost(headers: Map[String, String] = ValidHeaders, xmlBody: Node, uri: String): Future[Result] =
     route(app, FakeRequest(POST, uri).withHeaders(headers.toSeq: _*).withXmlBody(xmlBody)).get
 
   private def routeGet(headers: Map[String, String] = ValidHeaders, uri: String): Future[Result] =
