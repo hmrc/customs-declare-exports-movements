@@ -48,7 +48,7 @@ class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar
           eori = validEori,
           conversationId = conversationId,
           actionType = ActionType.Arrival,
-          ucrBlocks = Seq(UcrBlock(ucr = ucr_2, ucrType = "M"), UcrBlock(ucr = ucr, ucrType = "D"))
+          ucrBlocks = Seq(UcrBlock(ucr = ucr, ucrType = "D"))
         )
 
         compareSubmissions(submission, expectedSubmission)
@@ -67,7 +67,7 @@ class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar
           eori = validEori,
           conversationId = conversationId,
           actionType = ActionType.Departure,
-          ucrBlocks = Seq(UcrBlock(ucr = ucr_2, ucrType = "M"), UcrBlock(ucr = ucr, ucrType = "D"))
+          ucrBlocks = Seq(UcrBlock(ucr = ucr, ucrType = "D"))
         )
 
         compareSubmissions(submission, expectedSubmission)

@@ -19,23 +19,51 @@ package uk.gov.hmrc.exports.movements.controllers.request
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.exports.movements.models.Eori
 import uk.gov.hmrc.exports.movements.models.movements._
+import uk.gov.hmrc.wco.dec.inventorylinking.common.{TransportDetails, UcrBlock}
+import uk.gov.hmrc.wco.dec.inventorylinking.movement.request.InventoryLinkingMovementRequest
 
 case class MovementRequest(
+  choice: String,
   consignmentReference: ConsignmentReference,
   movementDetails: MovementDetails,
-  location: Location,
-  arrivalReference: Option[ArrivalReference],
-  goodsDeparted: Option[GoodsDeparted]
+  location: Option[Location] = None,
+  arrivalReference: Option[ArrivalReference] = None,
+  goodsDeparted: Option[GoodsDeparted] = None,
+  transport: Option[Transport] = None
 ) {
-  def toMovementsDeclaration(id: String, eori: Eori): MovementDeclaration = MovementDeclaration(
-    id = id,
-    eori = eori,
-    consignmentReference = this.consignmentReference,
-    movementDetails = this.movementDetails,
-    location = this.location,
-    arrivalReference = this.arrivalReference,
-    goodsDeparted = this.goodsDeparted
-  )
+  def createMovementRequest(eori: Eori): InventoryLinkingMovementRequest = {
+
+    val departureDetails = choice match {
+      case "EDL" => Some(movementDetails)
+      case _     => None
+    }
+
+    val arrivalDetails: Option[MovementDetails] = choice match {
+      case "EAL" => Some(movementDetails)
+      case _     => None
+    }
+
+    InventoryLinkingMovementRequest(
+      messageCode = choice,
+      agentDetails = None,
+      ucrBlock = UcrBlock(ucr = consignmentReference.referenceValue, ucrType = consignmentReference.reference),
+      goodsLocation = location.map(_.asString).getOrElse(""),
+      goodsArrivalDateTime = arrivalDetails.map(_.dateTime),
+      goodsDepartureDateTime = departureDetails.map(_.dateTime),
+      transportDetails = mapTransportDetails(transport),
+      movementReference = arrivalReference.map(_.reference)
+    )
+  }
+
+  private def mapTransportDetails(transport: Option[Transport]): Option[TransportDetails] =
+    transport.map(
+      data =>
+        TransportDetails(
+          transportID = Some(data.transportId),
+          transportMode = Some(data.modeOfTransport),
+          transportNationality = Some(data.nationality)
+      )
+    )
 }
 
 object MovementRequest {
