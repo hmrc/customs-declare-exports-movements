@@ -19,7 +19,6 @@ package unit.uk.gov.hmrc.exports.movements.models.consolidation
 import play.api.libs.json.{JsObject, JsString, JsSuccess, JsValue}
 import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationType._
 import uk.gov.hmrc.exports.movements.models.consolidation._
-import uk.gov.hmrc.exports.movements.models.submissions.ActionType.{DucrAssociation, DucrDisassociation, ShutMucr}
 import unit.uk.gov.hmrc.exports.movements.base.UnitSpec
 
 class ConsolidationSpec extends UnitSpec {
@@ -32,7 +31,13 @@ class ConsolidationSpec extends UnitSpec {
     "correct read Associate Ducr request" in {
 
       val associateDucrJson: JsValue =
-        JsObject(Map("type" -> JsString("associateDucr"), "mucr" -> JsString(mucr), "ducr" -> JsString(ducr)))
+        JsObject(
+          Map(
+            "consolidationType" -> JsString(ASSOCIATE_DUCR.toString),
+            "mucr" -> JsString(mucr),
+            "ducr" -> JsString(ducr)
+          )
+        )
 
       val expectedResult = AssociateDucrRequest(mucr, ducr)
 
@@ -41,7 +46,8 @@ class ConsolidationSpec extends UnitSpec {
 
     "correct read Disassociate Ducr request" in {
 
-      val diassociateDucrJson: JsValue = JsObject(Map("type" -> JsString("disassociateDucr"), "ducr" -> JsString(ducr)))
+      val diassociateDucrJson: JsValue =
+        JsObject(Map("consolidationType" -> JsString(DISASSOCIATE_DUCR.toString), "ducr" -> JsString(ducr)))
 
       val expectedResult = DisassiociateDucrRequest(ducr)
 
@@ -50,7 +56,8 @@ class ConsolidationSpec extends UnitSpec {
 
     "correct read Shut Mucr request" in {
 
-      val shutMucrJson: JsValue = JsObject(Map("type" -> JsString("shutMucr"), "mucr" -> JsString(mucr)))
+      val shutMucrJson: JsValue =
+        JsObject(Map("consolidationType" -> JsString(SHUT_MUCR.toString), "mucr" -> JsString(mucr)))
 
       val expectedResult = ShutMucrRequest(mucr)
 

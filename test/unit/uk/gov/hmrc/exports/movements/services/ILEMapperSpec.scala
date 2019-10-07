@@ -24,6 +24,7 @@ import unit.uk.gov.hmrc.exports.movements.base.UnitSpec
 class ILEMapperSpec extends UnitSpec {
 
   val ileMapper = new ILEMapper
+  val associateDucrCode = "EAC"
   val mucr = "mucr"
   val ducr = "ducr"
 
@@ -35,7 +36,7 @@ class ILEMapperSpec extends UnitSpec {
 
       val expectedXml = scala.xml.Utility.trim {
         <inventoryLinkingConsolidationRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
-          <messageCode>{ASSOCIATE_DUCR.toString}</messageCode>
+          <messageCode>{associateDucrCode}</messageCode>
           <masterUCR>{mucr}</masterUCR>
           <ucrBlock>
             <ucr>{ducr}</ucr>
