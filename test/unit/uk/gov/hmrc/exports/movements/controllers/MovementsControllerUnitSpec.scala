@@ -25,7 +25,7 @@ import play.api.test.Helpers._
 import play.api.test._
 import uk.gov.hmrc.exports.movements.controllers.MovementsController
 import uk.gov.hmrc.exports.movements.controllers.request.MovementRequest
-import uk.gov.hmrc.exports.movements.models.movements.{ConsignmentReference, MovementDetails}
+import uk.gov.hmrc.exports.movements.models.movements.{Choice, ConsignmentReference, MovementDetails}
 import uk.gov.hmrc.exports.movements.services.SubmissionService
 import unit.uk.gov.hmrc.exports.movements.base.AuthTestSupport
 import utils.FakeRequestCSRFSupport._
@@ -41,7 +41,7 @@ class MovementsControllerUnitSpec extends WordSpec with MustMatchers with Mockit
     new MovementsController(mockAuthConnector, submissionServiceMock, stubControllerComponents())(global)
 
   val correctJson = MovementRequest(
-    choice = "EAL",
+    choice = Choice.Arrival,
     consignmentReference = ConsignmentReference("reference", "value"),
     movementDetails = MovementDetails("dateTime")
   )
@@ -73,7 +73,7 @@ class MovementsControllerUnitSpec extends WordSpec with MustMatchers with Mockit
         when(submissionServiceMock.submitRequest(any())(any()))
           .thenReturn(Future.successful((): Unit))
 
-        val result = controller.submitMovement()(postRequest(correctJson))
+        val result = controller.createMovement()(postRequest(correctJson))
 
         status(result) mustBe ACCEPTED
       }
