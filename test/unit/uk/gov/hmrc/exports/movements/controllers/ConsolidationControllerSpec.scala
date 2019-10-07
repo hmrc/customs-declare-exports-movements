@@ -24,7 +24,7 @@ import play.api.mvc.Request
 import play.api.test.Helpers._
 import play.api.test._
 import uk.gov.hmrc.exports.movements.controllers.ConsolidationController
-import uk.gov.hmrc.exports.movements.models.consolidation.{AssociateDucrRequest, ConsolidationRequest}
+import uk.gov.hmrc.exports.movements.models.consolidation.{AssociateDucrRequest, Consolidation}
 import uk.gov.hmrc.exports.movements.services.SubmissionService
 import unit.uk.gov.hmrc.exports.movements.base.AuthTestSupport
 import utils.FakeRequestCSRFSupport._
@@ -53,7 +53,7 @@ class ConsolidationControllerSpec extends WordSpec with MustMatchers with Mockit
     super.afterEach()
   }
 
-  protected def postRequest(body: ConsolidationRequest): Request[ConsolidationRequest] =
+  protected def postRequest(body: Consolidation): Request[Consolidation] =
     FakeRequest("POST", "")
       .withHeaders(("Content-Type", "application/json"))
       .withBody(body)

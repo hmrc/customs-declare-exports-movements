@@ -28,8 +28,8 @@ class ILEMapper {
     scala.xml.Utility.trim {
       <inventoryLinkingConsolidationRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
         <messageCode>{consolidation.consolidationType.toString}</messageCode>
-        {buildMasterUcrNode(consolidation.mucr)}
-        {buildUcrBlockNode(consolidation.ducr)}
+        {buildMasterUcrNode(consolidation.mucrOpt)}
+        {buildUcrBlockNode(consolidation.ducrOpt)}
       </inventoryLinkingConsolidationRequest>
     }
 

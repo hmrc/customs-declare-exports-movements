@@ -18,6 +18,7 @@ package uk.gov.hmrc.exports.movements.models.submissions
 
 import javax.inject.Singleton
 import uk.gov.hmrc.exports.movements.models.XmlTags
+import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationType.ConsolidationType
 import uk.gov.hmrc.exports.movements.models.notifications.UcrBlock
 import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
 
@@ -34,12 +35,17 @@ class SubmissionFactory {
       actionType = context.actionType
     )
 
-  def buildSubmission(eori: String, conversationId: String, requestXml: Node, actionType: ActionType): Submission =
+  def buildSubmission(
+    eori: String,
+    conversationId: String,
+    requestXml: Node,
+    consolidationType: ConsolidationType
+  ): Submission =
     Submission(
       eori = eori,
       conversationId = conversationId,
       ucrBlocks = extractUcrListFrom(requestXml),
-      actionType = actionType
+      actionType = ActionType.fromConsolidationType(consolidationType)
     )
 
   private def extractUcrListFrom(request: NodeSeq): Seq[UcrBlock] = {

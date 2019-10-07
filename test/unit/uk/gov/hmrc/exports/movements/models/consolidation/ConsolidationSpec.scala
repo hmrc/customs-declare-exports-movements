@@ -36,7 +36,7 @@ class ConsolidationSpec extends UnitSpec {
 
       val expectedResult = AssociateDucrRequest(mucr, ducr)
 
-      ConsolidationRequest.format.reads(associateDucrJson) shouldBe JsSuccess(expectedResult)
+      Consolidation.format.reads(associateDucrJson) shouldBe JsSuccess(expectedResult)
     }
 
     "correct read Disassociate Ducr request" in {
@@ -45,7 +45,7 @@ class ConsolidationSpec extends UnitSpec {
 
       val expectedResult = DisassiociateDucrRequest(ducr)
 
-      ConsolidationRequest.format.reads(diassociateDucrJson) shouldBe JsSuccess(expectedResult)
+      Consolidation.format.reads(diassociateDucrJson) shouldBe JsSuccess(expectedResult)
     }
 
     "correct read Shut Mucr request" in {
@@ -54,43 +54,7 @@ class ConsolidationSpec extends UnitSpec {
 
       val expectedResult = ShutMucrRequest(mucr)
 
-      ConsolidationRequest.format.reads(shutMucrJson) shouldBe JsSuccess(expectedResult)
-    }
-  }
-
-  "Associate Ducr Request" should {
-
-    "correctly convert request to consolidation" in {
-
-      val associateDucrRequest = AssociateDucrRequest(mucr, ducr)
-
-      val expectedConsolidation = Consolidation(ASSOCIATE_DUCR, Some(mucr), Some(ducr), DucrAssociation)
-
-      associateDucrRequest.consolidation() shouldBe expectedConsolidation
-    }
-  }
-
-  "Disassociate Ducr Request" should {
-
-    "correctly convert request to consolidation" in {
-
-      val disassociateDucrRequest = DisassiociateDucrRequest(ducr)
-
-      val expectedConsolidation = Consolidation(DISASSOCIATE_DUCR, None, Some(ducr), DucrDisassociation)
-
-      disassociateDucrRequest.consolidation() shouldBe expectedConsolidation
-    }
-  }
-
-  "Shut Mucr Request" should {
-
-    "correctly convert request to consolidation" in {
-
-      val shutMucrRequest = ShutMucrRequest(mucr)
-
-      val expectedConsolidation = Consolidation(SHUT_MUCR, Some(mucr), None, ShutMucr)
-
-      shutMucrRequest.consolidation() shouldBe expectedConsolidation
+      Consolidation.format.reads(shutMucrJson) shouldBe JsSuccess(expectedResult)
     }
   }
 }

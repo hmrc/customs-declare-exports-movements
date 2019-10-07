@@ -16,9 +16,8 @@
 
 package unit.uk.gov.hmrc.exports.movements.services
 
-import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation
+import uk.gov.hmrc.exports.movements.models.consolidation.AssociateDucrRequest
 import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationType.ASSOCIATE_DUCR
-import uk.gov.hmrc.exports.movements.models.submissions.ActionType.DucrAssociation
 import uk.gov.hmrc.exports.movements.services.ILEMapper
 import unit.uk.gov.hmrc.exports.movements.base.UnitSpec
 
@@ -32,7 +31,7 @@ class ILEMapperSpec extends UnitSpec {
 
     "create correct XML based on the consolidation" in {
 
-      val consolidation = Consolidation(ASSOCIATE_DUCR, Some(mucr), Some(ducr), DucrAssociation)
+      val consolidation = AssociateDucrRequest(mucr, ducr)
 
       val expectedXml = scala.xml.Utility.trim {
         <inventoryLinkingConsolidationRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">

@@ -20,7 +20,7 @@ import javax.inject.{Inject, Singleton}
 import play.api.mvc._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.exports.movements.controllers.actions.AuthenticatedController
-import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationRequest
+import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation
 import uk.gov.hmrc.exports.movements.services.SubmissionService
 
 import scala.concurrent.ExecutionContext
@@ -33,10 +33,9 @@ class ConsolidationController @Inject()(
 )(implicit executionContext: ExecutionContext)
     extends AuthenticatedController(authConnector, cc) {
 
-  def submitConsolidation(): Action[ConsolidationRequest] = authorisedAction(parse.json[ConsolidationRequest]) {
-    implicit request =>
-      consolidationService
-        .submitConsolidation(request.eori.value, request.body.consolidation())
-        .map(_ => Accepted(request.body))
+  def submitConsolidation(): Action[Consolidation] = authorisedAction(parse.json[Consolidation]) { implicit request =>
+    consolidationService
+      .submitConsolidation(request.eori.value, request.body)
+      .map(_ => Accepted(request.body))
   }
 }
