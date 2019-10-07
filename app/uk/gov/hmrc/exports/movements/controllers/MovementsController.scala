@@ -20,11 +20,10 @@ import javax.inject.{Inject, Singleton}
 import play.api.Logger
 import play.api.mvc._
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.exports.models.ErrorResponse
 import uk.gov.hmrc.exports.movements.controllers.actions.AuthenticatedController
 import uk.gov.hmrc.exports.movements.controllers.request.MovementRequest
-import uk.gov.hmrc.exports.movements.exceptions.CustomsInventoryLinkingUpstreamException
 import uk.gov.hmrc.exports.movements.models.Eori
+import uk.gov.hmrc.exports.movements.models.movements.Choice.{Arrival, Departure}
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType
 import uk.gov.hmrc.exports.movements.services.SubmissionService
 import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
@@ -43,19 +42,21 @@ class MovementsController @Inject()(
 
   private val logger = Logger(this.getClass)
 
-  def submitMovement(): Action[MovementRequest] = authorisedAction(parse.json[MovementRequest]) { implicit request =>
+  def createMovement(): Action[MovementRequest] = authorisedAction(parse.json[MovementRequest]) { implicit request =>
     val data: InventoryLinkingMovementRequest = request.body.createMovementRequest(request.eori)
     request.body.choice match {
-      case "EAL" =>
+      case Arrival =>
         submitMovementSubmission(data: InventoryLinkingMovementRequest, request.eori, ActionType.Arrival)
-      case "EDL" =>
+          .map(_ => Accepted(request.body))
+      case Departure =>
         submitMovementSubmission(data: InventoryLinkingMovementRequest, request.eori, ActionType.Departure)
+          .map(_ => Accepted(request.body))
     }
   }
 
   private def submitMovementSubmission(data: InventoryLinkingMovementRequest, eori: Eori, actionType: ActionType)(
     implicit hc: HeaderCarrier
-  ): Future[Result] =
+  ): Future[Unit] =
     submissionService
       .submitRequest(
         SubmissionRequestContext(
@@ -64,10 +65,5 @@ class MovementsController @Inject()(
           requestXml = xml.XML.loadString(data.toXml)
         )
       )
-      .map(_ => Accepted("Movement Submission submitted successfully"))
-      .recover {
-        case e: CustomsInventoryLinkingUpstreamException =>
-          ErrorResponse.errorInternalServerError(e.getMessage).XmlResult
-      }
-
+      .map(_ => logger.info("Movement Submission submitted successfully"))
 }

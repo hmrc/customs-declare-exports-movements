@@ -18,6 +18,7 @@ package uk.gov.hmrc.exports.movements.controllers.request
 
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.exports.movements.models.Eori
+import uk.gov.hmrc.exports.movements.models.movements.Choice.{Arrival, Departure}
 import uk.gov.hmrc.exports.movements.models.movements._
 import uk.gov.hmrc.wco.dec.inventorylinking.common.{TransportDetails, UcrBlock}
 import uk.gov.hmrc.wco.dec.inventorylinking.movement.request.InventoryLinkingMovementRequest
@@ -34,13 +35,13 @@ case class MovementRequest(
   def createMovementRequest(eori: Eori): InventoryLinkingMovementRequest = {
 
     val departureDetails = choice match {
-      case "EDL" => Some(movementDetails)
-      case _     => None
+      case Departure => Some(movementDetails)
+      case _         => None
     }
 
     val arrivalDetails: Option[MovementDetails] = choice match {
-      case "EAL" => Some(movementDetails)
-      case _     => None
+      case Arrival => Some(movementDetails)
+      case _       => None
     }
 
     InventoryLinkingMovementRequest(
