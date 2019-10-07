@@ -27,13 +27,11 @@ import play.api.http.Status.{ACCEPTED, BAD_REQUEST}
 import reactivemongo.api.commands.WriteResult
 import uk.gov.hmrc.exports.movements.exceptions.CustomsInventoryLinkingUpstreamException
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
-import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation
-import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationType.SHUT_MUCR
+import uk.gov.hmrc.exports.movements.models.consolidation.{Consolidation, ShutMucrRequest}
 import uk.gov.hmrc.exports.movements.models.notifications.UcrBlock
-import uk.gov.hmrc.exports.movements.models.submissions.ActionType.ShutMucr
 import uk.gov.hmrc.exports.movements.models.submissions.{ActionType, Submission}
-import uk.gov.hmrc.exports.movements.services.{ILEMapper, SubmissionService}
 import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
+import uk.gov.hmrc.exports.movements.services.{ILEMapper, SubmissionService}
 import uk.gov.hmrc.http.HeaderCarrier
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
 import utils.testdata.CommonTestData._
@@ -53,16 +51,16 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
     val customsInventoryLinkingExportsConnectorMock = buildCustomsInventoryLinkingExportsConnectorMock
     val submissionRepositoryMock = buildSubmissionRepositoryMock
     val submissionFactoryMock = buildSubmissionFactoryMock
-    val wcoMapperMock = mock[ILEMapper]
+    val ileMapperMock = mock[ILEMapper]
     val submissionService = new SubmissionService(
       customsInventoryLinkingExportsConnector = customsInventoryLinkingExportsConnectorMock,
       submissionRepository = submissionRepositoryMock,
       submissionFactory = submissionFactoryMock,
-      wcoMapperMock
+      ileMapperMock
     )(ExecutionContext.global)
   }
 
-  val exampleShutMucrRequest: Consolidation = Consolidation(SHUT_MUCR, Some("mucr"), None, ShutMucr)
+  val exampleShutMucrRequest: Consolidation = ShutMucrRequest("mucr")
 
   "SubmissionService on submitRequest" when {
 

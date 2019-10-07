@@ -17,6 +17,8 @@
 package uk.gov.hmrc.exports.movements.models.submissions
 
 import play.api.libs.json._
+import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationType.ConsolidationType
+import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationType._
 
 sealed abstract class ActionType(val value: String)
 
@@ -38,5 +40,11 @@ object ActionType {
       case JsString("ShutMucr")           => JsSuccess(ShutMucr)
       case _                              => JsError("Unknown ActionType")
     }
+  }
+
+  def apply(consolidationType: ConsolidationType): ActionType = consolidationType match {
+    case ASSOCIATE_DUCR    => DucrAssociation
+    case DISASSOCIATE_DUCR => DucrDisassociation
+    case SHUT_MUCR         => ShutMucr
   }
 }

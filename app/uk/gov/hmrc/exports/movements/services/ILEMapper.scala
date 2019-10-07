@@ -18,6 +18,8 @@ package uk.gov.hmrc.exports.movements.services
 
 import javax.inject.Singleton
 import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation
+import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationType.ConsolidationType
+import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationType._
 
 import scala.xml.{Node, NodeSeq}
 
@@ -27,11 +29,16 @@ class ILEMapper {
   def generateConsolidationXml(consolidation: Consolidation): Node =
     scala.xml.Utility.trim {
       <inventoryLinkingConsolidationRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
-        <messageCode>{consolidation.consolidationType.toString}</messageCode>
-        {buildMasterUcrNode(consolidation.mucr)}
-        {buildUcrBlockNode(consolidation.ducr)}
+        <messageCode>{buildMessageCode(consolidation.consolidationType)}</messageCode>
+        {buildMasterUcrNode(consolidation.mucrOpt)}
+        {buildUcrBlockNode(consolidation.ducrOpt)}
       </inventoryLinkingConsolidationRequest>
     }
+
+  private def buildMessageCode(consolidationType: ConsolidationType): String = consolidationType match {
+    case ASSOCIATE_DUCR | DISASSOCIATE_DUCR => "EAC"
+    case SHUT_MUCR                          => "CST"
+  }
 
   private def buildMasterUcrNode(mucrOpt: Option[String]): NodeSeq =
     mucrOpt.map(mucr => <masterUCR>{mucr}</masterUCR>).getOrElse(NodeSeq.Empty)
