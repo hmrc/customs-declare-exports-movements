@@ -21,7 +21,7 @@ import uk.gov.hmrc.exports.movements.models.XmlTags
 import uk.gov.hmrc.exports.movements.models.notifications.UcrBlock
 import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
 
-import scala.xml.NodeSeq
+import scala.xml.{Node, NodeSeq}
 
 @Singleton
 class SubmissionFactory {
@@ -32,6 +32,14 @@ class SubmissionFactory {
       conversationId = conversationId,
       ucrBlocks = extractUcrListFrom(context.requestXml),
       actionType = context.actionType
+    )
+
+  def buildSubmission(eori: String, conversationId: String, requestXml: Node, actionType: ActionType): Submission =
+    Submission(
+      eori = eori,
+      conversationId = conversationId,
+      ucrBlocks = extractUcrListFrom(requestXml),
+      actionType = actionType
     )
 
   private def extractUcrListFrom(request: NodeSeq): Seq[UcrBlock] = {

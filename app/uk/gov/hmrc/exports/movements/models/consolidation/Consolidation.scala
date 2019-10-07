@@ -19,10 +19,7 @@ package uk.gov.hmrc.exports.movements.models.consolidation
 import play.api.libs.json.{Format, Json, Reads, Writes}
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType.{DucrAssociation, DucrDisassociation, ShutMucr}
-import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
 import uk.gov.hmrc.play.json.Union
-
-import scala.xml.Node
 
 object ConsolidationType extends Enumeration {
   type ConsolidationType = Value
@@ -72,11 +69,7 @@ case class Consolidation(
   mucr: Option[String],
   ducr: Option[String],
   actionType: ActionType
-) {
-
-  def buildSubmissionContext(eori: String, requestXml: Node): SubmissionRequestContext =
-    SubmissionRequestContext(eori, actionType, requestXml)
-}
+)
 
 object Consolidation {
 

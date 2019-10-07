@@ -34,7 +34,7 @@ class SubmissionService @Inject()(
   customsInventoryLinkingExportsConnector: CustomsInventoryLinkingExportsConnector,
   submissionRepository: SubmissionRepository,
   submissionFactory: SubmissionFactory,
-  wcoMapper: ILEMapper
+  ileMapper: ILEMapper
 )(implicit executionContext: ExecutionContext) {
 
   def submitRequest(context: SubmissionRequestContext)(implicit hc: HeaderCarrier): Future[Unit] =
@@ -58,14 +58,31 @@ class SubmissionService @Inject()(
     }
 
   def submitConsolidation(eori: String, consolidation: Consolidation)(implicit hc: HeaderCarrier): Future[Unit] = {
-    val requestXml = wcoMapper.generateConsolidationXml(consolidation)
+    val requestXml = ileMapper.generateConsolidationXml(consolidation)
 
-    submitRequest(consolidation.buildSubmissionContext(eori, requestXml))
+    customsInventoryLinkingExportsConnector.sendInventoryLinkingRequest(eori, requestXml).flatMap {
+
+      case CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId)) =>
+        val newSubmission =
+          submissionFactory.buildSubmission(eori, conversationId, requestXml, consolidation.actionType)
+
+        submissionRepository
+          .insert(newSubmission)
+          .map(_ => (): Unit)
+
+      case CustomsInventoryLinkingResponse(status, conversationId) =>
+        Future.failed(
+          new CustomsInventoryLinkingUpstreamException(
+            status,
+            conversationId,
+            "Non Accepted status returned by Customs Inventory Linking Exports"
+          )
+        )
+    }
   }
 
   def getSubmissionsByEori(eori: String): Future[Seq[Submission]] = submissionRepository.findByEori(eori)
 
   def getSubmissionByConversationId(conversationId: String): Future[Option[Submission]] =
     submissionRepository.findByConversationId(conversationId)
-
 }

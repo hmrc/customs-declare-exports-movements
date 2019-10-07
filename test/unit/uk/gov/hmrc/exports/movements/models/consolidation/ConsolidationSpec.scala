@@ -18,15 +18,8 @@ package unit.uk.gov.hmrc.exports.movements.models.consolidation
 
 import play.api.libs.json.{JsObject, JsString, JsSuccess, JsValue}
 import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationType._
-import uk.gov.hmrc.exports.movements.models.consolidation.{
-  AssociateDucrRequest,
-  Consolidation,
-  ConsolidationRequest,
-  DisassiociateDucrRequest,
-  ShutMucrRequest
-}
+import uk.gov.hmrc.exports.movements.models.consolidation._
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType.{DucrAssociation, DucrDisassociation, ShutMucr}
-import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
 import unit.uk.gov.hmrc.exports.movements.base.UnitSpec
 
 class ConsolidationSpec extends UnitSpec {
@@ -98,24 +91,6 @@ class ConsolidationSpec extends UnitSpec {
       val expectedConsolidation = Consolidation(SHUT_MUCR, Some(mucr), None, ShutMucr)
 
       shutMucrRequest.consolidation() shouldBe expectedConsolidation
-    }
-  }
-
-  "Consolidation" should {
-
-    "correctly build submission context" in {
-
-      val eori = "eori"
-      val shutMucrXml = scala.xml.Utility.trim {
-        <inventoryLinkingConsolidationRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
-          <messageCode>CST</messageCode>
-          {mucr}
-        </inventoryLinkingConsolidationRequest>
-      }
-      val consolidation = Consolidation(SHUT_MUCR, Some(mucr), None, ShutMucr)
-      val expectedSubmissionRequestContext = SubmissionRequestContext(eori, ShutMucr, shutMucrXml)
-
-      consolidation.buildSubmissionContext(eori, shutMucrXml) shouldBe expectedSubmissionRequestContext
     }
   }
 }

@@ -53,12 +53,12 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
     val customsInventoryLinkingExportsConnectorMock = buildCustomsInventoryLinkingExportsConnectorMock
     val submissionRepositoryMock = buildSubmissionRepositoryMock
     val submissionFactoryMock = buildSubmissionFactoryMock
-    val wcoMapperMock = mock[ILEMapper]
+    val ileMapperMock = mock[ILEMapper]
     val submissionService = new SubmissionService(
       customsInventoryLinkingExportsConnector = customsInventoryLinkingExportsConnectorMock,
       submissionRepository = submissionRepositoryMock,
       submissionFactory = submissionFactoryMock,
-      wcoMapperMock
+      ileMapperMock
     )(ExecutionContext.global)
   }
 

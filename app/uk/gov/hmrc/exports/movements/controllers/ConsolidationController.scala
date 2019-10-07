@@ -17,20 +17,13 @@
 package uk.gov.hmrc.exports.movements.controllers
 
 import javax.inject.{Inject, Singleton}
-import play.api.Logger
 import play.api.mvc._
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.exports.models.ErrorResponse
 import uk.gov.hmrc.exports.movements.controllers.actions.AuthenticatedController
-import uk.gov.hmrc.exports.movements.exceptions.CustomsInventoryLinkingUpstreamException
 import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationRequest
-import uk.gov.hmrc.exports.movements.models.AuthorizedSubmissionRequest
-import uk.gov.hmrc.exports.movements.models.submissions.ActionType
 import uk.gov.hmrc.exports.movements.services.SubmissionService
-import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
-import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 @Singleton
 class ConsolidationController @Inject()(
@@ -40,53 +33,10 @@ class ConsolidationController @Inject()(
 )(implicit executionContext: ExecutionContext)
     extends AuthenticatedController(authConnector, cc) {
 
-  private val logger = Logger(this.getClass)
-
-  val shutMucr: Action[AnyContentAsXml] = movementConsolidationAction(ActionType.ShutMucr)
-
-  val associateMucr: Action[AnyContentAsXml] = movementConsolidationAction(ActionType.DucrAssociation)
-
-  val disassociateMucr: Action[AnyContentAsXml] = movementConsolidationAction(ActionType.DucrDisassociation)
-
-  private def movementConsolidationAction(action: ActionType): Action[AnyContentAsXml] =
-    authorisedAction(bodyParser = xmlOrEmptyBody(action)) { implicit request =>
-      submitMovementConsolidation(action)
-    }
-
-  private def xmlOrEmptyBody(action: ActionType): BodyParser[AnyContentAsXml] =
-    BodyParser(
-      rq =>
-        parse.tolerantXml(rq).map {
-          case Right(xml) => Right(AnyContentAsXml(xml))
-          case _ =>
-            logger.warn(s"Bad Consolidation Request: Invalid XML. Action ${action.value}")
-            Left(ErrorResponse.errorInvalidPayload.XmlResult)
-      }
-    )
-
-  private def submitMovementConsolidation(
-    actionType: ActionType
-  )(implicit hc: HeaderCarrier, request: AuthorizedSubmissionRequest[AnyContentAsXml]): Future[Result] = {
-    val context =
-      SubmissionRequestContext(eori = request.eori.value, actionType = actionType, requestXml = request.body.xml)
-    forwardMovementConsolidationRequest(context)
-  }
-
-  private def forwardMovementConsolidationRequest(
-    context: SubmissionRequestContext
-  )(implicit hc: HeaderCarrier): Future[Result] =
-    consolidationService
-      .submitRequest(context)
-      .map(_ => Accepted("Consolidation request submitted successfully"))
-      .recover {
-        case e: CustomsInventoryLinkingUpstreamException =>
-          ErrorResponse.errorInternalServerError(e.getMessage).XmlResult
-      }
-
   def submitConsolidation(): Action[ConsolidationRequest] = authorisedAction(parse.json[ConsolidationRequest]) {
     implicit request =>
       consolidationService
         .submitConsolidation(request.eori.value, request.body.consolidation())
-        .map(_ => Accepted(request.body.consolidation()))
+        .map(_ => Accepted(request.body))
   }
 }
