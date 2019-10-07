@@ -15,4 +15,3 @@ GET         /movements/:conversationId                      uk.gov.hmrc.exports.
 # Movements Consolidations
 
 POST        /consolidation                                  uk.gov.hmrc.exports.movements.controllers.ConsolidationController.submitConsolidation()
-

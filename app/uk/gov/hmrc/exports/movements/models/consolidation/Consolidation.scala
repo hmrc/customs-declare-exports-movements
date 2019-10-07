@@ -50,9 +50,9 @@ object Consolidation {
   implicit val shutMucrFormat = Json.format[ShutMucrRequest]
 
   implicit val format = Union
-    .from[Consolidation](typeField = "type")
-    .and[AssociateDucrRequest](typeTag = "associateDucr")
-    .and[DisassiociateDucrRequest](typeTag = "disassociateDucr")
-    .and[ShutMucrRequest](typeTag = "shutMucr")
+    .from[Consolidation](typeField = "consolidationType")
+    .and[AssociateDucrRequest](typeTag = ASSOCIATE_DUCR.toString)
+    .and[DisassiociateDucrRequest](typeTag = DISASSOCIATE_DUCR.toString)
+    .and[ShutMucrRequest](typeTag = SHUT_MUCR.toString)
     .format
 }

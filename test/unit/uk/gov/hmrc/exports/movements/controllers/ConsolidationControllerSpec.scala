@@ -17,7 +17,7 @@
 package unit.uk.gov.hmrc.exports.movements.controllers
 
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{reset, when}
+import org.mockito.Mockito.{reset, verify, when}
 import org.scalatest.{MustMatchers, WordSpec}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.mvc.Request
@@ -34,10 +34,10 @@ import scala.concurrent.Future
 
 class ConsolidationControllerSpec extends WordSpec with MustMatchers with MockitoSugar with AuthTestSupport {
 
-  val consolidationService = mock[SubmissionService]
+  val submissionService = mock[SubmissionService]
 
   val controller =
-    new ConsolidationController(mockAuthConnector, consolidationService, stubControllerComponents())(global)
+    new ConsolidationController(mockAuthConnector, submissionService, stubControllerComponents())(global)
 
   val correctRequest = AssociateDucrRequest("mucr", "ducr")
 
@@ -48,7 +48,7 @@ class ConsolidationControllerSpec extends WordSpec with MustMatchers with Mockit
   }
 
   override protected def afterEach(): Unit = {
-    reset(consolidationService)
+    reset(submissionService)
 
     super.afterEach()
   }
@@ -65,12 +65,13 @@ class ConsolidationControllerSpec extends WordSpec with MustMatchers with Mockit
 
       "consolidation submission ends with success" in {
 
-        when(consolidationService.submitConsolidation(any(), any())(any()))
+        when(submissionService.submitConsolidation(any(), any())(any()))
           .thenReturn(Future.successful((): Unit))
 
         val result = controller.submitConsolidation()(postRequest(correctRequest))
 
         status(result) mustBe ACCEPTED
+        verify(submissionService).submitConsolidation(any(), any())(any())
       }
     }
   }

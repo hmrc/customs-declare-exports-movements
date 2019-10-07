@@ -45,7 +45,7 @@ class SubmissionFactory {
       eori = eori,
       conversationId = conversationId,
       ucrBlocks = extractUcrListFrom(requestXml),
-      actionType = ActionType.fromConsolidationType(consolidationType)
+      actionType = ActionType(consolidationType)
     )
 
   private def extractUcrListFrom(request: NodeSeq): Seq[UcrBlock] = {

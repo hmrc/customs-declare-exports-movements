@@ -42,7 +42,7 @@ object ActionType {
     }
   }
 
-  def fromConsolidationType(consolidationType: ConsolidationType): ActionType = consolidationType match {
+  def apply(consolidationType: ConsolidationType): ActionType = consolidationType match {
     case ASSOCIATE_DUCR    => DucrAssociation
     case DISASSOCIATE_DUCR => DucrDisassociation
     case SHUT_MUCR         => ShutMucr
