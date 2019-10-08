@@ -70,7 +70,7 @@ class MovementsControllerUnitSpec extends WordSpec with MustMatchers with Mockit
 
       "consolidation submission ends with success" in {
 
-        when(submissionServiceMock.submitRequest(any())(any()))
+        when(submissionServiceMock.submitConsolidation(any(), any())(any()))
           .thenReturn(Future.successful((): Unit))
 
         val result = controller.createMovement()(postRequest(correctJson))

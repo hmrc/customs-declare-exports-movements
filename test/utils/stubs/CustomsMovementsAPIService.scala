@@ -24,6 +24,7 @@ import com.github.tomakehurst.wiremock.matching.UrlPattern
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import integration.uk.gov.hmrc.exports.movements.base.WireMockRunner
 import play.api.http.ContentTypes
+import play.api.libs.json.JsValue
 import play.api.mvc.Codec
 import play.api.test.Helpers.{ACCEPTED, CONTENT_TYPE}
 import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames
@@ -59,15 +60,24 @@ trait CustomsMovementsAPIService extends WireMockRunner {
       )
     }
 
-  def verifyILEServiceWasCalled(requestBody: String, expectedEori: String) {
-
+  def verifyILEServiceWasCalled(requestBody: String, expectedEori: String): Unit =
     verifyILEServiceWasCalledWith(CustomsMovementsAPIConfig.submitMovementServiceContext, requestBody, expectedEori)
-  }
+
+
+  def verifyILEServiceWasCalled(requestBody: JsValue, expectedEori: String): Unit =
+    verify(
+      1,
+      postRequestedFor(urlMatching(CustomsMovementsAPIConfig.submitMovementServiceContext))
+        .withHeader(CONTENT_TYPE, equalTo(ContentTypes.JSON))
+        .withHeader(CustomsHeaderNames.XEoriIdentifierHeaderName, equalTo(expectedEori))
+        .withHeader(CustomsHeaderNames.XClientIdName, equalTo(CustomsMovementsAPIConfig.clientId))
+        .withRequestBody(equalToJson(requestBody.toString))
+    )
 
   def verifyILEServiceWasNotCalled(): Unit =
     verify(exactly(0), postRequestedFor(urlMatching(CustomsMovementsAPIConfig.submitMovementServiceContext)))
 
-  private def verifyILEServiceWasCalledWith(requestPath: String, requestBody: String, expectedEori: String) {
+  private def verifyILEServiceWasCalledWith(requestPath: String, requestBody: String, expectedEori: String): Unit = {
 
     verify(
       1,

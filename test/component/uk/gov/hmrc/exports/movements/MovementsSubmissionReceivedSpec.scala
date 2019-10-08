@@ -20,24 +20,23 @@ import component.uk.gov.hmrc.exports.movements.base.ComponentTestSpec
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatest.concurrent.IntegrationPatience
-import play.api.mvc.{AnyContentAsXml, Result}
+import play.api.mvc.{AnyContentAsJson, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import reactivemongo.core.actors.Exceptions.PrimaryUnavailableException
 import reactivemongo.core.errors.ConnectionException
-import utils.testdata.CommonTestData.{validEori, ValidHeaders}
+import utils.testdata.CommonTestData.{ValidJsonHeaders, validEori}
 import utils.testdata.MovementsTestData._
 
 import scala.concurrent.{Await, Future}
-import scala.xml.XML
 
 class MovementsSubmissionReceivedSpec extends ComponentTestSpec with IntegrationPatience {
 
-  val submitArrivalEndpoint = "/movements/arrival"
+  val submitArrivalEndpoint = "/movements"
 
-  lazy val validMovementSubmissionRequest: FakeRequest[AnyContentAsXml] = FakeRequest(POST, submitArrivalEndpoint)
-    .withHeaders(ValidHeaders.toSeq: _*)
-    .withXmlBody(XML.loadString(validInventoryLinkingExportRequest.toXml))
+  lazy val validMovementSubmissionRequest: FakeRequest[AnyContentAsJson] = FakeRequest(POST, submitArrivalEndpoint)
+    .withHeaders(ValidJsonHeaders.toSeq: _*)
+    .withJsonBody(exampleDepartureRequestJson)
 
   feature("Movements Service should handle submissions when") {
 
@@ -48,7 +47,7 @@ class MovementsSubmissionReceivedSpec extends ComponentTestSpec with Integration
         moveSubRepoMockedResult = true,
         moveSubRepoIsCalled = true,
         expectedResponseStatus = ACCEPTED,
-        expectedResponseBody = "Movement Submission submitted successfully"
+        expectedResponseBody = exampleDepartureRequestJson.toString
       )
     }
 
@@ -109,7 +108,7 @@ class MovementsSubmissionReceivedSpec extends ComponentTestSpec with Integration
 
     scenario("an authorised user tries to submit movements declaration, but ILE service is down") {
 
-      val request: FakeRequest[AnyContentAsXml] = validMovementSubmissionRequest
+      val request: FakeRequest[AnyContentAsJson] = validMovementSubmissionRequest
 
       Given("user is authorised")
       authServiceAuthorizesWithEoriAndNoRetrievals()
@@ -128,7 +127,7 @@ class MovementsSubmissionReceivedSpec extends ComponentTestSpec with Integration
 
       And("the ILE API service was called correctly")
       eventually(
-        verifyILEServiceWasCalled(requestBody = validInventoryLinkingExportRequest.toXml, expectedEori = validEori)
+        verifyILEServiceWasCalled(requestBody = exampleDepartureRequestJson, expectedEori = validEori)
       )
 
       And("the movement submission repository was not called")
@@ -157,7 +156,7 @@ class MovementsSubmissionReceivedSpec extends ComponentTestSpec with Integration
             )
           )
         )
-      val request: FakeRequest[AnyContentAsXml] = validMovementSubmissionRequest
+      val request: FakeRequest[AnyContentAsJson] = validMovementSubmissionRequest
 
       When("a POST request with data is sent to the movements API")
       an[Exception] mustBe thrownBy {
@@ -166,7 +165,7 @@ class MovementsSubmissionReceivedSpec extends ComponentTestSpec with Integration
 
       And("the ILE API service is called correctly")
       eventually(
-        verifyILEServiceWasCalled(requestBody = validInventoryLinkingExportRequest.toXml, expectedEori = validEori)
+        verifyILEServiceWasCalled(requestBody = exampleDepartureRequestJson, expectedEori = validEori)
       )
 
       And("the movement submission repository is called correctly")
@@ -180,7 +179,7 @@ class MovementsSubmissionReceivedSpec extends ComponentTestSpec with Integration
       stubUnauthorizedForAll()
       startInventoryLinkingService(ACCEPTED)
 
-      val request: FakeRequest[AnyContentAsXml] = validMovementSubmissionRequest
+      val request: FakeRequest[AnyContentAsJson] = validMovementSubmissionRequest
 
       When("a POST request with data is sent to the movements API")
       val result: Future[Result] = route(app = app, request).value
@@ -212,7 +211,7 @@ class MovementsSubmissionReceivedSpec extends ComponentTestSpec with Integration
     ): Unit = {
 
       startInventoryLinkingService(primeIleApiStubToReturnStatus)
-      val request: FakeRequest[AnyContentAsXml] = validMovementSubmissionRequest
+      val request: FakeRequest[AnyContentAsJson] = validMovementSubmissionRequest
 
       Given("user is authorised")
       authServiceAuthorizesWithEoriAndNoRetrievals()
@@ -240,7 +239,7 @@ class MovementsSubmissionReceivedSpec extends ComponentTestSpec with Integration
 
       And("the ILE API service is called correctly")
       eventually(
-        verifyILEServiceWasCalled(requestBody = validInventoryLinkingExportRequest.toXml, expectedEori = validEori)
+        verifyILEServiceWasCalled(requestBody = exampleDepartureRequestJson, expectedEori = validEori)
       )
 
       if (moveSubRepoIsCalled) {

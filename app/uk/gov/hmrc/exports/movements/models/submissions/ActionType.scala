@@ -48,6 +48,7 @@ object ActionType {
     case ASSOCIATE_DUCR    => DucrAssociation
     case DISASSOCIATE_DUCR => DucrDisassociation
     case SHUT_MUCR         => ShutMucr
+    case _ => throw new IllegalArgumentException("Incorrect consolidation type")
   }
 
   def apply(movementRequest: MovementRequest): ActionType = movementRequest.choice match {

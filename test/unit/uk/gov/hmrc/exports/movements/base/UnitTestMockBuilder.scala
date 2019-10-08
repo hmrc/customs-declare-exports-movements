@@ -38,7 +38,6 @@ import uk.gov.hmrc.exports.movements.models.notifications.{
 }
 import uk.gov.hmrc.exports.movements.models.submissions.SubmissionFactory
 import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, SubmissionRepository}
-import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
 import uk.gov.hmrc.exports.movements.services.{NotificationService, SubmissionService}
 import utils.testdata.MovementsTestData.emptySubmission
 
@@ -82,16 +81,6 @@ object UnitTestMockBuilder extends MockitoSugar {
     notificationServiceMock
   }
 
-  def buildSubmissionServiceMock: SubmissionService = {
-    val submissionServiceMock = mock[SubmissionService]
-
-    when(submissionServiceMock.submitRequest(any())(any())).thenReturn(Future.failed(new Exception("")))
-    when(submissionServiceMock.getSubmissionsByEori(any())).thenReturn(Future.successful(Seq.empty))
-    when(submissionServiceMock.getSubmissionByConversationId(any())).thenReturn(Future.successful(None))
-
-    submissionServiceMock
-  }
-
   def buildMovementNotificationFactoryMock: NotificationFactory = {
     val movementNotificationFactoryMock = mock[NotificationFactory]
 
@@ -99,15 +88,6 @@ object UnitTestMockBuilder extends MockitoSugar {
       .thenReturn(Notification.empty)
 
     movementNotificationFactoryMock
-  }
-
-  def buildSubmissionFactoryMock: SubmissionFactory = {
-    val submissionFactory = mock[SubmissionFactory]
-
-    when(submissionFactory.buildMovementSubmission(any[String], any[SubmissionRequestContext]))
-      .thenReturn(emptySubmission)
-
-    submissionFactory
   }
 
   def buildCustomsInventoryLinkingExportsConnectorMock: CustomsInventoryLinkingExportsConnector = {

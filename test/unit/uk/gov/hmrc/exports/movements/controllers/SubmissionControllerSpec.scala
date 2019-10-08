@@ -30,13 +30,11 @@ import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.exports.movements.controllers.request.MovementRequest
 import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames.XEoriIdentifierHeaderName
-import uk.gov.hmrc.exports.movements.models.submissions.ActionType
 import uk.gov.hmrc.exports.movements.services.SubmissionService
-import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
 import unit.uk.gov.hmrc.exports.movements.base.AuthTestSupport
-import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder.buildSubmissionServiceMock
-import utils.testdata.CommonTestData.{conversationId, conversationId_2, conversationId_3, ValidHeaders}
+import utils.testdata.CommonTestData.{ValidHeaders, conversationId, conversationId_2, conversationId_3}
 import utils.testdata.MovementsTestData._
 
 import scala.concurrent.Future
@@ -53,7 +51,7 @@ class SubmissionControllerSpec
   private val arrivalUri = "/movements/arrival"
   private val departureUri = "/movements/departure"
   private val getAllSubmissionsUri = "/movements"
-  private val submissionServiceMock = buildSubmissionServiceMock
+  private val submissionServiceMock = mock[SubmissionService]
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -74,7 +72,7 @@ class SubmissionControllerSpec
 
       "return Accepted status" in {
         withAuthorizedUser()
-        when(submissionServiceMock.submitRequest(any())(any()))
+        when(submissionServiceMock.submitMovement(any(), any())(any()))
           .thenReturn(Future.successful((): Unit))
 
         val result = routePost(xmlBody = exampleArrivalRequestXML, uri = arrivalUri)
@@ -84,20 +82,20 @@ class SubmissionControllerSpec
 
       "call SubmissionService, passing correctly built RequestContext" in {
         withAuthorizedUser()
-        when(submissionServiceMock.submitRequest(any())(any()))
+        when(submissionServiceMock.submitMovement(any(), any())(any()))
           .thenReturn(Future.successful((): Unit))
 
         routePost(xmlBody = exampleArrivalRequestXML, uri = arrivalUri).futureValue
 
         val expectedEori = ValidHeaders(XEoriIdentifierHeaderName)
-        val contextCaptor: ArgumentCaptor[SubmissionRequestContext] =
-          ArgumentCaptor.forClass(classOf[SubmissionRequestContext])
+        val contextCaptor: ArgumentCaptor[MovementRequest] =
+          ArgumentCaptor.forClass(classOf[MovementRequest])
+        val eoriCaptor: ArgumentCaptor[String] = ArgumentCaptor.forClass(classOf[String])
 
-        verify(submissionServiceMock).submitRequest(contextCaptor.capture())(any())
+        verify(submissionServiceMock).submitMovement(eoriCaptor.capture(), contextCaptor.capture())(any())
 
-        contextCaptor.getValue.eori must equal(expectedEori)
-        contextCaptor.getValue.actionType must equal(ActionType.Arrival)
-        contextCaptor.getValue.requestXml must equal(exampleArrivalRequestXML)
+        eoriCaptor.getValue mustBe expectedEori
+        contextCaptor.getValue.choice mustBe "EAL"
       }
     }
 
@@ -106,7 +104,7 @@ class SubmissionControllerSpec
       "return InternalServerError" in {
         withAuthorizedUser()
 
-        when(submissionServiceMock.submitRequest(any())(any()))
+        when(submissionServiceMock.submitMovement(any(), any())(any()))
           .thenReturn(Future.failed(new Exception("")))
 
         val response = routePost(xmlBody = exampleArrivalRequestXML, uri = arrivalUri)
@@ -121,7 +119,7 @@ class SubmissionControllerSpec
 
       "return ErrorResponse for invalid payload" in {
         withAuthorizedUser()
-        when(submissionServiceMock.submitRequest(any())(any()))
+        when(submissionServiceMock.submitMovement(any(), any())(any()))
           .thenReturn(Future.successful((): Unit))
 
         val result = route(
@@ -137,7 +135,7 @@ class SubmissionControllerSpec
 
       "not call SubmissionService" in {
         withAuthorizedUser()
-        when(submissionServiceMock.submitRequest(any())(any()))
+        when(submissionServiceMock.submitMovement(any(), any())(any()))
           .thenReturn(Future.successful((): Unit))
 
         route(
@@ -158,7 +156,7 @@ class SubmissionControllerSpec
 
       "return Accepted status" in {
         withAuthorizedUser()
-        when(submissionServiceMock.submitRequest(any())(any()))
+        when(submissionServiceMock.submitMovement(any(), any())(any()))
           .thenReturn(Future.successful((): Unit))
 
         val result = routePost(xmlBody = exampleDepartureRequestXML, uri = departureUri)
@@ -168,20 +166,20 @@ class SubmissionControllerSpec
 
       "call SubmissionService, passing correctly built RequestContext" in {
         withAuthorizedUser()
-        when(submissionServiceMock.submitRequest(any())(any()))
+        when(submissionServiceMock.submitMovement(any(), any())(any()))
           .thenReturn(Future.successful((): Unit))
 
         routePost(xmlBody = exampleDepartureRequestXML, uri = departureUri).futureValue
 
         val expectedEori = ValidHeaders(XEoriIdentifierHeaderName)
-        val contextCaptor: ArgumentCaptor[SubmissionRequestContext] =
-          ArgumentCaptor.forClass(classOf[SubmissionRequestContext])
+        val contextCaptor: ArgumentCaptor[MovementRequest] =
+          ArgumentCaptor.forClass(classOf[MovementRequest])
+        val eoriCaptor: ArgumentCaptor[String] = ArgumentCaptor.forClass(classOf[String])
 
-        verify(submissionServiceMock).submitRequest(contextCaptor.capture())(any())
+        verify(submissionServiceMock).submitMovement(eoriCaptor.capture(), contextCaptor.capture())(any())
 
-        contextCaptor.getValue.eori must equal(expectedEori)
-        contextCaptor.getValue.actionType must equal(ActionType.Departure)
-        contextCaptor.getValue.requestXml must equal(exampleDepartureRequestXML)
+        contextCaptor.getValue.choice mustBe "EDL"
+        eoriCaptor.getValue mustBe expectedEori
       }
     }
 
@@ -190,7 +188,7 @@ class SubmissionControllerSpec
       "return InternalServerError" in {
         withAuthorizedUser()
 
-        when(submissionServiceMock.submitRequest(any())(any()))
+        when(submissionServiceMock.submitMovement(any(), any())(any()))
           .thenReturn(Future.failed(new Exception("")))
 
         val result = routePost(xmlBody = exampleDepartureRequestXML, uri = departureUri)
@@ -205,7 +203,7 @@ class SubmissionControllerSpec
 
       "return ErrorResponse for invalid payload" in {
         withAuthorizedUser()
-        when(submissionServiceMock.submitRequest(any())(any()))
+        when(submissionServiceMock.submitMovement(any(), any())(any()))
           .thenReturn(Future.successful((): Unit))
 
         val result = route(
@@ -221,7 +219,7 @@ class SubmissionControllerSpec
 
       "not call SubmissionService" in {
         withAuthorizedUser()
-        when(submissionServiceMock.submitRequest(any())(any()))
+        when(submissionServiceMock.submitMovement(any(), any())(any()))
           .thenReturn(Future.successful((): Unit))
 
         route(

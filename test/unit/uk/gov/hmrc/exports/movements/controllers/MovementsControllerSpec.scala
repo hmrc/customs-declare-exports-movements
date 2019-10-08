@@ -16,26 +16,19 @@
 
 package unit.uk.gov.hmrc.exports.movements.controllers
 
-import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{reset, verify, when}
+import org.mockito.Mockito.{reset, when}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{BeforeAndAfterEach, MustMatchers, WordSpec}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.json.JsValue
-import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames.XEoriIdentifierHeaderName
-import uk.gov.hmrc.exports.movements.models.submissions.ActionType
 import uk.gov.hmrc.exports.movements.services.SubmissionService
-import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
 import unit.uk.gov.hmrc.exports.movements.base.AuthTestSupport
-import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder.buildSubmissionServiceMock
 import utils.testdata.CommonTestData.ValidJsonHeaders
 import utils.testdata.MovementsTestData._
 
@@ -51,113 +44,27 @@ class MovementsControllerSpec
 
   private val movementsUri = "/movements"
 
-  private val submissionServiceMock = buildSubmissionServiceMock
+  private val submissionServiceMock = mock[SubmissionService]
 
   override def beforeEach(): Unit = {
     super.beforeEach()
     reset(mockAuthConnector, submissionServiceMock)
   }
 
-  private def routePost(headers: Map[String, String] = ValidJsonHeaders, body: JsValue, uri: String): Future[Result] =
-    route(app, FakeRequest(POST, uri).withHeaders(headers.toSeq: _*).withJsonBody(body)).get
+  "Movement Controller" should {
 
-  "SubmissionController on submitArrival" when {
+    "return ACCEPTED during posting movement" in {
 
-    "everything works correctly" should {
+      when(submissionServiceMock.submitMovement(any(), any())(any())).thenReturn(Future.successful((): Unit))
 
-      "return Accepted status" in {
-        withAuthorizedUser()
-        when(submissionServiceMock.submitRequest(any())(any()))
-          .thenReturn(Future.successful((): Unit))
+      val Some(result) = route(
+        app,
+        FakeRequest(POST, movementsUri)
+          .withHeaders(ValidJsonHeaders.toSeq: _*)
+          .withJsonBody(exampleDepartureRequestJson)
+      )
 
-        val result = routePost(body = exampleArrivalRequestJson, uri = movementsUri)
-
-        status(result) must be(ACCEPTED)
-      }
-
-      "call SubmissionService, passing correctly built RequestContext" in {
-        withAuthorizedUser()
-        when(submissionServiceMock.submitRequest(any())(any()))
-          .thenReturn(Future.successful((): Unit))
-
-        routePost(body = exampleArrivalRequestJson, uri = movementsUri).futureValue
-
-        val expectedEori = ValidJsonHeaders(XEoriIdentifierHeaderName)
-        val contextCaptor: ArgumentCaptor[SubmissionRequestContext] =
-          ArgumentCaptor.forClass(classOf[SubmissionRequestContext])
-
-        verify(submissionServiceMock).submitRequest(contextCaptor.capture())(any())
-
-        contextCaptor.getValue.eori must equal(expectedEori)
-        contextCaptor.getValue.actionType must equal(ActionType.Arrival)
-        contextCaptor.getValue.requestXml must equal(exampleArrivalRequestXML)
-      }
-    }
-
-    "SubmissionService returns failure" should {
-
-      "return InternalServerError" in {
-        withAuthorizedUser()
-
-        when(submissionServiceMock.submitRequest(any())(any()))
-          .thenReturn(Future.failed(new Exception("")))
-
-        val response = routePost(body = exampleArrivalRequestJson, uri = movementsUri)
-
-        an[Exception] mustBe thrownBy {
-          await(response)
-        }
-      }
-    }
-  }
-
-  "SubmissionController on submitDeparture" when {
-
-    "everything works correctly" should {
-
-      "return Accepted status" in {
-        withAuthorizedUser()
-        when(submissionServiceMock.submitRequest(any())(any()))
-          .thenReturn(Future.successful((): Unit))
-
-        val result = routePost(body = exampleDepartureRequestJson, uri = movementsUri)
-
-        status(result) must be(ACCEPTED)
-      }
-
-      "call SubmissionService, passing correctly built RequestContext" in {
-        withAuthorizedUser()
-        when(submissionServiceMock.submitRequest(any())(any()))
-          .thenReturn(Future.successful((): Unit))
-
-        routePost(body = exampleDepartureRequestJson, uri = movementsUri).futureValue
-
-        val expectedEori = ValidJsonHeaders(XEoriIdentifierHeaderName)
-        val contextCaptor: ArgumentCaptor[SubmissionRequestContext] =
-          ArgumentCaptor.forClass(classOf[SubmissionRequestContext])
-
-        verify(submissionServiceMock).submitRequest(contextCaptor.capture())(any())
-
-        contextCaptor.getValue.eori must equal(expectedEori)
-        contextCaptor.getValue.actionType must equal(ActionType.Departure)
-        contextCaptor.getValue.requestXml must equal(exampleDepartureRequestXML)
-      }
-    }
-
-    "SubmissionService returns failure" should {
-
-      "return InternalServerError" in {
-        withAuthorizedUser()
-
-        when(submissionServiceMock.submitRequest(any())(any()))
-          .thenReturn(Future.failed(new Exception("")))
-
-        val result = routePost(body = exampleDepartureRequestJson, uri = movementsUri)
-
-        an[Exception] shouldBe thrownBy {
-          await(result)
-        }
-      }
+      status(result) mustBe ACCEPTED
     }
   }
 }

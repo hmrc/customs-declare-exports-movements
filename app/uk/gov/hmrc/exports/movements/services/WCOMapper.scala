@@ -31,7 +31,7 @@ class WCOMapper {
   def generateInventoryLinkingMovementRequestXml(request:MovementRequest): Node =
     xml.XML.loadString(generateInventoryLinkingMovementRequest(request).toXml)
 
-  def generateInventoryLinkingMovementRequest(request: MovementRequest): InventoryLinkingMovementRequest = {
+  private def generateInventoryLinkingMovementRequest(request: MovementRequest): InventoryLinkingMovementRequest = {
     val departureDetails = request.choice match {
       case Departure => Some(request.movementDetails)
       case _         => None
@@ -50,7 +50,7 @@ class WCOMapper {
       goodsArrivalDateTime = arrivalDetails.map(_.dateTime),
       goodsDepartureDateTime = departureDetails.map(_.dateTime),
       transportDetails = mapTransportDetails(request.transport),
-      movementReference = request.arrivalReference.map(_.reference)
+      movementReference = request.arrivalReference.flatMap(_.reference)
     )
   }
 

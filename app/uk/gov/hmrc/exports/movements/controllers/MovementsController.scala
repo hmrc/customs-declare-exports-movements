@@ -17,7 +17,6 @@
 package uk.gov.hmrc.exports.movements.controllers
 
 import javax.inject.{Inject, Singleton}
-import play.api.Logger
 import play.api.mvc._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.exports.movements.controllers.actions.AuthenticatedController
@@ -34,14 +33,11 @@ class MovementsController @Inject()(
 )(implicit executionContext: ExecutionContext)
     extends AuthenticatedController(authConnector, controllerComponents) {
 
-  private val logger = Logger(this.getClass)
-
   def createMovement(): Action[MovementRequest] = authorisedAction(parse.json[MovementRequest]) { implicit request =>
     val movementRequest = request.body
 
     submissionService
       .submitMovement(request.eori.value, movementRequest)
-      .map(_ => logger.info("Movement Submission submitted successfully"))
       .map(_ => Accepted(request.body))
   }
 }

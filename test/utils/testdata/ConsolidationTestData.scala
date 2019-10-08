@@ -20,15 +20,18 @@ import play.api.http.{ContentTypes, HeaderNames}
 import play.api.libs.json.{JsObject, JsString, JsValue}
 import play.api.mvc.Codec
 import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames
-import uk.gov.hmrc.exports.movements.models.submissions.ActionType
-import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
+import uk.gov.hmrc.exports.movements.models.consolidation.{AssociateDucrRequest, DisassiociateDucrRequest, ShutMucrRequest}
 import utils.testdata.CommonTestData._
 
-import scala.xml.Elem
+import scala.xml.{Elem, Node}
 
 object ConsolidationTestData {
 
-  val exampleShutMucrConsolidationRequestXML: Elem =
+  val associateDucrRequest = AssociateDucrRequest(ucr, ucr_2)
+  val disassiociateDucrRequest = DisassiociateDucrRequest(ucr_2)
+  val shutMucrRequest = ShutMucrRequest(ucr)
+
+  val exampleShutMucrConsolidationRequestXML: Node =
     <inventoryLinkingConsolidationRequest>
       <messageCode>{MessageCodes.CST}</messageCode>
       <masterUCR>{ucr_2}</masterUCR>
@@ -89,11 +92,5 @@ object ConsolidationTestData {
     HeaderNames.AUTHORIZATION -> dummyToken,
     CustomsHeaderNames.XEoriIdentifierHeaderName -> validEori,
     HeaderNames.ACCEPT -> s"application/vnd.hmrc.${2.0}+xml"
-  )
-
-  val exampleShutMucrContext: SubmissionRequestContext = SubmissionRequestContext(
-    eori = validEori,
-    actionType = ActionType.ShutMucr,
-    requestXml = exampleShutMucrConsolidationRequestXML
   )
 }
