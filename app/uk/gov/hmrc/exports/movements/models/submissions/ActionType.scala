@@ -48,12 +48,12 @@ object ActionType {
     case ASSOCIATE_DUCR    => DucrAssociation
     case DISASSOCIATE_DUCR => DucrDisassociation
     case SHUT_MUCR         => ShutMucr
-    case _ => throw new IllegalArgumentException("Incorrect consolidation type")
+    case _                 => throw new IllegalArgumentException("Incorrect consolidation type")
   }
 
   def apply(movementRequest: MovementRequest): ActionType = movementRequest.choice match {
-    case Choice.Arrival => Arrival
+    case Choice.Arrival   => Arrival
     case Choice.Departure => Departure
-    case _ => throw new IllegalArgumentException("Movement request can be only for arrival or departure")
+    case _                => throw new IllegalArgumentException("Movement request can be only for arrival or departure")
   }
 }

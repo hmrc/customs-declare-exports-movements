@@ -41,10 +41,7 @@ class AuthenticatedControllerSpec extends CustomsExportsBaseSpec {
   val fakeJsonRequest = FakeRequest("POST", uri).withJsonBody(jsonBody)
   val fakeJsonRequestWithHeaders =
     fakeJsonRequest
-      .withHeaders(
-        AUTHORIZATION -> dummyToken,
-        CONTENT_TYPE -> ContentTypes.JSON
-      )
+      .withHeaders(AUTHORIZATION -> dummyToken, CONTENT_TYPE -> ContentTypes.JSON)
 
   "Export Controller" should {
 

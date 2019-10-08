@@ -28,7 +28,7 @@ import scala.xml.Node
 @Singleton
 class WCOMapper {
 
-  def generateInventoryLinkingMovementRequestXml(request:MovementRequest): Node =
+  def generateInventoryLinkingMovementRequestXml(request: MovementRequest): Node =
     xml.XML.loadString(generateInventoryLinkingMovementRequest(request).toXml)
 
   private def generateInventoryLinkingMovementRequest(request: MovementRequest): InventoryLinkingMovementRequest = {
@@ -45,7 +45,8 @@ class WCOMapper {
     InventoryLinkingMovementRequest(
       messageCode = request.choice,
       agentDetails = None,
-      ucrBlock = UcrBlock(ucr = request.consignmentReference.referenceValue, ucrType = request.consignmentReference.reference),
+      ucrBlock =
+        UcrBlock(ucr = request.consignmentReference.referenceValue, ucrType = request.consignmentReference.reference),
       goodsLocation = request.location.map(_.asString).getOrElse(""),
       goodsArrivalDateTime = arrivalDetails.map(_.dateTime),
       goodsDepartureDateTime = departureDetails.map(_.dateTime),
@@ -61,6 +62,6 @@ class WCOMapper {
           transportID = Some(data.transportId),
           transportMode = Some(data.modeOfTransport),
           transportNationality = Some(data.nationality)
-        )
+      )
     )
 }

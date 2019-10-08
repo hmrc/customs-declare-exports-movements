@@ -68,7 +68,8 @@ class SubmissionService @Inject()(
 
       case CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId)) =>
         val newSubmission =
-          submissionFactory.buildConsolidationSubmission(eori, conversationId, requestXml, consolidation.consolidationType)
+          submissionFactory
+            .buildConsolidationSubmission(eori, conversationId, requestXml, consolidation.consolidationType)
 
         submissionRepository
           .insert(newSubmission)

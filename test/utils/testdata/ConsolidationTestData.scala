@@ -20,7 +20,11 @@ import play.api.http.{ContentTypes, HeaderNames}
 import play.api.libs.json.{JsObject, JsString, JsValue}
 import play.api.mvc.Codec
 import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames
-import uk.gov.hmrc.exports.movements.models.consolidation.{AssociateDucrRequest, DisassiociateDucrRequest, ShutMucrRequest}
+import uk.gov.hmrc.exports.movements.models.consolidation.{
+  AssociateDucrRequest,
+  DisassiociateDucrRequest,
+  ShutMucrRequest
+}
 import utils.testdata.CommonTestData._
 
 import scala.xml.{Elem, Node}
@@ -37,7 +41,6 @@ object ConsolidationTestData {
       <masterUCR>{ucr_2}</masterUCR>
     </inventoryLinkingConsolidationRequest>
 
-
   val exampleAssociateDucrConsolidationRequestXML: Elem =
     <inventoryLinkingConsolidationRequest>
       <messageCode>{MessageCodes.EAC}</messageCode>
@@ -47,7 +50,6 @@ object ConsolidationTestData {
         <ucrType>D</ucrType>
       </ucrBlock>
     </inventoryLinkingConsolidationRequest>
-
 
   val exampleDisassociateDucrConsolidationRequestXML: Elem =
     <inventoryLinkingConsolidationRequest>

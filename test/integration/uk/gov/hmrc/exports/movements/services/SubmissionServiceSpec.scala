@@ -97,7 +97,6 @@ class SubmissionServiceSpec
         startInventoryLinkingService(ACCEPTED)
         withMovementSubmissionPersisted(true)
 
-
         movementsService.submitMovement(validEori, exampleDepartureRequest).futureValue should equal((): Unit)
       }
     }
