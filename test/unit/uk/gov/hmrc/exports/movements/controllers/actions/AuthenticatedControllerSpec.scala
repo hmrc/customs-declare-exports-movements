@@ -26,35 +26,22 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import reactivemongo.core.errors.GenericDatabaseException
 import uk.gov.hmrc.auth.core._
-import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
 import uk.gov.hmrc.exports.movements.models.submissions.Submission
 import unit.uk.gov.hmrc.exports.movements.base.{CustomsExportsBaseSpec, UnitTestMockBuilder}
-import utils.testdata.CommonTestData.{declarantLrnValue, declarantUcrValue, dummyToken}
+import utils.testdata.CommonTestData.dummyToken
 import utils.testdata.MovementsTestData._
 
 import scala.concurrent.Future
 
 class AuthenticatedControllerSpec extends CustomsExportsBaseSpec {
-  val uri = "/movements/arrival"
-  val xmlBody: String = "<iamXml></iamXml>"
-  val fakeXmlRequest: FakeRequest[String] = FakeRequest("POST", uri).withBody(xmlBody)
-  val fakeXmlRequestWithHeaders: FakeRequest[String] =
-    fakeXmlRequest
-      .withHeaders(
-        CustomsHeaderNames.XUcrHeaderName -> declarantUcrValue,
-        CustomsHeaderNames.XMovementTypeHeaderName -> "Arrival",
-        AUTHORIZATION -> dummyToken,
-        CONTENT_TYPE -> ContentTypes.XML
-      )
+  val uri = "/movements"
 
-  val jsonBody: String = Json.toJson(exampleSubmission()).toString()
-  val fakeJsonRequest: FakeRequest[String] = FakeRequest("POST", uri).withBody(jsonBody)
-  val fakeJsonRequestWithHeaders: FakeRequest[String] =
+  val jsonBody = Json.toJson(exampleArrivalRequestJson)
+  val fakeJsonRequest = FakeRequest("POST", uri).withJsonBody(jsonBody)
+  val fakeJsonRequestWithHeaders =
     fakeJsonRequest
       .withHeaders(
-        CustomsHeaderNames.XLrnHeaderName -> declarantLrnValue,
-        CustomsHeaderNames.XUcrHeaderName -> declarantUcrValue,
         AUTHORIZATION -> dummyToken,
         CONTENT_TYPE -> ContentTypes.JSON
       )
@@ -64,7 +51,7 @@ class AuthenticatedControllerSpec extends CustomsExportsBaseSpec {
     "return 401 status when EORI number is missing from request" in {
       userWithoutEori()
 
-      val result = route(app, fakeXmlRequestWithHeaders).get
+      val result = route(app, fakeJsonRequestWithHeaders).get
 
       status(result) must be(UNAUTHORIZED)
     }
@@ -75,7 +62,7 @@ class AuthenticatedControllerSpec extends CustomsExportsBaseSpec {
       when(mockMovementsRepository.insert(any[Submission])(any()))
         .thenReturn(Future.successful(UnitTestMockBuilder.dummyWriteResultSuccess))
 
-      val result = route(app, fakeXmlRequestWithHeaders).get
+      val result = route(app, fakeJsonRequestWithHeaders).get
 
       status(result) must be(ACCEPTED)
     }
@@ -87,7 +74,7 @@ class AuthenticatedControllerSpec extends CustomsExportsBaseSpec {
         .thenReturn(Future.failed(GenericDatabaseException("Problem with DB", None)))
 
       an[Exception] mustBe thrownBy {
-        await(route(app, fakeXmlRequestWithHeaders).get)
+        await(route(app, fakeJsonRequestWithHeaders).get)
 
       }
     }
@@ -95,7 +82,7 @@ class AuthenticatedControllerSpec extends CustomsExportsBaseSpec {
     "handle InsufficientEnrolments error" in {
       unauthorizedUser(InsufficientEnrolments())
 
-      val result = route(app, fakeXmlRequestWithHeaders).get
+      val result = route(app, fakeJsonRequestWithHeaders).get
 
       status(result) must be(UNAUTHORIZED)
     }
@@ -103,7 +90,7 @@ class AuthenticatedControllerSpec extends CustomsExportsBaseSpec {
     "handle AuthorisationException error" in {
       unauthorizedUser(InsufficientConfidenceLevel())
 
-      val result = route(app, fakeXmlRequestWithHeaders).get
+      val result = route(app, fakeJsonRequestWithHeaders).get
 
       status(result) must be(UNAUTHORIZED)
     }
@@ -112,7 +99,7 @@ class AuthenticatedControllerSpec extends CustomsExportsBaseSpec {
       unauthorizedUser(new IllegalArgumentException())
 
       an[IllegalArgumentException] mustBe thrownBy {
-        await(route(app, fakeXmlRequestWithHeaders).get)
+        await(route(app, fakeJsonRequestWithHeaders).get)
       }
     }
   }

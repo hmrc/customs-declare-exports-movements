@@ -37,13 +37,6 @@ object ConsolidationTestData {
       <masterUCR>{ucr_2}</masterUCR>
     </inventoryLinkingConsolidationRequest>
 
-  val exampleShutMucrConsolidationRequestJson: JsValue = JsObject(
-    Map(
-      "inventoryLinkingConsolidationRequest" -> JsObject(
-        Map("messMovementRepositorySpecageCode" -> JsString(MessageCodes.CST), "masterUCR" -> JsString(ucr_2))
-      )
-    )
-  )
 
   val exampleAssociateDucrConsolidationRequestXML: Elem =
     <inventoryLinkingConsolidationRequest>
@@ -55,17 +48,6 @@ object ConsolidationTestData {
       </ucrBlock>
     </inventoryLinkingConsolidationRequest>
 
-  val exampleAssociateDucrConsolidationRequestJson: JsValue = JsObject(
-    Map(
-      "inventoryLinkingConsolidationRequest" -> JsObject(
-        Map(
-          "messageCode" -> JsString(MessageCodes.EAC),
-          "masterUCR" -> JsString(ucr_2),
-          "ucrBlock" -> JsObject(Map("ucr" -> JsString(ucr), "ucrType" -> JsString("D")))
-        )
-      )
-    )
-  )
 
   val exampleDisassociateDucrConsolidationRequestXML: Elem =
     <inventoryLinkingConsolidationRequest>

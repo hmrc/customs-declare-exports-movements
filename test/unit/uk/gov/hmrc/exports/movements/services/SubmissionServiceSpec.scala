@@ -17,15 +17,12 @@
 package unit.uk.gov.hmrc.exports.movements.services
 
 import org.mockito.ArgumentMatchers.{any, eq => meq}
-import org.mockito.Mockito.{verify, verifyZeroInteractions, when}
-import org.mockito.{ArgumentCaptor, InOrder, Mockito}
+import org.mockito.Mockito.{verify, when}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.time.{Millis, Seconds, Span}
 import org.scalatest.{MustMatchers, WordSpec}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.Helpers._
-import reactivemongo.api.commands.WriteResult
-import uk.gov.hmrc.exports.movements.controllers.request.MovementRequest
 import uk.gov.hmrc.exports.movements.exceptions.CustomsInventoryLinkingUpstreamException
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
 import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationType.SHUT_MUCR
@@ -38,8 +35,7 @@ import utils.testdata.CommonTestData._
 import utils.testdata.ConsolidationTestData._
 import utils.testdata.MovementsTestData._
 
-import scala.concurrent.{Await, ExecutionContext, Future}
-import scala.util.control.NoStackTrace
+import scala.concurrent.{ExecutionContext, Future}
 
 class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures with MustMatchers {
 
@@ -83,7 +79,7 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
 
       verify(wcoMapperMock).generateInventoryLinkingMovementRequestXml(meq(exampleArrivalRequest))
       verify(customsInventoryLinkingExportsConnectorMock)
-        .sendInventoryLinkingRequest(meq(validEori), meq(exampleArrivalRequestXML))
+        .sendInventoryLinkingRequest(meq(validEori), meq(exampleArrivalRequestXML))(any())
       verify(submissionFactoryMock).buildMovementSubmission(
         meq(validEori),
         meq(conversationId),
@@ -126,7 +122,7 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
 
       verify(ileMapperMock).generateConsolidationXml(meq(shutMucrRequest))
       verify(customsInventoryLinkingExportsConnectorMock)
-        .sendInventoryLinkingRequest(meq(validEori), meq(exampleShutMucrConsolidationRequestXML))
+        .sendInventoryLinkingRequest(meq(validEori), meq(exampleShutMucrConsolidationRequestXML))(any())
       verify(submissionFactoryMock).buildConsolidationSubmission(
         meq(validEori),
         meq(conversationId),

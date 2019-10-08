@@ -55,6 +55,7 @@ class MovementsControllerSpec
 
     "return ACCEPTED during posting movement" in {
 
+      withAuthorizedUser()
       when(submissionServiceMock.submitMovement(any(), any())(any())).thenReturn(Future.successful((): Unit))
 
       val Some(result) = route(
