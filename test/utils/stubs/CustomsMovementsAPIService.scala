@@ -63,17 +63,6 @@ trait CustomsMovementsAPIService extends WireMockRunner {
   def verifyILEServiceWasCalled(requestBody: String, expectedEori: String): Unit =
     verifyILEServiceWasCalledWith(CustomsMovementsAPIConfig.submitMovementServiceContext, requestBody, expectedEori)
 
-
-  def verifyILEServiceWasCalled(requestBody: JsValue, expectedEori: String): Unit =
-    verify(
-      1,
-      postRequestedFor(urlMatching(CustomsMovementsAPIConfig.submitMovementServiceContext))
-        .withHeader(CONTENT_TYPE, equalTo(ContentTypes.JSON))
-        .withHeader(CustomsHeaderNames.XEoriIdentifierHeaderName, equalTo(expectedEori))
-        .withHeader(CustomsHeaderNames.XClientIdName, equalTo(CustomsMovementsAPIConfig.clientId))
-        .withRequestBody(equalToJson(requestBody.toString))
-    )
-
   def verifyILEServiceWasNotCalled(): Unit =
     verify(exactly(0), postRequestedFor(urlMatching(CustomsMovementsAPIConfig.submitMovementServiceContext)))
 
