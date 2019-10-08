@@ -22,15 +22,9 @@ import play.api.mvc._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.exports.movements.controllers.actions.AuthenticatedController
 import uk.gov.hmrc.exports.movements.controllers.request.MovementRequest
-import uk.gov.hmrc.exports.movements.models.Eori
-import uk.gov.hmrc.exports.movements.models.movements.Choice.{Arrival, Departure}
-import uk.gov.hmrc.exports.movements.models.submissions.ActionType
 import uk.gov.hmrc.exports.movements.services.SubmissionService
-import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.wco.dec.inventorylinking.movement.request.InventoryLinkingMovementRequest
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 @Singleton
 class MovementsController @Inject()(
@@ -43,27 +37,11 @@ class MovementsController @Inject()(
   private val logger = Logger(this.getClass)
 
   def createMovement(): Action[MovementRequest] = authorisedAction(parse.json[MovementRequest]) { implicit request =>
-    val data: InventoryLinkingMovementRequest = request.body.createMovementRequest(request.eori)
-    request.body.choice match {
-      case Arrival =>
-        submitMovementSubmission(data: InventoryLinkingMovementRequest, request.eori, ActionType.Arrival)
-          .map(_ => Accepted(request.body))
-      case Departure =>
-        submitMovementSubmission(data: InventoryLinkingMovementRequest, request.eori, ActionType.Departure)
-          .map(_ => Accepted(request.body))
-    }
-  }
+    val movementRequest = request.body
 
-  private def submitMovementSubmission(data: InventoryLinkingMovementRequest, eori: Eori, actionType: ActionType)(
-    implicit hc: HeaderCarrier
-  ): Future[Unit] =
     submissionService
-      .submitRequest(
-        SubmissionRequestContext(
-          eori = eori.value,
-          actionType = actionType,
-          requestXml = xml.XML.loadString(data.toXml)
-        )
-      )
+      .submitMovement(request.eori.value, movementRequest)
       .map(_ => logger.info("Movement Submission submitted successfully"))
+      .map(_ => Accepted(request.body))
+  }
 }

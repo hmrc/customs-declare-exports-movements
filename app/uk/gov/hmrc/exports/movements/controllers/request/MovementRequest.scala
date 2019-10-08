@@ -31,42 +31,9 @@ case class MovementRequest(
   arrivalReference: Option[ArrivalReference] = None,
   goodsDeparted: Option[GoodsDeparted] = None,
   transport: Option[Transport] = None
-) {
-  def createMovementRequest(eori: Eori): InventoryLinkingMovementRequest = {
-
-    val departureDetails = choice match {
-      case Departure => Some(movementDetails)
-      case _         => None
-    }
-
-    val arrivalDetails: Option[MovementDetails] = choice match {
-      case Arrival => Some(movementDetails)
-      case _       => None
-    }
-
-    InventoryLinkingMovementRequest(
-      messageCode = choice,
-      agentDetails = None,
-      ucrBlock = UcrBlock(ucr = consignmentReference.referenceValue, ucrType = consignmentReference.reference),
-      goodsLocation = location.map(_.asString).getOrElse(""),
-      goodsArrivalDateTime = arrivalDetails.map(_.dateTime),
-      goodsDepartureDateTime = departureDetails.map(_.dateTime),
-      transportDetails = mapTransportDetails(transport),
-      movementReference = arrivalReference.flatMap(_.reference)
-    )
-  }
-
-  private def mapTransportDetails(transport: Option[Transport]): Option[TransportDetails] =
-    transport.map(
-      data =>
-        TransportDetails(
-          transportID = Some(data.transportId),
-          transportMode = Some(data.modeOfTransport),
-          transportNationality = Some(data.nationality)
-      )
-    )
-}
+)
 
 object MovementRequest {
-  implicit val format: OFormat[MovementRequest] = Json.format[MovementRequest]
+
+  implicit val format = Json.format[MovementRequest]
 }
