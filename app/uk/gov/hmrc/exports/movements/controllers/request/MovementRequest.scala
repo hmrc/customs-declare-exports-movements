@@ -52,7 +52,7 @@ case class MovementRequest(
       goodsArrivalDateTime = arrivalDetails.map(_.dateTime),
       goodsDepartureDateTime = departureDetails.map(_.dateTime),
       transportDetails = mapTransportDetails(transport),
-      movementReference = arrivalReference.map(_.reference)
+      movementReference = arrivalReference.flatMap(_.reference)
     )
   }
 

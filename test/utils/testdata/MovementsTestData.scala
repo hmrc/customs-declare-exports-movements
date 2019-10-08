@@ -57,7 +57,7 @@ object MovementsTestData {
       consignmentReference = ConsignmentReference("D", "7GB123456789000-123ABC456DEFQWERT"),
       movementDetails = MovementDetails("2019-07-12T13:14:54.000Z"),
       location = Some(Location("location", "QOS", "D", "GB")),
-      arrivalReference = Some(ArrivalReference(movementReference)),
+      arrivalReference = Some(ArrivalReference(Some(movementReference))),
       goodsDeparted = Some(GoodsDeparted("Leeds")),
       transport = Some(Transport(transportMode, transportNationality, transportId))
     )
@@ -88,7 +88,7 @@ object MovementsTestData {
       consignmentReference = ConsignmentReference("D", "7GB123456789000-123ABC456DEFQWERT"),
       movementDetails = MovementDetails("2019-07-12T13:14:54.000Z"),
       location = Some(Location("location", "QOS", "D", "GB")),
-      arrivalReference = Some(ArrivalReference(movementReference)),
+      arrivalReference = Some(ArrivalReference(Some(movementReference))),
       goodsDeparted = Some(GoodsDeparted("Leeds")),
       transport = Some(Transport(transportMode, transportNationality, transportId))
     )
