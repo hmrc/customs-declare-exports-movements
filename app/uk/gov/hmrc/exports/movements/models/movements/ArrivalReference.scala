@@ -17,7 +17,7 @@
 package uk.gov.hmrc.exports.movements.models.movements
 import play.api.libs.json.{Json, OFormat}
 
-case class ArrivalReference(reference: String)
+case class ArrivalReference(reference: Option[String])
 
 object ArrivalReference {
   implicit val format: OFormat[ArrivalReference] = Json.format[ArrivalReference]
