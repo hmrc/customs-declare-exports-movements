@@ -16,10 +16,12 @@
 
 package uk.gov.hmrc.exports.movements.exceptions
 
-class CustomsInventoryLinkingUpstreamException(status: Int, coversationId: Option[String], message: String)
+class CustomsInventoryLinkingUpstreamException(status: Int, conversationId: Option[String], message: String)
     extends Exception(message) {
   override def getMessage: String = {
-    val formattedConversationId = coversationId.map(id => s"'$id'").getOrElse("Not preset")
+    val formattedConversationId = conversationId.map(id => s"'$id'").getOrElse("Not preset")
     s"Status: $status. ConverstationId: $formattedConversationId . ${super.getMessage}"
   }
+
+  def getStatus(): Int = status
 }

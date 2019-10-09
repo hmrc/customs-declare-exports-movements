@@ -4,9 +4,6 @@ POST        /customs-declare-exports/notifyMovement         uk.gov.hmrc.exports.
 
 GET         /notifications/:conversationId                  uk.gov.hmrc.exports.movements.controllers.NotificationController.listOfNotifications(conversationId: String)
 
-POST        /movements/arrival                              uk.gov.hmrc.exports.movements.controllers.SubmissionController.submitArrival()
-POST        /movements/departure                            uk.gov.hmrc.exports.movements.controllers.SubmissionController.submitDeparture()
-
 POST        /movements                                      uk.gov.hmrc.exports.movements.controllers.MovementsController.createMovement()
 
 GET         /movements                                      uk.gov.hmrc.exports.movements.controllers.SubmissionController.getAllSubmissions()

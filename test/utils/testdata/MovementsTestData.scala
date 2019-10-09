@@ -35,33 +35,33 @@ object MovementsTestData {
   val exampleArrivalRequestXML: Node =
     scala.xml.Utility.trim {
       <inventoryLinkingMovementRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
-      <messageCode>{MessageCodes.EAL}</messageCode>
-      <ucrBlock>
-        <ucr>{ucr}</ucr>
-        <ucrType>D</ucrType>
-      </ucrBlock>
-      <goodsLocation>GBlocationQOSD</goodsLocation>
-      <goodsArrivalDateTime>2019-07-12T13:14:54.000Z</goodsArrivalDateTime>
-      <movementReference>{movementReference}</movementReference>
-      <transportDetails>
-        <transportID>{transportId}</transportID>
-        <transportMode>{transportMode}</transportMode>
-        <transportNationality>{transportNationality}</transportNationality>
-      </transportDetails>
-    </inventoryLinkingMovementRequest>
+        <messageCode>{MessageCodes.EAL}</messageCode>
+        <ucrBlock>
+          <ucr>{ucr}</ucr>
+          <ucrType>D</ucrType>
+        </ucrBlock>
+        <goodsLocation>GBlocationQOSD</goodsLocation>
+        <goodsArrivalDateTime>2019-07-12T13:14:54.000Z</goodsArrivalDateTime>
+        <movementReference>{movementReference}</movementReference>
+        <transportDetails>
+          <transportID>{transportId}</transportID>
+          <transportMode>{transportMode}</transportMode>
+          <transportNationality>{transportNationality}</transportNationality>
+        </transportDetails>
+      </inventoryLinkingMovementRequest>
     }
 
-  val exampleArrivalRequestJson: JsValue = Json.toJson(
-    MovementRequest(
-      choice = "EAL",
-      consignmentReference = ConsignmentReference("D", "7GB123456789000-123ABC456DEFQWERT"),
-      movementDetails = MovementDetails("2019-07-12T13:14:54.000Z"),
-      location = Some(Location("location", "QOS", "D", "GB")),
-      arrivalReference = Some(ArrivalReference(Some(movementReference))),
-      goodsDeparted = Some(GoodsDeparted("Leeds")),
-      transport = Some(Transport(transportMode, transportNationality, transportId))
-    )
+  val exampleArrivalRequest = MovementRequest(
+    choice = "EAL",
+    consignmentReference = ConsignmentReference("D", "7GB123456789000-123ABC456DEFQWERT"),
+    movementDetails = MovementDetails("2019-07-12T13:14:54.000Z"),
+    location = Some(Location("location", "QOS", "D", "GB")),
+    arrivalReference = Some(ArrivalReference(Some(movementReference))),
+    goodsDeparted = Some(GoodsDeparted("Leeds")),
+    transport = Some(Transport(transportMode, transportNationality, transportId))
   )
+
+  val exampleArrivalRequestJson: JsValue = Json.toJson(exampleArrivalRequest)
 
   val exampleDepartureRequestXML: Node =
     scala.xml.Utility.trim {
@@ -81,6 +81,16 @@ object MovementsTestData {
       </transportDetails>
     </inventoryLinkingMovementRequest>
     }
+
+  val exampleDepartureRequest: MovementRequest = MovementRequest(
+    choice = "EDL",
+    consignmentReference = ConsignmentReference("D", "7GB123456789000-123ABC456DEFQWERT"),
+    movementDetails = MovementDetails("2019-07-12T13:14:54.000Z"),
+    location = Some(Location("location", "QOS", "D", "GB")),
+    arrivalReference = Some(ArrivalReference(Some(movementReference))),
+    goodsDeparted = Some(GoodsDeparted("Leeds")),
+    transport = Some(Transport(transportMode, transportNationality, transportId))
+  )
 
   val exampleDepartureRequestJson: JsValue = Json.toJson(
     MovementRequest(

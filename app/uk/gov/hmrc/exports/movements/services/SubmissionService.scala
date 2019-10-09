@@ -19,12 +19,12 @@ package uk.gov.hmrc.exports.movements.services
 import javax.inject.{Inject, Singleton}
 import play.api.http.Status.ACCEPTED
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
+import uk.gov.hmrc.exports.movements.controllers.request.MovementRequest
 import uk.gov.hmrc.exports.movements.exceptions.CustomsInventoryLinkingUpstreamException
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
 import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation
 import uk.gov.hmrc.exports.movements.models.submissions.{Submission, SubmissionFactory}
 import uk.gov.hmrc.exports.movements.repositories.SubmissionRepository
-import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -34,14 +34,17 @@ class SubmissionService @Inject()(
   customsInventoryLinkingExportsConnector: CustomsInventoryLinkingExportsConnector,
   submissionRepository: SubmissionRepository,
   submissionFactory: SubmissionFactory,
-  ileMapper: ILEMapper
+  ileMapper: ILEMapper,
+  wcoMapper: WCOMapper
 )(implicit executionContext: ExecutionContext) {
 
-  def submitRequest(context: SubmissionRequestContext)(implicit hc: HeaderCarrier): Future[Unit] =
-    customsInventoryLinkingExportsConnector.sendInventoryLinkingRequest(context.eori, context.requestXml).flatMap {
+  def submitMovement(eori: String, movementRequest: MovementRequest)(implicit hc: HeaderCarrier): Future[Unit] = {
+    val requestXml = wcoMapper.generateInventoryLinkingMovementRequestXml(movementRequest)
+
+    customsInventoryLinkingExportsConnector.sendInventoryLinkingRequest(eori, requestXml).flatMap {
 
       case CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId)) =>
-        val newSubmission = submissionFactory.buildMovementSubmission(conversationId, context)
+        val newSubmission = submissionFactory.buildMovementSubmission(eori, conversationId, requestXml, movementRequest)
 
         submissionRepository
           .insert(newSubmission)
@@ -56,6 +59,7 @@ class SubmissionService @Inject()(
           )
         )
     }
+  }
 
   def submitConsolidation(eori: String, consolidation: Consolidation)(implicit hc: HeaderCarrier): Future[Unit] = {
     val requestXml = ileMapper.generateConsolidationXml(consolidation)
@@ -64,7 +68,8 @@ class SubmissionService @Inject()(
 
       case CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId)) =>
         val newSubmission =
-          submissionFactory.buildSubmission(eori, conversationId, requestXml, consolidation.consolidationType)
+          submissionFactory
+            .buildConsolidationSubmission(eori, conversationId, requestXml, consolidation.consolidationType)
 
         submissionRepository
           .insert(newSubmission)

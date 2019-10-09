@@ -17,25 +17,30 @@
 package uk.gov.hmrc.exports.movements.models.submissions
 
 import javax.inject.Singleton
+import uk.gov.hmrc.exports.movements.controllers.request.MovementRequest
 import uk.gov.hmrc.exports.movements.models.XmlTags
 import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationType.ConsolidationType
 import uk.gov.hmrc.exports.movements.models.notifications.UcrBlock
-import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
 
 import scala.xml.{Node, NodeSeq}
 
 @Singleton
 class SubmissionFactory {
 
-  def buildMovementSubmission(conversationId: String, context: SubmissionRequestContext): Submission =
+  def buildMovementSubmission(
+    eori: String,
+    conversationId: String,
+    requestXml: Node,
+    movementRequest: MovementRequest
+  ): Submission =
     Submission(
-      eori = context.eori,
+      eori = eori,
       conversationId = conversationId,
-      ucrBlocks = extractUcrListFrom(context.requestXml),
-      actionType = context.actionType
+      ucrBlocks = extractUcrListFrom(requestXml),
+      actionType = ActionType(movementRequest)
     )
 
-  def buildSubmission(
+  def buildConsolidationSubmission(
     eori: String,
     conversationId: String,
     requestXml: Node,

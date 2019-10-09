@@ -17,29 +17,25 @@
 package unit.uk.gov.hmrc.exports.movements.services
 
 import org.mockito.ArgumentMatchers.{any, eq => meq}
-import org.mockito.Mockito.{verify, verifyZeroInteractions, when}
-import org.mockito.{ArgumentCaptor, InOrder, Mockito}
+import org.mockito.Mockito.{verify, when}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.time.{Millis, Seconds, Span}
 import org.scalatest.{MustMatchers, WordSpec}
 import org.scalatestplus.mockito.MockitoSugar
-import play.api.http.Status.{ACCEPTED, BAD_REQUEST}
-import reactivemongo.api.commands.WriteResult
+import play.api.test.Helpers._
 import uk.gov.hmrc.exports.movements.exceptions.CustomsInventoryLinkingUpstreamException
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
-import uk.gov.hmrc.exports.movements.models.consolidation.{Consolidation, ShutMucrRequest}
+import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationType.SHUT_MUCR
 import uk.gov.hmrc.exports.movements.models.notifications.UcrBlock
-import uk.gov.hmrc.exports.movements.models.submissions.{ActionType, Submission}
-import uk.gov.hmrc.exports.movements.services.context.SubmissionRequestContext
-import uk.gov.hmrc.exports.movements.services.{ILEMapper, SubmissionService}
+import uk.gov.hmrc.exports.movements.models.submissions.{ActionType, Submission, SubmissionFactory}
+import uk.gov.hmrc.exports.movements.services.{ILEMapper, SubmissionService, WCOMapper}
 import uk.gov.hmrc.http.HeaderCarrier
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
 import utils.testdata.CommonTestData._
 import utils.testdata.ConsolidationTestData._
-import utils.testdata.MovementsTestData.exampleSubmission
+import utils.testdata.MovementsTestData._
 
-import scala.concurrent.{Await, ExecutionContext, Future}
-import scala.util.control.NoStackTrace
+import scala.concurrent.{ExecutionContext, Future}
 
 class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures with MustMatchers {
 
@@ -50,138 +46,99 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
     implicit val hc: HeaderCarrier = mock[HeaderCarrier]
     val customsInventoryLinkingExportsConnectorMock = buildCustomsInventoryLinkingExportsConnectorMock
     val submissionRepositoryMock = buildSubmissionRepositoryMock
-    val submissionFactoryMock = buildSubmissionFactoryMock
+    val submissionFactoryMock = mock[SubmissionFactory]
     val ileMapperMock = mock[ILEMapper]
+    val wcoMapperMock = mock[WCOMapper]
     val submissionService = new SubmissionService(
-      customsInventoryLinkingExportsConnector = customsInventoryLinkingExportsConnectorMock,
-      submissionRepository = submissionRepositoryMock,
-      submissionFactory = submissionFactoryMock,
-      ileMapperMock
+      customsInventoryLinkingExportsConnectorMock,
+      submissionRepositoryMock,
+      submissionFactoryMock,
+      ileMapperMock,
+      wcoMapperMock
     )(ExecutionContext.global)
   }
 
-  val exampleShutMucrRequest: Consolidation = ShutMucrRequest("mucr")
+  "SubmissionService on submitMovement" should {
 
-  "SubmissionService on submitRequest" when {
+    "successfully submit movement" in new Test {
+      val arrivalSubmission = Submission(
+        eori = validEori,
+        conversationId = conversationId,
+        ucrBlocks = Seq(UcrBlock(ucr, "D")),
+        actionType = ActionType.Arrival
+      )
 
-    "everything works correctly" should {
-
-      "return Either.Right" in new HappyPathSaveTest {
-        submissionService.submitRequest(exampleShutMucrContext).futureValue
-      }
-
-      "return Either.right for submit consolidation request" in new HappyPathSaveTest {
-
-        submissionService.submitConsolidation(validEori, exampleShutMucrRequest).futureValue
-      }
-
-      "call CustomsInventoryLinkingExportsConnector, SubmissionFactory and SubmissionRepository" in new HappyPathSaveTest {
-
-        submissionService.submitRequest(exampleShutMucrContext).futureValue
-
-        val inOrder: InOrder =
-          Mockito.inOrder(customsInventoryLinkingExportsConnectorMock, submissionFactoryMock, submissionRepositoryMock)
-        inOrder.verify(customsInventoryLinkingExportsConnectorMock).sendInventoryLinkingRequest(any(), any())(any())
-        inOrder.verify(submissionFactoryMock).buildMovementSubmission(any(), any())
-        inOrder.verify(submissionRepositoryMock).insert(any())(any())
-      }
-
-      "call CustomsInventoryLinkingExportsConnector, passing EORI and XML provided" in new HappyPathSaveTest {
-
-        submissionService.submitRequest(exampleShutMucrContext).futureValue
-
-        verify(customsInventoryLinkingExportsConnectorMock)
-          .sendInventoryLinkingRequest(meq(validEori), meq(exampleShutMucrConsolidationRequestXML))(any())
-      }
-
-      "call SubmissionFactory, passing ConversationID and context" in new HappyPathSaveTest {
-
-        submissionService.submitRequest(exampleShutMucrContext).futureValue
-
-        verify(submissionFactoryMock).buildMovementSubmission(meq(conversationId), meq(exampleShutMucrContext))
-      }
-
-      "call SubmissionRepository, passing Submission returned from SubmissionFactory" in new HappyPathSaveTest {
-
-        submissionService.submitRequest(exampleShutMucrContext).futureValue
-
-        val consolidationSubmissionCaptor: ArgumentCaptor[Submission] =
-          ArgumentCaptor.forClass(classOf[Submission])
-        verify(submissionRepositoryMock).insert(consolidationSubmissionCaptor.capture())(any())
-        val actualConsolidationSubmission = consolidationSubmissionCaptor.getValue
-
-        actualConsolidationSubmission.uuid mustNot be(empty)
-        actualConsolidationSubmission.eori must equal(validEori)
-        actualConsolidationSubmission.conversationId must equal(conversationId)
-        actualConsolidationSubmission.ucrBlocks.head.ucr must equal("5GB123456789000-123ABC456DEFIIIII")
-      }
-
-    }
-
-    "CustomsInventoryLinkingExportsConnector returns status other than ACCEPTED" should {
-
-      "return Either.Left with proper message" in new Test {
-        when(customsInventoryLinkingExportsConnectorMock.sendInventoryLinkingRequest(any(), any())(any()))
-          .thenReturn(Future.successful(CustomsInventoryLinkingResponse(status = BAD_REQUEST, None)))
-
-        a[CustomsInventoryLinkingUpstreamException] mustBe thrownBy {
-          Await.result(submissionService.submitRequest(exampleShutMucrContext), defaultPatience.timeout)
-        }
-      }
-
-      "not call SubmissionFactory" in new Test {
-        when(customsInventoryLinkingExportsConnectorMock.sendInventoryLinkingRequest(any(), any())(any()))
-          .thenReturn(Future.successful(CustomsInventoryLinkingResponse(status = BAD_REQUEST, None)))
-
-        Await.ready(submissionService.submitRequest(exampleShutMucrContext), defaultPatience.timeout)
-
-        verifyZeroInteractions(submissionFactoryMock)
-      }
-
-      "not call SubmissionRepository" in new Test {
-        when(customsInventoryLinkingExportsConnectorMock.sendInventoryLinkingRequest(any(), any())(any()))
-          .thenReturn(Future.successful(CustomsInventoryLinkingResponse(status = BAD_REQUEST, None)))
-
-        Await.ready(submissionService.submitRequest(exampleShutMucrContext), defaultPatience.timeout)
-
-        verifyZeroInteractions(submissionRepositoryMock)
-      }
-    }
-
-    "SubmissionRepository returns WriteResult with error" should {
-
-      "return Either.Left with the error's message" in new Test {
-        when(customsInventoryLinkingExportsConnectorMock.sendInventoryLinkingRequest(any(), any())(any()))
-          .thenReturn(
-            Future.successful(CustomsInventoryLinkingResponse(status = ACCEPTED, conversationId = Some(conversationId)))
-          )
-        val exceptionMsg = "Test Exception message"
-        private val exception = new Exception(exceptionMsg) with NoStackTrace
-        when(submissionRepositoryMock.insert(any())(any())).thenReturn(Future.failed[WriteResult](exception))
-
-        an[Exception] mustBe thrownBy {
-          submissionService.submitRequest(exampleShutMucrContext).futureValue
-        }
-      }
-    }
-
-    trait HappyPathSaveTest extends Test {
+      when(wcoMapperMock.generateInventoryLinkingMovementRequestXml(any())).thenReturn(exampleArrivalRequestXML)
       when(customsInventoryLinkingExportsConnectorMock.sendInventoryLinkingRequest(any(), any())(any()))
-        .thenReturn(
-          Future.successful(CustomsInventoryLinkingResponse(status = ACCEPTED, conversationId = Some(conversationId)))
-        )
-
-      when(submissionFactoryMock.buildMovementSubmission(any[String], any[SubmissionRequestContext]))
-        .thenReturn(
-          Submission(
-            eori = validEori,
-            conversationId = conversationId,
-            actionType = ActionType.ShutMucr,
-            ucrBlocks = Seq(UcrBlock(ucr = "5GB123456789000-123ABC456DEFIIIII", ucrType = "M"))
-          )
-        )
-
+        .thenReturn(Future.successful(CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId))))
+      when(submissionFactoryMock.buildMovementSubmission(any(), any(), any(), any()))
+        .thenReturn(arrivalSubmission)
       when(submissionRepositoryMock.insert(any())(any())).thenReturn(Future.successful(dummyWriteResultSuccess))
+
+      submissionService.submitMovement(validEori, exampleArrivalRequest).futureValue
+
+      verify(wcoMapperMock).generateInventoryLinkingMovementRequestXml(meq(exampleArrivalRequest))
+      verify(customsInventoryLinkingExportsConnectorMock)
+        .sendInventoryLinkingRequest(meq(validEori), meq(exampleArrivalRequestXML))(any())
+      verify(submissionFactoryMock).buildMovementSubmission(
+        meq(validEori),
+        meq(conversationId),
+        meq(exampleArrivalRequestXML),
+        meq(exampleArrivalRequest)
+      )
+      verify(submissionRepositoryMock).insert(meq(arrivalSubmission))(any())
+    }
+
+    "return exception when submission failed" in new Test {
+      when(wcoMapperMock.generateInventoryLinkingMovementRequestXml(any())).thenReturn(exampleArrivalRequestXML)
+      when(customsInventoryLinkingExportsConnectorMock.sendInventoryLinkingRequest(any(), any())(any()))
+        .thenReturn(Future.successful(CustomsInventoryLinkingResponse(BAD_REQUEST, None)))
+
+      intercept[CustomsInventoryLinkingUpstreamException] {
+        await(submissionService.submitMovement(validEori, exampleArrivalRequest))
+      }
+    }
+  }
+
+  "SubmissionService on submitConsolidation" should {
+
+    "successfully submit consolidation" in new Test {
+
+      val shutMucrSubmission = Submission(
+        eori = validEori,
+        conversationId = conversationId,
+        ucrBlocks = Seq.empty,
+        actionType = ActionType.ShutMucr
+      )
+
+      when(ileMapperMock.generateConsolidationXml(any())).thenReturn(exampleShutMucrConsolidationRequestXML)
+      when(customsInventoryLinkingExportsConnectorMock.sendInventoryLinkingRequest(any(), any())(any()))
+        .thenReturn(Future.successful(CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId))))
+      when(submissionFactoryMock.buildConsolidationSubmission(any(), any(), any(), any()))
+        .thenReturn(shutMucrSubmission)
+      when(submissionRepositoryMock.insert(any())(any())).thenReturn(Future.successful(dummyWriteResultSuccess))
+
+      submissionService.submitConsolidation(validEori, shutMucrRequest).futureValue
+
+      verify(ileMapperMock).generateConsolidationXml(meq(shutMucrRequest))
+      verify(customsInventoryLinkingExportsConnectorMock)
+        .sendInventoryLinkingRequest(meq(validEori), meq(exampleShutMucrConsolidationRequestXML))(any())
+      verify(submissionFactoryMock).buildConsolidationSubmission(
+        meq(validEori),
+        meq(conversationId),
+        meq(exampleShutMucrConsolidationRequestXML),
+        meq(SHUT_MUCR)
+      )
+    }
+
+    "return exception when submission failed" in new Test {
+      when(ileMapperMock.generateConsolidationXml(any())).thenReturn(exampleShutMucrConsolidationRequestXML)
+      when(customsInventoryLinkingExportsConnectorMock.sendInventoryLinkingRequest(any(), any())(any()))
+        .thenReturn(Future.successful(CustomsInventoryLinkingResponse(BAD_REQUEST, None)))
+
+      intercept[CustomsInventoryLinkingUpstreamException] {
+        await(submissionService.submitConsolidation(validEori, shutMucrRequest))
+      }
     }
   }
 
@@ -195,6 +152,7 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
     }
 
     "return result of calling SubmissionRepository" in new Test {
+
       val expectedSubmissions = Seq(
         exampleSubmission(),
         exampleSubmission(conversationId = conversationId_2),
@@ -220,6 +178,7 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
     }
 
     "return result of calling SubmissionRepository" in new Test {
+
       val expectedSubmission = exampleSubmission()
       when(submissionRepositoryMock.findByConversationId(any[String]))
         .thenReturn(Future.successful(Some(expectedSubmission)))
