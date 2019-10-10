@@ -26,12 +26,9 @@ import uk.gov.hmrc.exports.movements.services.SubmissionService
 import scala.concurrent.ExecutionContext
 
 @Singleton
-class ConsolidationController @Inject()(
-  authConnector: AuthConnector,
-  consolidationService: SubmissionService,
-  cc: ControllerComponents
-)(implicit executionContext: ExecutionContext)
-    extends AuthenticatedController(authConnector, cc) {
+class ConsolidationController @Inject()(authConnector: AuthConnector, consolidationService: SubmissionService, cc: ControllerComponents)(
+  implicit executionContext: ExecutionContext
+) extends AuthenticatedController(authConnector, cc) {
 
   def submitConsolidation(): Action[Consolidation] = authorisedAction(parse.json[Consolidation]) { implicit request =>
     consolidationService

@@ -31,14 +31,13 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.exports.movements.services.SubmissionService
 import unit.uk.gov.hmrc.exports.movements.base.AuthTestSupport
-import utils.testdata.CommonTestData.{conversationId, conversationId_2, conversationId_3, ValidHeaders}
+import utils.testdata.CommonTestData.{ValidHeaders, conversationId, conversationId_2, conversationId_3}
 import utils.testdata.MovementsTestData._
 
 import scala.concurrent.Future
 
 class SubmissionControllerSpec
-    extends WordSpec with GuiceOneAppPerSuite with AuthTestSupport with BeforeAndAfterEach with ScalaFutures
-    with MustMatchers {
+    extends WordSpec with GuiceOneAppPerSuite with AuthTestSupport with BeforeAndAfterEach with ScalaFutures with MustMatchers {
 
   override lazy val app: Application = GuiceApplicationBuilder()
     .overrides(bind[AuthConnector].to(mockAuthConnector), bind[SubmissionService].to(submissionServiceMock))
@@ -70,11 +69,8 @@ class SubmissionControllerSpec
 
     "return what SubmissionService returns in the body" in {
       withAuthorizedUser()
-      val serviceResponseContent = Seq(
-        exampleSubmission(),
-        exampleSubmission(conversationId = conversationId_2),
-        exampleSubmission(conversationId = conversationId_3)
-      )
+      val serviceResponseContent =
+        Seq(exampleSubmission(), exampleSubmission(conversationId = conversationId_2), exampleSubmission(conversationId = conversationId_3))
       when(submissionServiceMock.getSubmissionsByEori(any[String]))
         .thenReturn(Future.successful(serviceResponseContent))
 

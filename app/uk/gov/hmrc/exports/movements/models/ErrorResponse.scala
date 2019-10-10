@@ -37,8 +37,7 @@ object ResponseContents {
   implicit val writes: Writes[ResponseContents] = Json.writes[ResponseContents]
 }
 
-case class ErrorResponse(httpStatusCode: Int, errorCode: String, message: String, content: ResponseContents*)
-    extends Error {
+case class ErrorResponse(httpStatusCode: Int, errorCode: String, message: String, content: ResponseContents*) extends Error {
 
   lazy val JsonResult: Result = Status(httpStatusCode)(responseJson).as(ContentTypes.JSON)
   lazy val XmlResult: Result = Status(httpStatusCode)(responseXml).as(ContentTypes.XML)

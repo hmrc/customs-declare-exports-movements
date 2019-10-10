@@ -20,11 +20,7 @@ import play.api.http.{ContentTypes, HeaderNames}
 import play.api.libs.json.{JsObject, JsString, JsValue}
 import play.api.mvc.Codec
 import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames
-import uk.gov.hmrc.exports.movements.models.consolidation.{
-  AssociateDucrRequest,
-  DisassiociateDucrRequest,
-  ShutMucrRequest
-}
+import uk.gov.hmrc.exports.movements.models.consolidation.{AssociateDucrRequest, DisassiociateDucrRequest, ShutMucrRequest}
 import utils.testdata.CommonTestData._
 
 import scala.xml.{Elem, Node}
@@ -63,10 +59,7 @@ object ConsolidationTestData {
   val exampleDisassociateDucrConsolidationRequestJson: JsValue = JsObject(
     Map(
       "inventoryLinkingConsolidationRequest" -> JsObject(
-        Map(
-          "messageCode" -> JsString(MessageCodes.EAC),
-          "ucrBlock" -> JsObject(Map("ucr" -> JsString(ucr), "ucrType" -> JsString("D")))
-        )
+        Map("messageCode" -> JsString(MessageCodes.EAC), "ucrBlock" -> JsObject(Map("ucr" -> JsString(ucr), "ucrType" -> JsString("D"))))
       )
     )
   )

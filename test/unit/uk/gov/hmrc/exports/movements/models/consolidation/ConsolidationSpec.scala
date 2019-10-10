@@ -31,13 +31,7 @@ class ConsolidationSpec extends UnitSpec {
     "correct read Associate Ducr request" in {
 
       val associateDucrJson: JsValue =
-        JsObject(
-          Map(
-            "consolidationType" -> JsString(ASSOCIATE_DUCR.toString),
-            "mucr" -> JsString(mucr),
-            "ducr" -> JsString(ducr)
-          )
-        )
+        JsObject(Map("consolidationType" -> JsString(ASSOCIATE_DUCR.toString), "mucr" -> JsString(mucr), "ducr" -> JsString(ducr)))
 
       val expectedResult = AssociateDucrRequest(mucr, ducr)
 

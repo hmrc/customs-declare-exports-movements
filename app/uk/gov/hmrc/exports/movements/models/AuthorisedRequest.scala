@@ -34,8 +34,7 @@ object Eori {
 
 case class ConversationId(value: String) extends AnyVal
 
-case class AuthorizedSubmissionRequest[A](eori: Eori, request: Request[A])
-    extends WrappedRequest[A](request) with HasEori
+case class AuthorizedSubmissionRequest[A](eori: Eori, request: Request[A]) extends WrappedRequest[A](request) with HasEori
 
 case class ValidatedHeadersRequest(ducr: String, movementType: String)
 

@@ -18,11 +18,7 @@ package uk.gov.hmrc.exports.movements.models.notifications
 
 import play.api.libs.json.Json
 
-final case class Entry(
-  ucrBlock: Option[UcrBlock] = None,
-  goodsItem: Seq[GoodsItem] = Seq.empty,
-  entryStatus: Option[EntryStatus] = None
-)
+final case class Entry(ucrBlock: Option[UcrBlock] = None, goodsItem: Seq[GoodsItem] = Seq.empty, entryStatus: Option[EntryStatus] = None)
 
 object Entry {
   implicit val format = Json.format[Entry]

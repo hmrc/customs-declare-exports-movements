@@ -21,8 +21,8 @@ import play.api.Logger
 import play.api.mvc._
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals._
-import uk.gov.hmrc.exports.movements.controllers.util.JSONResponses
 import uk.gov.hmrc.exports.models.ErrorResponse
+import uk.gov.hmrc.exports.movements.controllers.util.JSONResponses
 import uk.gov.hmrc.exports.movements.models.{AuthorizedSubmissionRequest, Eori}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.controller.BackendController
@@ -30,15 +30,12 @@ import uk.gov.hmrc.play.bootstrap.controller.BackendController
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class AuthenticatedController @Inject()(override val authConnector: AuthConnector, cc: ControllerComponents)(
-  implicit ec: ExecutionContext
-) extends BackendController(cc) with AuthorisedFunctions with JSONResponses {
+class AuthenticatedController @Inject()(override val authConnector: AuthConnector, cc: ControllerComponents)(implicit ec: ExecutionContext)
+    extends BackendController(cc) with AuthorisedFunctions with JSONResponses {
 
   private val logger = Logger(this.getClass)
 
-  def authorisedAction[A](
-    bodyParser: BodyParser[A]
-  )(body: AuthorizedSubmissionRequest[A] => Future[Result]): Action[A] =
+  def authorisedAction[A](bodyParser: BodyParser[A])(body: AuthorizedSubmissionRequest[A] => Future[Result]): Action[A] =
     Action.async(bodyParser) { implicit request =>
       authorisedWithEori.flatMap {
         case Right(authorisedRequest) =>
@@ -48,10 +45,7 @@ class AuthenticatedController @Inject()(override val authConnector: AuthConnecto
       }
     }
 
-  def authorisedWithEori[A](
-    implicit hc: HeaderCarrier,
-    request: Request[A]
-  ): Future[Either[ErrorResponse, AuthorizedSubmissionRequest[A]]] =
+  def authorisedWithEori[A](implicit hc: HeaderCarrier, request: Request[A]): Future[Either[ErrorResponse, AuthorizedSubmissionRequest[A]]] =
     authorised(Enrolment("HMRC-CUS-ORG")).retrieve(allEnrolments) { enrolments =>
       hasEnrolment(enrolments) match {
         case Some(eori) =>

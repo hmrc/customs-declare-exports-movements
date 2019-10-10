@@ -31,15 +31,11 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.xml.NodeSeq
 
 @Singleton
-class CustomsInventoryLinkingExportsConnector @Inject()(appConfig: AppConfig, httpClient: HttpClient)(
-  implicit ec: ExecutionContext
-) {
+class CustomsInventoryLinkingExportsConnector @Inject()(appConfig: AppConfig, httpClient: HttpClient)(implicit ec: ExecutionContext) {
 
   private val logger = Logger(this.getClass)
 
-  def sendInventoryLinkingRequest(eori: String, body: NodeSeq)(
-    implicit hc: HeaderCarrier
-  ): Future[CustomsInventoryLinkingResponse] =
+  def sendInventoryLinkingRequest(eori: String, body: NodeSeq)(implicit hc: HeaderCarrier): Future[CustomsInventoryLinkingResponse] =
     post(eori, body.toString).map { response =>
       logger.debug(s"CUSTOMS_INVENTORY_LINKING_EXPORTS response is --> ${response.toString}")
       response
@@ -52,9 +48,7 @@ class CustomsInventoryLinkingExportsConnector @Inject()(appConfig: AppConfig, ht
         CustomsInventoryLinkingResponse(response.status, response.header(CustomsHeaderNames.XConversationIdName))
     }
 
-  private[connectors] def post(eori: String, body: String)(
-    implicit hc: HeaderCarrier
-  ): Future[CustomsInventoryLinkingResponse] = {
+  private[connectors] def post(eori: String, body: String)(implicit hc: HeaderCarrier): Future[CustomsInventoryLinkingResponse] = {
     logger.debug(s"CUSTOMS_INVENTORY_LINKING_EXPORTS request payload is -> $body")
     httpClient
       .POSTString[CustomsInventoryLinkingResponse](

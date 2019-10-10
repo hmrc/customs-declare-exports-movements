@@ -52,11 +52,7 @@ class SubmissionService @Inject()(
 
       case CustomsInventoryLinkingResponse(status, conversationId) =>
         Future.failed(
-          new CustomsInventoryLinkingUpstreamException(
-            status,
-            conversationId,
-            "Non Accepted status returned by Customs Inventory Linking Exports"
-          )
+          new CustomsInventoryLinkingUpstreamException(status, conversationId, "Non Accepted status returned by Customs Inventory Linking Exports")
         )
     }
   }
@@ -77,11 +73,7 @@ class SubmissionService @Inject()(
 
       case CustomsInventoryLinkingResponse(status, conversationId) =>
         Future.failed(
-          new CustomsInventoryLinkingUpstreamException(
-            status,
-            conversationId,
-            "Non Accepted status returned by Customs Inventory Linking Exports"
-          )
+          new CustomsInventoryLinkingUpstreamException(status, conversationId, "Non Accepted status returned by Customs Inventory Linking Exports")
         )
     }
   }

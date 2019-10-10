@@ -41,10 +41,9 @@ class SubmissionController @Inject()(
       .map(movements => Ok(Json.toJson(movements)))
   }
 
-  def getSubmission(conversationId: String): Action[AnyContent] = authorisedAction(parse.default) {
-    implicit authorizedRequest =>
-      submissionService
-        .getSubmissionByConversationId(conversationId)
-        .map(submission => Ok(Json.toJson(submission)))
+  def getSubmission(conversationId: String): Action[AnyContent] = authorisedAction(parse.default) { implicit authorizedRequest =>
+    submissionService
+      .getSubmissionByConversationId(conversationId)
+      .map(submission => Ok(Json.toJson(submission)))
   }
 }

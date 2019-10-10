@@ -17,17 +17,15 @@
 package uk.gov.hmrc.exports.movements.services
 
 import javax.inject.{Inject, Singleton}
-import play.api.Logger
 import uk.gov.hmrc.exports.movements.models.notifications.{Notification, NotificationFrontendModel}
 import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, SubmissionRepository}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class NotificationService @Inject()(
-  notificationRepository: NotificationRepository,
-  submissionRepository: SubmissionRepository
-)(implicit executionContext: ExecutionContext) {
+class NotificationService @Inject()(notificationRepository: NotificationRepository, submissionRepository: SubmissionRepository)(
+  implicit executionContext: ExecutionContext
+) {
 
   def save(notification: Notification): Future[Unit] =
     notificationRepository

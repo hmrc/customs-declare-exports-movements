@@ -29,8 +29,7 @@ import utils.testdata.notifications.NotificationTestData._
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class NotificationRepositorySpec
-    extends WordSpec with GuiceOneAppPerSuite with BeforeAndAfterEach with ScalaFutures with MustMatchers
-    with IntegrationPatience {
+    extends WordSpec with GuiceOneAppPerSuite with BeforeAndAfterEach with ScalaFutures with MustMatchers with IntegrationPatience {
 
   override def fakeApplication: Application = {
     SharedMetricRegistries.clear()

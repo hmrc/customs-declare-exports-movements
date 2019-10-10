@@ -16,8 +16,8 @@
 
 package unit.uk.gov.hmrc.exports.movements.models
 
-import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.{MustMatchers, WordSpec}
+import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.exports.movements.controllers.request.MovementRequest
 import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationType._
 import uk.gov.hmrc.exports.movements.models.movements.{ConsignmentReference, MovementDetails}
@@ -58,12 +58,7 @@ class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar
 
         val departureRequest = MovementRequest("EDL", ConsignmentReference("", ""), MovementDetails(""))
 
-        val submission = submissionFactory.buildMovementSubmission(
-          validEori,
-          conversationId,
-          exampleDepartureRequestXML,
-          departureRequest
-        )
+        val submission = submissionFactory.buildMovementSubmission(validEori, conversationId, exampleDepartureRequestXML, departureRequest)
 
         val expectedSubmission = Submission(
           eori = validEori,
@@ -77,12 +72,8 @@ class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar
 
       "provided with Association request" in new Test {
 
-        val submission = submissionFactory.buildConsolidationSubmission(
-          validEori,
-          conversationId,
-          exampleAssociateDucrConsolidationRequestXML,
-          ASSOCIATE_DUCR
-        )
+        val submission =
+          submissionFactory.buildConsolidationSubmission(validEori, conversationId, exampleAssociateDucrConsolidationRequestXML, ASSOCIATE_DUCR)
 
         val expectedSubmission = Submission(
           eori = validEori,
@@ -96,12 +87,8 @@ class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar
 
       "provided with Disassociation request" in new Test {
 
-        val submission = submissionFactory.buildConsolidationSubmission(
-          validEori,
-          conversationId,
-          exampleDisassociateDucrConsolidationRequestXML,
-          DISASSOCIATE_DUCR
-        )
+        val submission =
+          submissionFactory.buildConsolidationSubmission(validEori, conversationId, exampleDisassociateDucrConsolidationRequestXML, DISASSOCIATE_DUCR)
 
         val expectedSubmission = Submission(
           eori = validEori,
@@ -115,12 +102,7 @@ class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar
 
       "provided with Shut MUCR request" in new Test {
 
-        val submission = submissionFactory.buildConsolidationSubmission(
-          validEori,
-          conversationId,
-          exampleShutMucrConsolidationRequestXML,
-          SHUT_MUCR
-        )
+        val submission = submissionFactory.buildConsolidationSubmission(validEori, conversationId, exampleShutMucrConsolidationRequestXML, SHUT_MUCR)
 
         val expectedSubmission = Submission(
           eori = validEori,

@@ -38,8 +38,8 @@ import utils.testdata.MovementsTestData._
 import scala.concurrent.Future
 
 class CustomsInventoryLinkingMovementsConnectorSpec
-    extends IntegrationTestSpec with GuiceOneAppPerSuite with MockitoSugar with CustomsMovementsAPIService
-    with ScalaFutures with IntegrationPatience {
+    extends IntegrationTestSpec with GuiceOneAppPerSuite with MockitoSugar with CustomsMovementsAPIService with ScalaFutures
+    with IntegrationPatience {
 
   private lazy val connector = app.injector.instanceOf[CustomsInventoryLinkingExportsConnector]
   private implicit val hc: HeaderCarrier = HeaderCarrier()

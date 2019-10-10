@@ -17,7 +17,7 @@
 package utils.testdata.notifications
 
 import uk.gov.hmrc.exports.movements.models.notifications._
-import utils.testdata.CommonTestData.{movementReference, ucr, ucr_2, MessageCodes}
+import utils.testdata.CommonTestData.{MessageCodes, movementReference, ucr, ucr_2}
 import utils.testdata.notifications.NotificationTestData._
 
 object ExampleInventoryLinkingMovementTotalsResponse {
@@ -74,11 +74,7 @@ object ExampleInventoryLinkingMovementTotalsResponse {
                 totalPackages = Some(totalPackages_1),
                 totalNetMass = Some(BigDecimal(totalNetMass_1))
               ),
-              GoodsItem(
-                commodityCode = Some(commodityCode_2),
-                totalPackages = Some(totalPackages_2),
-                totalNetMass = Some(BigDecimal(totalNetMass_2))
-              )
+              GoodsItem(commodityCode = Some(commodityCode_2), totalPackages = Some(totalPackages_2), totalNetMass = Some(BigDecimal(totalNetMass_2)))
             )
           )
         ),

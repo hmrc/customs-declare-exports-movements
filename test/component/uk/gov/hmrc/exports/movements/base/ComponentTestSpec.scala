@@ -16,6 +16,7 @@
 
 package component.uk.gov.hmrc.exports.movements.base
 
+import com.codahale.metrics.SharedMetricRegistries
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, verify, verifyZeroInteractions, when}
@@ -35,13 +36,12 @@ import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder.dummyWriteRes
 import utils.ExternalServicesConfig.{Host, Port}
 import utils.stubs.CustomsMovementsAPIService
 import utils.{AuthService, CustomsMovementsAPIConfig}
-import com.codahale.metrics.SharedMetricRegistries
 
 import scala.concurrent.Future
 
 trait ComponentTestSpec
-    extends FeatureSpec with GivenWhenThen with GuiceOneAppPerSuite with BeforeAndAfterAll with BeforeAndAfterEach
-    with Eventually with MockitoSugar with Matchers with OptionValues with AuthService with CustomsMovementsAPIService {
+    extends FeatureSpec with GivenWhenThen with GuiceOneAppPerSuite with BeforeAndAfterAll with BeforeAndAfterEach with Eventually with MockitoSugar
+    with Matchers with OptionValues with AuthService with CustomsMovementsAPIService {
 
   private val movementNotificationsRepositoryMock = mock[NotificationRepository]
   val movementSubmissionsRepositoryMock = mock[SubmissionRepository]

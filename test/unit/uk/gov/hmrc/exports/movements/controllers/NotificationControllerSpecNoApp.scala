@@ -21,8 +21,8 @@ import akka.stream.ActorMaterializer
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.{MustMatchers, WordSpec}
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.exports.movements.controllers.NotificationController
@@ -33,8 +33,7 @@ import utils.testdata.notifications.NotificationTestData._
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class NotificationControllerSpecNoApp
-    extends WordSpec with MustMatchers with MockitoSugar with ScalaFutures with AuthTestSupport {
+class NotificationControllerSpecNoApp extends WordSpec with MustMatchers with MockitoSugar with ScalaFutures with AuthTestSupport {
 
   trait SetUp {
     val headerValidatorMock = mock[HeaderValidator]

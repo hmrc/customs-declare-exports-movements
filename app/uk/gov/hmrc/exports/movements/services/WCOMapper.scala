@@ -45,8 +45,7 @@ class WCOMapper {
     InventoryLinkingMovementRequest(
       messageCode = request.choice,
       agentDetails = None,
-      ucrBlock =
-        UcrBlock(ucr = request.consignmentReference.referenceValue, ucrType = request.consignmentReference.reference),
+      ucrBlock = UcrBlock(ucr = request.consignmentReference.referenceValue, ucrType = request.consignmentReference.reference),
       goodsLocation = request.location.map(_.asString).getOrElse(""),
       goodsArrivalDateTime = arrivalDetails.map(_.dateTime),
       goodsDepartureDateTime = departureDetails.map(_.dateTime),

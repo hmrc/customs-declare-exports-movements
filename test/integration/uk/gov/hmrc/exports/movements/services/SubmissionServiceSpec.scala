@@ -29,14 +29,10 @@ import play.api.inject.guice.{GuiceApplicationBuilder, GuiceableModule}
 import play.api.test.Helpers._
 import reactivemongo.core.errors.GenericDatabaseException
 import uk.gov.hmrc.exports.movements.exceptions.CustomsInventoryLinkingUpstreamException
-import uk.gov.hmrc.exports.movements.models.submissions.ActionType
 import uk.gov.hmrc.exports.movements.repositories.SubmissionRepository
 import uk.gov.hmrc.exports.movements.services.SubmissionService
 import uk.gov.hmrc.http.HeaderCarrier
-import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder.{
-  buildSubmissionRepositoryMock,
-  dummyWriteResultSuccess
-}
+import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder.{buildSubmissionRepositoryMock, dummyWriteResultSuccess}
 import utils.CustomsMovementsAPIConfig
 import utils.ExternalServicesConfig.{Host, Port}
 import utils.stubs.CustomsMovementsAPIService
@@ -44,11 +40,10 @@ import utils.testdata.CommonTestData.validEori
 import utils.testdata.MovementsTestData._
 
 import scala.concurrent.{Await, Future}
-import scala.xml.XML
 
 class SubmissionServiceSpec
-    extends IntegrationTestSpec with GuiceOneAppPerSuite with MockitoSugar with CustomsMovementsAPIService
-    with ScalaFutures with IntegrationPatience {
+    extends IntegrationTestSpec with GuiceOneAppPerSuite with MockitoSugar with CustomsMovementsAPIService with ScalaFutures
+    with IntegrationPatience {
 
   val mockMovementsRepository: SubmissionRepository = buildSubmissionRepositoryMock
 

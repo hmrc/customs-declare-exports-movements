@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.exports.movements.models.consolidation
 
-import play.api.libs.json.{Format, Json, Reads, Writes}
+import play.api.libs.json.{Json, Reads, Writes}
 import uk.gov.hmrc.play.json.Union
 
 object ConsolidationType extends Enumeration {
@@ -29,14 +29,9 @@ object ConsolidationType extends Enumeration {
 
 import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationType._
 
-sealed abstract class Consolidation(
-  val consolidationType: ConsolidationType,
-  val mucrOpt: Option[String],
-  val ducrOpt: Option[String]
-)
+sealed abstract class Consolidation(val consolidationType: ConsolidationType, val mucrOpt: Option[String], val ducrOpt: Option[String])
 
-case class AssociateDucrRequest(mucr: String, ducr: String)
-    extends Consolidation(ASSOCIATE_DUCR, Some(mucr), Some(ducr))
+case class AssociateDucrRequest(mucr: String, ducr: String) extends Consolidation(ASSOCIATE_DUCR, Some(mucr), Some(ducr))
 
 case class DisassiociateDucrRequest(ducr: String) extends Consolidation(DISASSOCIATE_DUCR, None, Some(ducr))
 

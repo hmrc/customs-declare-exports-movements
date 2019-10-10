@@ -24,10 +24,7 @@ import uk.gov.hmrc.exports.movements.models.notifications.parsers.ResponseParser
 import scala.xml.{NodeSeq, SAXParseException, Utility}
 
 @Singleton
-class NotificationFactory @Inject()(
-  responseValidator: ResponseValidator,
-  responseParserFactory: ResponseParserFactory
-) {
+class NotificationFactory @Inject()(responseValidator: ResponseValidator, responseParserFactory: ResponseParserFactory) {
 
   private val logger = Logger(this.getClass)
 
@@ -49,9 +46,7 @@ class NotificationFactory @Inject()(
       case exc: SAXParseException =>
         MDC.put("conversationId", conversationId)
         logger
-          .warn(
-            s"Received Notification for Conversation ID: [$conversationId] does not match the schema: ${exc.getMessage}"
-          )
+          .warn(s"Received Notification for Conversation ID: [$conversationId] does not match the schema: ${exc.getMessage}")
         MDC.remove("conversationId")
     }
 

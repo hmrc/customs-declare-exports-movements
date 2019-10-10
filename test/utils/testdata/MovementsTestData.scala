@@ -111,12 +111,7 @@ object MovementsTestData {
     ucrType: String = "D",
     actionType: ActionType = ActionType.Arrival
   ): Submission =
-    Submission(
-      eori = eori,
-      conversationId = conversationId,
-      ucrBlocks = Seq(UcrBlockModel(ucr = ucr, ucrType = ucrType)),
-      actionType = actionType
-    )
+    Submission(eori = eori, conversationId = conversationId, ucrBlocks = Seq(UcrBlockModel(ucr = ucr, ucrType = ucrType)), actionType = actionType)
 
   def emptySubmission: Submission =
     Submission(uuid = "", eori = "", conversationId = "", ucrBlocks = Seq.empty, actionType = ActionType.Arrival)

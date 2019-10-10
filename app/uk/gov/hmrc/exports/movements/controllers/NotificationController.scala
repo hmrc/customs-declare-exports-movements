@@ -81,8 +81,7 @@ class NotificationController @Inject()(
         metrics.incrementCounter(movementMetric)
     }
 
-  def listOfNotifications(conversationId: String): Action[AnyContent] = authorisedAction(parse.default) {
-    implicit request =>
-      notificationService.getAllNotifications(conversationId).map(notifications => Ok(Json.toJson(notifications)))
+  def listOfNotifications(conversationId: String): Action[AnyContent] = authorisedAction(parse.default) { implicit request =>
+    notificationService.getAllNotifications(conversationId).map(notifications => Ok(Json.toJson(notifications)))
   }
 }

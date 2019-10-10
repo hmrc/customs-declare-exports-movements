@@ -26,7 +26,7 @@ import play.api.test.Helpers._
 import reactivemongo.core.actors.Exceptions.PrimaryUnavailableException
 import reactivemongo.core.errors.ConnectionException
 import uk.gov.hmrc.exports.movements.exceptions.CustomsInventoryLinkingUpstreamException
-import utils.testdata.CommonTestData.{validEori, ValidJsonHeaders}
+import utils.testdata.CommonTestData.{ValidJsonHeaders, validEori}
 import utils.testdata.MovementsTestData._
 
 import scala.concurrent.{Await, Future}
@@ -199,13 +199,7 @@ class MovementsSubmissionReceivedSpec extends ComponentTestSpec with Integration
       And("Database does not work")
       when(movementSubmissionsRepositoryMock.insert(any())(any()))
         .thenReturn(
-          Future.failed(
-            new PrimaryUnavailableException(
-              "Supervisor-1",
-              "Connection-1",
-              ConnectionException("No primary node is available!")
-            )
-          )
+          Future.failed(new PrimaryUnavailableException("Supervisor-1", "Connection-1", ConnectionException("No primary node is available!")))
         )
       val request: FakeRequest[AnyContentAsJson] = validMovementSubmissionRequest
 

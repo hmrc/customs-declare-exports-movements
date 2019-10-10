@@ -39,9 +39,8 @@ class NotificationFrontendModelSpec extends WordSpec with MustMatchers {
 
       "contains only DUCR" should {
         "return NotificationFrontendModel with entry for this DUCR" in {
-          val notification = notification_1.copy(
-            data = notification_1.data.copy(entries = Seq(Entry(ucrBlock = Some(UcrBlock(ucr = ucr, ucrType = "D")))))
-          )
+          val notification =
+            notification_1.copy(data = notification_1.data.copy(entries = Seq(Entry(ucrBlock = Some(UcrBlock(ucr = ucr, ucrType = "D"))))))
 
           val result = NotificationFrontendModel(notification)
 
@@ -55,9 +54,8 @@ class NotificationFrontendModelSpec extends WordSpec with MustMatchers {
 
       "contains only MUCR" should {
         "return NotificationFrontendModel with entry for this MUCR" in {
-          val notification = notification_1.copy(
-            data = notification_1.data.copy(masterUcr = Some(ucr), masterRoe = Some("ROE"), masterSoe = Some("SOE"))
-          )
+          val notification =
+            notification_1.copy(data = notification_1.data.copy(masterUcr = Some(ucr), masterRoe = Some("ROE"), masterSoe = Some("SOE")))
 
           val result = NotificationFrontendModel(notification)
 
