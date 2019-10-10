@@ -16,7 +16,8 @@
 
 package uk.gov.hmrc.exports.movements.models.consolidation
 
-import play.api.libs.json.{Json, Reads, Writes}
+import play.api.libs.json.{Format, Json, Reads, Writes}
+import uk.gov.hmrc.exports.movements.models.consolidation
 import uk.gov.hmrc.play.json.Union
 
 object ConsolidationType extends Enumeration {
@@ -24,7 +25,7 @@ object ConsolidationType extends Enumeration {
 
   val ASSOCIATE_DUCR, DISASSOCIATE_DUCR, SHUT_MUCR = Value
 
-  implicit val format = Format(Reads.enumNameReads(ConsolidationType), Writes.enumNameWrites)
+  implicit val format: Format[consolidation.ConsolidationType.Value] = Format(Reads.enumNameReads(ConsolidationType), Writes.enumNameWrites)
 }
 
 import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationType._
