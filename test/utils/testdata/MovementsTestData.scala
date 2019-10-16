@@ -40,7 +40,7 @@ object MovementsTestData {
           <ucr>{ucr}</ucr>
           <ucrType>D</ucrType>
         </ucrBlock>
-        <goodsLocation>GBlocationQOSD</goodsLocation>
+        <goodsLocation>GBAUlocation</goodsLocation>
         <goodsArrivalDateTime>2019-07-12T13:14:54.000Z</goodsArrivalDateTime>
         <movementReference>{movementReference}</movementReference>
         <transportDetails>
@@ -55,7 +55,7 @@ object MovementsTestData {
     choice = "EAL",
     consignmentReference = ConsignmentReference("D", "7GB123456789000-123ABC456DEFQWERT"),
     movementDetails = MovementDetails("2019-07-12T13:14:54.000Z"),
-    location = Some(Location("location", "QOS", "D", "GB")),
+    location = Some(Location("GBAUlocation")),
     arrivalReference = Some(ArrivalReference(Some(movementReference))),
     goodsDeparted = Some(GoodsDeparted("Leeds")),
     transport = Some(Transport(transportMode, transportNationality, transportId))
@@ -71,7 +71,7 @@ object MovementsTestData {
         <ucr>{ucr}</ucr>
         <ucrType>D</ucrType>
       </ucrBlock>
-      <goodsLocation>GBlocationQOSD</goodsLocation>
+      <goodsLocation>GBAUlocation</goodsLocation>
       <goodsDepartureDateTime>2019-07-12T13:14:54.000Z</goodsDepartureDateTime>
       <movementReference>{movementReference}</movementReference>
       <transportDetails>
@@ -86,7 +86,7 @@ object MovementsTestData {
     choice = "EDL",
     consignmentReference = ConsignmentReference("D", "7GB123456789000-123ABC456DEFQWERT"),
     movementDetails = MovementDetails("2019-07-12T13:14:54.000Z"),
-    location = Some(Location("location", "QOS", "D", "GB")),
+    location = Some(Location("GBAUlocation")),
     arrivalReference = Some(ArrivalReference(Some(movementReference))),
     goodsDeparted = Some(GoodsDeparted("Leeds")),
     transport = Some(Transport(transportMode, transportNationality, transportId))
@@ -97,7 +97,7 @@ object MovementsTestData {
       choice = "EDL",
       consignmentReference = ConsignmentReference("D", "7GB123456789000-123ABC456DEFQWERT"),
       movementDetails = MovementDetails("2019-07-12T13:14:54.000Z"),
-      location = Some(Location("location", "QOS", "D", "GB")),
+      location = Some(Location("GBAUlocation")),
       arrivalReference = Some(ArrivalReference(Some(movementReference))),
       goodsDeparted = Some(GoodsDeparted("Leeds")),
       transport = Some(Transport(transportMode, transportNationality, transportId))
