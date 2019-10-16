@@ -17,9 +17,7 @@
 package uk.gov.hmrc.exports.movements.models.movements
 import play.api.libs.json.{Json, OFormat}
 
-case class Location(locationType: String, qualifierCode: String, locationCode: String, country: String) {
-  def asString: String = country + locationType + qualifierCode + locationCode
-}
+case class Location(code: String)
 
 object Location {
   implicit val format: OFormat[Location] = Json.format[Location]

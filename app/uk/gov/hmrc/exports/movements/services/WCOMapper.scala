@@ -32,7 +32,7 @@ class WCOMapper {
     xml.XML.loadString(generateInventoryLinkingMovementRequest(request).toXml)
 
   private def generateInventoryLinkingMovementRequest(request: MovementRequest): InventoryLinkingMovementRequest = {
-    val departureDetails = request.choice match {
+    val departureDetails: Option[MovementDetails] = request.choice match {
       case Departure => Some(request.movementDetails)
       case _         => None
     }
@@ -46,7 +46,7 @@ class WCOMapper {
       messageCode = request.choice,
       agentDetails = None,
       ucrBlock = UcrBlock(ucr = request.consignmentReference.referenceValue, ucrType = request.consignmentReference.reference),
-      goodsLocation = request.location.map(_.asString).getOrElse(""),
+      goodsLocation = request.location.map(_.code).getOrElse(""),
       goodsArrivalDateTime = arrivalDetails.map(_.dateTime),
       goodsDepartureDateTime = departureDetails.map(_.dateTime),
       transportDetails = mapTransportDetails(request.transport),
