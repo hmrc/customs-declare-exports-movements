@@ -57,7 +57,6 @@ object MovementsTestData {
     movementDetails = MovementDetails("2019-07-12T13:14:54.000Z"),
     location = Some(Location("GBAUlocation")),
     arrivalReference = Some(ArrivalReference(Some(movementReference))),
-    goodsDeparted = Some(GoodsDeparted("Leeds")),
     transport = Some(Transport(transportMode, transportNationality, transportId))
   )
 
@@ -88,7 +87,6 @@ object MovementsTestData {
     movementDetails = MovementDetails("2019-07-12T13:14:54.000Z"),
     location = Some(Location("GBAUlocation")),
     arrivalReference = Some(ArrivalReference(Some(movementReference))),
-    goodsDeparted = Some(GoodsDeparted("Leeds")),
     transport = Some(Transport(transportMode, transportNationality, transportId))
   )
 
@@ -99,7 +97,6 @@ object MovementsTestData {
       movementDetails = MovementDetails("2019-07-12T13:14:54.000Z"),
       location = Some(Location("GBAUlocation")),
       arrivalReference = Some(ArrivalReference(Some(movementReference))),
-      goodsDeparted = Some(GoodsDeparted("Leeds")),
       transport = Some(Transport(transportMode, transportNationality, transportId))
     )
   )
