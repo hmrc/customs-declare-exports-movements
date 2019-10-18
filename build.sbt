@@ -7,6 +7,7 @@ import uk.gov.hmrc.{SbtArtifactory, SbtAutoBuildPlugin}
 
 val appName = "customs-declare-exports-movements"
 
+PlayKeys.devSettings := Seq("play.server.http.port" -> "6797")
 
 lazy val allResolvers = resolvers ++= Seq(
   Resolver.bintrayRepo("hmrc", "releases"),

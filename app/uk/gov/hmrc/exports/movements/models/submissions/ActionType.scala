@@ -29,6 +29,8 @@ object ActionType {
   case object Departure extends ActionType("Departure")
   case object DucrAssociation extends ActionType("DucrAssociation")
   case object DucrDisassociation extends ActionType("DucrDisassociation")
+  case object MucrAssociation extends ActionType("MucrAssociation")
+  case object MucrDisassociation extends ActionType("MucrDisassociation")
   case object ShutMucr extends ActionType("ShutMucr")
 
   implicit val format = new Format[ActionType] {
@@ -39,6 +41,8 @@ object ActionType {
       case JsString("Departure")          => JsSuccess(Departure)
       case JsString("DucrAssociation")    => JsSuccess(DucrAssociation)
       case JsString("DucrDisassociation") => JsSuccess(DucrDisassociation)
+      case JsString("MucrAssociation")    => JsSuccess(MucrAssociation)
+      case JsString("MucrDisassociation") => JsSuccess(MucrDisassociation)
       case JsString("ShutMucr")           => JsSuccess(ShutMucr)
       case _                              => JsError("Unknown ActionType")
     }
@@ -47,6 +51,8 @@ object ActionType {
   def apply(consolidationType: ConsolidationType): ActionType = consolidationType match {
     case ASSOCIATE_DUCR    => DucrAssociation
     case DISASSOCIATE_DUCR => DucrDisassociation
+    case ASSOCIATE_MUCR    => MucrAssociation
+    case DISASSOCIATE_MUCR => MucrDisassociation
     case SHUT_MUCR         => ShutMucr
     case _                 => throw new IllegalArgumentException("Incorrect consolidation type")
   }

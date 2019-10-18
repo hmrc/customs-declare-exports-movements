@@ -18,8 +18,7 @@ package uk.gov.hmrc.exports.movements.services
 
 import javax.inject.Singleton
 import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation
-import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationType.ConsolidationType
-import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationType._
+import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationType.{ConsolidationType, _}
 
 import scala.xml.{Node, NodeSeq}
 
@@ -31,7 +30,7 @@ class ILEMapper {
       <inventoryLinkingConsolidationRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
         <messageCode>{buildMessageCode(consolidation.consolidationType)}</messageCode>
         {buildMasterUcrNode(consolidation.mucrOpt)}
-        {buildUcrBlockNode(consolidation.ducrOpt)}
+        {buildUcrBlockNode(consolidation.consolidationType, consolidation.ucrOpt)}
       </inventoryLinkingConsolidationRequest>
     }
 
@@ -43,11 +42,16 @@ class ILEMapper {
   private def buildMasterUcrNode(mucrOpt: Option[String]): NodeSeq =
     mucrOpt.map(mucr => <masterUCR>{mucr}</masterUCR>).getOrElse(NodeSeq.Empty)
 
-  private def buildUcrBlockNode(ducrOpt: Option[String]): NodeSeq =
-    ducrOpt.map { ducr =>
+  private def buildUcrBlockNode(consolidationType: ConsolidationType, ucrOpt: Option[String]): NodeSeq =
+    ucrOpt.map { ducr =>
       <ucrBlock>
         <ucr>{ducr}</ucr>
-        <ucrType>D</ucrType>
+        <ucrType>{ucrType(consolidationType)}</ucrType>
       </ucrBlock>
     }.getOrElse(NodeSeq.Empty)
+
+  private def ucrType(consolidationType: ConsolidationType): String = consolidationType match {
+    case ASSOCIATE_DUCR | DISASSOCIATE_DUCR => "D"
+    case ASSOCIATE_MUCR | DISASSOCIATE_MUCR => "M"
+  }
 }

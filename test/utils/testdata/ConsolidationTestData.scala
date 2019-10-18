@@ -20,7 +20,7 @@ import play.api.http.{ContentTypes, HeaderNames}
 import play.api.libs.json.{JsObject, JsString, JsValue}
 import play.api.mvc.Codec
 import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames
-import uk.gov.hmrc.exports.movements.models.consolidation.{AssociateDucrRequest, DisassiociateDucrRequest, ShutMucrRequest}
+import uk.gov.hmrc.exports.movements.models.consolidation.{AssociateDucrRequest, DisassociateDucrRequest, ShutMucrRequest}
 import utils.testdata.CommonTestData._
 
 import scala.xml.{Elem, Node}
@@ -28,7 +28,7 @@ import scala.xml.{Elem, Node}
 object ConsolidationTestData {
 
   val associateDucrRequest = AssociateDucrRequest(ucr, ucr_2)
-  val disassiociateDucrRequest = DisassiociateDucrRequest(ucr_2)
+  val disassiociateDucrRequest = DisassociateDucrRequest(ucr_2)
   val shutMucrRequest = ShutMucrRequest(ucr)
 
   val exampleShutMucrConsolidationRequestXML: Node =
@@ -47,12 +47,31 @@ object ConsolidationTestData {
       </ucrBlock>
     </inventoryLinkingConsolidationRequest>
 
+  val exampleAssociateMucrConsolidationRequestXML: Elem =
+    <inventoryLinkingConsolidationRequest>
+      <messageCode>{MessageCodes.EAC}</messageCode>
+      <masterUCR>{ucr_2}</masterUCR>
+      <ucrBlock>
+        <ucr>{ucr}</ucr>
+        <ucrType>M</ucrType>
+      </ucrBlock>
+    </inventoryLinkingConsolidationRequest>
+
   val exampleDisassociateDucrConsolidationRequestXML: Elem =
     <inventoryLinkingConsolidationRequest>
       <messageCode>{MessageCodes.EAC}</messageCode>
       <ucrBlock>
         <ucr>{ucr}</ucr>
         <ucrType>D</ucrType>
+      </ucrBlock>
+    </inventoryLinkingConsolidationRequest>
+
+  val exampleDisassociateMucrConsolidationRequestXML: Elem =
+    <inventoryLinkingConsolidationRequest>
+      <messageCode>{MessageCodes.EAC}</messageCode>
+      <ucrBlock>
+        <ucr>{ucr}</ucr>
+        <ucrType>M</ucrType>
       </ucrBlock>
     </inventoryLinkingConsolidationRequest>
 
