@@ -16,12 +16,8 @@
 
 package uk.gov.hmrc.exports.movements.controllers.request
 
-import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.exports.movements.models.Eori
-import uk.gov.hmrc.exports.movements.models.movements.Choice.{Arrival, Departure}
+import play.api.libs.json.Json
 import uk.gov.hmrc.exports.movements.models.movements._
-import uk.gov.hmrc.wco.dec.inventorylinking.common.{TransportDetails, UcrBlock}
-import uk.gov.hmrc.wco.dec.inventorylinking.movement.request.InventoryLinkingMovementRequest
 
 case class MovementRequest(
   choice: String,
@@ -29,7 +25,6 @@ case class MovementRequest(
   movementDetails: MovementDetails,
   location: Option[Location] = None,
   arrivalReference: Option[ArrivalReference] = None,
-  goodsDeparted: Option[GoodsDeparted] = None,
   transport: Option[Transport] = None
 )
 
