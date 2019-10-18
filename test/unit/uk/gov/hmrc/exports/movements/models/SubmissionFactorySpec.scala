@@ -23,7 +23,7 @@ import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationType._
 import uk.gov.hmrc.exports.movements.models.movements.{ConsignmentReference, MovementDetails}
 import uk.gov.hmrc.exports.movements.models.notifications.UcrBlock
 import uk.gov.hmrc.exports.movements.models.submissions.{ActionType, Submission, SubmissionFactory}
-import utils.testdata.CommonTestData._
+import utils.testdata.CommonTestData.{conversationId, _}
 import utils.testdata.ConsolidationTestData._
 import utils.testdata.MovementsTestData.{exampleArrivalRequestXML, exampleDepartureRequestXML}
 
@@ -70,7 +70,7 @@ class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar
         compareSubmissions(submission, expectedSubmission)
       }
 
-      "provided with Association request" in new Test {
+      "provided with Association Ducr request" in new Test {
 
         val submission =
           submissionFactory.buildConsolidationSubmission(validEori, conversationId, exampleAssociateDucrConsolidationRequestXML, ASSOCIATE_DUCR)
@@ -85,7 +85,22 @@ class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar
         compareSubmissions(submission, expectedSubmission)
       }
 
-      "provided with Disassociation request" in new Test {
+      "provided with Association Mucr request" in new Test {
+
+        val submission =
+          submissionFactory.buildConsolidationSubmission(validEori, conversationId, exampleAssociateMucrConsolidationRequestXML, ASSOCIATE_MUCR)
+
+        val expectedSubmission = Submission(
+          eori = validEori,
+          conversationId = conversationId,
+          actionType = ActionType.MucrAssociation,
+          ucrBlocks = Seq(UcrBlock(ucr = ucr_2, ucrType = "M"), UcrBlock(ucr = ucr, ucrType = "M"))
+        )
+
+        compareSubmissions(submission, expectedSubmission)
+      }
+
+      "provided with Disassociation Ducr request" in new Test {
 
         val submission =
           submissionFactory.buildConsolidationSubmission(validEori, conversationId, exampleDisassociateDucrConsolidationRequestXML, DISASSOCIATE_DUCR)
@@ -95,6 +110,21 @@ class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar
           conversationId = conversationId,
           actionType = ActionType.DucrDisassociation,
           ucrBlocks = Seq(UcrBlock(ucr = ucr, ucrType = "D"))
+        )
+
+        compareSubmissions(submission, expectedSubmission)
+      }
+
+      "provided with Disassociation Mucr request" in new Test {
+
+        val submission =
+          submissionFactory.buildConsolidationSubmission(validEori, conversationId, exampleDisassociateMucrConsolidationRequestXML, DISASSOCIATE_MUCR)
+
+        val expectedSubmission = Submission(
+          eori = validEori,
+          conversationId = conversationId,
+          actionType = ActionType.MucrDisassociation,
+          ucrBlocks = Seq(UcrBlock(ucr = ucr, ucrType = "M"))
         )
 
         compareSubmissions(submission, expectedSubmission)

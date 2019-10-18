@@ -31,21 +31,41 @@ class ConsolidationSpec extends UnitSpec {
     "correct read Associate Ducr request" in {
 
       val associateDucrJson: JsValue =
-        JsObject(Map("consolidationType" -> JsString(ASSOCIATE_DUCR.toString), "mucr" -> JsString(mucr), "ducr" -> JsString(ducr)))
+        JsObject(Map("consolidationType" -> JsString(ASSOCIATE_DUCR.toString), "mucr" -> JsString(mucr), "ucr" -> JsString(ducr)))
 
       val expectedResult = AssociateDucrRequest(mucr, ducr)
 
       Consolidation.format.reads(associateDucrJson) shouldBe JsSuccess(expectedResult)
     }
 
+    "correct read Associate Mucr request" in {
+
+      val associateMucrJson: JsValue =
+        JsObject(Map("consolidationType" -> JsString(ASSOCIATE_MUCR.toString), "mucr" -> JsString(mucr), "ucr" -> JsString(mucr)))
+
+      val expectedResult = AssociateMucrRequest(mucr, mucr)
+
+      Consolidation.format.reads(associateMucrJson) shouldBe JsSuccess(expectedResult)
+    }
+
     "correct read Disassociate Ducr request" in {
 
       val diassociateDucrJson: JsValue =
-        JsObject(Map("consolidationType" -> JsString(DISASSOCIATE_DUCR.toString), "ducr" -> JsString(ducr)))
+        JsObject(Map("consolidationType" -> JsString(DISASSOCIATE_DUCR.toString), "ucr" -> JsString(ducr)))
 
-      val expectedResult = DisassiociateDucrRequest(ducr)
+      val expectedResult = DisassociateDucrRequest(ducr)
 
       Consolidation.format.reads(diassociateDucrJson) shouldBe JsSuccess(expectedResult)
+    }
+
+    "correct read Disassociate Mucr request" in {
+
+      val diassociateMucrJson: JsValue =
+        JsObject(Map("consolidationType" -> JsString(DISASSOCIATE_MUCR.toString), "ucr" -> JsString(mucr)))
+
+      val expectedResult = DisassociateMucrRequest(mucr)
+
+      Consolidation.format.reads(diassociateMucrJson) shouldBe JsSuccess(expectedResult)
     }
 
     "correct read Shut Mucr request" in {
