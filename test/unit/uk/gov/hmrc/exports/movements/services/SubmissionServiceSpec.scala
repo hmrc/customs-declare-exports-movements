@@ -28,6 +28,7 @@ import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
 import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationType.SHUT_MUCR
 import uk.gov.hmrc.exports.movements.models.notifications.UcrBlock
 import uk.gov.hmrc.exports.movements.models.submissions.{ActionType, Submission, SubmissionFactory}
+import uk.gov.hmrc.exports.movements.repositories.QueryParameters
 import uk.gov.hmrc.exports.movements.services.{ILEMapper, SubmissionService, WCOMapper}
 import uk.gov.hmrc.http.HeaderCarrier
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
@@ -106,13 +107,8 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
 
     "successfully submit consolidation" in new Test {
 
-      val shutMucrSubmission = Submission(
-        eori = validEori,
-        providerId = None,
-        conversationId = conversationId,
-        ucrBlocks = Seq.empty,
-        actionType = ActionType.ShutMucr
-      )
+      val shutMucrSubmission =
+        Submission(eori = validEori, providerId = None, conversationId = conversationId, ucrBlocks = Seq.empty, actionType = ActionType.ShutMucr)
 
       when(ileMapperMock.generateConsolidationXml(any())).thenReturn(exampleShutMucrConsolidationRequestXML)
       when(customsInventoryLinkingExportsConnectorMock.sendInventoryLinkingRequest(any(), any())(any()))
@@ -145,51 +141,29 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
     }
   }
 
-  "SubmissionService on getSubmissionsByEori" should {
+  "SubmissionService on getSubmissions" should {
 
-    "call SubmissionRepository, passing conversationId provided" in new Test {
+    "call SubmissionRepository, passing query parameters provided" in new Test {
 
-      submissionService.getSubmissionsByEori(validEori).futureValue
+      val queryParameters = QueryParameters(eori = Some(validEori), providerId = Some(validProviderId), conversationId = Some(conversationId))
+      submissionService.getSubmissions(queryParameters)
 
-      verify(submissionRepositoryMock).findByEori(meq(validEori))
+      verify(submissionRepositoryMock).findBy(meq(queryParameters))
     }
 
     "return result of calling SubmissionRepository" in new Test {
-
       val expectedSubmissions = Seq(
         exampleSubmission(),
         exampleSubmission(conversationId = conversationId_2),
         exampleSubmission(conversationId = conversationId_3),
         exampleSubmission(conversationId = conversationId_4)
       )
-      when(submissionRepositoryMock.findByEori(any[String])).thenReturn(Future.successful(expectedSubmissions))
+      when(submissionRepositoryMock.findBy(any[QueryParameters])).thenReturn(Future.successful(expectedSubmissions))
 
-      val result: Seq[Submission] = submissionService.getSubmissionsByEori(validEori).futureValue
+      val result: Seq[Submission] = submissionService.getSubmissions(QueryParameters()).futureValue
 
       result.length must equal(expectedSubmissions.length)
       result must equal(expectedSubmissions)
-    }
-  }
-
-  "SubmissionService on getSubmissionByConversationId" should {
-
-    "call SubmissionRepository, passing conversationId provided" in new Test {
-
-      submissionService.getSubmissionByConversationId(conversationId).futureValue
-
-      verify(submissionRepositoryMock).findByConversationId(meq(conversationId))
-    }
-
-    "return result of calling SubmissionRepository" in new Test {
-
-      val expectedSubmission = exampleSubmission()
-      when(submissionRepositoryMock.findByConversationId(any[String]))
-        .thenReturn(Future.successful(Some(expectedSubmission)))
-
-      val result: Option[Submission] = submissionService.getSubmissionByConversationId(conversationId).futureValue
-
-      result must be(defined)
-      result.get must equal(expectedSubmission)
     }
   }
 

@@ -6,7 +6,7 @@ GET         /notifications/:conversationId                  uk.gov.hmrc.exports.
 
 POST        /movements                                      uk.gov.hmrc.exports.movements.controllers.MovementsController.createMovement()
 
-GET         /movements                                      uk.gov.hmrc.exports.movements.controllers.SubmissionController.getAllSubmissions()
+GET         /movements                                      uk.gov.hmrc.exports.movements.controllers.SubmissionController.getAllSubmissions(eori: Option[String], providerId: Option[String])
 GET         /movements/:conversationId                      uk.gov.hmrc.exports.movements.controllers.SubmissionController.getSubmission(conversationId: String)
 
 # Movements Consolidations

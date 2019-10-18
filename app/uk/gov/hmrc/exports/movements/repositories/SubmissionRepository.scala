@@ -17,7 +17,7 @@
 package uk.gov.hmrc.exports.movements.repositories
 
 import javax.inject.{Inject, Singleton}
-import play.api.libs.json.{JsObject, JsString, Json}
+import play.api.libs.json.{JsObject, Json}
 import play.modules.reactivemongo.ReactiveMongoComponent
 import reactivemongo.api.Cursor.FailOnError
 import reactivemongo.api.ReadPreference
@@ -38,11 +38,6 @@ class SubmissionRepository @Inject()(implicit mc: ReactiveMongoComponent, ec: Ex
     Index(Seq("providerId" -> IndexType.Ascending), name = Some("providerIdIdx")),
     Index(Seq("conversationId" -> IndexType.Ascending), unique = true, name = Some("conversationIdIdx"))
   )
-
-  def findByEori(eori: String): Future[Seq[Submission]] = find("eori" -> JsString(eori))
-
-  def findByConversationId(conversationId: String): Future[Option[Submission]] =
-    find("conversationId" -> JsString(conversationId)).map(_.headOption)
 
   def findBy(queryParameters: QueryParameters): Future[Seq[Submission]] = {
     val query = Json.toJson(queryParameters).as[JsObject]

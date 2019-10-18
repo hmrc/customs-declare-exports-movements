@@ -19,31 +19,28 @@ package uk.gov.hmrc.exports.movements.controllers
 import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import play.api.mvc._
-import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.exports.movements.controllers.actions.AuthenticatedController
 import uk.gov.hmrc.exports.movements.controllers.util.HeaderValidator
+import uk.gov.hmrc.exports.movements.repositories.QueryParameters
 import uk.gov.hmrc.exports.movements.services.SubmissionService
+import uk.gov.hmrc.play.bootstrap.controller.BackendController
 
 import scala.concurrent.ExecutionContext
 
 @Singleton
-class SubmissionController @Inject()(
-  authConnector: AuthConnector,
-  headerValidator: HeaderValidator,
-  submissionService: SubmissionService,
-  cc: ControllerComponents
-)(implicit executionContext: ExecutionContext)
-    extends AuthenticatedController(authConnector, cc) {
+class SubmissionController @Inject()(headerValidator: HeaderValidator, submissionService: SubmissionService, cc: ControllerComponents)(
+  implicit executionContext: ExecutionContext
+) extends BackendController(cc) {
 
-  def getAllSubmissions: Action[AnyContent] = authorisedAction(parse.default) { implicit authorizedRequest =>
+  def getAllSubmissions(eori: Option[String], providerId: Option[String]): Action[AnyContent] = Action.async(parse.default) { implicit request =>
     submissionService
-      .getSubmissionsByEori(authorizedRequest.eori.value)
+      .getSubmissions(QueryParameters(eori, providerId))
       .map(movements => Ok(Json.toJson(movements)))
   }
 
-  def getSubmission(conversationId: String): Action[AnyContent] = authorisedAction(parse.default) { implicit authorizedRequest =>
+  def getSubmission(conversationId: String): Action[AnyContent] = Action.async(parse.default) { implicit request =>
     submissionService
-      .getSubmissionByConversationId(conversationId)
-      .map(submission => Ok(Json.toJson(submission)))
+      .getSubmissions(QueryParameters(conversationId = Some(conversationId)))
+      .map(submissions => Ok(Json.toJson(submissions)))
   }
+
 }

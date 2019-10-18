@@ -30,7 +30,7 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.i18n.MessagesApi
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.inject.{bind, Injector}
+import play.api.inject.{Injector, bind}
 import play.api.libs.ws.WSClient
 import play.filters.csrf.{CSRFConfig, CSRFConfigProvider, CSRFFilter}
 import uk.gov.hmrc.auth.core._
@@ -52,13 +52,13 @@ trait CustomsExportsBaseSpec
       .overrides(
         bind[AuthConnector].to(mockAuthConnector),
         bind[NotificationRepository].to(mockMovementNotificationsRepository),
-        bind[SubmissionRepository].to(mockMovementsRepository),
+        bind[SubmissionRepository].to(mockSubmissionRepository),
         bind[CustomsInventoryLinkingExportsConnector].to(mockCustomsInventoryLinkingConnector),
         bind[MovementsMetrics].to(mockMetrics)
       )
       .build()
   val mockMovementNotificationsRepository: NotificationRepository = mock[NotificationRepository]
-  val mockMovementsRepository: SubmissionRepository = buildSubmissionRepositoryMock
+  val mockSubmissionRepository: SubmissionRepository = buildSubmissionRepositoryMock
   val mockCustomsInventoryLinkingConnector: CustomsInventoryLinkingExportsConnector =
     mock[CustomsInventoryLinkingExportsConnector]
   val mockMetrics: MovementsMetrics = mock[MovementsMetrics]
@@ -66,7 +66,7 @@ trait CustomsExportsBaseSpec
   val token: String = injector.instanceOf[CSRFFilter].tokenProvider.generateToken
 
   override protected def afterEach(): Unit = {
-    reset(mockMovementNotificationsRepository, mockCustomsInventoryLinkingConnector, mockMovementsRepository)
+    reset(mockMovementNotificationsRepository, mockCustomsInventoryLinkingConnector, mockSubmissionRepository)
     super.afterEach()
   }
 
@@ -91,7 +91,7 @@ trait CustomsExportsBaseSpec
     when(mockCustomsInventoryLinkingConnector.sendInventoryLinkingRequest(any(), any())(any()))
       .thenReturn(Future.successful(response))
 
-  protected def withMovements(movements: Seq[Submission]): OngoingStubbing[Future[Seq[Submission]]] =
-    when(mockMovementsRepository.findByEori(any())).thenReturn(Future.successful(movements))
+  protected def withMovements(submissions: Seq[Submission]): OngoingStubbing[Future[Seq[Submission]]] =
+    when(mockSubmissionRepository.findBy(any())).thenReturn(Future.successful(submissions))
 
 }

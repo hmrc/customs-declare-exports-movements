@@ -29,9 +29,10 @@ import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.exports.movements.repositories.QueryParameters
 import uk.gov.hmrc.exports.movements.services.SubmissionService
 import unit.uk.gov.hmrc.exports.movements.base.AuthTestSupport
-import utils.testdata.CommonTestData.{conversationId, conversationId_2, conversationId_3, ValidHeaders}
+import utils.testdata.CommonTestData.{ValidHeaders, conversationId, conversationId_2, conversationId_3}
 import utils.testdata.MovementsTestData._
 
 import scala.concurrent.Future
@@ -60,7 +61,7 @@ class SubmissionControllerSpec
 
     "return Ok status" in {
       withAuthorizedUser()
-      when(submissionServiceMock.getSubmissionsByEori(any[String])).thenReturn(Future.successful(Seq.empty))
+      when(submissionServiceMock.getSubmissions(any[QueryParameters])).thenReturn(Future.successful(Seq.empty))
 
       val result = routeGet(uri = getAllSubmissionsUri)
 
@@ -71,8 +72,7 @@ class SubmissionControllerSpec
       withAuthorizedUser()
       val serviceResponseContent =
         Seq(exampleSubmission(), exampleSubmission(conversationId = conversationId_2), exampleSubmission(conversationId = conversationId_3))
-      when(submissionServiceMock.getSubmissionsByEori(any[String]))
-        .thenReturn(Future.successful(serviceResponseContent))
+      when(submissionServiceMock.getSubmissions(any[QueryParameters])).thenReturn(Future.successful(serviceResponseContent))
 
       val result = routeGet(uri = getAllSubmissionsUri)
 
@@ -85,7 +85,7 @@ class SubmissionControllerSpec
 
     "return Ok status" in {
       withAuthorizedUser()
-      when(submissionServiceMock.getSubmissionByConversationId(any[String])).thenReturn(Future.successful(None))
+      when(submissionServiceMock.getSubmissions(any[QueryParameters])).thenReturn(Future.successful(Seq.empty))
 
       val result = routeGet(uri = getSubmissionUri(conversationId))
 
@@ -94,9 +94,8 @@ class SubmissionControllerSpec
 
     "return what SubmissionService returns in the body" in {
       withAuthorizedUser()
-      val serviceResponseContent = Some(exampleSubmission())
-      when(submissionServiceMock.getSubmissionByConversationId(any[String]))
-        .thenReturn(Future.successful(serviceResponseContent))
+      val serviceResponseContent = Seq(exampleSubmission())
+      when(submissionServiceMock.getSubmissions(any[QueryParameters])).thenReturn(Future.successful(serviceResponseContent))
 
       val result = routeGet(uri = getSubmissionUri(conversationId))
 
