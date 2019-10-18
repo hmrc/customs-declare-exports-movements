@@ -25,6 +25,7 @@ import uk.gov.hmrc.exports.movements.models.notifications.UcrBlock
 case class Submission(
   uuid: String = UUID.randomUUID().toString,
   eori: String,
+  providerId: Option[String],
   conversationId: String,
   ucrBlocks: Seq[UcrBlock],
   actionType: ActionType,

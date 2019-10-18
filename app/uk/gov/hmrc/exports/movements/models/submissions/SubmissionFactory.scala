@@ -28,10 +28,22 @@ import scala.xml.{Node, NodeSeq}
 class SubmissionFactory {
 
   def buildMovementSubmission(eori: String, conversationId: String, requestXml: Node, movementRequest: MovementRequest): Submission =
-    Submission(eori = eori, conversationId = conversationId, ucrBlocks = extractUcrListFrom(requestXml), actionType = ActionType(movementRequest))
+    Submission(
+      eori = eori,
+      providerId = None,
+      conversationId = conversationId,
+      ucrBlocks = extractUcrListFrom(requestXml),
+      actionType = ActionType(movementRequest)
+    )
 
   def buildConsolidationSubmission(eori: String, conversationId: String, requestXml: Node, consolidationType: ConsolidationType): Submission =
-    Submission(eori = eori, conversationId = conversationId, ucrBlocks = extractUcrListFrom(requestXml), actionType = ActionType(consolidationType))
+    Submission(
+      eori = eori,
+      providerId = None,
+      conversationId = conversationId,
+      ucrBlocks = extractUcrListFrom(requestXml),
+      actionType = ActionType(consolidationType)
+    )
 
   private def extractUcrListFrom(request: NodeSeq): Seq[UcrBlock] = {
     val ucrBlocks = (request \ XmlTags.ucrBlock).map { node =>
