@@ -35,7 +35,7 @@ class ILEMapper {
     }
 
   private def buildMessageCode(consolidationType: ConsolidationType): String = consolidationType match {
-    case ASSOCIATE_DUCR | DISASSOCIATE_DUCR => "EAC"
+    case ASSOCIATE_DUCR | ASSOCIATE_MUCR | DISASSOCIATE_DUCR | DISASSOCIATE_MUCR => "EAC"
     case SHUT_MUCR                          => "CST"
   }
 
