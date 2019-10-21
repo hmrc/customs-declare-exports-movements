@@ -18,7 +18,7 @@ package uk.gov.hmrc.exports.movements.services
 
 import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.exports.movements.models.notifications.{Notification, NotificationFrontendModel}
-import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, SubmissionRepository}
+import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, QueryParameters, SubmissionRepository}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -32,9 +32,9 @@ class NotificationService @Inject()(notificationRepository: NotificationReposito
       .insert(notification)
       .map(_ => (): Unit)
 
-  def getAllNotifications(conversationId: String): Future[Seq[NotificationFrontendModel]] =
+  def getAllNotifications(queryParameters: QueryParameters): Future[Seq[NotificationFrontendModel]] =
     for {
-      notifications <- notificationRepository.findByConversationId(conversationId)
+      notifications <- notificationRepository.findBy(queryParameters)
       notificationFrontendModels <- Future.successful(notifications.map(NotificationFrontendModel(_)))
     } yield notificationFrontendModels
 }

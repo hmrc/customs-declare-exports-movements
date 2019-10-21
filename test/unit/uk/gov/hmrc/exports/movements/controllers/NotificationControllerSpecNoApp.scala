@@ -28,6 +28,7 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.exports.movements.controllers.NotificationController
 import uk.gov.hmrc.exports.movements.controllers.util.HeaderValidator
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
+import utils.testdata.CommonTestData.{conversationId, validEori}
 import utils.testdata.notifications.NotificationTestData._
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -58,10 +59,12 @@ class NotificationControllerSpecNoApp extends WordSpec with MustMatchers with Mo
 
     "return list of notifications" in new SetUp {
 
-      when(notificationRepositoryMock.findByConversationId(any())).thenReturn(Future.successful(Seq.empty))
+      when(notificationRepositoryMock.findBy(any())).thenReturn(Future.successful(Seq.empty))
 
       val result =
-        controller.listOfNotifications("convId")(FakeRequest(POST, "").withHeaders(validHeaders.toSeq: _*))
+        controller.listOfNotifications(Some(validEori), None, conversationId)(
+          FakeRequest(POST, "").withHeaders(validHeaders.toSeq: _*)
+        )
 
       status(result) must be(OK)
     }

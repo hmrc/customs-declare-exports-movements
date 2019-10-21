@@ -27,7 +27,7 @@ import uk.gov.hmrc.exports.movements.metrics.MovementsMetrics
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
 import uk.gov.hmrc.exports.movements.models.notifications.parsers.{ResponseParser, ResponseParserContext, ResponseParserFactory}
 import uk.gov.hmrc.exports.movements.models.notifications.{Notification, NotificationData, NotificationFactory, ResponseValidator}
-import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, SubmissionRepository}
+import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, QueryParameters, SubmissionRepository}
 import uk.gov.hmrc.exports.movements.services.NotificationService
 
 import scala.concurrent.Future
@@ -44,7 +44,7 @@ object UnitTestMockBuilder extends MockitoSugar {
 
     when(notificationRepositoryMock.insert(any[Notification])(any()))
       .thenReturn(Future.failed(GenericDatabaseException("ERROR", None)))
-    when(notificationRepositoryMock.findByConversationId(any[String]))
+    when(notificationRepositoryMock.findBy(any[QueryParameters]))
       .thenReturn(Future.successful(Seq.empty))
 
     notificationRepositoryMock

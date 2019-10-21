@@ -23,7 +23,7 @@ import org.scalatest.{MustMatchers, WordSpec}
 import org.scalatestplus.mockito.MockitoSugar
 import reactivemongo.api.commands.WriteResult
 import uk.gov.hmrc.exports.movements.models.notifications.NotificationFrontendModel
-import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, SubmissionRepository}
+import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, QueryParameters, SubmissionRepository}
 import uk.gov.hmrc.exports.movements.services.NotificationService
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
 import utils.testdata.CommonTestData.conversationId
@@ -80,20 +80,22 @@ class NotificationServiceSpec extends WordSpec with MockitoSugar with ScalaFutur
 
       "call NotificationRepository, passing ConversationID provided" in new Test {
 
-        notificationService.getAllNotifications(conversationId).futureValue
+        val queryParameters = QueryParameters(conversationId = Some(conversationId))
 
-        verify(notificationRepositoryMock).findByConversationId(meq(conversationId))
+        notificationService.getAllNotifications(queryParameters).futureValue
+
+        verify(notificationRepositoryMock).findBy(meq(queryParameters))
       }
 
       "return list of NotificationPresentationData converted from Notifications returned by repository" in new Test {
 
-        val firstNotification = notification_1.copy(conversationId = "convId")
-        val secondNotification = notification_2.copy(conversationId = "convId")
+        val queryParameters = QueryParameters(conversationId = Some(conversationId))
+        val firstNotification = notification_1.copy(conversationId = conversationId)
+        val secondNotification = notification_2.copy(conversationId = conversationId)
 
-        when(notificationRepositoryMock.findByConversationId("convId"))
-          .thenReturn(Future.successful(Seq(firstNotification, secondNotification)))
+        when(notificationRepositoryMock.findBy(queryParameters)).thenReturn(Future.successful(Seq(firstNotification, secondNotification)))
 
-        val returnedNotifications = notificationService.getAllNotifications("convId").futureValue
+        val returnedNotifications = notificationService.getAllNotifications(queryParameters).futureValue
 
         val expectedFirstNotificationPresentationData = NotificationFrontendModel(firstNotification)
         val expectedSecondNotificationPresentationData = NotificationFrontendModel(secondNotification)
@@ -104,10 +106,10 @@ class NotificationServiceSpec extends WordSpec with MockitoSugar with ScalaFutur
 
       "return empty list, if repository returns empty list" in new Test {
 
-        when(notificationRepositoryMock.findByConversationId("convId"))
-          .thenReturn(Future.successful(Seq.empty))
+        val queryParameters = QueryParameters(conversationId = Some(conversationId))
+        when(notificationRepositoryMock.findBy(queryParameters)).thenReturn(Future.successful(Seq.empty))
 
-        val returnedNotifications = notificationService.getAllNotifications("convId").futureValue
+        val returnedNotifications = notificationService.getAllNotifications(queryParameters).futureValue
 
         returnedNotifications must be(empty)
       }

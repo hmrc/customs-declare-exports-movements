@@ -33,14 +33,15 @@ class SubmissionController @Inject()(headerValidator: HeaderValidator, submissio
 
   def getAllSubmissions(eori: Option[String], providerId: Option[String]): Action[AnyContent] = Action.async(parse.default) { implicit request =>
     submissionService
-      .getSubmissions(QueryParameters(eori, providerId))
+      .getSubmissions(QueryParameters(eori = eori, providerId = providerId))
       .map(movements => Ok(Json.toJson(movements)))
   }
 
-  def getSubmission(conversationId: String): Action[AnyContent] = Action.async(parse.default) { implicit request =>
-    submissionService
-      .getSubmissions(QueryParameters(conversationId = Some(conversationId)))
-      .map(submissions => Ok(Json.toJson(submissions)))
+  def getSubmission(eori: Option[String], providerId: Option[String], conversationId: String): Action[AnyContent] = Action.async(parse.default) {
+    implicit request =>
+      submissionService
+        .getSubmissions(QueryParameters(eori = eori, providerId = providerId, conversationId = Some(conversationId)))
+        .map(submissions => Ok(Json.toJson(submissions)))
   }
 
 }
