@@ -19,8 +19,8 @@ package unit.uk.gov.hmrc.exports.movements.services
 import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.{MustMatchers, WordSpec}
+import org.scalatestplus.mockito.MockitoSugar
 import reactivemongo.api.commands.WriteResult
 import uk.gov.hmrc.exports.movements.models.notifications.NotificationFrontendModel
 import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, SubmissionRepository}
@@ -82,7 +82,7 @@ class NotificationServiceSpec extends WordSpec with MockitoSugar with ScalaFutur
 
         notificationService.getAllNotifications(conversationId).futureValue
 
-        verify(notificationRepositoryMock).findNotificationsByConversationId(meq(conversationId))
+        verify(notificationRepositoryMock).findByConversationId(meq(conversationId))
       }
 
       "return list of NotificationPresentationData converted from Notifications returned by repository" in new Test {
@@ -90,7 +90,7 @@ class NotificationServiceSpec extends WordSpec with MockitoSugar with ScalaFutur
         val firstNotification = notification_1.copy(conversationId = "convId")
         val secondNotification = notification_2.copy(conversationId = "convId")
 
-        when(notificationRepositoryMock.findNotificationsByConversationId("convId"))
+        when(notificationRepositoryMock.findByConversationId("convId"))
           .thenReturn(Future.successful(Seq(firstNotification, secondNotification)))
 
         val returnedNotifications = notificationService.getAllNotifications("convId").futureValue
@@ -104,7 +104,7 @@ class NotificationServiceSpec extends WordSpec with MockitoSugar with ScalaFutur
 
       "return empty list, if repository returns empty list" in new Test {
 
-        when(notificationRepositoryMock.findNotificationsByConversationId("convId"))
+        when(notificationRepositoryMock.findByConversationId("convId"))
           .thenReturn(Future.successful(Seq.empty))
 
         val returnedNotifications = notificationService.getAllNotifications("convId").futureValue

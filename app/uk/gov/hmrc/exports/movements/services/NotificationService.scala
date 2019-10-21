@@ -34,7 +34,7 @@ class NotificationService @Inject()(notificationRepository: NotificationReposito
 
   def getAllNotifications(conversationId: String): Future[Seq[NotificationFrontendModel]] =
     for {
-      notifications <- notificationRepository.findNotificationsByConversationId(conversationId)
-      notificationPresentations <- Future.successful(notifications.map(NotificationFrontendModel(_)))
-    } yield notificationPresentations
+      notifications <- notificationRepository.findByConversationId(conversationId)
+      notificationFrontendModels <- Future.successful(notifications.map(NotificationFrontendModel(_)))
+    } yield notificationFrontendModels
 }

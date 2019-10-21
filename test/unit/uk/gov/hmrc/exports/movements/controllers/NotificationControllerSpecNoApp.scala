@@ -58,7 +58,7 @@ class NotificationControllerSpecNoApp extends WordSpec with MustMatchers with Mo
 
     "return list of notifications" in new SetUp {
 
-      when(notificationRepositoryMock.findNotificationsByConversationId(any())).thenReturn(Future.successful(Seq.empty))
+      when(notificationRepositoryMock.findByConversationId(any())).thenReturn(Future.successful(Seq.empty))
 
       val result =
         controller.listOfNotifications("convId")(FakeRequest(POST, "").withHeaders(validHeaders.toSeq: _*))

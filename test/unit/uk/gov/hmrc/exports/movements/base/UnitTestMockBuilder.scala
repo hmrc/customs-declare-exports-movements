@@ -44,7 +44,7 @@ object UnitTestMockBuilder extends MockitoSugar {
 
     when(notificationRepositoryMock.insert(any[Notification])(any()))
       .thenReturn(Future.failed(GenericDatabaseException("ERROR", None)))
-    when(notificationRepositoryMock.findNotificationsByConversationId(any[String]))
+    when(notificationRepositoryMock.findByConversationId(any[String]))
       .thenReturn(Future.successful(Seq.empty))
 
     notificationRepositoryMock
