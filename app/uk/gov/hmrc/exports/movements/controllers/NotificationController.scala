@@ -21,13 +21,12 @@ import javax.inject.Inject
 import play.api.Logger
 import play.api.libs.json.Json
 import play.api.mvc._
-import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.exports.movements.controllers.actions.AuthenticatedController
 import uk.gov.hmrc.exports.movements.controllers.util.HeaderValidator
 import uk.gov.hmrc.exports.movements.metrics.MetricIdentifiers._
 import uk.gov.hmrc.exports.movements.metrics.MovementsMetrics
 import uk.gov.hmrc.exports.movements.models.notifications.{Notification, NotificationFactory}
 import uk.gov.hmrc.exports.movements.services.NotificationService
+import uk.gov.hmrc.play.bootstrap.controller.BackendController
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Success
@@ -35,14 +34,13 @@ import scala.xml.NodeSeq
 
 @Singleton
 class NotificationController @Inject()(
-  authConnector: AuthConnector,
   headerValidator: HeaderValidator,
   metrics: MovementsMetrics,
   notificationService: NotificationService,
   notificationFactory: NotificationFactory,
   cc: ControllerComponents
 )(implicit executionContext: ExecutionContext)
-    extends AuthenticatedController(authConnector, cc) {
+    extends BackendController(cc) {
 
   val logger = Logger(this.getClass)
 
@@ -81,7 +79,8 @@ class NotificationController @Inject()(
         metrics.incrementCounter(movementMetric)
     }
 
-  def listOfNotifications(conversationId: String): Action[AnyContent] = authorisedAction(parse.default) { implicit request =>
-    notificationService.getAllNotifications(conversationId).map(notifications => Ok(Json.toJson(notifications)))
+  def listOfNotifications(conversationId: String): Action[AnyContent] = Action.async {
+    implicit request =>
+      notificationService.getAllNotifications(conversationId).map(notifications => Ok(Json.toJson(notifications)))
   }
 }

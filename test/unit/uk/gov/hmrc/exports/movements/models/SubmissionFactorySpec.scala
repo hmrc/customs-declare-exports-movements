@@ -95,6 +95,7 @@ class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar
 
         val expectedSubmission = Submission(
           eori = validEori,
+          providerId = None,
           conversationId = conversationId,
           actionType = ActionType.MucrAssociation,
           ucrBlocks = Seq(UcrBlock(ucr = ucr_2, ucrType = "M"), UcrBlock(ucr = ucr, ucrType = "M"))
@@ -126,6 +127,7 @@ class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar
 
         val expectedSubmission = Submission(
           eori = validEori,
+          providerId = None,
           conversationId = conversationId,
           actionType = ActionType.MucrDisassociation,
           ucrBlocks = Seq(UcrBlock(ucr = ucr, ucrType = "M"))
