@@ -22,8 +22,8 @@ import org.scalatest.{BeforeAndAfterEach, MustMatchers, WordSpec}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, QueryParameters}
-import utils.testdata.CommonTestData.{conversationId, validEori}
+import uk.gov.hmrc.exports.movements.repositories.NotificationRepository
+import utils.testdata.CommonTestData.conversationId
 import utils.testdata.notifications.NotificationTestData._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -53,9 +53,8 @@ class NotificationRepositorySpec
       "result in a success" in {
         repo.insert(notification_1).futureValue.ok must be(true)
 
-        val queryParameters = QueryParameters(eori = Some(validEori), conversationId = Some(conversationId))
+        val notificationInDB = repo.findByConversationId(conversationId).futureValue
 
-        val notificationInDB = repo.findBy(queryParameters).futureValue
         notificationInDB.length must equal(1)
         notificationInDB.head must equal(notification_1)
       }
@@ -71,9 +70,8 @@ class NotificationRepositorySpec
         repo.insert(notification_1).futureValue.ok must be(true)
         repo.insert(notification_1).futureValue.ok must be(true)
 
-        val queryParameters = QueryParameters(eori = Some(validEori), conversationId = Some(conversationId))
+        val notificationsInDB = repo.findByConversationId(conversationId).futureValue
 
-        val notificationsInDB = repo.findBy(queryParameters).futureValue
         notificationsInDB.length must equal(2)
         notificationsInDB.head must equal(notification_1)
         notificationsInDB(1) must equal(notification_1)
@@ -85,8 +83,7 @@ class NotificationRepositorySpec
 
     "there is no Notification with given conversationId" should {
       "return empty list" in {
-        val queryParameters = QueryParameters(eori = Some(validEori), conversationId = Some(conversationId))
-        repo.findBy(queryParameters).futureValue must equal(Seq.empty)
+        repo.findByConversationId(conversationId).futureValue must equal(Seq.empty)
       }
     }
 
@@ -94,9 +91,7 @@ class NotificationRepositorySpec
       "return this Notification only" in {
         repo.insert(notification_1).futureValue
 
-        val queryParameters = QueryParameters(eori = Some(validEori), conversationId = Some(conversationId))
-
-        val foundNotifications = repo.findBy(queryParameters).futureValue
+        val foundNotifications = repo.findByConversationId(conversationId).futureValue
 
         foundNotifications.length must equal(1)
         foundNotifications.head must equal(notification_1)
@@ -109,9 +104,7 @@ class NotificationRepositorySpec
         val notificationWithSameConversationId = notification_2.copy(conversationId = notification_1.conversationId)
         repo.insert(notificationWithSameConversationId).futureValue
 
-        val queryParameters = QueryParameters(eori = Some(validEori), conversationId = Some(conversationId))
-
-        val foundNotifications = repo.findBy(queryParameters).futureValue
+        val foundNotifications = repo.findByConversationId(conversationId).futureValue
 
         foundNotifications.length must equal(2)
         foundNotifications must contain(notification_1)

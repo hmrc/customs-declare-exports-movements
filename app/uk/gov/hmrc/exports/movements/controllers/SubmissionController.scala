@@ -19,7 +19,6 @@ package uk.gov.hmrc.exports.movements.controllers
 import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import play.api.mvc._
-import uk.gov.hmrc.exports.movements.controllers.util.HeaderValidator
 import uk.gov.hmrc.exports.movements.repositories.QueryParameters
 import uk.gov.hmrc.exports.movements.services.SubmissionService
 import uk.gov.hmrc.play.bootstrap.controller.BackendController
@@ -27,9 +26,8 @@ import uk.gov.hmrc.play.bootstrap.controller.BackendController
 import scala.concurrent.ExecutionContext
 
 @Singleton
-class SubmissionController @Inject()(headerValidator: HeaderValidator, submissionService: SubmissionService, cc: ControllerComponents)(
-  implicit executionContext: ExecutionContext
-) extends BackendController(cc) {
+class SubmissionController @Inject()(submissionService: SubmissionService, cc: ControllerComponents)(implicit executionContext: ExecutionContext)
+    extends BackendController(cc) {
 
   def getAllSubmissions(eori: Option[String], providerId: Option[String]): Action[AnyContent] = Action.async(parse.default) { implicit request =>
     submissionService

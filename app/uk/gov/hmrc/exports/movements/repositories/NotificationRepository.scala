@@ -17,13 +17,10 @@
 package uk.gov.hmrc.exports.movements.repositories
 
 import javax.inject.{Inject, Singleton}
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.JsString
 import play.modules.reactivemongo.ReactiveMongoComponent
-import reactivemongo.api.Cursor.FailOnError
-import reactivemongo.api.ReadPreference
 import reactivemongo.api.indexes.{Index, IndexType}
 import reactivemongo.bson.BSONObjectID
-import reactivemongo.play.json.ImplicitBSONHandlers
 import uk.gov.hmrc.exports.movements.models.notifications.Notification
 import uk.gov.hmrc.mongo.ReactiveRepository
 import uk.gov.hmrc.mongo.json.ReactiveMongoFormats.objectIdFormats
@@ -39,12 +36,7 @@ class NotificationRepository @Inject()(mc: ReactiveMongoComponent)(implicit ec: 
     Index(Seq("conversationId" -> IndexType.Ascending), name = Some("conversationIdIdx"))
   )
 
-  def findBy(queryParameters: QueryParameters): Future[Seq[Notification]] = {
-    val query = Json.toJson(queryParameters).as[JsObject]
-    collection
-      .find(query, projection = None)(ImplicitBSONHandlers.JsObjectDocumentWriter, ImplicitBSONHandlers.JsObjectDocumentWriter)
-      .cursor[Notification](ReadPreference.primaryPreferred)
-      .collect(maxDocs = -1, FailOnError[Seq[Notification]]())
-  }
+  def findByConversationId(conversationId: String): Future[Seq[Notification]] =
+    find("conversationId" -> JsString(conversationId))
 
 }

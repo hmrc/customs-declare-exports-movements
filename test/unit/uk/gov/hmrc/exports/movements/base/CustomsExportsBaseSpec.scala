@@ -29,8 +29,8 @@ import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.i18n.MessagesApi
+import play.api.inject._
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.inject.{Injector, bind}
 import play.api.libs.ws.WSClient
 import play.filters.csrf.{CSRFConfig, CSRFConfigProvider, CSRFFilter}
 import uk.gov.hmrc.auth.core._

@@ -55,13 +55,11 @@ class NotificationController @Inject()(
 
   private def saveNotification(request: Request[NodeSeq]): Future[Status] =
     headerValidator.extractConversationIdHeader(request.headers.toSimpleMap) match {
-
       case Some(conversationId) =>
         buildNotificationFromResponse(conversationId, request.body) match {
           case Some(notificationToSave) => forwardNotificationToService(notificationToSave)
           case None                     => Future.successful(Accepted)
         }
-
       case None => Future.successful(Accepted)
     }
 
