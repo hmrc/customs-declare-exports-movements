@@ -16,61 +16,52 @@
 
 package unit.uk.gov.hmrc.exports.movements.connector
 
-import play.api.http.ContentTypes
+import com.github.tomakehurst.wiremock.client.WireMock._
+import org.mockito.ArgumentMatchers
+import org.mockito.BDDMockito._
+import play.api.http.Status
 import play.api.http.Status.ACCEPTED
-import play.api.mvc.Codec
-import play.mvc.Http.HeaderNames
+import play.api.test.Helpers._
+import uk.gov.hmrc.exports.movements.config.AppConfig
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
 import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.logging.Authorization
-import unit.uk.gov.hmrc.exports.movements.base.{CustomsExportsBaseSpec, MockHttpClient}
 
-import scala.concurrent.Future
-import scala.util.Random
-import scala.xml.{Elem, NodeSeq}
+import scala.xml.Elem
 
-class CustomsInventoryLinkingExportsConnectorSpec extends CustomsExportsBaseSpec {
+class CustomsInventoryLinkingExportsConnectorSpec extends ConnectorSpec {
 
-  val eori = "eori1"
-  val xml: Elem = <Xml></Xml>
-
-  val conversationId = "48bba359-7ba9-4cf1-85ba-95db2994638e"
-
-  // TODO: updated the headers to match ones in connector
-  val headers: Seq[(String, String)] = Seq(
-    HeaderNames.ACCEPT -> "application/vnd.hmrc.1.0+xml",
-    HeaderNames.CONTENT_TYPE -> ContentTypes.XML(Codec.utf_8),
-    CustomsHeaderNames.XClientIdName -> "5c68d3b5-d8a7-4212-8688-6b67f18bbce7",
-    CustomsHeaderNames.XEoriIdentifierHeaderName -> "eori1"
-  )
+  private val xml: Elem = <Xml></Xml>
+  private val config = mock[AppConfig]
+  private def connector = new CustomsInventoryLinkingExportsConnector(config, httpClient)
 
   "Customs Inventory Linking Exports Connector" should {
+    given(config.customsInventoryLinkingExportsRootUrl).willReturn(downstreamURL)
+    given(config.sendArrivalUrlSuffix).willReturn("/path")
+    given(config.clientIdInventory(ArgumentMatchers.any[HeaderCarrier]())).willReturn("client-id")
 
-    "POST arrival to Customs Inventory Linking Exports endpoint" in sendArrival(eori, xml) { response =>
-      response.futureValue.status must be(ACCEPTED)
-      response.futureValue.conversationId must be(Some(conversationId))
+    "POST to ILE" in {
+      stubFor(
+        post("/path")
+          .willReturn(
+            aResponse()
+              .withStatus(Status.ACCEPTED)
+              .withHeader(CustomsHeaderNames.XConversationIdName, "conv-id")
+          )
+      )
+
+      val result: CustomsInventoryLinkingResponse = await(connector.sendInventoryLinkingRequest("eori", xml)(hc))
+
+      result.status mustBe ACCEPTED
+      result.conversationId mustBe Some("conv-id")
+      verify(
+        postRequestedFor(urlEqualTo("/path"))
+          .withRequestBody(equalTo("<Xml></Xml>"))
+          .withHeader("Accept", equalTo("application/vnd.hmrc.1.0+xml"))
+          .withHeader("Content-Type", equalTo("application/xml; charset=utf-8"))
+          .withHeader("X-Client-ID", equalTo("client-id"))
+      )
     }
-  }
-
-  def sendArrival(
-    eori: String,
-    body: NodeSeq,
-    hc: HeaderCarrier = HeaderCarrier(authorization = Some(Authorization(Random.alphanumeric.take(255).mkString)))
-  )(test: Future[CustomsInventoryLinkingResponse] => Unit): Unit = {
-    val expectedUrl: String = s"${appConfig.customsInventoryLinkingExportsRootUrl}${appConfig.sendArrivalUrlSuffix}"
-    val falseServerError: Boolean = false
-    val expectedHeaders: Seq[(String, String)] = headers
-    val http = new MockHttpClient(
-      wsClient,
-      expectedUrl,
-      body,
-      expectedHeaders,
-      falseServerError,
-      CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId))
-    )
-    val client = new CustomsInventoryLinkingExportsConnector(appConfig, http)
-    test(client.sendInventoryLinkingRequest(eori, body)(hc))
   }
 }

@@ -17,17 +17,15 @@
 package unit.uk.gov.hmrc.exports.movements.config
 
 import com.typesafe.config.{Config, ConfigFactory}
-import org.scalatest.PrivateMethodTester.PrivateMethod
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.Configuration
 import play.api.Mode.Test
 import uk.gov.hmrc.exports.movements.config.AppConfig
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.config.{RunMode, ServicesConfig}
 import unit.uk.gov.hmrc.exports.movements.base.UnitSpec
 
 class AppConfigSpec extends UnitSpec with MockitoSugar {
-
-  private val appNameConfiguration = PrivateMethod[Configuration]('appNameConfiguration)
 
   private val validAppConfig: Config =
     ConfigFactory.parseString(
@@ -38,7 +36,8 @@ class AppConfigSpec extends UnitSpec with MockitoSugar {
         |microservice.services.customs-inventory-linking-exports.host=localhost.ile
         |microservice.services.customs-inventory-linking-exports.port=9823
         |microservice.services.customs-inventory-linking-exports.sendArrival=/
-        |microservice.services.customs-inventory-linking-exports.client-id=5c68d3b5-d8a7-4212-8688-6b67f18bbce7
+        |microservice.services.customs-inventory-linking-exports.client-id.some-user-agent=some-user-agent-client-id
+        |microservice.services.customs-inventory-linking-exports.client-id.default=localhost-client-id
         |microservice.services.customs-inventory-linking-exports.schema-file-path=conf/schemas/exports/inventoryLinkingResponseExternal.xsd
       """.stripMargin
     )
@@ -58,7 +57,20 @@ class AppConfigSpec extends UnitSpec with MockitoSugar {
       serviceConfig.authUrl shouldEqual "http://localhost.auth:8500"
       serviceConfig.customsInventoryLinkingExportsRootUrl shouldEqual "http://localhost.ile:9823"
       serviceConfig.sendArrivalUrlSuffix shouldEqual "/"
-      serviceConfig.clientIdInventory shouldEqual "5c68d3b5-d8a7-4212-8688-6b67f18bbce7"
+    }
+
+    "return client ID" when {
+      "user agent is present" in {
+        val serviceConfig: AppConfig = appConfig(validServicesConfiguration)
+        val hc: HeaderCarrier = HeaderCarrier().withExtraHeaders("User-Agent" -> "some-user-agent")
+        serviceConfig.clientIdInventory(hc) shouldEqual "some-user-agent-client-id"
+      }
+
+      "user agent is missing" in {
+        val serviceConfig: AppConfig = appConfig(validServicesConfiguration)
+        val hc: HeaderCarrier = HeaderCarrier()
+        serviceConfig.clientIdInventory(hc) shouldEqual "localhost-client-id"
+      }
     }
 
     "throw an exception when mandatory configuration is invalid" in {
@@ -72,9 +84,6 @@ class AppConfigSpec extends UnitSpec with MockitoSugar {
 
       val caught3: Exception = intercept[Exception](configService.sendArrivalUrlSuffix)
       caught3.getMessage shouldBe "Missing configuration for Customs Inventory Linking send arrival URI"
-
-      val caught4: Exception = intercept[Exception](configService.clientIdInventory)
-      caught4.getMessage shouldBe "Missing configuration for Customs Inventory Linking Client Id"
     }
 
     "contain correct Inventory Linking url" in {

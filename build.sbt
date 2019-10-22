@@ -33,7 +33,7 @@ lazy val allTest = Seq(testAll := (test in ComponentTest)
 lazy val microservice = Project(appName, file("."))
   .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory)
   .settings(
-    libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test(),
+    libraryDependencies ++= (AppDependencies.compile ++ AppDependencies.test()).map(_.withSources),
     dependencyOverrides ++= AppDependencies.jettyOverrides,
     evictionWarningOptions in update := EvictionWarningOptions.default.withWarnScalaVersionEviction(false),
     majorVersion := 0,
