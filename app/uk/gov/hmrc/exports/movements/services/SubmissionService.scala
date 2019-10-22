@@ -78,6 +78,10 @@ class SubmissionService @Inject()(
     }
   }
 
-  def getSubmissions(queryParameters: QueryParameters): Future[Seq[Submission]] = submissionRepository.findBy(queryParameters)
+  def getSubmissions(queryParameters: QueryParameters): Future[Seq[Submission]] =
+    submissionRepository.findBy(queryParameters)
+
+  def getSingleSubmission(queryParameters: QueryParameters): Future[Option[Submission]] =
+    submissionRepository.findBy(queryParameters).map(_.headOption)
 
 }

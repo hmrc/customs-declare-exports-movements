@@ -167,4 +167,26 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
     }
   }
 
+  "SubmissionService on getSingleSubmission" should {
+
+    "call SubmissionRepository, passing query parameters provided" in new Test {
+
+      val queryParameters = QueryParameters(eori = Some(validEori), providerId = Some(validProviderId), conversationId = Some(conversationId))
+
+      submissionService.getSingleSubmission(queryParameters)
+
+      verify(submissionRepositoryMock).findBy(meq(queryParameters))
+    }
+
+    "return result of calling SubmissionRepository" in new Test {
+      val expectedSubmission = exampleSubmission()
+      when(submissionRepositoryMock.findBy(any[QueryParameters])).thenReturn(Future.successful(Seq(expectedSubmission)))
+
+      val result: Option[Submission] = submissionService.getSingleSubmission(QueryParameters()).futureValue
+
+      result mustBe defined
+      result.get mustBe expectedSubmission
+    }
+  }
+
 }
