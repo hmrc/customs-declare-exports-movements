@@ -18,8 +18,8 @@ package uk.gov.hmrc.exports.movements.repositories
 
 import play.api.libs.json.{Json, OFormat}
 
-case class QueryParameters(eori: Option[String] = None, providerId: Option[String] = None, conversationId: Option[String] = None)
-
 object QueryParameters {
   implicit val format: OFormat[QueryParameters] = Json.format[QueryParameters]
 }
+
+case class QueryParameters(eori: Option[String] = None, providerId: Option[String] = None, conversationId: Option[String] = None)
