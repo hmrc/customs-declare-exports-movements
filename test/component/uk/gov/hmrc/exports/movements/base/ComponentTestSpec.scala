@@ -92,7 +92,7 @@ trait ComponentTestSpec
           "microservice.services.customs-inventory-linking-exports.host" -> Host,
           "microservice.services.customs-inventory-linking-exports.port" -> Port,
           "microservice.services.customs-inventory-linking-exports.sendArrival" -> CustomsMovementsAPIConfig.submitMovementServiceContext,
-          "microservice.services.customs-inventory-linking-exports.client-id" -> CustomsMovementsAPIConfig.clientId
+          "microservice.services.customs-inventory-linking-exports.client-id.default" -> CustomsMovementsAPIConfig.clientId
         )
       )
       .build()

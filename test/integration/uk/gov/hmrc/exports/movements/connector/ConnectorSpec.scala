@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package unit.uk.gov.hmrc.exports.movements.connector
+package integration.uk.gov.hmrc.exports.movements.connector
 
 import com.codahale.metrics.SharedMetricRegistries
 import org.scalatest.{BeforeAndAfterEach, MustMatchers, WordSpec}
