@@ -20,7 +20,7 @@ import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito.{verify, when}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.time.{Millis, Seconds, Span}
-import org.scalatest.{MustMatchers, WordSpec}
+import org.scalatest.{MustMatchers, OptionValues, WordSpec}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.Helpers._
 import uk.gov.hmrc.exports.movements.exceptions.CustomsInventoryLinkingUpstreamException
@@ -28,7 +28,6 @@ import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
 import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationType.SHUT_MUCR
 import uk.gov.hmrc.exports.movements.models.notifications.UcrBlock
 import uk.gov.hmrc.exports.movements.models.submissions.{ActionType, Submission, SubmissionFactory}
-import uk.gov.hmrc.exports.movements.repositories.QueryParameters
 import uk.gov.hmrc.exports.movements.services.{ILEMapper, SubmissionService, WCOMapper}
 import uk.gov.hmrc.http.HeaderCarrier
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
@@ -38,7 +37,7 @@ import utils.testdata.MovementsTestData._
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures with MustMatchers {
+class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures with MustMatchers with OptionValues {
 
   implicit val defaultPatience: PatienceConfig =
     PatienceConfig(timeout = Span(5, Seconds), interval = Span(10, Millis))
@@ -184,8 +183,7 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
 
       val result: Option[Submission] = submissionService.getSingleSubmission(QueryParameters()).futureValue
 
-      result mustBe defined
-      result.get mustBe expectedSubmission
+      result.value mustBe expectedSubmission
     }
   }
 
