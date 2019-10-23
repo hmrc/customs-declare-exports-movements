@@ -24,7 +24,7 @@ import uk.gov.hmrc.exports.movements.exceptions.CustomsInventoryLinkingUpstreamE
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
 import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation
 import uk.gov.hmrc.exports.movements.models.submissions.{SubmissionFactory, SubmissionFrontendModel}
-import uk.gov.hmrc.exports.movements.repositories.{QueryParameters, SubmissionRepository}
+import uk.gov.hmrc.exports.movements.repositories.{SearchParameters, SubmissionRepository}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -78,13 +78,13 @@ class SubmissionService @Inject()(
     }
   }
 
-  def getSubmissions(queryParameters: QueryParameters): Future[Seq[SubmissionFrontendModel]] = for {
-    submissions <- submissionRepository.findBy(queryParameters)
+  def getSubmissions(searchParameters: SearchParameters): Future[Seq[SubmissionFrontendModel]] = for {
+    submissions <- submissionRepository.findBy(searchParameters)
     submissionFrontendModels = submissions.map(SubmissionFrontendModel(_))
   } yield submissionFrontendModels
 
-  def getSingleSubmission(queryParameters: QueryParameters): Future[Option[SubmissionFrontendModel]] = for {
-    submissionOpt <- submissionRepository.findBy(queryParameters).map(_.headOption)
+  def getSingleSubmission(searchParameters: SearchParameters): Future[Option[SubmissionFrontendModel]] = for {
+    submissionOpt <- submissionRepository.findBy(searchParameters).map(_.headOption)
     submissionFrontendModel = submissionOpt.map(SubmissionFrontendModel(_))
   } yield submissionFrontendModel
 

@@ -19,7 +19,7 @@ package uk.gov.hmrc.exports.movements.controllers
 import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import play.api.mvc._
-import uk.gov.hmrc.exports.movements.repositories.QueryParameters
+import uk.gov.hmrc.exports.movements.repositories.SearchParameters
 import uk.gov.hmrc.exports.movements.services.SubmissionService
 import uk.gov.hmrc.play.bootstrap.controller.BackendController
 
@@ -31,14 +31,14 @@ class SubmissionController @Inject()(submissionService: SubmissionService, cc: C
 
   def getAllSubmissions(eori: Option[String], providerId: Option[String]): Action[AnyContent] = Action.async(parse.default) { implicit request =>
     submissionService
-      .getSubmissions(QueryParameters(eori = eori, providerId = providerId))
+      .getSubmissions(SearchParameters(eori = eori, providerId = providerId))
       .map(movements => Ok(Json.toJson(movements)))
   }
 
   def getSubmission(eori: Option[String], providerId: Option[String], conversationId: String): Action[AnyContent] = Action.async(parse.default) {
     implicit request =>
       submissionService
-        .getSingleSubmission(QueryParameters(eori = eori, providerId = providerId, conversationId = Some(conversationId)))
+        .getSingleSubmission(SearchParameters(eori = eori, providerId = providerId, conversationId = Some(conversationId)))
         .map(submissions => Ok(Json.toJson(submissions)))
   }
 

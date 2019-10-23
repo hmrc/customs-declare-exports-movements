@@ -25,7 +25,7 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.JsString
 import reactivemongo.core.errors.DatabaseException
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType
-import uk.gov.hmrc.exports.movements.repositories.{QueryParameters, SubmissionRepository}
+import uk.gov.hmrc.exports.movements.repositories.{SearchParameters, SubmissionRepository}
 import utils.testdata.CommonTestData.{conversationId, _}
 import utils.testdata.MovementsTestData._
 
@@ -98,7 +98,7 @@ class SubmissionRepositorySpec
 
       "there is no Submission with given EORI" should {
         "return empty list" in {
-          val query = QueryParameters(eori = Some(validEori))
+          val query = SearchParameters(eori = Some(validEori))
 
           repo.findBy(query).futureValue mustBe Seq.empty
         }
@@ -109,7 +109,7 @@ class SubmissionRepositorySpec
           val submission = exampleSubmission(eori = validEori)
           repo.insert(submission).futureValue.ok must be(true)
 
-          val query = QueryParameters(eori = Some(validEori))
+          val query = SearchParameters(eori = Some(validEori))
 
           val foundSubmissions = repo.findBy(query).futureValue
 
@@ -136,7 +136,7 @@ class SubmissionRepositorySpec
           repo.insert(submission_4).futureValue.ok must be(true)
           repo.insert(submission_5).futureValue.ok must be(true)
 
-          val query = QueryParameters(eori = Some(validEori))
+          val query = SearchParameters(eori = Some(validEori))
 
           val foundSubmissions = repo.findBy(query).futureValue
 
@@ -154,7 +154,7 @@ class SubmissionRepositorySpec
 
       "there is no Submission with given Provider ID" should {
         "return empty list" in {
-          val query = QueryParameters(providerId = Some(validProviderId))
+          val query = SearchParameters(providerId = Some(validProviderId))
 
           repo.findBy(query).futureValue mustBe Seq.empty
         }
@@ -165,7 +165,7 @@ class SubmissionRepositorySpec
           val submission = exampleSubmission(providerId = Some(validProviderId))
           repo.insert(submission).futureValue.ok must be(true)
 
-          val query = QueryParameters(providerId = Some(validProviderId))
+          val query = SearchParameters(providerId = Some(validProviderId))
 
           val foundSubmissions = repo.findBy(query).futureValue
 
@@ -192,7 +192,7 @@ class SubmissionRepositorySpec
           repo.insert(submission_4).futureValue.ok must be(true)
           repo.insert(submission_5).futureValue.ok must be(true)
 
-          val query = QueryParameters(providerId = Some(validProviderId))
+          val query = SearchParameters(providerId = Some(validProviderId))
 
           val foundSubmissions = repo.findBy(query).futureValue
 
@@ -210,7 +210,7 @@ class SubmissionRepositorySpec
 
       "there is no Submission with given Conversation ID" should {
         "return empty list" in {
-          val query = QueryParameters(conversationId = Some(conversationId))
+          val query = SearchParameters(conversationId = Some(conversationId))
 
           repo.findBy(query).futureValue mustBe Seq.empty
         }
@@ -221,7 +221,7 @@ class SubmissionRepositorySpec
           val submission = exampleSubmission(conversationId = conversationId)
           repo.insert(submission).futureValue.ok must be(true)
 
-          val query = QueryParameters(conversationId = Some(conversationId))
+          val query = SearchParameters(conversationId = Some(conversationId))
 
           val foundSubmissions = repo.findBy(query).futureValue
 
@@ -236,7 +236,7 @@ class SubmissionRepositorySpec
       "return empty list" when {
 
         "there is no Submission with given EORI and Conversation ID" in {
-          val query = QueryParameters(eori = Some(validEori), conversationId = Some(conversationId))
+          val query = SearchParameters(eori = Some(validEori), conversationId = Some(conversationId))
 
           repo.findBy(query).futureValue mustBe Seq.empty
         }
@@ -245,7 +245,7 @@ class SubmissionRepositorySpec
           val submission = exampleSubmission(eori = validEori, conversationId = conversationId_2)
           repo.insert(submission).futureValue.ok must be(true)
 
-          val query = QueryParameters(eori = Some(validEori), conversationId = Some(conversationId))
+          val query = SearchParameters(eori = Some(validEori), conversationId = Some(conversationId))
 
           repo.findBy(query).futureValue mustBe Seq.empty
         }
@@ -254,7 +254,7 @@ class SubmissionRepositorySpec
           val submission = exampleSubmission(eori = validEori_2, conversationId = conversationId)
           repo.insert(submission).futureValue.ok must be(true)
 
-          val query = QueryParameters(eori = Some(validEori), conversationId = Some(conversationId))
+          val query = SearchParameters(eori = Some(validEori), conversationId = Some(conversationId))
 
           repo.findBy(query).futureValue mustBe Seq.empty
         }
@@ -266,7 +266,7 @@ class SubmissionRepositorySpec
           val submission = exampleSubmission(eori = validEori, conversationId = conversationId)
           repo.insert(submission).futureValue.ok must be(true)
 
-          val query = QueryParameters(eori = Some(validEori), conversationId = Some(conversationId))
+          val query = SearchParameters(eori = Some(validEori), conversationId = Some(conversationId))
 
           val foundSubmissions = repo.findBy(query).futureValue
 
@@ -281,7 +281,7 @@ class SubmissionRepositorySpec
       "return empty list" when {
 
         "there is no Submission with given Provider ID and Conversation ID" in {
-          val query = QueryParameters(providerId = Some(validProviderId), conversationId = Some(conversationId))
+          val query = SearchParameters(providerId = Some(validProviderId), conversationId = Some(conversationId))
 
           repo.findBy(query).futureValue mustBe Seq.empty
         }
@@ -290,7 +290,7 @@ class SubmissionRepositorySpec
           val submission = exampleSubmission(providerId = Some(validProviderId), conversationId = conversationId_2)
           repo.insert(submission).futureValue.ok must be(true)
 
-          val query = QueryParameters(providerId = Some(validProviderId), conversationId = Some(conversationId))
+          val query = SearchParameters(providerId = Some(validProviderId), conversationId = Some(conversationId))
 
           repo.findBy(query).futureValue mustBe Seq.empty
         }
@@ -299,7 +299,7 @@ class SubmissionRepositorySpec
           val submission = exampleSubmission(providerId = Some(validProviderId_2), conversationId = conversationId)
           repo.insert(submission).futureValue.ok must be(true)
 
-          val query = QueryParameters(providerId = Some(validProviderId), conversationId = Some(conversationId))
+          val query = SearchParameters(providerId = Some(validProviderId), conversationId = Some(conversationId))
 
           repo.findBy(query).futureValue mustBe Seq.empty
         }
@@ -311,7 +311,7 @@ class SubmissionRepositorySpec
           val submission = exampleSubmission(providerId = Some(validProviderId), conversationId = conversationId)
           repo.insert(submission).futureValue.ok must be(true)
 
-          val query = QueryParameters(providerId = Some(validProviderId), conversationId = Some(conversationId))
+          val query = SearchParameters(providerId = Some(validProviderId), conversationId = Some(conversationId))
 
           val foundSubmissions = repo.findBy(query).futureValue
 

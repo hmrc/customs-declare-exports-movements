@@ -25,7 +25,7 @@ import uk.gov.hmrc.exports.movements.controllers.util.HeaderValidator
 import uk.gov.hmrc.exports.movements.metrics.MetricIdentifiers._
 import uk.gov.hmrc.exports.movements.metrics.MovementsMetrics
 import uk.gov.hmrc.exports.movements.models.notifications.{Notification, NotificationFactory}
-import uk.gov.hmrc.exports.movements.repositories.QueryParameters
+import uk.gov.hmrc.exports.movements.repositories.SearchParameters
 import uk.gov.hmrc.exports.movements.services.NotificationService
 import uk.gov.hmrc.play.bootstrap.controller.BackendController
 
@@ -81,7 +81,7 @@ class NotificationController @Inject()(
   def listOfNotifications(eori: Option[String], providerId: Option[String], conversationId: String): Action[AnyContent] = Action.async {
     implicit request =>
       notificationService
-        .getAllNotifications(QueryParameters(eori = eori, providerId = providerId, conversationId = Some(conversationId)))
+        .getAllNotifications(SearchParameters(eori = eori, providerId = providerId, conversationId = Some(conversationId)))
         .map(notifications => Ok(Json.toJson(notifications)))
   }
 }

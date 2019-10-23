@@ -28,7 +28,7 @@ import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
 import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationType.SHUT_MUCR
 import uk.gov.hmrc.exports.movements.models.notifications.UcrBlock
 import uk.gov.hmrc.exports.movements.models.submissions.{ActionType, Submission, SubmissionFactory, SubmissionFrontendModel}
-import uk.gov.hmrc.exports.movements.repositories.QueryParameters
+import uk.gov.hmrc.exports.movements.repositories.SearchParameters
 import uk.gov.hmrc.exports.movements.services.{ILEMapper, SubmissionService, WCOMapper}
 import uk.gov.hmrc.http.HeaderCarrier
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
@@ -145,10 +145,10 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
 
     "call SubmissionRepository, passing query parameters provided" in new Test {
 
-      val queryParameters = QueryParameters(eori = Some(validEori), providerId = Some(validProviderId), conversationId = Some(conversationId))
-      submissionService.getSubmissions(queryParameters)
+      val searchParameters = SearchParameters(eori = Some(validEori), providerId = Some(validProviderId), conversationId = Some(conversationId))
+      submissionService.getSubmissions(searchParameters)
 
-      verify(submissionRepositoryMock).findBy(meq(queryParameters))
+      verify(submissionRepositoryMock).findBy(meq(searchParameters))
     }
 
     "return result of calling SubmissionRepository" in new Test {
@@ -159,9 +159,9 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
         exampleSubmission(conversationId = conversationId_3),
         exampleSubmission(conversationId = conversationId_4)
       )
-      when(submissionRepositoryMock.findBy(any[QueryParameters])).thenReturn(Future.successful(storedSubmissions))
+      when(submissionRepositoryMock.findBy(any[SearchParameters])).thenReturn(Future.successful(storedSubmissions))
 
-      val result: Seq[SubmissionFrontendModel] = submissionService.getSubmissions(QueryParameters()).futureValue
+      val result: Seq[SubmissionFrontendModel] = submissionService.getSubmissions(SearchParameters()).futureValue
 
       val expectedSubmissions = storedSubmissions.map(SubmissionFrontendModel(_))
       result.length must equal(expectedSubmissions.length)
@@ -173,19 +173,19 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
 
     "call SubmissionRepository, passing query parameters provided" in new Test {
 
-      val queryParameters = QueryParameters(eori = Some(validEori), providerId = Some(validProviderId), conversationId = Some(conversationId))
+      val searchParameters = SearchParameters(eori = Some(validEori), providerId = Some(validProviderId), conversationId = Some(conversationId))
 
-      submissionService.getSingleSubmission(queryParameters)
+      submissionService.getSingleSubmission(searchParameters)
 
-      verify(submissionRepositoryMock).findBy(meq(queryParameters))
+      verify(submissionRepositoryMock).findBy(meq(searchParameters))
     }
 
     "return result of calling SubmissionRepository" in new Test {
 
       val storedSubmission = exampleSubmission()
-      when(submissionRepositoryMock.findBy(any[QueryParameters])).thenReturn(Future.successful(Seq(storedSubmission)))
+      when(submissionRepositoryMock.findBy(any[SearchParameters])).thenReturn(Future.successful(Seq(storedSubmission)))
 
-      val result: Option[SubmissionFrontendModel] = submissionService.getSingleSubmission(QueryParameters()).futureValue
+      val result: Option[SubmissionFrontendModel] = submissionService.getSingleSubmission(SearchParameters()).futureValue
 
       val expectedSubmission = SubmissionFrontendModel(storedSubmission)
       result.value mustBe expectedSubmission

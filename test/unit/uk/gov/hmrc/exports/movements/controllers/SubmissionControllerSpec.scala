@@ -31,7 +31,7 @@ import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.exports.movements.models.submissions.SubmissionFrontendModel
-import uk.gov.hmrc.exports.movements.repositories.QueryParameters
+import uk.gov.hmrc.exports.movements.repositories.SearchParameters
 import uk.gov.hmrc.exports.movements.services.SubmissionService
 import utils.testdata.CommonTestData._
 import utils.testdata.MovementsTestData._
@@ -61,15 +61,15 @@ class SubmissionControllerSpec
   "SubmissionController on getAllSubmissions" should {
 
     "call SubmissionService" in {
-      when(submissionServiceMock.getSubmissions(any[QueryParameters])).thenReturn(Future.successful(Seq.empty))
+      when(submissionServiceMock.getSubmissions(any[SearchParameters])).thenReturn(Future.successful(Seq.empty))
 
       routeGet(uri = getAllSubmissionsUri).futureValue
 
-      Mockito.verify(submissionServiceMock).getSubmissions(any[QueryParameters])
+      Mockito.verify(submissionServiceMock).getSubmissions(any[SearchParameters])
     }
 
     "return Ok status" in {
-      when(submissionServiceMock.getSubmissions(any[QueryParameters])).thenReturn(Future.successful(Seq.empty))
+      when(submissionServiceMock.getSubmissions(any[SearchParameters])).thenReturn(Future.successful(Seq.empty))
 
       val result = routeGet(uri = getAllSubmissionsUri)
 
@@ -80,7 +80,7 @@ class SubmissionControllerSpec
       val serviceResponseContent =
         Seq(exampleSubmission(), exampleSubmission(conversationId = conversationId_2), exampleSubmission(conversationId = conversationId_3))
           .map(SubmissionFrontendModel(_))
-      when(submissionServiceMock.getSubmissions(any[QueryParameters])).thenReturn(Future.successful(serviceResponseContent))
+      when(submissionServiceMock.getSubmissions(any[SearchParameters])).thenReturn(Future.successful(serviceResponseContent))
 
       val result = routeGet(uri = getAllSubmissionsUri)
 
@@ -92,15 +92,15 @@ class SubmissionControllerSpec
   "SubmissionController on getSubmission" should {
 
     "call SubmissionService" in {
-      when(submissionServiceMock.getSingleSubmission(any[QueryParameters])).thenReturn(Future.successful(None))
+      when(submissionServiceMock.getSingleSubmission(any[SearchParameters])).thenReturn(Future.successful(None))
 
       routeGet(uri = getSubmissionUri(conversationId)).futureValue
 
-      Mockito.verify(submissionServiceMock).getSingleSubmission(any[QueryParameters])
+      Mockito.verify(submissionServiceMock).getSingleSubmission(any[SearchParameters])
     }
 
     "return Ok status" in {
-      when(submissionServiceMock.getSingleSubmission(any[QueryParameters])).thenReturn(Future.successful(None))
+      when(submissionServiceMock.getSingleSubmission(any[SearchParameters])).thenReturn(Future.successful(None))
 
       val result = routeGet(uri = getSubmissionUri(conversationId))
 
@@ -109,7 +109,7 @@ class SubmissionControllerSpec
 
     "return what SubmissionService returns in the body" in {
       val serviceResponseContent = Some(SubmissionFrontendModel(exampleSubmission()))
-      when(submissionServiceMock.getSingleSubmission(any[QueryParameters])).thenReturn(Future.successful(serviceResponseContent))
+      when(submissionServiceMock.getSingleSubmission(any[SearchParameters])).thenReturn(Future.successful(serviceResponseContent))
 
       val result = routeGet(uri = getSubmissionUri(conversationId))
 
