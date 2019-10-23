@@ -41,13 +41,6 @@ class CustomsInventoryLinkingExportsConnector @Inject()(appConfig: AppConfig, ht
       response
     }
 
-  //noinspection ConvertExpressionToSAM
-  private val responseReader: HttpReads[CustomsInventoryLinkingResponse] =
-    new HttpReads[CustomsInventoryLinkingResponse] {
-      override def read(method: String, url: String, response: HttpResponse): CustomsInventoryLinkingResponse =
-        CustomsInventoryLinkingResponse(response.status, response.header(CustomsHeaderNames.XConversationIdName))
-    }
-
   private[connectors] def post(eori: String, body: String)(implicit hc: HeaderCarrier): Future[CustomsInventoryLinkingResponse] = {
     logger.debug(s"CUSTOMS_INVENTORY_LINKING_EXPORTS request payload is -> $body")
     httpClient
@@ -55,7 +48,7 @@ class CustomsInventoryLinkingExportsConnector @Inject()(appConfig: AppConfig, ht
         s"${appConfig.customsInventoryLinkingExportsRootUrl}${appConfig.sendArrivalUrlSuffix}",
         body,
         headers = headers(eori)
-      )(responseReader, hc, ec)
+      )
       .recover {
         case error: Throwable =>
           logger.warn(s"Error from Customs Inventory Linking. $error")
@@ -63,10 +56,11 @@ class CustomsInventoryLinkingExportsConnector @Inject()(appConfig: AppConfig, ht
       }
   }
 
-  private def headers(eori: String): Seq[(String, String)] = Seq(
-    HeaderNames.ACCEPT -> "application/vnd.hmrc.1.0+xml",
-    HeaderNames.CONTENT_TYPE -> ContentTypes.XML(Codec.utf_8),
-    CustomsHeaderNames.XClientIdName -> appConfig.clientIdInventory,
-    CustomsHeaderNames.XEoriIdentifierHeaderName -> eori
-  )
+  private def headers(eori: String)(implicit hc: HeaderCarrier): Seq[(String, String)] =
+    Seq(
+      HeaderNames.ACCEPT -> "application/vnd.hmrc.1.0+xml",
+      HeaderNames.CONTENT_TYPE -> ContentTypes.XML(Codec.utf_8),
+      CustomsHeaderNames.XClientIdName -> appConfig.clientIdInventory,
+      CustomsHeaderNames.XEoriIdentifierHeaderName -> eori
+    )
 }

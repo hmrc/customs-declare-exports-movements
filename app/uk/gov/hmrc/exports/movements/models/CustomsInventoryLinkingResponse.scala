@@ -16,8 +16,17 @@
 
 package uk.gov.hmrc.exports.movements.models
 
+import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames
+import uk.gov.hmrc.http.{HttpReads, HttpResponse}
+
 case class CustomsInventoryLinkingResponse(status: Int, conversationId: Option[String])
 
 object CustomsInventoryLinkingResponse {
   def empty: CustomsInventoryLinkingResponse = CustomsInventoryLinkingResponse(0, None)
+
+  implicit val responseReader: HttpReads[CustomsInventoryLinkingResponse] =
+    new HttpReads[CustomsInventoryLinkingResponse] {
+      override def read(method: String, url: String, response: HttpResponse): CustomsInventoryLinkingResponse =
+        CustomsInventoryLinkingResponse(response.status, response.header(CustomsHeaderNames.XConversationIdName))
+    }
 }

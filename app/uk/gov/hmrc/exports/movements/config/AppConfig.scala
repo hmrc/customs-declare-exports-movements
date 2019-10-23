@@ -17,11 +17,14 @@
 package uk.gov.hmrc.exports.movements.config
 
 import com.google.inject.{Inject, Singleton}
-import play.api.Configuration
+import play.api.{Configuration, Logger}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 @Singleton
 class AppConfig @Inject()(runModeConfiguration: Configuration, servicesConfig: ServicesConfig) {
+
+  private val logger: Logger = Logger(classOf[AppConfig])
 
   lazy val authUrl: String = servicesConfig.baseUrl("auth")
 
@@ -32,10 +35,16 @@ class AppConfig @Inject()(runModeConfiguration: Configuration, servicesConfig: S
     throw new IllegalStateException("Missing configuration for Customs Inventory Linking send arrival URI")
   )
 
-  lazy val clientIdInventory = servicesConfig.getConfString(
-    "customs-inventory-linking-exports.client-id",
-    throw new IllegalStateException("Missing configuration for Customs Inventory Linking Client Id")
-  )
+  def clientIdInventory(implicit hc: HeaderCarrier): String = {
+    val userAgent = hc.headers.find(_._1.toLowerCase() == "user-agent").map(_._2).getOrElse {
+      Logger.warn("Request had missing User-Agent header. Falling Back to a default Client ID")
+      "default"
+    }
+    servicesConfig.getConfString(
+      s"customs-inventory-linking-exports.client-id.$userAgent",
+      throw new IllegalStateException(s"Missing Client ID for [$userAgent]")
+    )
+  }
 
   lazy val ileSchemasFilePath = servicesConfig.getConfString(
     "customs-inventory-linking-exports.schema-file-path",
