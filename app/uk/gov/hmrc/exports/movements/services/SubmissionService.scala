@@ -23,7 +23,7 @@ import uk.gov.hmrc.exports.movements.controllers.request.MovementRequest
 import uk.gov.hmrc.exports.movements.exceptions.CustomsInventoryLinkingUpstreamException
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
 import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation
-import uk.gov.hmrc.exports.movements.models.submissions.{Submission, SubmissionFactory}
+import uk.gov.hmrc.exports.movements.models.submissions.{SubmissionFactory, SubmissionFrontendModel}
 import uk.gov.hmrc.exports.movements.repositories.{QueryParameters, SubmissionRepository}
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -78,10 +78,14 @@ class SubmissionService @Inject()(
     }
   }
 
-  def getSubmissions(queryParameters: QueryParameters): Future[Seq[Submission]] =
-    submissionRepository.findBy(queryParameters)
+  def getSubmissions(queryParameters: QueryParameters): Future[Seq[SubmissionFrontendModel]] = for {
+    submissions <- submissionRepository.findBy(queryParameters)
+    submissionFrontendModels = submissions.map(SubmissionFrontendModel(_))
+  } yield submissionFrontendModels
 
-  def getSingleSubmission(queryParameters: QueryParameters): Future[Option[Submission]] =
-    submissionRepository.findBy(queryParameters).map(_.headOption)
+  def getSingleSubmission(queryParameters: QueryParameters): Future[Option[SubmissionFrontendModel]] = for {
+    submissionOpt <- submissionRepository.findBy(queryParameters).map(_.headOption)
+    submissionFrontendModel = submissionOpt.map(SubmissionFrontendModel(_))
+  } yield submissionFrontendModel
 
 }

@@ -30,6 +30,7 @@ import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import uk.gov.hmrc.exports.movements.models.submissions.SubmissionFrontendModel
 import uk.gov.hmrc.exports.movements.repositories.QueryParameters
 import uk.gov.hmrc.exports.movements.services.SubmissionService
 import utils.testdata.CommonTestData._
@@ -78,6 +79,7 @@ class SubmissionControllerSpec
     "return what SubmissionService returns in the body" in {
       val serviceResponseContent =
         Seq(exampleSubmission(), exampleSubmission(conversationId = conversationId_2), exampleSubmission(conversationId = conversationId_3))
+          .map(SubmissionFrontendModel(_))
       when(submissionServiceMock.getSubmissions(any[QueryParameters])).thenReturn(Future.successful(serviceResponseContent))
 
       val result = routeGet(uri = getAllSubmissionsUri)
@@ -106,7 +108,7 @@ class SubmissionControllerSpec
     }
 
     "return what SubmissionService returns in the body" in {
-      val serviceResponseContent = Some(exampleSubmission())
+      val serviceResponseContent = Some(SubmissionFrontendModel(exampleSubmission()))
       when(submissionServiceMock.getSingleSubmission(any[QueryParameters])).thenReturn(Future.successful(serviceResponseContent))
 
       val result = routeGet(uri = getSubmissionUri(conversationId))

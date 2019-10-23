@@ -27,7 +27,7 @@ import uk.gov.hmrc.exports.movements.exceptions.CustomsInventoryLinkingUpstreamE
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
 import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationType.SHUT_MUCR
 import uk.gov.hmrc.exports.movements.models.notifications.UcrBlock
-import uk.gov.hmrc.exports.movements.models.submissions.{ActionType, Submission, SubmissionFactory}
+import uk.gov.hmrc.exports.movements.models.submissions.{ActionType, Submission, SubmissionFactory, SubmissionFrontendModel}
 import uk.gov.hmrc.exports.movements.repositories.QueryParameters
 import uk.gov.hmrc.exports.movements.services.{ILEMapper, SubmissionService, WCOMapper}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -152,16 +152,18 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
     }
 
     "return result of calling SubmissionRepository" in new Test {
-      val expectedSubmissions = Seq(
+
+      val storedSubmissions = Seq(
         exampleSubmission(),
         exampleSubmission(conversationId = conversationId_2),
         exampleSubmission(conversationId = conversationId_3),
         exampleSubmission(conversationId = conversationId_4)
       )
-      when(submissionRepositoryMock.findBy(any[QueryParameters])).thenReturn(Future.successful(expectedSubmissions))
+      when(submissionRepositoryMock.findBy(any[QueryParameters])).thenReturn(Future.successful(storedSubmissions))
 
-      val result: Seq[Submission] = submissionService.getSubmissions(QueryParameters()).futureValue
+      val result: Seq[SubmissionFrontendModel] = submissionService.getSubmissions(QueryParameters()).futureValue
 
+      val expectedSubmissions = storedSubmissions.map(SubmissionFrontendModel(_))
       result.length must equal(expectedSubmissions.length)
       result must equal(expectedSubmissions)
     }
@@ -179,11 +181,13 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
     }
 
     "return result of calling SubmissionRepository" in new Test {
-      val expectedSubmission = exampleSubmission()
-      when(submissionRepositoryMock.findBy(any[QueryParameters])).thenReturn(Future.successful(Seq(expectedSubmission)))
 
-      val result: Option[Submission] = submissionService.getSingleSubmission(QueryParameters()).futureValue
+      val storedSubmission = exampleSubmission()
+      when(submissionRepositoryMock.findBy(any[QueryParameters])).thenReturn(Future.successful(Seq(storedSubmission)))
 
+      val result: Option[SubmissionFrontendModel] = submissionService.getSingleSubmission(QueryParameters()).futureValue
+
+      val expectedSubmission = SubmissionFrontendModel(storedSubmission)
       result.value mustBe expectedSubmission
     }
   }
