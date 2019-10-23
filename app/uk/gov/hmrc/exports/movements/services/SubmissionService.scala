@@ -38,13 +38,14 @@ class SubmissionService @Inject()(
   wcoMapper: WCOMapper
 )(implicit executionContext: ExecutionContext) {
 
-  def submitMovement(eori: String, movementRequest: MovementRequest)(implicit hc: HeaderCarrier): Future[Unit] = {
+  def submitMovement(movementRequest: MovementRequest)(implicit hc: HeaderCarrier): Future[Unit] = {
     val requestXml = wcoMapper.generateInventoryLinkingMovementRequestXml(movementRequest)
 
-    customsInventoryLinkingExportsConnector.sendInventoryLinkingRequest(eori, requestXml).flatMap {
+    customsInventoryLinkingExportsConnector.sendInventoryLinkingRequest(movementRequest.eori, requestXml).flatMap {
 
       case CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId)) =>
-        val newSubmission = submissionFactory.buildMovementSubmission(eori, conversationId, requestXml, movementRequest)
+        val newSubmission =
+          submissionFactory.buildMovementSubmission(movementRequest.eori, conversationId, requestXml, movementRequest)
 
         submissionRepository
           .insert(newSubmission)
@@ -64,8 +65,7 @@ class SubmissionService @Inject()(
 
       case CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId)) =>
         val newSubmission =
-          submissionFactory
-            .buildConsolidationSubmission(eori, conversationId, requestXml, consolidation.consolidationType)
+          submissionFactory.buildConsolidationSubmission(eori, conversationId, requestXml, consolidation.consolidationType)
 
         submissionRepository
           .insert(newSubmission)
@@ -78,14 +78,16 @@ class SubmissionService @Inject()(
     }
   }
 
-  def getSubmissions(searchParameters: SearchParameters): Future[Seq[SubmissionFrontendModel]] = for {
-    submissions <- submissionRepository.findBy(searchParameters)
-    submissionFrontendModels = submissions.map(SubmissionFrontendModel(_))
-  } yield submissionFrontendModels
+  def getSubmissions(searchParameters: SearchParameters): Future[Seq[SubmissionFrontendModel]] =
+    for {
+      submissions <- submissionRepository.findBy(searchParameters)
+      submissionFrontendModels = submissions.map(SubmissionFrontendModel(_))
+    } yield submissionFrontendModels
 
-  def getSingleSubmission(searchParameters: SearchParameters): Future[Option[SubmissionFrontendModel]] = for {
-    submissionOpt <- submissionRepository.findBy(searchParameters).map(_.headOption)
-    submissionFrontendModel = submissionOpt.map(SubmissionFrontendModel(_))
-  } yield submissionFrontendModel
+  def getSingleSubmission(searchParameters: SearchParameters): Future[Option[SubmissionFrontendModel]] =
+    for {
+      submissionOpt <- submissionRepository.findBy(searchParameters).map(_.headOption)
+      submissionFrontendModel = submissionOpt.map(SubmissionFrontendModel(_))
+    } yield submissionFrontendModel
 
 }

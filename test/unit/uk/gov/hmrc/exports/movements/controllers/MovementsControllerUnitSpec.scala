@@ -18,7 +18,7 @@ package unit.uk.gov.hmrc.exports.movements.controllers
 
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}
-import org.scalatest.{MustMatchers, WordSpec}
+import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.mvc.Request
 import play.api.test.Helpers._
@@ -27,30 +27,29 @@ import uk.gov.hmrc.exports.movements.controllers.MovementsController
 import uk.gov.hmrc.exports.movements.controllers.request.MovementRequest
 import uk.gov.hmrc.exports.movements.models.movements.{Choice, ConsignmentReference, MovementDetails}
 import uk.gov.hmrc.exports.movements.services.SubmissionService
-import unit.uk.gov.hmrc.exports.movements.base.AuthTestSupport
+import unit.uk.gov.hmrc.exports.movements.base.UnitSpec
 import utils.FakeRequestCSRFSupport._
+import utils.testdata.CommonTestData.{JsonContentTypeHeader, validEori}
 
 import scala.concurrent.ExecutionContext.global
 import scala.concurrent.Future
 
-class MovementsControllerUnitSpec extends WordSpec with MustMatchers with MockitoSugar with AuthTestSupport {
+class MovementsControllerUnitSpec extends UnitSpec with MockitoSugar with BeforeAndAfterEach {
 
   val submissionServiceMock = mock[SubmissionService]
 
   val controller =
-    new MovementsController(mockAuthConnector, submissionServiceMock, stubControllerComponents())(global)
+    new MovementsController(submissionServiceMock, stubControllerComponents())(global)
 
   val correctJson = MovementRequest(
+    eori = validEori,
     choice = Choice.Arrival,
     consignmentReference = ConsignmentReference("reference", "value"),
     movementDetails = MovementDetails("dateTime")
   )
 
-  override protected def beforeEach(): Unit = {
+  override protected def beforeEach(): Unit =
     super.beforeEach()
-
-    withAuthorizedUser()
-  }
 
   override protected def afterEach(): Unit = {
     reset(submissionServiceMock)
@@ -60,7 +59,7 @@ class MovementsControllerUnitSpec extends WordSpec with MustMatchers with Mockit
 
   protected def postRequest(body: MovementRequest): Request[MovementRequest] =
     FakeRequest("POST", "")
-      .withHeaders(("Content-Type", "application/json"))
+      .withHeaders(JsonContentTypeHeader)
       .withBody(body)
       .withCSRFToken
 
@@ -70,12 +69,12 @@ class MovementsControllerUnitSpec extends WordSpec with MustMatchers with Mockit
 
       "consolidation submission ends with success" in {
 
-        when(submissionServiceMock.submitMovement(any(), any())(any()))
+        when(submissionServiceMock.submitMovement(any())(any()))
           .thenReturn(Future.successful((): Unit))
 
         val result = controller.createMovement()(postRequest(correctJson))
 
-        status(result) mustBe ACCEPTED
+        status(result) shouldBe ACCEPTED
       }
     }
   }

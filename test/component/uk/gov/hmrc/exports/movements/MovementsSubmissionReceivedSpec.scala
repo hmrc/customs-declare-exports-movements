@@ -26,7 +26,7 @@ import play.api.test.Helpers._
 import reactivemongo.core.actors.Exceptions.PrimaryUnavailableException
 import reactivemongo.core.errors.ConnectionException
 import uk.gov.hmrc.exports.movements.exceptions.CustomsInventoryLinkingUpstreamException
-import utils.testdata.CommonTestData.{validEori, ValidJsonHeaders}
+import utils.testdata.CommonTestData.{ValidJsonHeaders, validEori}
 import utils.testdata.MovementsTestData._
 
 import scala.concurrent.{Await, Future}
@@ -185,7 +185,7 @@ class MovementsSubmissionReceivedSpec extends ComponentTestSpec with Integration
       eventually(verifyMovementSubmissionRepositoryWasNotCalled())
 
       And("the request was authorised with AuthService")
-      eventually(verifyAuthServiceCalledForNonCsp())
+      eventually(verifyAuthorisationNotCalled())
     }
 
     scenario("an authorised user tries to submit movements declaration, but movement repository is down") {
@@ -215,7 +215,7 @@ class MovementsSubmissionReceivedSpec extends ComponentTestSpec with Integration
       eventually(verifyMovementSubmissionRepositoryIsCorrectlyCalled(validEori))
 
       And("the request was authorised with AuthService")
-      eventually(verifyAuthServiceCalledForNonCsp())
+      eventually(verifyAuthorisationNotCalled())
     }
 
     scenario("an unauthorised user try to submit movements declaration") {
@@ -227,22 +227,23 @@ class MovementsSubmissionReceivedSpec extends ComponentTestSpec with Integration
       When("a POST request with data is sent to the movements API")
       val result: Future[Result] = route(app = app, request).value
 
-      Then("a response with a Unauthorized status is received")
-      status(result) shouldBe UNAUTHORIZED
+      And("movements submission should be handled")
+      withMovementSubmissionRepository(true)
 
-      And("the response body contains error")
-      val outcome = contentAsJson(result)
-      (outcome \ "code").as[String] shouldEqual "UNAUTHORIZED"
-      (outcome \ "message").as[String] shouldEqual "Unauthorized for exports"
+      Then(s"a response with a $ACCEPTED status is received")
+      status(result) shouldBe ACCEPTED
 
-      And("the ILE API service is not called")
-      eventually(verifyILEServiceWasNotCalled())
+      And(s"the response body is ${exampleDepartureRequestJson.toString}")
+      contentAsString(result) should include(exampleDepartureRequestJson.toString)
 
-      And("the movement submission repository is not called")
-      eventually(verifyMovementSubmissionRepositoryWasNotCalled())
+      And("the ILE API service is called correctly")
+      eventually(verifyILEServiceWasCalled(requestBody = exampleDepartureRequestXML.toString, expectedEori = validEori))
 
-      And("the AuthService is called")
-      eventually(verifyAuthServiceCalledForNonCsp())
+      And("the movements submission repository is called correctly")
+      eventually(verifyMovementSubmissionRepositoryIsCorrectlyCalled(validEori))
+
+      And("the request was authorised with AuthService")
+      eventually(verifyAuthorisationNotCalled())
     }
 
     def testScenario(
@@ -292,7 +293,7 @@ class MovementsSubmissionReceivedSpec extends ComponentTestSpec with Integration
       }
 
       And("the request was authorised with AuthService")
-      eventually(verifyAuthServiceCalledForNonCsp())
+      eventually(verifyAuthorisationNotCalled())
     }
   }
 }

@@ -36,7 +36,6 @@ import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder.{buildSubmiss
 import utils.CustomsMovementsAPIConfig
 import utils.ExternalServicesConfig.{Host, Port}
 import utils.stubs.CustomsMovementsAPIService
-import utils.testdata.CommonTestData.validEori
 import utils.testdata.MovementsTestData._
 
 import scala.concurrent.{Await, Future}
@@ -84,7 +83,7 @@ class SubmissionServiceSpec
         startInventoryLinkingService(ACCEPTED)
         withMovementSubmissionPersisted(true)
 
-        movementsService.submitMovement(validEori, exampleArrivalRequest).futureValue should equal((): Unit)
+        movementsService.submitMovement(exampleArrivalRequest).futureValue should equal((): Unit)
       }
 
       "Departure is persisted" in {
@@ -92,7 +91,7 @@ class SubmissionServiceSpec
         startInventoryLinkingService(ACCEPTED)
         withMovementSubmissionPersisted(true)
 
-        movementsService.submitMovement(validEori, exampleDepartureRequest).futureValue should equal((): Unit)
+        movementsService.submitMovement(exampleDepartureRequest).futureValue should equal((): Unit)
       }
     }
 
@@ -104,7 +103,7 @@ class SubmissionServiceSpec
         withMovementSubmissionPersisted(false)
 
         an[Exception] mustBe thrownBy {
-          Await.result(movementsService.submitMovement(validEori, exampleArrivalRequest), patienceConfig.timeout)
+          Await.result(movementsService.submitMovement(exampleArrivalRequest), patienceConfig.timeout)
         }
       }
 
@@ -114,7 +113,7 @@ class SubmissionServiceSpec
         withMovementSubmissionPersisted(false)
 
         an[GenericDatabaseException] mustBe thrownBy {
-          Await.result(movementsService.submitMovement(validEori, exampleDepartureRequest), patienceConfig.timeout)
+          Await.result(movementsService.submitMovement(exampleDepartureRequest), patienceConfig.timeout)
         }
       }
 
@@ -124,7 +123,7 @@ class SubmissionServiceSpec
         withMovementSubmissionPersisted(false)
 
         the[CustomsInventoryLinkingUpstreamException] thrownBy {
-          Await.result(movementsService.submitMovement(validEori, exampleArrivalRequest), patienceConfig.timeout)
+          Await.result(movementsService.submitMovement(exampleArrivalRequest), patienceConfig.timeout)
         } should have message "Status: 202. ConverstationId: Not preset . Non Accepted status returned by Customs Inventory Linking Exports"
       }
 
@@ -134,7 +133,7 @@ class SubmissionServiceSpec
         withMovementSubmissionPersisted(false)
 
         the[CustomsInventoryLinkingUpstreamException] thrownBy {
-          Await.result(movementsService.submitMovement(validEori, exampleDepartureRequest), patienceConfig.timeout)
+          Await.result(movementsService.submitMovement(exampleDepartureRequest), patienceConfig.timeout)
         } should have message "Status: 202. ConverstationId: Not preset . Non Accepted status returned by Customs Inventory Linking Exports"
       }
 
@@ -144,7 +143,7 @@ class SubmissionServiceSpec
         withMovementSubmissionPersisted(false)
 
         val result = the[CustomsInventoryLinkingUpstreamException] thrownBy {
-          Await.result(movementsService.submitMovement(validEori, exampleArrivalRequest), patienceConfig.timeout)
+          Await.result(movementsService.submitMovement(exampleArrivalRequest), patienceConfig.timeout)
         }
         result.getMessage should fullyMatch regex "Status: 400. ConverstationId: '.*' . Non Accepted status returned by Customs Inventory Linking Exports"
       }
@@ -155,7 +154,7 @@ class SubmissionServiceSpec
         withMovementSubmissionPersisted(false)
 
         a[CustomsInventoryLinkingUpstreamException] mustBe thrownBy {
-          Await.result(movementsService.submitMovement(validEori, exampleArrivalRequest), patienceConfig.timeout)
+          Await.result(movementsService.submitMovement(exampleArrivalRequest), patienceConfig.timeout)
         }
       }
 
@@ -165,7 +164,7 @@ class SubmissionServiceSpec
         withMovementSubmissionPersisted(false)
 
         a[CustomsInventoryLinkingUpstreamException] mustBe thrownBy {
-          Await.result(movementsService.submitMovement(validEori, exampleArrivalRequest), patienceConfig.timeout)
+          Await.result(movementsService.submitMovement(exampleArrivalRequest), patienceConfig.timeout)
         }
       }
 
@@ -175,7 +174,7 @@ class SubmissionServiceSpec
         withMovementSubmissionPersisted(false)
 
         a[CustomsInventoryLinkingUpstreamException] mustBe thrownBy {
-          Await.result(movementsService.submitMovement(validEori, exampleArrivalRequest), patienceConfig.timeout)
+          Await.result(movementsService.submitMovement(exampleArrivalRequest), patienceConfig.timeout)
         }
       }
     }

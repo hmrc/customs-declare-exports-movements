@@ -39,7 +39,12 @@ class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar
 
       "provided with Arrival request" in new Test {
 
-        val arrivalRequest = MovementRequest("EAL", ConsignmentReference("", ""), MovementDetails(""))
+        val arrivalRequest = MovementRequest(
+          eori = validEori,
+          choice = "EAL",
+          consignmentReference = ConsignmentReference("", ""),
+          movementDetails = MovementDetails("")
+        )
 
         val submission =
           submissionFactory.buildMovementSubmission(validEori, conversationId, exampleArrivalRequestXML, arrivalRequest)
@@ -57,7 +62,12 @@ class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar
 
       "provided with Departure request" in new Test {
 
-        val departureRequest = MovementRequest("EDL", ConsignmentReference("", ""), MovementDetails(""))
+        val departureRequest = MovementRequest(
+          eori = validEori,
+          choice = "EDL",
+          consignmentReference = ConsignmentReference("", ""),
+          movementDetails = MovementDetails("")
+        )
 
         val submission = submissionFactory.buildMovementSubmission(validEori, conversationId, exampleDepartureRequestXML, departureRequest)
 

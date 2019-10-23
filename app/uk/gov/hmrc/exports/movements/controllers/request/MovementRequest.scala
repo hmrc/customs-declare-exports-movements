@@ -16,10 +16,14 @@
 
 package uk.gov.hmrc.exports.movements.controllers.request
 
-import play.api.libs.json.Json
+import play.api.http.{ContentTypeOf, ContentTypes, Writeable}
+import play.api.libs.json.{Json, Writes}
+import play.api.mvc.Codec
 import uk.gov.hmrc.exports.movements.models.movements._
 
 case class MovementRequest(
+  eori: String,
+  providerId: Option[String] = None,
   choice: String,
   consignmentReference: ConsignmentReference,
   movementDetails: MovementDetails,
@@ -31,4 +35,11 @@ case class MovementRequest(
 object MovementRequest {
 
   implicit val format = Json.format[MovementRequest]
+
+  implicit def jsonWritable[A](implicit writes: Writes[A], codec: Codec): Writeable[A] = {
+    implicit val contentType: ContentTypeOf[A] = ContentTypeOf[A](Some(ContentTypes.JSON))
+    val transform = Writeable.writeableOf_JsValue.transform compose writes.writes
+    Writeable(transform)
+  }
+
 }

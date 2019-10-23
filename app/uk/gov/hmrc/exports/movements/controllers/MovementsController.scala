@@ -18,26 +18,18 @@ package uk.gov.hmrc.exports.movements.controllers
 
 import javax.inject.{Inject, Singleton}
 import play.api.mvc._
-import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.exports.movements.controllers.actions.AuthenticatedController
 import uk.gov.hmrc.exports.movements.controllers.request.MovementRequest
 import uk.gov.hmrc.exports.movements.services.SubmissionService
+import uk.gov.hmrc.play.bootstrap.controller.BackendController
 
 import scala.concurrent.ExecutionContext
 
 @Singleton
-class MovementsController @Inject()(
-  authConnector: AuthConnector,
-  submissionService: SubmissionService,
-  override val controllerComponents: ControllerComponents
-)(implicit executionContext: ExecutionContext)
-    extends AuthenticatedController(authConnector, controllerComponents) {
+class MovementsController @Inject()(submissionService: SubmissionService, override val controllerComponents: ControllerComponents)(
+  implicit executionContext: ExecutionContext
+) extends BackendController(controllerComponents) {
 
-  def createMovement(): Action[MovementRequest] = authorisedAction(parse.json[MovementRequest]) { implicit request =>
-    val movementRequest = request.body
-
-    submissionService
-      .submitMovement(request.eori.value, movementRequest)
-      .map(_ => Accepted(request.body))
+  def createMovement(): Action[MovementRequest] = Action.async(parse.json[MovementRequest]) { implicit request =>
+    submissionService.submitMovement(request.body).map(_ => Accepted(request.body))
   }
 }
