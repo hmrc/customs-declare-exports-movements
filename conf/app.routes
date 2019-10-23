@@ -2,12 +2,12 @@
 
 POST        /customs-declare-exports/notifyMovement         uk.gov.hmrc.exports.movements.controllers.NotificationController.saveNotification()
 
-GET         /notifications/:conversationId                  uk.gov.hmrc.exports.movements.controllers.NotificationController.listOfNotifications(conversationId: String)
+GET         /notifications/:conversationId                  uk.gov.hmrc.exports.movements.controllers.NotificationController.listOfNotifications(eori: Option[String], providerId: Option[String], conversationId: String)
 
 POST        /movements                                      uk.gov.hmrc.exports.movements.controllers.MovementsController.createMovement()
 
-GET         /movements                                      uk.gov.hmrc.exports.movements.controllers.SubmissionController.getAllSubmissions()
-GET         /movements/:conversationId                      uk.gov.hmrc.exports.movements.controllers.SubmissionController.getSubmission(conversationId: String)
+GET         /movements                                      uk.gov.hmrc.exports.movements.controllers.SubmissionController.getAllSubmissions(eori: Option[String], providerId: Option[String])
+GET         /movements/:conversationId                      uk.gov.hmrc.exports.movements.controllers.SubmissionController.getSubmission(eori: Option[String], providerId: Option[String], conversationId: String)
 
 # Movements Consolidations
 

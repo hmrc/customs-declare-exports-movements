@@ -53,7 +53,8 @@ class NotificationRepositorySpec
       "result in a success" in {
         repo.insert(notification_1).futureValue.ok must be(true)
 
-        val notificationInDB = repo.findNotificationsByConversationId(conversationId).futureValue
+        val notificationInDB = repo.findByConversationId(conversationId).futureValue
+
         notificationInDB.length must equal(1)
         notificationInDB.head must equal(notification_1)
       }
@@ -69,7 +70,8 @@ class NotificationRepositorySpec
         repo.insert(notification_1).futureValue.ok must be(true)
         repo.insert(notification_1).futureValue.ok must be(true)
 
-        val notificationsInDB = repo.findNotificationsByConversationId(conversationId).futureValue
+        val notificationsInDB = repo.findByConversationId(conversationId).futureValue
+
         notificationsInDB.length must equal(2)
         notificationsInDB.head must equal(notification_1)
         notificationsInDB(1) must equal(notification_1)
@@ -77,11 +79,11 @@ class NotificationRepositorySpec
     }
   }
 
-  "Notification Repository on findNotificationsByConversationId" when {
+  "Notification Repository on findBy" when {
 
     "there is no Notification with given conversationId" should {
       "return empty list" in {
-        repo.findNotificationsByConversationId(conversationId).futureValue must equal(Seq.empty)
+        repo.findByConversationId(conversationId).futureValue must equal(Seq.empty)
       }
     }
 
@@ -89,7 +91,7 @@ class NotificationRepositorySpec
       "return this Notification only" in {
         repo.insert(notification_1).futureValue
 
-        val foundNotifications = repo.findNotificationsByConversationId(conversationId).futureValue
+        val foundNotifications = repo.findByConversationId(conversationId).futureValue
 
         foundNotifications.length must equal(1)
         foundNotifications.head must equal(notification_1)
@@ -102,7 +104,7 @@ class NotificationRepositorySpec
         val notificationWithSameConversationId = notification_2.copy(conversationId = notification_1.conversationId)
         repo.insert(notificationWithSameConversationId).futureValue
 
-        val foundNotifications = repo.findNotificationsByConversationId(conversationId).futureValue
+        val foundNotifications = repo.findByConversationId(conversationId).futureValue
 
         foundNotifications.length must equal(2)
         foundNotifications must contain(notification_1)

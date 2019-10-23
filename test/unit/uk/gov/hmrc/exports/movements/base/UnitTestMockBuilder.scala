@@ -44,7 +44,7 @@ object UnitTestMockBuilder extends MockitoSugar {
 
     when(notificationRepositoryMock.insert(any[Notification])(any()))
       .thenReturn(Future.failed(GenericDatabaseException("ERROR", None)))
-    when(notificationRepositoryMock.findNotificationsByConversationId(any[String]))
+    when(notificationRepositoryMock.findByConversationId(any[String]))
       .thenReturn(Future.successful(Seq.empty))
 
     notificationRepositoryMock
@@ -53,8 +53,7 @@ object UnitTestMockBuilder extends MockitoSugar {
   def buildSubmissionRepositoryMock: SubmissionRepository = {
     val submissionRepositoryMock = mock[SubmissionRepository]
 
-    when(submissionRepositoryMock.findByEori(any())).thenReturn(Future.successful(Seq.empty))
-    when(submissionRepositoryMock.findByConversationId(any())).thenReturn(Future.successful(None))
+    when(submissionRepositoryMock.findBy(any())).thenReturn(Future.successful(Seq.empty))
     when(submissionRepositoryMock.insert(any())(any()))
       .thenReturn(Future.failed(GenericDatabaseException("ERROR", None)))
 

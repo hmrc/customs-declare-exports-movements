@@ -20,7 +20,7 @@ import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito.{verify, when}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.time.{Millis, Seconds, Span}
-import org.scalatest.{MustMatchers, WordSpec}
+import org.scalatest.{MustMatchers, OptionValues, WordSpec}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.Helpers._
 import uk.gov.hmrc.exports.movements.exceptions.CustomsInventoryLinkingUpstreamException
@@ -28,6 +28,7 @@ import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
 import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationType.SHUT_MUCR
 import uk.gov.hmrc.exports.movements.models.notifications.UcrBlock
 import uk.gov.hmrc.exports.movements.models.submissions.{ActionType, Submission, SubmissionFactory}
+import uk.gov.hmrc.exports.movements.repositories.QueryParameters
 import uk.gov.hmrc.exports.movements.services.{ILEMapper, SubmissionService, WCOMapper}
 import uk.gov.hmrc.http.HeaderCarrier
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
@@ -37,7 +38,7 @@ import utils.testdata.MovementsTestData._
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures with MustMatchers {
+class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures with MustMatchers with OptionValues {
 
   implicit val defaultPatience: PatienceConfig =
     PatienceConfig(timeout = Span(5, Seconds), interval = Span(10, Millis))
@@ -62,7 +63,13 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
 
     "successfully submit movement" in new Test {
       val arrivalSubmission =
-        Submission(eori = validEori, conversationId = conversationId, ucrBlocks = Seq(UcrBlock(ucr, "D")), actionType = ActionType.Arrival)
+        Submission(
+          eori = validEori,
+          providerId = None,
+          conversationId = conversationId,
+          ucrBlocks = Seq(UcrBlock(ucr, "D")),
+          actionType = ActionType.Arrival
+        )
 
       when(wcoMapperMock.generateInventoryLinkingMovementRequestXml(any())).thenReturn(exampleArrivalRequestXML)
       when(customsInventoryLinkingExportsConnectorMock.sendInventoryLinkingRequest(any(), any())(any()))
@@ -100,7 +107,8 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
 
     "successfully submit consolidation" in new Test {
 
-      val shutMucrSubmission = Submission(eori = validEori, conversationId = conversationId, ucrBlocks = Seq.empty, actionType = ActionType.ShutMucr)
+      val shutMucrSubmission =
+        Submission(eori = validEori, providerId = None, conversationId = conversationId, ucrBlocks = Seq.empty, actionType = ActionType.ShutMucr)
 
       when(ileMapperMock.generateConsolidationXml(any())).thenReturn(exampleShutMucrConsolidationRequestXML)
       when(customsInventoryLinkingExportsConnectorMock.sendInventoryLinkingRequest(any(), any())(any()))
@@ -133,51 +141,50 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
     }
   }
 
-  "SubmissionService on getSubmissionsByEori" should {
+  "SubmissionService on getSubmissions" should {
 
-    "call SubmissionRepository, passing conversationId provided" in new Test {
+    "call SubmissionRepository, passing query parameters provided" in new Test {
 
-      submissionService.getSubmissionsByEori(validEori).futureValue
+      val queryParameters = QueryParameters(eori = Some(validEori), providerId = Some(validProviderId), conversationId = Some(conversationId))
+      submissionService.getSubmissions(queryParameters)
 
-      verify(submissionRepositoryMock).findByEori(meq(validEori))
+      verify(submissionRepositoryMock).findBy(meq(queryParameters))
     }
 
     "return result of calling SubmissionRepository" in new Test {
-
       val expectedSubmissions = Seq(
         exampleSubmission(),
         exampleSubmission(conversationId = conversationId_2),
         exampleSubmission(conversationId = conversationId_3),
         exampleSubmission(conversationId = conversationId_4)
       )
-      when(submissionRepositoryMock.findByEori(any[String])).thenReturn(Future.successful(expectedSubmissions))
+      when(submissionRepositoryMock.findBy(any[QueryParameters])).thenReturn(Future.successful(expectedSubmissions))
 
-      val result: Seq[Submission] = submissionService.getSubmissionsByEori(validEori).futureValue
+      val result: Seq[Submission] = submissionService.getSubmissions(QueryParameters()).futureValue
 
       result.length must equal(expectedSubmissions.length)
       result must equal(expectedSubmissions)
     }
   }
 
-  "SubmissionService on getSubmissionByConversationId" should {
+  "SubmissionService on getSingleSubmission" should {
 
-    "call SubmissionRepository, passing conversationId provided" in new Test {
+    "call SubmissionRepository, passing query parameters provided" in new Test {
 
-      submissionService.getSubmissionByConversationId(conversationId).futureValue
+      val queryParameters = QueryParameters(eori = Some(validEori), providerId = Some(validProviderId), conversationId = Some(conversationId))
 
-      verify(submissionRepositoryMock).findByConversationId(meq(conversationId))
+      submissionService.getSingleSubmission(queryParameters)
+
+      verify(submissionRepositoryMock).findBy(meq(queryParameters))
     }
 
     "return result of calling SubmissionRepository" in new Test {
-
       val expectedSubmission = exampleSubmission()
-      when(submissionRepositoryMock.findByConversationId(any[String]))
-        .thenReturn(Future.successful(Some(expectedSubmission)))
+      when(submissionRepositoryMock.findBy(any[QueryParameters])).thenReturn(Future.successful(Seq(expectedSubmission)))
 
-      val result: Option[Submission] = submissionService.getSubmissionByConversationId(conversationId).futureValue
+      val result: Option[Submission] = submissionService.getSingleSubmission(QueryParameters()).futureValue
 
-      result must be(defined)
-      result.get must equal(expectedSubmission)
+      result.value mustBe expectedSubmission
     }
   }
 

@@ -56,7 +56,7 @@ class AuthenticatedControllerSpec extends CustomsExportsBaseSpec {
     "return 202 status when a valid request with Enrollments is processed" in {
       withAuthorizedUser()
       withConnectorCall(CustomsInventoryLinkingResponse(ACCEPTED, Some(UUID.randomUUID().toString)))
-      when(mockMovementsRepository.insert(any[Submission])(any()))
+      when(mockSubmissionRepository.insert(any[Submission])(any()))
         .thenReturn(Future.successful(UnitTestMockBuilder.dummyWriteResultSuccess))
 
       val result = route(app, fakeJsonRequestWithHeaders).get
@@ -67,7 +67,7 @@ class AuthenticatedControllerSpec extends CustomsExportsBaseSpec {
     "pass error to framework when there is a problem with the service" in {
       withAuthorizedUser()
       withConnectorCall(CustomsInventoryLinkingResponse(ACCEPTED, Some(UUID.randomUUID().toString)))
-      when(mockMovementsRepository.insert(any[Submission])(any()))
+      when(mockSubmissionRepository.insert(any[Submission])(any()))
         .thenReturn(Future.failed(GenericDatabaseException("Problem with DB", None)))
 
       an[Exception] mustBe thrownBy {

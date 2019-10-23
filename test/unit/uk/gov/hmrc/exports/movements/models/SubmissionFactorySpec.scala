@@ -46,6 +46,7 @@ class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar
 
         val expectedSubmission = Submission(
           eori = validEori,
+          providerId = None,
           conversationId = conversationId,
           actionType = ActionType.Arrival,
           ucrBlocks = Seq(UcrBlock(ucr = ucr, ucrType = "D"))
@@ -62,6 +63,7 @@ class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar
 
         val expectedSubmission = Submission(
           eori = validEori,
+          providerId = None,
           conversationId = conversationId,
           actionType = ActionType.Departure,
           ucrBlocks = Seq(UcrBlock(ucr = ucr, ucrType = "D"))
@@ -77,6 +79,7 @@ class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar
 
         val expectedSubmission = Submission(
           eori = validEori,
+          providerId = None,
           conversationId = conversationId,
           actionType = ActionType.DucrAssociation,
           ucrBlocks = Seq(UcrBlock(ucr = ucr_2, ucrType = "M"), UcrBlock(ucr = ucr, ucrType = "D"))
@@ -92,6 +95,7 @@ class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar
 
         val expectedSubmission = Submission(
           eori = validEori,
+          providerId = None,
           conversationId = conversationId,
           actionType = ActionType.MucrAssociation,
           ucrBlocks = Seq(UcrBlock(ucr = ucr_2, ucrType = "M"), UcrBlock(ucr = ucr, ucrType = "M"))
@@ -107,6 +111,7 @@ class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar
 
         val expectedSubmission = Submission(
           eori = validEori,
+          providerId = None,
           conversationId = conversationId,
           actionType = ActionType.DucrDisassociation,
           ucrBlocks = Seq(UcrBlock(ucr = ucr, ucrType = "D"))
@@ -122,6 +127,7 @@ class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar
 
         val expectedSubmission = Submission(
           eori = validEori,
+          providerId = None,
           conversationId = conversationId,
           actionType = ActionType.MucrDisassociation,
           ucrBlocks = Seq(UcrBlock(ucr = ucr, ucrType = "M"))
@@ -136,6 +142,7 @@ class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar
 
         val expectedSubmission = Submission(
           eori = validEori,
+          providerId = None,
           conversationId = conversationId,
           actionType = ActionType.ShutMucr,
           ucrBlocks = Seq(UcrBlock(ucr = ucr_2, ucrType = "M"))

@@ -14,24 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.exports.movements.models.submissions
+package uk.gov.hmrc.exports.movements.repositories
 
-import java.time.Instant
-import java.util.UUID
+import play.api.libs.json.{Json, OFormat}
 
-import play.api.libs.json._
-import uk.gov.hmrc.exports.movements.models.notifications.UcrBlock
-
-case class Submission(
-  uuid: String = UUID.randomUUID().toString,
-  eori: String,
-  providerId: Option[String],
-  conversationId: String,
-  ucrBlocks: Seq[UcrBlock],
-  actionType: ActionType,
-  requestTimestamp: Instant = Instant.now()
-)
-
-object Submission {
-  implicit val formats = Json.format[Submission]
+object QueryParameters {
+  implicit val format: OFormat[QueryParameters] = Json.format[QueryParameters]
 }
+
+case class QueryParameters(eori: Option[String] = None, providerId: Option[String] = None, conversationId: Option[String] = None)

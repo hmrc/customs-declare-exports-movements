@@ -17,10 +17,13 @@
 package uk.gov.hmrc.exports.movements.repositories
 
 import javax.inject.{Inject, Singleton}
-import play.api.libs.json.JsString
+import play.api.libs.json.{JsObject, Json}
 import play.modules.reactivemongo.ReactiveMongoComponent
+import reactivemongo.api.Cursor.FailOnError
+import reactivemongo.api.ReadPreference
 import reactivemongo.api.indexes.{Index, IndexType}
 import reactivemongo.bson.BSONObjectID
+import reactivemongo.play.json.ImplicitBSONHandlers
 import uk.gov.hmrc.exports.movements.models.submissions.Submission
 import uk.gov.hmrc.mongo.ReactiveRepository
 
@@ -32,12 +35,16 @@ class SubmissionRepository @Inject()(implicit mc: ReactiveMongoComponent, ec: Ex
 
   override def indexes: Seq[Index] = Seq(
     Index(Seq("eori" -> IndexType.Ascending), name = Some("eoriIdx")),
+    Index(Seq("providerId" -> IndexType.Ascending), name = Some("providerIdIdx")),
     Index(Seq("conversationId" -> IndexType.Ascending), unique = true, name = Some("conversationIdIdx"))
   )
 
-  def findByEori(eori: String): Future[Seq[Submission]] = find("eori" -> JsString(eori))
-
-  def findByConversationId(conversationId: String): Future[Option[Submission]] =
-    find("conversationId" -> JsString(conversationId)).map(_.headOption)
+  def findBy(queryParameters: QueryParameters): Future[Seq[Submission]] = {
+    val query = Json.toJson(queryParameters).as[JsObject]
+    collection
+      .find(query, projection = None)(ImplicitBSONHandlers.JsObjectDocumentWriter, ImplicitBSONHandlers.JsObjectDocumentWriter)
+      .cursor[Submission](ReadPreference.primaryPreferred)
+      .collect(maxDocs = -1, FailOnError[Seq[Submission]]())
+  }
 
 }

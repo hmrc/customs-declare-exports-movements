@@ -103,15 +103,22 @@ object MovementsTestData {
 
   def exampleSubmission(
     eori: String = validEori,
+    providerId: Option[String] = None,
     conversationId: String = conversationId,
     ucr: String = randomUcr,
     ucrType: String = "D",
     actionType: ActionType = ActionType.Arrival
   ): Submission =
-    Submission(eori = eori, conversationId = conversationId, ucrBlocks = Seq(UcrBlockModel(ucr = ucr, ucrType = ucrType)), actionType = actionType)
+    Submission(
+      eori = eori,
+      providerId = providerId,
+      conversationId = conversationId,
+      ucrBlocks = Seq(UcrBlockModel(ucr = ucr, ucrType = ucrType)),
+      actionType = actionType
+    )
 
   def emptySubmission: Submission =
-    Submission(uuid = "", eori = "", conversationId = "", ucrBlocks = Seq.empty, actionType = ActionType.Arrival)
+    Submission(uuid = "", eori = "", providerId = None, conversationId = "", ucrBlocks = Seq.empty, actionType = ActionType.Arrival)
 
   def validInventoryLinkingExportRequest = InventoryLinkingMovementRequest(
     messageCode = "11",

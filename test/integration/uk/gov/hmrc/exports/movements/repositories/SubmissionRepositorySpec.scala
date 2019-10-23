@@ -25,8 +25,8 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.JsString
 import reactivemongo.core.errors.DatabaseException
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType
-import uk.gov.hmrc.exports.movements.repositories.SubmissionRepository
-import utils.testdata.CommonTestData._
+import uk.gov.hmrc.exports.movements.repositories.{QueryParameters, SubmissionRepository}
+import utils.testdata.CommonTestData.{conversationId, _}
 import utils.testdata.MovementsTestData._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -92,75 +92,235 @@ class SubmissionRepositorySpec
     }
   }
 
-  "SubmissionRepository on findByEori" when {
+  "SubmissionRepository on findBy" when {
 
-    "there is no Submission with given EORI" should {
-      "return empty list" in {
-        repo.findByEori(validEori).futureValue must equal(Seq.empty)
+    "querying by EORI only" when {
+
+      "there is no Submission with given EORI" should {
+        "return empty list" in {
+          val query = QueryParameters(eori = Some(validEori))
+
+          repo.findBy(query).futureValue mustBe Seq.empty
+        }
+      }
+
+      "there is single Submission with given EORI" should {
+        "return this Submission only" in {
+          val submission = exampleSubmission(eori = validEori)
+          repo.insert(submission).futureValue.ok must be(true)
+
+          val query = QueryParameters(eori = Some(validEori))
+
+          val foundSubmissions = repo.findBy(query).futureValue
+
+          foundSubmissions.length mustBe 1
+          foundSubmissions.head mustBe submission
+        }
+      }
+
+      "there are multiple Submissions with given EORI" should {
+        "return all the Submissions" in {
+          val submission =
+            exampleSubmission(eori = validEori, conversationId = conversationId, actionType = ActionType.Arrival)
+          val submission_2 =
+            exampleSubmission(eori = validEori, conversationId = conversationId_2, actionType = ActionType.Departure)
+          val submission_3 =
+            exampleSubmission(eori = validEori, conversationId = conversationId_3, actionType = ActionType.ShutMucr)
+          val submission_4 =
+            exampleSubmission(eori = validEori, conversationId = conversationId_4, actionType = ActionType.DucrAssociation)
+          val submission_5 =
+            exampleSubmission(eori = validEori, conversationId = conversationId_5, actionType = ActionType.DucrDisassociation)
+          repo.insert(submission).futureValue.ok must be(true)
+          repo.insert(submission_2).futureValue.ok must be(true)
+          repo.insert(submission_3).futureValue.ok must be(true)
+          repo.insert(submission_4).futureValue.ok must be(true)
+          repo.insert(submission_5).futureValue.ok must be(true)
+
+          val query = QueryParameters(eori = Some(validEori))
+
+          val foundSubmissions = repo.findBy(query).futureValue
+
+          foundSubmissions.length must equal(5)
+          foundSubmissions must contain(submission)
+          foundSubmissions must contain(submission_2)
+          foundSubmissions must contain(submission_3)
+          foundSubmissions must contain(submission_4)
+          foundSubmissions must contain(submission_5)
+        }
       }
     }
 
-    "there is single Submission with given EORI" should {
-      "return this Submission only" in {
-        val submission = exampleSubmission(eori = validEori)
-        repo.insert(submission).futureValue.ok must be(true)
+    "querying by Provider ID only" when {
 
-        val foundSubmissions = repo.findByEori(validEori).futureValue
+      "there is no Submission with given Provider ID" should {
+        "return empty list" in {
+          val query = QueryParameters(providerId = Some(validProviderId))
 
-        foundSubmissions.length must equal(1)
-        foundSubmissions.head must equal(submission)
+          repo.findBy(query).futureValue mustBe Seq.empty
+        }
+      }
+
+      "there is single Submission with given Provider ID" should {
+        "return this Submission only" in {
+          val submission = exampleSubmission(providerId = Some(validProviderId))
+          repo.insert(submission).futureValue.ok must be(true)
+
+          val query = QueryParameters(providerId = Some(validProviderId))
+
+          val foundSubmissions = repo.findBy(query).futureValue
+
+          foundSubmissions.length mustBe 1
+          foundSubmissions.head mustBe submission
+        }
+      }
+
+      "there are multiple Submissions with given Provider ID" should {
+        "return all the Submissions" in {
+          val submission =
+            exampleSubmission(providerId = Some(validProviderId), conversationId = conversationId, actionType = ActionType.Arrival)
+          val submission_2 =
+            exampleSubmission(providerId = Some(validProviderId), conversationId = conversationId_2, actionType = ActionType.Departure)
+          val submission_3 =
+            exampleSubmission(providerId = Some(validProviderId), conversationId = conversationId_3, actionType = ActionType.ShutMucr)
+          val submission_4 =
+            exampleSubmission(providerId = Some(validProviderId), conversationId = conversationId_4, actionType = ActionType.DucrAssociation)
+          val submission_5 =
+            exampleSubmission(providerId = Some(validProviderId), conversationId = conversationId_5, actionType = ActionType.DucrDisassociation)
+          repo.insert(submission).futureValue.ok must be(true)
+          repo.insert(submission_2).futureValue.ok must be(true)
+          repo.insert(submission_3).futureValue.ok must be(true)
+          repo.insert(submission_4).futureValue.ok must be(true)
+          repo.insert(submission_5).futureValue.ok must be(true)
+
+          val query = QueryParameters(providerId = Some(validProviderId))
+
+          val foundSubmissions = repo.findBy(query).futureValue
+
+          foundSubmissions.length must equal(5)
+          foundSubmissions must contain(submission)
+          foundSubmissions must contain(submission_2)
+          foundSubmissions must contain(submission_3)
+          foundSubmissions must contain(submission_4)
+          foundSubmissions must contain(submission_5)
+        }
       }
     }
 
-    "there are multiple Submissions with given EORI" should {
-      "return all the Submissions" in {
-        val submission =
-          exampleSubmission(eori = validEori, conversationId = conversationId, actionType = ActionType.Arrival)
-        val submission_2 =
-          exampleSubmission(eori = validEori, conversationId = conversationId_2, actionType = ActionType.Departure)
-        val submission_3 =
-          exampleSubmission(eori = validEori, conversationId = conversationId_3, actionType = ActionType.ShutMucr)
-        val submission_4 =
-          exampleSubmission(eori = validEori, conversationId = conversationId_4, actionType = ActionType.DucrAssociation)
-        val submission_5 =
-          exampleSubmission(eori = validEori, conversationId = conversationId_5, actionType = ActionType.DucrDisassociation)
-        repo.insert(submission).futureValue.ok must be(true)
-        repo.insert(submission_2).futureValue.ok must be(true)
-        repo.insert(submission_3).futureValue.ok must be(true)
-        repo.insert(submission_4).futureValue.ok must be(true)
-        repo.insert(submission_5).futureValue.ok must be(true)
+    "querying by Conversation ID only" when {
 
-        val foundSubmissions = repo.findByEori(validEori).futureValue
+      "there is no Submission with given Conversation ID" should {
+        "return empty list" in {
+          val query = QueryParameters(conversationId = Some(conversationId))
 
-        foundSubmissions.length must equal(5)
-        foundSubmissions must contain(submission)
-        foundSubmissions must contain(submission_2)
-        foundSubmissions must contain(submission_3)
-        foundSubmissions must contain(submission_4)
-        foundSubmissions must contain(submission_5)
+          repo.findBy(query).futureValue mustBe Seq.empty
+        }
       }
-    }
-  }
 
-  "SubmissionRepository on findByConversationId" when {
+      "there is single Submission with given Conversation ID" should {
+        "return this Submission" in {
+          val submission = exampleSubmission(conversationId = conversationId)
+          repo.insert(submission).futureValue.ok must be(true)
 
-    "there is no Submission with given conversationId" should {
-      "return empty Option" in {
-        repo.findByConversationId(conversationId).futureValue must equal(None)
+          val query = QueryParameters(conversationId = Some(conversationId))
+
+          val foundSubmissions = repo.findBy(query).futureValue
+
+          foundSubmissions.length mustBe 1
+          foundSubmissions.head mustBe submission
+        }
       }
     }
 
-    "there is single Submission with given conversationId" should {
-      "return this Submission" in {
-        val submission = exampleSubmission(conversationId = conversationId)
-        repo.insert(submission).futureValue.ok must be(true)
+    "querying by EORI and Conversation ID" should {
 
-        val foundSubmissions = repo.findByConversationId(conversationId).futureValue
+      "return empty list" when {
 
-        foundSubmissions must be(defined)
-        foundSubmissions.get must equal(submission)
+        "there is no Submission with given EORI and Conversation ID" in {
+          val query = QueryParameters(eori = Some(validEori), conversationId = Some(conversationId))
+
+          repo.findBy(query).futureValue mustBe Seq.empty
+        }
+
+        "there is Submission with given EORI but not Conversation ID" in {
+          val submission = exampleSubmission(eori = validEori, conversationId = conversationId_2)
+          repo.insert(submission).futureValue.ok must be(true)
+
+          val query = QueryParameters(eori = Some(validEori), conversationId = Some(conversationId))
+
+          repo.findBy(query).futureValue mustBe Seq.empty
+        }
+
+        "there is Submission with given Conversation ID but not EORI" in {
+          val submission = exampleSubmission(eori = validEori_2, conversationId = conversationId)
+          repo.insert(submission).futureValue.ok must be(true)
+
+          val query = QueryParameters(eori = Some(validEori), conversationId = Some(conversationId))
+
+          repo.findBy(query).futureValue mustBe Seq.empty
+        }
+      }
+
+      "return single-element list with Submission" when {
+
+        "there is single Submission with given EORI and Conversation ID" in {
+          val submission = exampleSubmission(eori = validEori, conversationId = conversationId)
+          repo.insert(submission).futureValue.ok must be(true)
+
+          val query = QueryParameters(eori = Some(validEori), conversationId = Some(conversationId))
+
+          val foundSubmissions = repo.findBy(query).futureValue
+
+          foundSubmissions.length mustBe 1
+          foundSubmissions.head mustBe submission
+        }
       }
     }
+
+    "querying by Provider ID and Conversation ID" should {
+
+      "return empty list" when {
+
+        "there is no Submission with given Provider ID and Conversation ID" in {
+          val query = QueryParameters(providerId = Some(validProviderId), conversationId = Some(conversationId))
+
+          repo.findBy(query).futureValue mustBe Seq.empty
+        }
+
+        "there is Submission with given Provider ID but not Conversation ID" in {
+          val submission = exampleSubmission(providerId = Some(validProviderId), conversationId = conversationId_2)
+          repo.insert(submission).futureValue.ok must be(true)
+
+          val query = QueryParameters(providerId = Some(validProviderId), conversationId = Some(conversationId))
+
+          repo.findBy(query).futureValue mustBe Seq.empty
+        }
+
+        "there is Submission with given Conversation ID but not Provider ID" in {
+          val submission = exampleSubmission(providerId = Some(validProviderId_2), conversationId = conversationId)
+          repo.insert(submission).futureValue.ok must be(true)
+
+          val query = QueryParameters(providerId = Some(validProviderId), conversationId = Some(conversationId))
+
+          repo.findBy(query).futureValue mustBe Seq.empty
+        }
+      }
+
+      "return single-element list with Submission" when {
+
+        "there is single Submission with given Provider ID and Conversation ID" in {
+          val submission = exampleSubmission(providerId = Some(validProviderId), conversationId = conversationId)
+          repo.insert(submission).futureValue.ok must be(true)
+
+          val query = QueryParameters(providerId = Some(validProviderId), conversationId = Some(conversationId))
+
+          val foundSubmissions = repo.findBy(query).futureValue
+
+          foundSubmissions.length mustBe 1
+          foundSubmissions.head mustBe submission
+        }
+      }
+    }
+
   }
 
 }

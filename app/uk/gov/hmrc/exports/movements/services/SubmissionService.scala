@@ -24,7 +24,7 @@ import uk.gov.hmrc.exports.movements.exceptions.CustomsInventoryLinkingUpstreamE
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
 import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation
 import uk.gov.hmrc.exports.movements.models.submissions.{Submission, SubmissionFactory}
-import uk.gov.hmrc.exports.movements.repositories.SubmissionRepository
+import uk.gov.hmrc.exports.movements.repositories.{QueryParameters, SubmissionRepository}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -78,8 +78,10 @@ class SubmissionService @Inject()(
     }
   }
 
-  def getSubmissionsByEori(eori: String): Future[Seq[Submission]] = submissionRepository.findByEori(eori)
+  def getSubmissions(queryParameters: QueryParameters): Future[Seq[Submission]] =
+    submissionRepository.findBy(queryParameters)
 
-  def getSubmissionByConversationId(conversationId: String): Future[Option[Submission]] =
-    submissionRepository.findByConversationId(conversationId)
+  def getSingleSubmission(queryParameters: QueryParameters): Future[Option[Submission]] =
+    submissionRepository.findBy(queryParameters).map(_.headOption)
+
 }
