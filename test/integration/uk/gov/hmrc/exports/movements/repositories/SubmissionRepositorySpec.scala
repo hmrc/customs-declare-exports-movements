@@ -321,6 +321,18 @@ class SubmissionRepositorySpec
       }
     }
 
+    "querying with empty SearchParameters" should {
+
+      "return empty list" in {
+        val submission = exampleSubmission(providerId = Some(validProviderId), conversationId = conversationId)
+        repo.insert(submission).futureValue.ok must be(true)
+
+        val query = SearchParameters(None, None, None)
+
+        repo.findBy(query).futureValue mustBe Seq.empty
+      }
+    }
+
   }
 
 }

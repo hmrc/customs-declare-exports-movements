@@ -39,7 +39,10 @@ class SubmissionRepository @Inject()(implicit mc: ReactiveMongoComponent, ec: Ex
     Index(Seq("conversationId" -> IndexType.Ascending), unique = true, name = Some("conversationIdIdx"))
   )
 
-  def findBy(searchParameters: SearchParameters): Future[Seq[Submission]] = {
+  def findBy(searchParameters: SearchParameters): Future[Seq[Submission]] =
+    if (searchParameters.isEmpty) Future.successful(Seq.empty) else findSubmissions(searchParameters)
+
+  private def findSubmissions(searchParameters: SearchParameters): Future[Seq[Submission]] = {
     val query = Json.toJson(searchParameters).as[JsObject]
     collection
       .find(query, projection = None)(ImplicitBSONHandlers.JsObjectDocumentWriter, ImplicitBSONHandlers.JsObjectDocumentWriter)
