@@ -33,7 +33,7 @@ import utils.testdata.CommonTestData._
 import scala.concurrent.ExecutionContext.global
 import scala.concurrent.Future
 
-class MovementsControllerUnitSpec extends UnitSpec with MockitoSugar with BeforeAndAfterEach {
+class MovementsControllerSpec extends UnitSpec with MockitoSugar with BeforeAndAfterEach {
 
   val submissionServiceMock = mock[SubmissionService]
 

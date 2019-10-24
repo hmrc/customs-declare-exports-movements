@@ -18,100 +18,87 @@ package unit.uk.gov.hmrc.exports.movements.controllers
 
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito
-import org.mockito.Mockito.{reset, when}
+import org.mockito.Mockito.when
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{BeforeAndAfterEach, MustMatchers, WordSpec}
+import org.scalatest.{MustMatchers, WordSpec}
 import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.Application
-import play.api.inject.bind
-import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
-import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.{GET, OK, contentAsJson, status, stubControllerComponents, _}
+import uk.gov.hmrc.exports.movements.controllers.SubmissionController
 import uk.gov.hmrc.exports.movements.models.submissions.SubmissionFrontendModel
 import uk.gov.hmrc.exports.movements.repositories.SearchParameters
 import uk.gov.hmrc.exports.movements.services.SubmissionService
 import utils.testdata.CommonTestData._
-import utils.testdata.MovementsTestData._
+import utils.testdata.MovementsTestData.exampleSubmission
+import utils.testdata.notifications.NotificationTestData.validHeaders
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-class SubmissionControllerSpec
-    extends WordSpec with GuiceOneAppPerSuite with BeforeAndAfterEach with ScalaFutures with MustMatchers with MockitoSugar {
+class SubmissionControllerSpec extends WordSpec with MustMatchers with MockitoSugar with ScalaFutures {
 
-  override lazy val app: Application = GuiceApplicationBuilder()
-    .overrides(bind[SubmissionService].to(submissionServiceMock))
-    .build()
+  private val requestGet = FakeRequest(GET, "").withHeaders(validHeaders.toSeq: _*)
 
-  private val submissionServiceMock = mock[SubmissionService]
-  override def beforeEach(): Unit = {
-    super.beforeEach()
-    reset(submissionServiceMock)
+  private trait Test {
+    val submissionService = mock[SubmissionService]
+
+    val controller = new SubmissionController(submissionService, stubControllerComponents())(ExecutionContext.global)
   }
-
-  private def getAllSubmissionsUri = s"/submissions?eori=$validEori"
-
-  private def getSubmissionUri(conversationId: String) = s"/submissions/$conversationId?eori=$validEori"
-
-  private def routeGet(headers: Map[String, String] = ValidHeaders, uri: String): Future[Result] =
-    route(app, FakeRequest(GET, uri).withHeaders(headers.toSeq: _*)).get
 
   "SubmissionController on getAllSubmissions" should {
 
-    "call SubmissionService" in {
-      when(submissionServiceMock.getSubmissions(any[SearchParameters])).thenReturn(Future.successful(Seq.empty))
+    "call SubmissionService" in new Test {
+      when(submissionService.getSubmissions(any[SearchParameters])).thenReturn(Future.successful(Seq.empty))
 
-      routeGet(uri = getAllSubmissionsUri).futureValue
+      controller.getAllSubmissions(Some(validEori), Some(validProviderId))(requestGet)
 
-      Mockito.verify(submissionServiceMock).getSubmissions(any[SearchParameters])
+      Mockito.verify(submissionService).getSubmissions(any[SearchParameters])
     }
 
-    "return Ok status" in {
-      when(submissionServiceMock.getSubmissions(any[SearchParameters])).thenReturn(Future.successful(Seq.empty))
+    "return Ok status" in new Test {
+      when(submissionService.getSubmissions(any[SearchParameters])).thenReturn(Future.successful(Seq.empty))
 
-      val result = routeGet(uri = getAllSubmissionsUri)
+      val result = controller.getAllSubmissions(Some(validEori), Some(validProviderId))(requestGet)
 
-      status(result) must be(OK)
+      status(result) mustBe OK
     }
 
-    "return what SubmissionService returns in the body" in {
+    "return what SubmissionService returns in the body" in new Test {
       val serviceResponseContent =
         Seq(exampleSubmission(), exampleSubmission(conversationId = conversationId_2), exampleSubmission(conversationId = conversationId_3))
           .map(SubmissionFrontendModel(_))
-      when(submissionServiceMock.getSubmissions(any[SearchParameters])).thenReturn(Future.successful(serviceResponseContent))
+      when(submissionService.getSubmissions(any[SearchParameters])).thenReturn(Future.successful(serviceResponseContent))
 
-      val result = routeGet(uri = getAllSubmissionsUri)
+      val result = controller.getAllSubmissions(Some(validEori), Some(validProviderId))(requestGet)
 
-      status(result) must be(OK)
-      contentAsJson(result) must equal(Json.toJson(serviceResponseContent))
+      status(result) mustBe OK
+      contentAsJson(result) mustBe Json.toJson(serviceResponseContent)
     }
   }
 
-  "SubmissionController on getSubmission" should {
+  "SubmissionController on getSingleSubmission" should {
 
-    "call SubmissionService" in {
-      when(submissionServiceMock.getSingleSubmission(any[SearchParameters])).thenReturn(Future.successful(None))
+    "call SubmissionService" in new Test {
+      when(submissionService.getSingleSubmission(any[SearchParameters])).thenReturn(Future.successful(None))
 
-      routeGet(uri = getSubmissionUri(conversationId)).futureValue
+      controller.getSubmission(Some(validEori), Some(validProviderId), conversationId)(requestGet)
 
-      Mockito.verify(submissionServiceMock).getSingleSubmission(any[SearchParameters])
+      Mockito.verify(submissionService).getSingleSubmission(any[SearchParameters])
     }
 
-    "return Ok status" in {
-      when(submissionServiceMock.getSingleSubmission(any[SearchParameters])).thenReturn(Future.successful(None))
+    "return Ok status" in new Test {
+      when(submissionService.getSingleSubmission(any[SearchParameters])).thenReturn(Future.successful(None))
 
-      val result = routeGet(uri = getSubmissionUri(conversationId))
+      val result = controller.getSubmission(Some(validEori), Some(validProviderId), conversationId)(requestGet)
 
       status(result) must be(OK)
     }
 
-    "return what SubmissionService returns in the body" in {
+    "return what SubmissionService returns in the body" in new Test {
       val serviceResponseContent = Some(SubmissionFrontendModel(exampleSubmission()))
-      when(submissionServiceMock.getSingleSubmission(any[SearchParameters])).thenReturn(Future.successful(serviceResponseContent))
+      when(submissionService.getSingleSubmission(any[SearchParameters])).thenReturn(Future.successful(serviceResponseContent))
 
-      val result = routeGet(uri = getSubmissionUri(conversationId))
+      val result = controller.getSubmission(Some(validEori), Some(validProviderId), conversationId)(requestGet)
 
       status(result) must be(OK)
       contentAsJson(result) must equal(Json.toJson(serviceResponseContent))
