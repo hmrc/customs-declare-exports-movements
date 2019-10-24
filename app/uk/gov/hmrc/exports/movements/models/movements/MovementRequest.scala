@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.exports.movements.controllers.request
+package uk.gov.hmrc.exports.movements.models.movements
 
 import play.api.libs.json.Json
-import uk.gov.hmrc.exports.movements.models.movements._
+import uk.gov.hmrc.exports.movements.controllers.util.JSONResponses
 
 case class MovementRequest(
+  eori: String,
+  providerId: Option[String] = None,
   choice: String,
   consignmentReference: ConsignmentReference,
   movementDetails: MovementDetails,
@@ -28,7 +30,6 @@ case class MovementRequest(
   transport: Option[Transport] = None
 )
 
-object MovementRequest {
-
+object MovementRequest extends JSONResponses {
   implicit val format = Json.format[MovementRequest]
 }

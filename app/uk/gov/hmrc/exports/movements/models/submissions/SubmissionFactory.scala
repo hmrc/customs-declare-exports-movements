@@ -17,9 +17,9 @@
 package uk.gov.hmrc.exports.movements.models.submissions
 
 import javax.inject.Singleton
-import uk.gov.hmrc.exports.movements.controllers.request.MovementRequest
 import uk.gov.hmrc.exports.movements.models.XmlTags
 import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationType.ConsolidationType
+import uk.gov.hmrc.exports.movements.models.movements.MovementRequest
 import uk.gov.hmrc.exports.movements.models.notifications.UcrBlock
 
 import scala.xml.{Node, NodeSeq}
@@ -27,19 +27,31 @@ import scala.xml.{Node, NodeSeq}
 @Singleton
 class SubmissionFactory {
 
-  def buildMovementSubmission(eori: String, conversationId: String, requestXml: Node, movementRequest: MovementRequest): Submission =
+  def buildMovementSubmission(
+    eori: String,
+    providerId: Option[String] = None,
+    conversationId: String,
+    requestXml: Node,
+    movementRequest: MovementRequest
+  ): Submission =
     Submission(
       eori = eori,
-      providerId = None,
+      providerId = providerId,
       conversationId = conversationId,
       ucrBlocks = extractUcrListFrom(requestXml),
       actionType = ActionType(movementRequest)
     )
 
-  def buildConsolidationSubmission(eori: String, conversationId: String, requestXml: Node, consolidationType: ConsolidationType): Submission =
+  def buildConsolidationSubmission(
+    eori: String,
+    providerId: Option[String] = None,
+    conversationId: String,
+    requestXml: Node,
+    consolidationType: ConsolidationType
+  ): Submission =
     Submission(
       eori = eori,
-      providerId = None,
+      providerId = providerId,
       conversationId = conversationId,
       ucrBlocks = extractUcrListFrom(requestXml),
       actionType = ActionType(consolidationType)

@@ -18,8 +18,7 @@ package utils.testdata
 
 import org.joda.time.{DateTime, DateTimeZone}
 import play.api.libs.json.{JsValue, Json}
-import uk.gov.hmrc.exports.movements.controllers.request.MovementRequest
-import uk.gov.hmrc.exports.movements.models.movements._
+import uk.gov.hmrc.exports.movements.models.movements.{MovementRequest, _}
 import uk.gov.hmrc.exports.movements.models.notifications.{UcrBlock => UcrBlockModel}
 import uk.gov.hmrc.exports.movements.models.submissions.{ActionType, Submission}
 import uk.gov.hmrc.wco.dec.inventorylinking.common.{AgentDetails, TransportDetails, UcrBlock}
@@ -52,6 +51,8 @@ object MovementsTestData {
     }
 
   val exampleArrivalRequest = MovementRequest(
+    eori = validEori,
+    providerId = Some(validProviderId),
     choice = "EAL",
     consignmentReference = ConsignmentReference("D", "7GB123456789000-123ABC456DEFQWERT"),
     movementDetails = MovementDetails("2019-07-12T13:14:54.000Z"),
@@ -82,6 +83,8 @@ object MovementsTestData {
     }
 
   val exampleDepartureRequest: MovementRequest = MovementRequest(
+    eori = validEori,
+    providerId = Some(validProviderId),
     choice = "EDL",
     consignmentReference = ConsignmentReference("D", "7GB123456789000-123ABC456DEFQWERT"),
     movementDetails = MovementDetails("2019-07-12T13:14:54.000Z"),
@@ -92,6 +95,7 @@ object MovementsTestData {
 
   val exampleDepartureRequestJson: JsValue = Json.toJson(
     MovementRequest(
+      eori = validEori,
       choice = "EDL",
       consignmentReference = ConsignmentReference("D", "7GB123456789000-123ABC456DEFQWERT"),
       movementDetails = MovementDetails("2019-07-12T13:14:54.000Z"),

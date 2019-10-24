@@ -18,53 +18,63 @@ package unit.uk.gov.hmrc.exports.movements.controllers
 
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}
-import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{BeforeAndAfterEach, MustMatchers, WordSpec}
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.Application
-import play.api.inject.bind
-import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.test.FakeRequest
+import org.scalatest.BeforeAndAfterEach
+import org.scalatestplus.mockito.MockitoSugar
+import play.api.mvc.Request
 import play.api.test.Helpers._
-import uk.gov.hmrc.auth.core.AuthConnector
+import play.api.test._
+import uk.gov.hmrc.exports.movements.controllers.MovementsController
+import uk.gov.hmrc.exports.movements.models.movements.{Choice, ConsignmentReference, MovementDetails, MovementRequest}
 import uk.gov.hmrc.exports.movements.services.SubmissionService
-import unit.uk.gov.hmrc.exports.movements.base.AuthTestSupport
-import utils.testdata.CommonTestData.ValidJsonHeaders
-import utils.testdata.MovementsTestData._
+import unit.uk.gov.hmrc.exports.movements.base.UnitSpec
+import utils.FakeRequestCSRFSupport._
+import utils.testdata.CommonTestData._
 
+import scala.concurrent.ExecutionContext.global
 import scala.concurrent.Future
 
-class MovementsControllerSpec
-    extends WordSpec with GuiceOneAppPerSuite with AuthTestSupport with BeforeAndAfterEach with ScalaFutures with MustMatchers {
+class MovementsControllerSpec extends UnitSpec with MockitoSugar with BeforeAndAfterEach {
 
-  override lazy val app: Application = GuiceApplicationBuilder()
-    .overrides(bind[AuthConnector].to(mockAuthConnector), bind[SubmissionService].to(submissionServiceMock))
-    .build()
+  val submissionServiceMock = mock[SubmissionService]
 
-  private val movementsUri = "/movements"
+  val controller =
+    new MovementsController(submissionServiceMock, stubControllerComponents())(global)
 
-  private val submissionServiceMock = mock[SubmissionService]
+  val correctJson = MovementRequest(
+    eori = validEori,
+    choice = Choice.Arrival,
+    consignmentReference = ConsignmentReference("reference", "value"),
+    movementDetails = MovementDetails("dateTime")
+  )
 
-  override def beforeEach(): Unit = {
+  override protected def beforeEach(): Unit =
     super.beforeEach()
-    reset(mockAuthConnector, submissionServiceMock)
+
+  override protected def afterEach(): Unit = {
+    reset(submissionServiceMock)
+
+    super.afterEach()
   }
 
-  "Movement Controller" should {
+  protected def postRequest(body: MovementRequest): Request[MovementRequest] =
+    FakeRequest("POST", "")
+      .withHeaders(JsonContentTypeHeader)
+      .withBody(body)
+      .withCSRFToken
 
-    "return ACCEPTED during posting movement" in {
+  "Consolidation Controller" should {
 
-      withAuthorizedUser()
-      when(submissionServiceMock.submitMovement(any(), any())(any())).thenReturn(Future.successful((): Unit))
+    "return 202 (Accepted)" when {
 
-      val Some(result) = route(
-        app,
-        FakeRequest(POST, movementsUri)
-          .withHeaders(ValidJsonHeaders.toSeq: _*)
-          .withJsonBody(exampleDepartureRequestJson)
-      )
+      "consolidation submission ends with success" in {
 
-      status(result) mustBe ACCEPTED
+        when(submissionServiceMock.submitMovement(any())(any()))
+          .thenReturn(Future.successful((): Unit))
+
+        val result = controller.createMovement()(postRequest(correctJson))
+
+        status(result) shouldBe ACCEPTED
+      }
     }
   }
 }

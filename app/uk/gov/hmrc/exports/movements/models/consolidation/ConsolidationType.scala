@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.exports.movements.repositories
+package uk.gov.hmrc.exports.movements.models.consolidation
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.{Format, Reads, Writes}
+import uk.gov.hmrc.exports.movements.models.consolidation
 
-object QueryParameters {
-  implicit val format: OFormat[QueryParameters] = Json.format[QueryParameters]
+object ConsolidationType extends Enumeration {
+  type ConsolidationType = Value
+
+  val ASSOCIATE_DUCR, DISASSOCIATE_DUCR, ASSOCIATE_MUCR, DISASSOCIATE_MUCR, SHUT_MUCR = Value
+
+  implicit val format: Format[consolidation.ConsolidationType.Value] = Format(Reads.enumNameReads(ConsolidationType), Writes.enumNameWrites)
 }
-
-case class QueryParameters(eori: Option[String] = None, providerId: Option[String] = None, conversationId: Option[String] = None)

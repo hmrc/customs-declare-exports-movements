@@ -19,12 +19,12 @@ package uk.gov.hmrc.exports.movements.services
 import javax.inject.{Inject, Singleton}
 import play.api.http.Status.ACCEPTED
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
-import uk.gov.hmrc.exports.movements.controllers.request.MovementRequest
 import uk.gov.hmrc.exports.movements.exceptions.CustomsInventoryLinkingUpstreamException
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
-import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation
-import uk.gov.hmrc.exports.movements.models.submissions.{Submission, SubmissionFactory}
-import uk.gov.hmrc.exports.movements.repositories.{QueryParameters, SubmissionRepository}
+import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationRequest
+import uk.gov.hmrc.exports.movements.models.movements.MovementRequest
+import uk.gov.hmrc.exports.movements.models.submissions.{SubmissionFactory, SubmissionFrontendModel}
+import uk.gov.hmrc.exports.movements.repositories.{SearchParameters, SubmissionRepository}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -38,13 +38,14 @@ class SubmissionService @Inject()(
   wcoMapper: WCOMapper
 )(implicit executionContext: ExecutionContext) {
 
-  def submitMovement(eori: String, movementRequest: MovementRequest)(implicit hc: HeaderCarrier): Future[Unit] = {
+  def submitMovement(movementRequest: MovementRequest)(implicit hc: HeaderCarrier): Future[Unit] = {
     val requestXml = wcoMapper.generateInventoryLinkingMovementRequestXml(movementRequest)
 
-    customsInventoryLinkingExportsConnector.sendInventoryLinkingRequest(eori, requestXml).flatMap {
+    customsInventoryLinkingExportsConnector.sendInventoryLinkingRequest(movementRequest.eori, requestXml).flatMap {
 
       case CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId)) =>
-        val newSubmission = submissionFactory.buildMovementSubmission(eori, conversationId, requestXml, movementRequest)
+        val newSubmission =
+          submissionFactory.buildMovementSubmission(movementRequest.eori, movementRequest.providerId, conversationId, requestXml, movementRequest)
 
         submissionRepository
           .insert(newSubmission)
@@ -57,15 +58,21 @@ class SubmissionService @Inject()(
     }
   }
 
-  def submitConsolidation(eori: String, consolidation: Consolidation)(implicit hc: HeaderCarrier): Future[Unit] = {
-    val requestXml = ileMapper.generateConsolidationXml(consolidation)
+  def submitConsolidation(consolidationRequest: ConsolidationRequest)(implicit hc: HeaderCarrier): Future[Unit] = {
+    val requestXml = ileMapper.generateConsolidationXml(consolidationRequest)
 
-    customsInventoryLinkingExportsConnector.sendInventoryLinkingRequest(eori, requestXml).flatMap {
+    customsInventoryLinkingExportsConnector.sendInventoryLinkingRequest(consolidationRequest.eori, requestXml).flatMap {
 
       case CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId)) =>
         val newSubmission =
           submissionFactory
-            .buildConsolidationSubmission(eori, conversationId, requestXml, consolidation.consolidationType)
+            .buildConsolidationSubmission(
+              consolidationRequest.eori,
+              consolidationRequest.providerId,
+              conversationId,
+              requestXml,
+              consolidationRequest.consolidationType
+            )
 
         submissionRepository
           .insert(newSubmission)
@@ -78,10 +85,16 @@ class SubmissionService @Inject()(
     }
   }
 
-  def getSubmissions(queryParameters: QueryParameters): Future[Seq[Submission]] =
-    submissionRepository.findBy(queryParameters)
+  def getSubmissions(searchParameters: SearchParameters): Future[Seq[SubmissionFrontendModel]] =
+    for {
+      submissions <- submissionRepository.findBy(searchParameters)
+      submissionFrontendModels = submissions.map(SubmissionFrontendModel(_))
+    } yield submissionFrontendModels
 
-  def getSingleSubmission(queryParameters: QueryParameters): Future[Option[Submission]] =
-    submissionRepository.findBy(queryParameters).map(_.headOption)
+  def getSingleSubmission(searchParameters: SearchParameters): Future[Option[SubmissionFrontendModel]] =
+    for {
+      submissionOpt <- submissionRepository.findBy(searchParameters).map(_.headOption)
+      submissionFrontendModel = submissionOpt.map(SubmissionFrontendModel(_))
+    } yield submissionFrontendModel
 
 }
