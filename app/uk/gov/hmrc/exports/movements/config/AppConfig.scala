@@ -37,7 +37,7 @@ class AppConfig @Inject()(runModeConfiguration: Configuration, servicesConfig: S
 
   def clientIdInventory(implicit hc: HeaderCarrier): String = {
     val userAgent = hc.headers.find(_._1.toLowerCase() == "user-agent").map(_._2).getOrElse {
-      Logger.warn("Request had missing User-Agent header. Falling Back to a default Client ID")
+      logger.warn("Request had missing User-Agent header. Falling Back to a default Client ID")
       "default"
     }
     servicesConfig.getConfString(
