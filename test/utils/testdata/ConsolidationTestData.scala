@@ -27,9 +27,9 @@ import scala.xml.{Elem, Node}
 
 object ConsolidationTestData {
 
-  val associateDucrRequest = AssociateDucrRequest(eori = validEori, mucr = ucr, ucr = ucr_2)
-  val disassiociateDucrRequest = DisassociateDucrRequest(eori = validEori, ucr = ucr_2)
-  val shutMucrRequest = ShutMucrRequest(eori = validEori, mucr = ucr)
+  val associateDucrRequest = AssociateDucrRequest(eori = validEori, providerId = Some(validProviderId), mucr = ucr, ucr = ucr_2)
+  val disassiociateDucrRequest = DisassociateDucrRequest(eori = validEori, providerId = Some(validProviderId), ucr = ucr_2)
+  val shutMucrRequest = ShutMucrRequest(eori = validEori, providerId = Some(validProviderId), mucr = ucr)
 
   val exampleShutMucrConsolidationRequestXML: Node =
     <inventoryLinkingConsolidationRequest>
