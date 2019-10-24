@@ -46,17 +46,17 @@ object ConsolidationRequest extends JSONResponses {
     .format
 
   case class AssociateDucrRequest(override val eori: String, override val providerId: Option[String] = None, mucr: String, ucr: String)
-    extends ConsolidationRequest(ASSOCIATE_DUCR, eori, providerId, Some(mucr), Some(ucr))
+      extends ConsolidationRequest(ASSOCIATE_DUCR, eori, providerId, Some(mucr), Some(ucr))
 
   case class DisassociateDucrRequest(override val eori: String, override val providerId: Option[String] = None, ucr: String)
-    extends ConsolidationRequest(DISASSOCIATE_DUCR, eori, providerId, None, Some(ucr))
+      extends ConsolidationRequest(DISASSOCIATE_DUCR, eori, providerId, None, Some(ucr))
 
   case class AssociateMucrRequest(override val eori: String, override val providerId: Option[String] = None, mucr: String, ucr: String)
-    extends ConsolidationRequest(ASSOCIATE_MUCR, eori, providerId, Some(mucr), Some(ucr))
+      extends ConsolidationRequest(ASSOCIATE_MUCR, eori, providerId, Some(mucr), Some(ucr))
 
   case class DisassociateMucrRequest(override val eori: String, override val providerId: Option[String] = None, ucr: String)
-    extends ConsolidationRequest(DISASSOCIATE_MUCR, eori, providerId, None, Some(ucr))
+      extends ConsolidationRequest(DISASSOCIATE_MUCR, eori, providerId, None, Some(ucr))
 
   case class ShutMucrRequest(override val eori: String, override val providerId: Option[String] = None, mucr: String)
-    extends ConsolidationRequest(SHUT_MUCR, eori, providerId, Some(mucr), None)
+      extends ConsolidationRequest(SHUT_MUCR, eori, providerId, Some(mucr), None)
 }

@@ -28,7 +28,7 @@ import uk.gov.hmrc.exports.movements.models.movements.{Choice, ConsignmentRefere
 import uk.gov.hmrc.exports.movements.services.SubmissionService
 import unit.uk.gov.hmrc.exports.movements.base.UnitSpec
 import utils.FakeRequestCSRFSupport._
-import utils.testdata.CommonTestData.{JsonContentTypeHeader, validEori}
+import utils.testdata.CommonTestData._
 
 import scala.concurrent.ExecutionContext.global
 import scala.concurrent.Future
