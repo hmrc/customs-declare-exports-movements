@@ -17,9 +17,9 @@
 package uk.gov.hmrc.exports.movements.models.submissions
 
 import javax.inject.Singleton
-import uk.gov.hmrc.exports.movements.controllers.request.MovementRequest
 import uk.gov.hmrc.exports.movements.models.XmlTags
 import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationType.ConsolidationType
+import uk.gov.hmrc.exports.movements.models.movements.MovementRequest
 import uk.gov.hmrc.exports.movements.models.notifications.UcrBlock
 
 import scala.xml.{Node, NodeSeq}

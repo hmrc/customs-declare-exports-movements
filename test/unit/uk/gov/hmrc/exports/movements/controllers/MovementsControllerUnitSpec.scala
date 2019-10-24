@@ -24,8 +24,7 @@ import play.api.mvc.Request
 import play.api.test.Helpers._
 import play.api.test._
 import uk.gov.hmrc.exports.movements.controllers.MovementsController
-import uk.gov.hmrc.exports.movements.controllers.request.MovementRequest
-import uk.gov.hmrc.exports.movements.models.movements.{Choice, ConsignmentReference, MovementDetails}
+import uk.gov.hmrc.exports.movements.models.movements.{Choice, ConsignmentReference, MovementDetails, MovementRequest}
 import uk.gov.hmrc.exports.movements.services.SubmissionService
 import unit.uk.gov.hmrc.exports.movements.base.UnitSpec
 import utils.FakeRequestCSRFSupport._

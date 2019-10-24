@@ -17,7 +17,7 @@
 package uk.gov.hmrc.exports.movements.services
 
 import javax.inject.Singleton
-import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation
+import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationRequest
 import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationType.{ConsolidationType, _}
 
 import scala.xml.{Node, NodeSeq}
@@ -25,7 +25,7 @@ import scala.xml.{Node, NodeSeq}
 @Singleton
 class ILEMapper {
 
-  def generateConsolidationXml(consolidation: Consolidation): Node =
+  def generateConsolidationXml(consolidation: ConsolidationRequest): Node =
     scala.xml.Utility.trim {
       <inventoryLinkingConsolidationRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
         <messageCode>{buildMessageCode(consolidation.consolidationType)}</messageCode>

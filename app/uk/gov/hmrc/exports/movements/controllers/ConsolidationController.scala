@@ -18,21 +18,18 @@ package uk.gov.hmrc.exports.movements.controllers
 
 import javax.inject.{Inject, Singleton}
 import play.api.mvc._
-import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.exports.movements.controllers.actions.AuthenticatedController
-import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation
+import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationRequest
 import uk.gov.hmrc.exports.movements.services.SubmissionService
+import uk.gov.hmrc.play.bootstrap.controller.BackendController
 
 import scala.concurrent.ExecutionContext
 
 @Singleton
-class ConsolidationController @Inject()(authConnector: AuthConnector, consolidationService: SubmissionService, cc: ControllerComponents)(
+class ConsolidationController @Inject()(consolidationService: SubmissionService, cc: ControllerComponents)(
   implicit executionContext: ExecutionContext
-) extends AuthenticatedController(authConnector, cc) {
+) extends BackendController(cc) {
 
-  def submitConsolidation(): Action[Consolidation] = authorisedAction(parse.json[Consolidation]) { implicit request =>
-    consolidationService
-      .submitConsolidation(request.eori.value, request.body)
-      .map(_ => Accepted(request.body))
+  def submitConsolidation(): Action[ConsolidationRequest] = Action.async(parse.json[ConsolidationRequest]) { implicit request =>
+    consolidationService.submitConsolidation(request.body).map(_ => Accepted(request.body))
   }
 }

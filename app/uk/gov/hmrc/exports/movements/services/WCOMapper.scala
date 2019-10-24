@@ -17,9 +17,8 @@
 package uk.gov.hmrc.exports.movements.services
 
 import javax.inject.Singleton
-import uk.gov.hmrc.exports.movements.controllers.request.MovementRequest
 import uk.gov.hmrc.exports.movements.models.movements.Choice.{Arrival, Departure}
-import uk.gov.hmrc.exports.movements.models.movements.{MovementDetails, Transport}
+import uk.gov.hmrc.exports.movements.models.movements.{MovementDetails, MovementRequest, Transport}
 import uk.gov.hmrc.wco.dec.inventorylinking.common.{TransportDetails, UcrBlock}
 import uk.gov.hmrc.wco.dec.inventorylinking.movement.request.InventoryLinkingMovementRequest
 

@@ -18,7 +18,7 @@ package uk.gov.hmrc.exports.movements.controllers
 
 import javax.inject.{Inject, Singleton}
 import play.api.mvc._
-import uk.gov.hmrc.exports.movements.controllers.request.MovementRequest
+import uk.gov.hmrc.exports.movements.models.movements.MovementRequest
 import uk.gov.hmrc.exports.movements.services.SubmissionService
 import uk.gov.hmrc.play.bootstrap.controller.BackendController
 

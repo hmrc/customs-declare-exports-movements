@@ -19,10 +19,10 @@ package uk.gov.hmrc.exports.movements.services
 import javax.inject.{Inject, Singleton}
 import play.api.http.Status.ACCEPTED
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
-import uk.gov.hmrc.exports.movements.controllers.request.MovementRequest
 import uk.gov.hmrc.exports.movements.exceptions.CustomsInventoryLinkingUpstreamException
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
-import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation
+import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationRequest
+import uk.gov.hmrc.exports.movements.models.movements.MovementRequest
 import uk.gov.hmrc.exports.movements.models.submissions.{SubmissionFactory, SubmissionFrontendModel}
 import uk.gov.hmrc.exports.movements.repositories.{SearchParameters, SubmissionRepository}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -58,14 +58,14 @@ class SubmissionService @Inject()(
     }
   }
 
-  def submitConsolidation(eori: String, consolidation: Consolidation)(implicit hc: HeaderCarrier): Future[Unit] = {
+  def submitConsolidation(consolidation: ConsolidationRequest)(implicit hc: HeaderCarrier): Future[Unit] = {
     val requestXml = ileMapper.generateConsolidationXml(consolidation)
 
-    customsInventoryLinkingExportsConnector.sendInventoryLinkingRequest(eori, requestXml).flatMap {
+    customsInventoryLinkingExportsConnector.sendInventoryLinkingRequest(consolidation.eori, requestXml).flatMap {
 
       case CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId)) =>
         val newSubmission =
-          submissionFactory.buildConsolidationSubmission(eori, conversationId, requestXml, consolidation.consolidationType)
+          submissionFactory.buildConsolidationSubmission(consolidation.eori, conversationId, requestXml, consolidation.consolidationType)
 
         submissionRepository
           .insert(newSubmission)

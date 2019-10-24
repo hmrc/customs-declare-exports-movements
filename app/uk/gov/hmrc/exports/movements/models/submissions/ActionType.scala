@@ -17,10 +17,8 @@
 package uk.gov.hmrc.exports.movements.models.submissions
 
 import play.api.libs.json._
-import uk.gov.hmrc.exports.movements.controllers.request.MovementRequest
-import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationType.ConsolidationType
-import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationType._
-import uk.gov.hmrc.exports.movements.models.movements.Choice
+import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationType.{ConsolidationType, _}
+import uk.gov.hmrc.exports.movements.models.movements.{Choice, MovementRequest}
 
 sealed abstract class ActionType(val value: String)
 

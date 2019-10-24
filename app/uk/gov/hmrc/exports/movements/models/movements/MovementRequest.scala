@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.exports.movements.controllers.request
+package uk.gov.hmrc.exports.movements.models.movements
 
-import play.api.http.{ContentTypeOf, ContentTypes, Writeable}
-import play.api.libs.json.{Json, Writes}
-import play.api.mvc.Codec
-import uk.gov.hmrc.exports.movements.models.movements._
+import play.api.libs.json.Json
+import uk.gov.hmrc.exports.movements.controllers.util.JSONResponses
 
 case class MovementRequest(
   eori: String,
@@ -32,14 +30,6 @@ case class MovementRequest(
   transport: Option[Transport] = None
 )
 
-object MovementRequest {
-
+object MovementRequest extends JSONResponses {
   implicit val format = Json.format[MovementRequest]
-
-  implicit def jsonWritable[A](implicit writes: Writes[A], codec: Codec): Writeable[A] = {
-    implicit val contentType: ContentTypeOf[A] = ContentTypeOf[A](Some(ContentTypes.JSON))
-    val transform = Writeable.writeableOf_JsValue.transform compose writes.writes
-    Writeable(transform)
-  }
-
 }

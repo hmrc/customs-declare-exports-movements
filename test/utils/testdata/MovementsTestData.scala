@@ -18,8 +18,7 @@ package utils.testdata
 
 import org.joda.time.{DateTime, DateTimeZone}
 import play.api.libs.json.{JsValue, Json}
-import uk.gov.hmrc.exports.movements.controllers.request.MovementRequest
-import uk.gov.hmrc.exports.movements.models.movements._
+import uk.gov.hmrc.exports.movements.models.movements.{MovementRequest, _}
 import uk.gov.hmrc.exports.movements.models.notifications.{UcrBlock => UcrBlockModel}
 import uk.gov.hmrc.exports.movements.models.submissions.{ActionType, Submission}
 import uk.gov.hmrc.wco.dec.inventorylinking.common.{AgentDetails, TransportDetails, UcrBlock}

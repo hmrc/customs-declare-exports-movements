@@ -18,34 +18,31 @@ package unit.uk.gov.hmrc.exports.movements.controllers
 
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, verify, when}
-import org.scalatest.{MustMatchers, WordSpec}
+import org.scalatest.{BeforeAndAfterEach, MustMatchers, WordSpec}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.mvc.Request
 import play.api.test.Helpers._
 import play.api.test._
 import uk.gov.hmrc.exports.movements.controllers.ConsolidationController
-import uk.gov.hmrc.exports.movements.models.consolidation.{AssociateDucrRequest, Consolidation}
+import uk.gov.hmrc.exports.movements.models.consolidation.{AssociateDucrRequest, ConsolidationRequest}
 import uk.gov.hmrc.exports.movements.services.SubmissionService
-import unit.uk.gov.hmrc.exports.movements.base.AuthTestSupport
 import utils.FakeRequestCSRFSupport._
+import utils.testdata.CommonTestData._
 
 import scala.concurrent.ExecutionContext.global
 import scala.concurrent.Future
 
-class ConsolidationControllerSpec extends WordSpec with MustMatchers with MockitoSugar with AuthTestSupport {
+class ConsolidationControllerSpec extends WordSpec with BeforeAndAfterEach with MustMatchers with MockitoSugar {
 
-  val submissionService = mock[SubmissionService]
+  private val submissionService = mock[SubmissionService]
+  private val controller = new ConsolidationController(submissionService, stubControllerComponents())(global)
 
-  val controller =
-    new ConsolidationController(mockAuthConnector, submissionService, stubControllerComponents())(global)
+  private val mucr = ucr
+  private val ducr = ucr_2
+  private val correctRequest = AssociateDucrRequest(eori = validEori, mucr = mucr, ucr = ducr)
 
-  val correctRequest = AssociateDucrRequest("mucr", "ducr")
-
-  override protected def beforeEach(): Unit = {
+  override protected def beforeEach(): Unit =
     super.beforeEach()
-
-    withAuthorizedUser()
-  }
 
   override protected def afterEach(): Unit = {
     reset(submissionService)
@@ -53,7 +50,7 @@ class ConsolidationControllerSpec extends WordSpec with MustMatchers with Mockit
     super.afterEach()
   }
 
-  protected def postRequest(body: Consolidation): Request[Consolidation] =
+  protected def postRequest(body: ConsolidationRequest): Request[ConsolidationRequest] =
     FakeRequest("POST", "")
       .withHeaders(("Content-Type", "application/json"))
       .withBody(body)
@@ -65,13 +62,13 @@ class ConsolidationControllerSpec extends WordSpec with MustMatchers with Mockit
 
       "consolidation submission ends with success" in {
 
-        when(submissionService.submitConsolidation(any(), any())(any()))
+        when(submissionService.submitConsolidation(any())(any()))
           .thenReturn(Future.successful((): Unit))
 
         val result = controller.submitConsolidation()(postRequest(correctRequest))
 
         status(result) mustBe ACCEPTED
-        verify(submissionService).submitConsolidation(any(), any())(any())
+        verify(submissionService).submitConsolidation(any())(any())
       }
     }
   }
