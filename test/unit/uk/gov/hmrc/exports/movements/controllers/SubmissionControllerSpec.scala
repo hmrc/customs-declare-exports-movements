@@ -45,15 +45,15 @@ class SubmissionControllerSpec
     .overrides(bind[SubmissionService].to(submissionServiceMock))
     .build()
 
-  private def getAllSubmissionsUri = s"/movements?eori=$validEori"
   private val submissionServiceMock = mock[SubmissionService]
-
   override def beforeEach(): Unit = {
     super.beforeEach()
     reset(submissionServiceMock)
   }
 
-  private def getSubmissionUri(conversationId: String) = s"/movements/$conversationId?eori=$validEori"
+  private def getAllSubmissionsUri = s"/submissions?eori=$validEori"
+
+  private def getSubmissionUri(conversationId: String) = s"/submissions/$conversationId?eori=$validEori"
 
   private def routeGet(headers: Map[String, String] = ValidHeaders, uri: String): Future[Result] =
     route(app, FakeRequest(GET, uri).withHeaders(headers.toSeq: _*)).get
