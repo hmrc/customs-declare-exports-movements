@@ -17,6 +17,7 @@
 package unit.uk.gov.hmrc.exports.movements.models.consolidation
 
 import play.api.libs.json.{JsObject, JsString, JsSuccess, JsValue}
+import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationRequest._
 import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationType._
 import uk.gov.hmrc.exports.movements.models.consolidation._
 import unit.uk.gov.hmrc.exports.movements.base.UnitSpec

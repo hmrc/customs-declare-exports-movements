@@ -20,7 +20,7 @@ import play.api.http.{ContentTypes, HeaderNames}
 import play.api.libs.json.{JsObject, JsString, JsValue}
 import play.api.mvc.Codec
 import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames
-import uk.gov.hmrc.exports.movements.models.consolidation.{AssociateDucrRequest, DisassociateDucrRequest, ShutMucrRequest}
+import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationRequest._
 import utils.testdata.CommonTestData._
 
 import scala.xml.{Elem, Node}
