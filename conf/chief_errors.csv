@@ -23,3 +23,6 @@ E607,Entry Reference is not suitable for Export movement
 E3464,Refused – User Role not matched on MUCR arrivals
 E3480,Only shut MUCRs can be associated into another MUCR
 E1264,Cannot shut the consolidation since it is moving
+E518,	Shed Operator does not exist
+E10334, Service segment invalid
+E10003, Errors on Document
