@@ -18,6 +18,7 @@ package uk.gov.hmrc.exports.movements.config
 
 import com.google.inject.{Inject, Singleton}
 import play.api.{Configuration, Logger}
+import uk.gov.hmrc.exports.movements.exceptions.MissingClientIDException
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
@@ -40,10 +41,7 @@ class AppConfig @Inject()(runModeConfiguration: Configuration, servicesConfig: S
       logger.warn("Request had missing User-Agent header. Falling Back to a default Client ID")
       "default"
     }
-    servicesConfig.getConfString(
-      s"customs-inventory-linking-exports.client-id.$userAgent",
-      throw new IllegalStateException(s"Missing Client ID for [$userAgent]")
-    )
+    servicesConfig.getConfString(s"customs-inventory-linking-exports.client-id.$userAgent", throw MissingClientIDException(userAgent))
   }
 
   lazy val ileSchemasFilePath = servicesConfig.getConfString(
