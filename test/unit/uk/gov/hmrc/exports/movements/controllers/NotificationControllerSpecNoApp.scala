@@ -23,6 +23,7 @@ import org.mockito.Mockito.when
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{MustMatchers, WordSpec}
 import org.scalatestplus.mockito.MockitoSugar
+import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.exports.movements.controllers.NotificationController
@@ -55,14 +56,17 @@ class NotificationControllerSpecNoApp extends WordSpec with MustMatchers with Mo
     implicit val materializer: ActorMaterializer = ActorMaterializer()
   }
 
-  "Notification Controller" should {
+  "GET notifications/:action-id" should {
+
+    "return 200" in new SetUp {
+      val result: Future[Result] =
+        controller.getNotificationsForAction(Some(validEori), None, conversationId)(FakeRequest(GET, "").withHeaders(validHeaders.toSeq: _*))
+
+      status(result) must be(OK)
+    }
 
     "return list of notifications" in new SetUp {
-
-      when(notificationRepositoryMock.findByConversationId(any())).thenReturn(Future.successful(Seq.empty))
-
-      val result =
-        controller.listOfNotifications(Some(validEori), None, conversationId)(FakeRequest(GET, "").withHeaders(validHeaders.toSeq: _*))
+      val result: Future[Result] = controller.getNotifications(Some(validEori), None)(FakeRequest(GET, "").withHeaders(validHeaders.toSeq: _*))
 
       status(result) must be(OK)
     }
