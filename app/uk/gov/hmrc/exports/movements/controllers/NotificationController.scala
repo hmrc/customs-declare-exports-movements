@@ -78,10 +78,18 @@ class NotificationController @Inject()(
         metrics.incrementCounter(movementMetric)
     }
 
-  def listOfNotifications(eori: Option[String], providerId: Option[String], conversationId: String): Action[AnyContent] = Action.async {
+  def getNotificationsForAction(eori: Option[String], providerId: Option[String], conversationId: String): Action[AnyContent] = {
+    searchNotifications(eori, providerId, Some(conversationId))
+  }
+
+  def getNotifications(eori: Option[String], providerId: Option[String]): Action[AnyContent] =  {
+    searchNotifications(eori, providerId, None)
+  }
+
+  private def searchNotifications(eori: Option[String], providerId: Option[String], conversationId: Option[String]): Action[AnyContent] = Action.async {
     implicit request =>
       notificationService
-        .getAllNotifications(SearchParameters(eori = eori, providerId = providerId, conversationId = Some(conversationId)))
+        .getAllNotifications(SearchParameters(eori = eori, providerId = providerId, conversationId = conversationId))
         .map(notifications => Ok(Json.toJson(notifications)))
   }
 }

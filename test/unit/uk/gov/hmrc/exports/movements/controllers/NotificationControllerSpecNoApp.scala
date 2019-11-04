@@ -55,14 +55,21 @@ class NotificationControllerSpecNoApp extends WordSpec with MustMatchers with Mo
     implicit val materializer: ActorMaterializer = ActorMaterializer()
   }
 
-  "Notification Controller" should {
+  "GET notifications/:action-id" should {
 
-    "return list of notifications" in new SetUp {
-
+    "return 200" in new SetUp {
       when(notificationRepositoryMock.findByConversationId(any())).thenReturn(Future.successful(Seq.empty))
 
       val result =
-        controller.listOfNotifications(Some(validEori), None, conversationId)(FakeRequest(GET, "").withHeaders(validHeaders.toSeq: _*))
+        controller.getNotificationsForAction(Some(validEori), None, conversationId)(FakeRequest(GET, "").withHeaders(validHeaders.toSeq: _*))
+
+      status(result) must be(OK)
+    }
+
+    "return list of notifications" in new SetUp {
+      when(notificationRepositoryMock.findByConversationId(any())).thenReturn(Future.successful(Seq.empty))
+
+      val result = controller.getNotifications(Some(validEori), None)(FakeRequest(GET, "").withHeaders(validHeaders.toSeq: _*))
 
       status(result) must be(OK)
     }
