@@ -78,10 +78,10 @@ class NotificationController @Inject()(
         metrics.incrementCounter(movementMetric)
     }
 
-  def getNotificationsForAction(eori: Option[String], providerId: Option[String], conversationId: String): Action[AnyContent] =
+  def getNotificationsForSubmission(eori: Option[String], providerId: Option[String], conversationId: String): Action[AnyContent] =
     searchNotifications(eori, providerId, Some(conversationId))
 
-  def getNotifications(eori: Option[String], providerId: Option[String]): Action[AnyContent] =
+  def getAllNotificationsForUser(eori: Option[String], providerId: Option[String]): Action[AnyContent] =
     searchNotifications(eori, providerId, None)
 
   private def searchNotifications(eori: Option[String], providerId: Option[String], conversationId: Option[String]): Action[AnyContent] =

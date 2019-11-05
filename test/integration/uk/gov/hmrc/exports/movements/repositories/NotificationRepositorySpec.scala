@@ -23,7 +23,7 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.exports.movements.repositories.NotificationRepository
-import utils.testdata.CommonTestData.conversationId
+import utils.testdata.CommonTestData.{conversationId, conversationId_2}
 import utils.testdata.notifications.NotificationTestData._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -53,7 +53,7 @@ class NotificationRepositorySpec
       "result in a success" in {
         repo.insert(notification_1).futureValue.ok must be(true)
 
-        val notificationInDB = repo.findByConversationId(conversationId).futureValue
+        val notificationInDB = repo.findByConversationIds(Seq(conversationId)).futureValue
 
         notificationInDB.length must equal(1)
         notificationInDB.head must equal(notification_1)
@@ -70,7 +70,7 @@ class NotificationRepositorySpec
         repo.insert(notification_1).futureValue.ok must be(true)
         repo.insert(notification_1).futureValue.ok must be(true)
 
-        val notificationsInDB = repo.findByConversationId(conversationId).futureValue
+        val notificationsInDB = repo.findByConversationIds(Seq(conversationId)).futureValue
 
         notificationsInDB.length must equal(2)
         notificationsInDB.head must equal(notification_1)
@@ -79,36 +79,36 @@ class NotificationRepositorySpec
     }
   }
 
-  "Notification Repository on findBy" when {
+  "Notification Repository on findByConversationIds" when {
 
-    "there is no Notification with given conversationId" should {
+    "there is no Notification with given conversationIds" should {
       "return empty list" in {
-        repo.findByConversationId(conversationId).futureValue must equal(Seq.empty)
+        repo.findByConversationIds(Seq(conversationId, conversationId_2)).futureValue must equal(Seq.empty)
       }
     }
 
-    "there is single Notification with given conversationId" should {
+    "there is single Notification with one of given conversationIds" should {
       "return this Notification only" in {
         repo.insert(notification_1).futureValue
 
-        val foundNotifications = repo.findByConversationId(conversationId).futureValue
+        val foundNotifications = repo.findByConversationIds(Seq(conversationId, conversationId_2)).futureValue
 
         foundNotifications.length must equal(1)
         foundNotifications.head must equal(notification_1)
       }
     }
 
-    "there are multiple Notifications with given conversationId" should {
+    "there are multiple Notifications with given conversationIds" should {
       "return all the Notifications" in {
-        repo.insert(notification_1).futureValue
-        val notificationWithSameConversationId = notification_2.copy(conversationId = notification_1.conversationId)
-        repo.insert(notificationWithSameConversationId).futureValue
+        val notifications = Seq(notification_1, notification_2.copy(conversationId = notification_1.conversationId), notification_2)
+        notifications.map(repo.insert(_).futureValue)
 
-        val foundNotifications = repo.findByConversationId(conversationId).futureValue
+        val foundNotifications = repo.findByConversationIds(Seq(conversationId, conversationId_2)).futureValue
 
-        foundNotifications.length must equal(2)
-        foundNotifications must contain(notification_1)
-        foundNotifications must contain(notificationWithSameConversationId)
+        foundNotifications.length must equal(notifications.length)
+        notifications.foreach { notification =>
+          foundNotifications must contain(notification)
+        }
       }
     }
   }

@@ -2,8 +2,8 @@
 
 POST        /customs-declare-exports/notifyMovement         uk.gov.hmrc.exports.movements.controllers.NotificationController.saveNotification()
 
-GET         /notifications                                  uk.gov.hmrc.exports.movements.controllers.NotificationController.getNotifications(eori: Option[String], providerId: Option[String])
-GET         /notifications/:conversationId                  uk.gov.hmrc.exports.movements.controllers.NotificationController.getNotificationsForAction(eori: Option[String], providerId: Option[String], conversationId: String)
+GET         /notifications                                  uk.gov.hmrc.exports.movements.controllers.NotificationController.getAllNotificationsForUser(eori: Option[String], providerId: Option[String])
+GET         /notifications/:conversationId                  uk.gov.hmrc.exports.movements.controllers.NotificationController.getNotificationsForSubmission(eori: Option[String], providerId: Option[String], conversationId: String)
 
 POST        /movements                                      uk.gov.hmrc.exports.movements.controllers.MovementsController.createMovement()
 
