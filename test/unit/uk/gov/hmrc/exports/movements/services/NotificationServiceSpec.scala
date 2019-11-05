@@ -216,17 +216,6 @@ class NotificationServiceSpec extends WordSpec with MockitoSugar with ScalaFutur
 
         returnedNotifications mustBe empty
       }
-
-      "not call NotificationsRepository" in new Test {
-
-        val searchParameters = SearchParameters(eori = Some(validEori), conversationId = Some(conversationId))
-
-        when(submissionRepositoryMock.findBy(meq(searchParameters))).thenReturn(Future.successful(Seq.empty))
-
-        notificationService.getAllNotifications(searchParameters).futureValue
-
-        verifyZeroInteractions(notificationRepositoryMock)
-      }
     }
 
   }

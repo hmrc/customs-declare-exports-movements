@@ -36,9 +36,8 @@ class NotificationService @Inject()(notificationRepository: NotificationReposito
       .map(_ => (): Unit)
 
   def getAllNotifications(searchParameters: SearchParameters): Future[Seq[NotificationFrontendModel]] =
-    submissionRepository.findBy(searchParameters).flatMap {
-      case Nil         => Future.successful(Seq.empty)
-      case submissions => getNotifications(submissions.map(_.conversationId))
+    submissionRepository.findBy(searchParameters).flatMap { submissions =>
+      getNotifications(submissions.map(_.conversationId))
     }
 
   private def getNotifications(conversationIds: Seq[String]): Future[Seq[NotificationFrontendModel]] =
