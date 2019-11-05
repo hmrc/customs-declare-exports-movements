@@ -17,7 +17,7 @@
 package uk.gov.hmrc.exports.movements.repositories
 
 import javax.inject.{Inject, Singleton}
-import play.api.libs.json.JsString
+import play.api.libs.json.{JsString, Json}
 import play.modules.reactivemongo.ReactiveMongoComponent
 import reactivemongo.api.indexes.{Index, IndexType}
 import reactivemongo.bson.BSONObjectID
@@ -36,7 +36,10 @@ class NotificationRepository @Inject()(mc: ReactiveMongoComponent)(implicit ec: 
     Index(Seq("conversationId" -> IndexType.Ascending), name = Some("conversationIdIdx"))
   )
 
-  def findByConversationId(conversationId: String): Future[Seq[Notification]] =
-    find("conversationId" -> JsString(conversationId))
+  def findByConversationIds(conversationIds: Seq[String]): Future[Seq[Notification]] =
+    conversationIds match {
+      case Nil => Future.successful(Seq.empty)
+      case _   => find("conversationId" -> Json.obj("$in" -> conversationIds.map(JsString)))
+    }
 
 }

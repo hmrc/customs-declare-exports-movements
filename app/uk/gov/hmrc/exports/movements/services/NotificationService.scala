@@ -20,7 +20,6 @@ import javax.inject.{Inject, Singleton}
 import play.api.Logger
 import uk.gov.hmrc.exports.movements.models.notifications.{Notification, NotificationFrontendModel}
 import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, SearchParameters, SubmissionRepository}
-import uk.gov.hmrc.http.BadRequestException
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -37,19 +36,13 @@ class NotificationService @Inject()(notificationRepository: NotificationReposito
       .map(_ => (): Unit)
 
   def getAllNotifications(searchParameters: SearchParameters): Future[Seq[NotificationFrontendModel]] =
-    submissionRepository.findBy(searchParameters).flatMap {
-      case Nil => returnFailed()
-      case _   => returnSuccess(searchParameters)
+    submissionRepository.findBy(searchParameters).flatMap { submissions =>
+      getNotifications(submissions.map(_.conversationId))
     }
 
-  private def returnFailed(): Future[Nothing] = {
-    logger.info("There is no Submission with given Conversation ID for given EORI or PID.")
-    Future.failed(new BadRequestException("There is no Submission for this set of parameters"))
-  }
-
-  private def returnSuccess(searchParameters: SearchParameters): Future[Seq[NotificationFrontendModel]] =
+  private def getNotifications(conversationIds: Seq[String]): Future[Seq[NotificationFrontendModel]] =
     for {
-      notifications <- notificationRepository.findByConversationId(searchParameters.conversationId.getOrElse(""))
+      notifications <- notificationRepository.findByConversationIds(conversationIds)
       notificationFrontendModels = notifications.map(NotificationFrontendModel(_))
     } yield notificationFrontendModels
 

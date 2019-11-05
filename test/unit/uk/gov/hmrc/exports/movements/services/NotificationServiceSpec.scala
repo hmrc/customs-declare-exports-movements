@@ -16,6 +16,7 @@
 
 package unit.uk.gov.hmrc.exports.movements.services
 
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatest.concurrent.ScalaFutures
@@ -25,9 +26,8 @@ import reactivemongo.api.commands.WriteResult
 import uk.gov.hmrc.exports.movements.models.notifications.NotificationFrontendModel
 import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, SearchParameters, SubmissionRepository}
 import uk.gov.hmrc.exports.movements.services.NotificationService
-import uk.gov.hmrc.http.BadRequestException
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
-import utils.testdata.CommonTestData.{conversationId, validEori}
+import utils.testdata.CommonTestData._
 import utils.testdata.MovementsTestData.exampleSubmission
 import utils.testdata.notifications.NotificationTestData._
 
@@ -41,6 +41,12 @@ class NotificationServiceSpec extends WordSpec with MockitoSugar with ScalaFutur
     val submissionRepositoryMock: SubmissionRepository = buildSubmissionRepositoryMock
     val notificationService =
       new NotificationService(notificationRepositoryMock, submissionRepositoryMock)(ExecutionContext.global)
+
+    def conversationIdsPassed: Seq[String] = {
+      val captor: ArgumentCaptor[Seq[String]] = ArgumentCaptor.forClass(classOf[Seq[String]])
+      verify(notificationRepositoryMock).findByConversationIds(captor.capture())
+      captor.getValue
+    }
   }
 
   "NotificationService on save" when {
@@ -78,7 +84,7 @@ class NotificationServiceSpec extends WordSpec with MockitoSugar with ScalaFutur
 
   "NotificationService on getAllNotifications" when {
 
-    "everything works correctly" should {
+    "provided with conversationId" should {
 
       "call SubmissionRepository, passing SearchParameters provided" in new Test {
 
@@ -101,7 +107,7 @@ class NotificationServiceSpec extends WordSpec with MockitoSugar with ScalaFutur
 
         notificationService.getAllNotifications(searchParameters).futureValue
 
-        verify(notificationRepositoryMock).findByConversationId(meq(conversationId))
+        verify(notificationRepositoryMock).findByConversationIds(meq(Seq(conversationId)))
       }
 
       "return list of NotificationPresentationData converted from Notifications returned by repository" in new Test {
@@ -112,7 +118,7 @@ class NotificationServiceSpec extends WordSpec with MockitoSugar with ScalaFutur
         val firstNotification = notification_1.copy(conversationId = conversationId)
         val secondNotification = notification_2.copy(conversationId = conversationId)
         when(submissionRepositoryMock.findBy(meq(searchParameters))).thenReturn(Future.successful(Seq(submission)))
-        when(notificationRepositoryMock.findByConversationId(conversationId))
+        when(notificationRepositoryMock.findByConversationIds(meq(Seq(conversationId))))
           .thenReturn(Future.successful(Seq(firstNotification, secondNotification)))
 
         val returnedNotifications = notificationService.getAllNotifications(searchParameters).futureValue
@@ -124,13 +130,76 @@ class NotificationServiceSpec extends WordSpec with MockitoSugar with ScalaFutur
         returnedNotifications must contain(expectedSecondNotificationPresentationData)
       }
 
-      "return empty list, if repository returns empty list" in new Test {
+      "return empty list, if NotificationRepository returns empty list" in new Test {
 
         val searchParameters = SearchParameters(eori = Some(validEori), conversationId = Some(conversationId))
 
         val submission = exampleSubmission()
         when(submissionRepositoryMock.findBy(meq(searchParameters))).thenReturn(Future.successful(Seq(submission)))
-        when(notificationRepositoryMock.findByConversationId(conversationId)).thenReturn(Future.successful(Seq.empty))
+        when(notificationRepositoryMock.findByConversationIds(meq(Seq(conversationId)))).thenReturn(Future.successful(Seq.empty))
+
+        val returnedNotifications = notificationService.getAllNotifications(searchParameters).futureValue
+
+        returnedNotifications must be(empty)
+      }
+    }
+
+    "provided with no conversationId" should {
+
+      "call SubmissionRepository, passing SearchParameters provided" in new Test {
+
+        val searchParameters = SearchParameters(eori = Some(validEori))
+
+        val submissions = Seq(exampleSubmission(), exampleSubmission(conversationId = conversationId_2))
+        when(submissionRepositoryMock.findBy(meq(searchParameters))).thenReturn(Future.successful(submissions))
+
+        notificationService.getAllNotifications(searchParameters).futureValue
+
+        verify(submissionRepositoryMock).findBy(meq(searchParameters))
+      }
+
+      "call NotificationRepository, passing ConversationIDs from Submissions" in new Test {
+
+        val searchParameters = SearchParameters(eori = Some(validEori))
+
+        val submissions = Seq(exampleSubmission(), exampleSubmission(conversationId = conversationId_2))
+        when(submissionRepositoryMock.findBy(meq(searchParameters))).thenReturn(Future.successful(submissions))
+
+        notificationService.getAllNotifications(searchParameters).futureValue
+
+        conversationIdsPassed mustBe Seq(conversationId, conversationId_2)
+      }
+
+      "return list of NotificationPresentationData converted from Notifications returned by repository" in new Test {
+
+        val searchParameters = SearchParameters(eori = Some(validEori))
+
+        val submissions = Seq(exampleSubmission(), exampleSubmission(conversationId = conversationId_2))
+        val notifications = Seq(
+          notification_1.copy(conversationId = conversationId),
+          notification_2.copy(conversationId = conversationId),
+          notification_1.copy(conversationId = conversationId_2)
+        )
+        when(submissionRepositoryMock.findBy(meq(searchParameters))).thenReturn(Future.successful(submissions))
+        when(notificationRepositoryMock.findByConversationIds(meq(Seq(conversationId, conversationId_2))))
+          .thenReturn(Future.successful(notifications))
+
+        val returnedNotifications = notificationService.getAllNotifications(searchParameters).futureValue
+
+        val expectedNotifications = notifications.map(NotificationFrontendModel(_))
+        returnedNotifications.length must equal(expectedNotifications.length)
+        expectedNotifications.foreach { notification =>
+          returnedNotifications must contain(notification)
+        }
+      }
+
+      "return empty list, if NotificationRepository returns empty list" in new Test {
+
+        val searchParameters = SearchParameters(eori = Some(validEori))
+
+        val submissions = Seq(exampleSubmission(), exampleSubmission(conversationId = conversationId_2))
+        when(submissionRepositoryMock.findBy(meq(searchParameters))).thenReturn(Future.successful(submissions))
+        when(notificationRepositoryMock.findByConversationIds(meq(Seq(conversationId)))).thenReturn(Future.successful(Seq.empty))
 
         val returnedNotifications = notificationService.getAllNotifications(searchParameters).futureValue
 
@@ -140,16 +209,15 @@ class NotificationServiceSpec extends WordSpec with MockitoSugar with ScalaFutur
 
     "there is no Submission for given set of SearchParameters" should {
 
-      "return failed Future" in new Test {
+      "return empty Sequence" in new Test {
 
         val searchParameters = SearchParameters(eori = Some(validEori), conversationId = Some(conversationId))
 
         when(submissionRepositoryMock.findBy(meq(searchParameters))).thenReturn(Future.successful(Seq.empty))
 
-        val exc = notificationService.getAllNotifications(searchParameters).failed.futureValue
+        val returnedNotifications = notificationService.getAllNotifications(searchParameters).futureValue
 
-        exc mustBe an[BadRequestException]
-        exc.getMessage must include("There is no Submission for this set of parameters")
+        returnedNotifications mustBe empty
       }
     }
 

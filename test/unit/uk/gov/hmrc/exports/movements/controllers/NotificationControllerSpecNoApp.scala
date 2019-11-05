@@ -18,8 +18,6 @@ package unit.uk.gov.hmrc.exports.movements.controllers
 
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{MustMatchers, WordSpec}
 import org.scalatestplus.mockito.MockitoSugar
@@ -60,13 +58,14 @@ class NotificationControllerSpecNoApp extends WordSpec with MustMatchers with Mo
 
     "return 200" in new SetUp {
       val result: Future[Result] =
-        controller.getNotificationsForAction(Some(validEori), None, conversationId)(FakeRequest(GET, "").withHeaders(validHeaders.toSeq: _*))
+        controller.getNotificationsForSubmission(Some(validEori), None, conversationId)(FakeRequest(GET, "").withHeaders(validHeaders.toSeq: _*))
 
       status(result) must be(OK)
     }
 
     "return list of notifications" in new SetUp {
-      val result: Future[Result] = controller.getNotifications(Some(validEori), None)(FakeRequest(GET, "").withHeaders(validHeaders.toSeq: _*))
+      val result: Future[Result] =
+        controller.getAllNotificationsForUser(Some(validEori), None)(FakeRequest(GET, "").withHeaders(validHeaders.toSeq: _*))
 
       status(result) must be(OK)
     }
