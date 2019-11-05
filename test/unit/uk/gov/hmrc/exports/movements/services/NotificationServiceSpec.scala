@@ -18,7 +18,7 @@ package unit.uk.gov.hmrc.exports.movements.services
 
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq => meq}
-import org.mockito.Mockito.{times, verify, verifyZeroInteractions, when}
+import org.mockito.Mockito.{times, verify, when}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{MustMatchers, WordSpec}
 import org.scalatestplus.mockito.MockitoSugar
@@ -41,6 +41,12 @@ class NotificationServiceSpec extends WordSpec with MockitoSugar with ScalaFutur
     val submissionRepositoryMock: SubmissionRepository = buildSubmissionRepositoryMock
     val notificationService =
       new NotificationService(notificationRepositoryMock, submissionRepositoryMock)(ExecutionContext.global)
+
+    def conversationIdsPassed: Seq[String] = {
+      val captor: ArgumentCaptor[Seq[String]] = ArgumentCaptor.forClass(classOf[Seq[String]])
+      verify(notificationRepositoryMock).findByConversationIds(captor.capture())
+      captor.getValue
+    }
   }
 
   "NotificationService on save" when {
@@ -161,10 +167,7 @@ class NotificationServiceSpec extends WordSpec with MockitoSugar with ScalaFutur
 
         notificationService.getAllNotifications(searchParameters).futureValue
 
-        val captor: ArgumentCaptor[Seq[String]] = ArgumentCaptor.forClass(classOf[Seq[String]])
-        verify(notificationRepositoryMock).findByConversationIds(captor.capture())
-
-        captor.getValue mustBe Seq(conversationId, conversationId_2)
+        conversationIdsPassed mustBe Seq(conversationId, conversationId_2)
       }
 
       "return list of NotificationPresentationData converted from Notifications returned by repository" in new Test {

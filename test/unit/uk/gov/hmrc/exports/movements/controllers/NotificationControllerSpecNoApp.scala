@@ -64,7 +64,8 @@ class NotificationControllerSpecNoApp extends WordSpec with MustMatchers with Mo
     }
 
     "return list of notifications" in new SetUp {
-      val result: Future[Result] = controller.getAllNotificationsForUser(Some(validEori), None)(FakeRequest(GET, "").withHeaders(validHeaders.toSeq: _*))
+      val result: Future[Result] =
+        controller.getAllNotificationsForUser(Some(validEori), None)(FakeRequest(GET, "").withHeaders(validHeaders.toSeq: _*))
 
       status(result) must be(OK)
     }
