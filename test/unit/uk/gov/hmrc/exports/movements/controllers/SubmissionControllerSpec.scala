@@ -26,7 +26,6 @@ import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, OK, contentAsJson, status, stubControllerComponents, _}
 import uk.gov.hmrc.exports.movements.controllers.SubmissionController
-import uk.gov.hmrc.exports.movements.models.submissions.SubmissionFrontendModel
 import uk.gov.hmrc.exports.movements.repositories.SearchParameters
 import uk.gov.hmrc.exports.movements.services.SubmissionService
 import utils.testdata.CommonTestData._
@@ -66,7 +65,6 @@ class SubmissionControllerSpec extends WordSpec with MustMatchers with MockitoSu
     "return what SubmissionService returns in the body" in new Test {
       val serviceResponseContent =
         Seq(exampleSubmission(), exampleSubmission(conversationId = conversationId_2), exampleSubmission(conversationId = conversationId_3))
-          .map(SubmissionFrontendModel(_))
       when(submissionService.getSubmissions(any[SearchParameters])).thenReturn(Future.successful(serviceResponseContent))
 
       val result = controller.getAllSubmissions(Some(validEori), Some(validProviderId))(requestGet)
@@ -95,7 +93,7 @@ class SubmissionControllerSpec extends WordSpec with MustMatchers with MockitoSu
     }
 
     "return what SubmissionService returns in the body" in new Test {
-      val serviceResponseContent = Some(SubmissionFrontendModel(exampleSubmission()))
+      val serviceResponseContent = Some(exampleSubmission())
       when(submissionService.getSingleSubmission(any[SearchParameters])).thenReturn(Future.successful(serviceResponseContent))
 
       val result = controller.getSubmission(Some(validEori), Some(validProviderId), conversationId)(requestGet)
