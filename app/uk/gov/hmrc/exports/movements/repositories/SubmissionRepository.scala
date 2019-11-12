@@ -31,7 +31,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class SubmissionRepository @Inject()(implicit mc: ReactiveMongoComponent, ec: ExecutionContext)
-    extends ReactiveRepository[Submission, BSONObjectID]("movementSubmissions", mc.mongoConnector.db, Submission.formats) {
+    extends ReactiveRepository[Submission, BSONObjectID]("movementSubmissions", mc.mongoConnector.db, Submission.format) {
 
   override def indexes: Seq[Index] = Seq(
     Index(Seq("eori" -> IndexType.Ascending), name = Some("eoriIdx")),

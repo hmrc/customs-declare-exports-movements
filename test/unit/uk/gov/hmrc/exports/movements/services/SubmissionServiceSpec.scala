@@ -27,7 +27,7 @@ import uk.gov.hmrc.exports.movements.exceptions.CustomsInventoryLinkingUpstreamE
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
 import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationType.SHUT_MUCR
 import uk.gov.hmrc.exports.movements.models.notifications.UcrBlock
-import uk.gov.hmrc.exports.movements.models.submissions.{ActionType, Submission, SubmissionFactory, SubmissionFrontendModel}
+import uk.gov.hmrc.exports.movements.models.submissions.{ActionType, Submission, SubmissionFactory}
 import uk.gov.hmrc.exports.movements.repositories.SearchParameters
 import uk.gov.hmrc.exports.movements.services.{ILEMapper, SubmissionService, WCOMapper}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -169,11 +169,10 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
       )
       when(submissionRepositoryMock.findBy(any[SearchParameters])).thenReturn(Future.successful(storedSubmissions))
 
-      val result: Seq[SubmissionFrontendModel] = submissionService.getSubmissions(SearchParameters()).futureValue
+      val result: Seq[Submission] = submissionService.getSubmissions(SearchParameters()).futureValue
 
-      val expectedSubmissions = storedSubmissions.map(SubmissionFrontendModel(_))
-      result.length must equal(expectedSubmissions.length)
-      result must equal(expectedSubmissions)
+      result.length must equal(storedSubmissions.length)
+      result must equal(storedSubmissions)
     }
   }
 
@@ -193,10 +192,9 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
       val storedSubmission = exampleSubmission()
       when(submissionRepositoryMock.findBy(any[SearchParameters])).thenReturn(Future.successful(Seq(storedSubmission)))
 
-      val result: Option[SubmissionFrontendModel] = submissionService.getSingleSubmission(SearchParameters()).futureValue
+      val result: Option[Submission] = submissionService.getSingleSubmission(SearchParameters()).futureValue
 
-      val expectedSubmission = SubmissionFrontendModel(storedSubmission)
-      result.value mustBe expectedSubmission
+      result.value mustBe storedSubmission
     }
   }
 
