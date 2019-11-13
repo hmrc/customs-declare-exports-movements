@@ -21,7 +21,7 @@ import play.api.Logger
 import play.api.http.{ContentTypes, HeaderNames}
 import play.api.mvc.Codec
 import play.mvc.Http.Status
-import uk.gov.hmrc.exports.movements.config.{AppConfig}
+import uk.gov.hmrc.exports.movements.config.AppConfig
 import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames
 import uk.gov.hmrc.exports.movements.models.{CustomsInventoryLinkingResponse, UserIdentification}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -50,15 +50,14 @@ class CustomsInventoryLinkingExportsConnector @Inject()(appConfig: AppConfig, ht
       }
 
   private def headers(identification: UserIdentification)(implicit hc: HeaderCarrier): Seq[(String, String)] = {
-    val authHeaders = identification.providerId match {
-      case Some(_) =>
+    val authHeaders =
+      if (identification.providerId.isDefined)
         Seq(
           CustomsHeaderNames.BadgeIdentifier -> "ABC123",
           CustomsHeaderNames.SubmitterIdentifier -> "ABC123",
           CustomsHeaderNames.XClientIdName -> appConfig.clientIdInventory
         )
-      case _ => Seq(CustomsHeaderNames.XClientIdName -> appConfig.clientIdInventory)
-    }
+      else Seq(CustomsHeaderNames.XClientIdName -> appConfig.clientIdInventory)
 
     contentHeaders ++ authHeaders
   }

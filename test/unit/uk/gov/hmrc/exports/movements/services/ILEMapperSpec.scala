@@ -17,13 +17,13 @@
 package unit.uk.gov.hmrc.exports.movements.services
 
 import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation.AssociateDucrRequest
-import uk.gov.hmrc.exports.movements.services.WCOMapper
+import uk.gov.hmrc.exports.movements.services.ILEMapper
 import unit.uk.gov.hmrc.exports.movements.base.UnitSpec
 import utils.testdata.CommonTestData._
 
-class WCOMapperSpec extends UnitSpec {
+class ILEMapperSpec extends UnitSpec {
 
-  val ileMapper = new WCOMapper
+  val ileMapper = new ILEMapper
   val associateDucrCode = "EAC"
 
   "ILE Mapper" should {

@@ -38,7 +38,6 @@ trait WiremockTestServer extends WordSpec with BeforeAndAfterEach {
   }
 
   override protected def afterEach(): Unit = {
-    wireMockServer.resetAll()
     wireMockServer.stop()
     super.afterEach()
   }

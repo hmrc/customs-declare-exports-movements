@@ -34,7 +34,7 @@ import uk.gov.hmrc.wco.dec.inventorylinking.movement.request.InventoryLinkingMov
 import scala.xml.{Node, NodeSeq}
 
 @Singleton
-class WCOMapper {
+class ILEMapper {
 
   def generateInventoryLinkingMovementRequestXml(request: Movement): Node =
     xml.XML.loadString(generateInventoryLinkingMovementRequest(request).toXml)

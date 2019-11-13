@@ -34,11 +34,11 @@ class SubmissionService @Inject()(
   customsInventoryLinkingExportsConnector: CustomsInventoryLinkingExportsConnector,
   submissionRepository: SubmissionRepository,
   submissionFactory: SubmissionFactory,
-  wcoMapper: WCOMapper
+  ileMapper: ILEMapper
 )(implicit executionContext: ExecutionContext) {
 
   def submitMovement(movementRequest: Movement)(implicit hc: HeaderCarrier): Future[Unit] = {
-    val requestXml = wcoMapper.generateInventoryLinkingMovementRequestXml(movementRequest)
+    val requestXml = ileMapper.generateInventoryLinkingMovementRequestXml(movementRequest)
 
     customsInventoryLinkingExportsConnector.submit(movementRequest, requestXml).flatMap {
 
@@ -58,7 +58,7 @@ class SubmissionService @Inject()(
   }
 
   def submitConsolidation(consolidationRequest: Consolidation)(implicit hc: HeaderCarrier): Future[Unit] = {
-    val requestXml = wcoMapper.generateConsolidationXml(consolidationRequest)
+    val requestXml = ileMapper.generateConsolidationXml(consolidationRequest)
 
     customsInventoryLinkingExportsConnector.submit(consolidationRequest, requestXml).flatMap {
 
