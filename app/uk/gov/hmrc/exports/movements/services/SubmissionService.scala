@@ -21,8 +21,8 @@ import play.api.http.Status.ACCEPTED
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
 import uk.gov.hmrc.exports.movements.exceptions.CustomsInventoryLinkingUpstreamException
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
-import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationRequest
-import uk.gov.hmrc.exports.movements.models.movements.MovementRequest
+import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation
+import uk.gov.hmrc.exports.movements.models.movements.Movement
 import uk.gov.hmrc.exports.movements.models.submissions.{Submission, SubmissionFactory}
 import uk.gov.hmrc.exports.movements.repositories.{SearchParameters, SubmissionRepository}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -37,7 +37,7 @@ class SubmissionService @Inject()(
                                    wcoMapper: WCOMapper
 )(implicit executionContext: ExecutionContext) {
 
-  def submitMovement(movementRequest: MovementRequest)(implicit hc: HeaderCarrier): Future[Unit] = {
+  def submitMovement(movementRequest: Movement)(implicit hc: HeaderCarrier): Future[Unit] = {
     val requestXml = wcoMapper.generateInventoryLinkingMovementRequestXml(movementRequest)
 
     customsInventoryLinkingExportsConnector.submit(movementRequest, requestXml).flatMap {
@@ -57,7 +57,7 @@ class SubmissionService @Inject()(
     }
   }
 
-  def submitConsolidation(consolidationRequest: ConsolidationRequest)(implicit hc: HeaderCarrier): Future[Unit] = {
+  def submitConsolidation(consolidationRequest: Consolidation)(implicit hc: HeaderCarrier): Future[Unit] = {
     val requestXml = wcoMapper.generateConsolidationXml(consolidationRequest)
 
     customsInventoryLinkingExportsConnector.submit(consolidationRequest, requestXml).flatMap {

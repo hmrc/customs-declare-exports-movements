@@ -17,7 +17,7 @@
 package uk.gov.hmrc.exports.movements.services
 
 import javax.inject.Singleton
-import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationRequest
+import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation
 import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationType.{
   ASSOCIATE_DUCR,
   ASSOCIATE_MUCR,
@@ -27,7 +27,7 @@ import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationType.{
   SHUT_MUCR
 }
 import uk.gov.hmrc.exports.movements.models.movements.Choice.{Arrival, Departure}
-import uk.gov.hmrc.exports.movements.models.movements.{MovementDetails, MovementRequest, Transport}
+import uk.gov.hmrc.exports.movements.models.movements.{MovementDetails, Movement, Transport}
 import uk.gov.hmrc.wco.dec.inventorylinking.common.{TransportDetails, UcrBlock}
 import uk.gov.hmrc.wco.dec.inventorylinking.movement.request.InventoryLinkingMovementRequest
 
@@ -36,10 +36,10 @@ import scala.xml.{Node, NodeSeq}
 @Singleton
 class WCOMapper {
 
-  def generateInventoryLinkingMovementRequestXml(request: MovementRequest): Node =
+  def generateInventoryLinkingMovementRequestXml(request: Movement): Node =
     xml.XML.loadString(generateInventoryLinkingMovementRequest(request).toXml)
 
-  private def generateInventoryLinkingMovementRequest(request: MovementRequest): InventoryLinkingMovementRequest = {
+  private def generateInventoryLinkingMovementRequest(request: Movement): InventoryLinkingMovementRequest = {
     val departureDetails: Option[MovementDetails] = request.choice match {
       case Departure => Some(request.movementDetails)
       case _         => None
@@ -72,7 +72,7 @@ class WCOMapper {
       )
     )
 
-  def generateConsolidationXml(consolidation: ConsolidationRequest): Node =
+  def generateConsolidationXml(consolidation: Consolidation): Node =
     scala.xml.Utility.trim {
       <inventoryLinkingConsolidationRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
         <messageCode>{buildMessageCode(consolidation.consolidationType)}</messageCode>

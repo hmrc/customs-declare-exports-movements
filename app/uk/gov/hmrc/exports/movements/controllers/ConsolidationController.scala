@@ -18,7 +18,7 @@ package uk.gov.hmrc.exports.movements.controllers
 
 import javax.inject.{Inject, Singleton}
 import play.api.mvc._
-import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationRequest
+import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation
 import uk.gov.hmrc.exports.movements.services.SubmissionService
 import uk.gov.hmrc.play.bootstrap.controller.BackendController
 
@@ -29,7 +29,7 @@ class ConsolidationController @Inject()(consolidationService: SubmissionService,
   implicit executionContext: ExecutionContext
 ) extends BackendController(cc) {
 
-  def submitConsolidation(): Action[ConsolidationRequest] = Action.async(parse.json[ConsolidationRequest]) { implicit request =>
+  def submitConsolidation(): Action[Consolidation] = Action.async(parse.json[Consolidation]) { implicit request =>
     consolidationService.submitConsolidation(request.body).map(_ => Accepted(request.body))
   }
 }

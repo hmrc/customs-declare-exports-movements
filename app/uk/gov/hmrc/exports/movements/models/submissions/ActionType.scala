@@ -18,7 +18,7 @@ package uk.gov.hmrc.exports.movements.models.submissions
 
 import play.api.libs.json._
 import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationType.{ConsolidationType, _}
-import uk.gov.hmrc.exports.movements.models.movements.{Choice, MovementRequest}
+import uk.gov.hmrc.exports.movements.models.movements.{Choice, Movement}
 
 sealed abstract class ActionType(val value: String)
 
@@ -55,7 +55,7 @@ object ActionType {
     case _                 => throw new IllegalArgumentException("Incorrect consolidation type")
   }
 
-  def apply(movementRequest: MovementRequest): ActionType = movementRequest.choice match {
+  def apply(movementRequest: Movement): ActionType = movementRequest.choice match {
     case Choice.Arrival   => Arrival
     case Choice.Departure => Departure
     case _                => throw new IllegalArgumentException("Movement request can be only for arrival or departure")

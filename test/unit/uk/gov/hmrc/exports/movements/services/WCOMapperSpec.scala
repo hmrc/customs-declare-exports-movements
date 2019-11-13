@@ -16,7 +16,7 @@
 
 package unit.uk.gov.hmrc.exports.movements.services
 
-import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationRequest.AssociateDucrRequest
+import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation.AssociateDucrRequest
 import uk.gov.hmrc.exports.movements.services.WCOMapper
 import unit.uk.gov.hmrc.exports.movements.base.UnitSpec
 import utils.testdata.CommonTestData._

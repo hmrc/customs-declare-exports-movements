@@ -24,8 +24,8 @@ import play.api.mvc.Request
 import play.api.test.Helpers._
 import play.api.test._
 import uk.gov.hmrc.exports.movements.controllers.ConsolidationController
-import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationRequest
-import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationRequest._
+import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation
+import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation._
 import uk.gov.hmrc.exports.movements.services.SubmissionService
 import utils.FakeRequestCSRFSupport._
 import utils.testdata.CommonTestData._
@@ -51,7 +51,7 @@ class ConsolidationControllerSpec extends WordSpec with BeforeAndAfterEach with 
     super.afterEach()
   }
 
-  protected def postRequest(body: ConsolidationRequest): Request[ConsolidationRequest] =
+  protected def postRequest(body: Consolidation): Request[Consolidation] =
     FakeRequest("POST", "")
       .withHeaders(("Content-Type", "application/json"))
       .withBody(body)

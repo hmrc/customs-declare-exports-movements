@@ -20,7 +20,7 @@ import play.api.libs.json.Json
 import uk.gov.hmrc.exports.movements.controllers.util.JSONResponses
 import uk.gov.hmrc.exports.movements.models.UserIdentification
 
-case class MovementRequest(
+case class Movement(
   override val eori: String,
   override val providerId: Option[String] = None,
   choice: String,
@@ -31,6 +31,6 @@ case class MovementRequest(
   transport: Option[Transport] = None
 ) extends UserIdentification
 
-object MovementRequest extends JSONResponses {
-  implicit val format = Json.format[MovementRequest]
+object Movement extends JSONResponses {
+  implicit val format = Json.format[Movement]
 }
