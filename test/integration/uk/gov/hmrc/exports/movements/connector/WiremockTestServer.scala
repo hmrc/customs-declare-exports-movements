@@ -19,9 +19,9 @@ package integration.uk.gov.hmrc.exports.movements.connector
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.{MappingBuilder, WireMock}
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
-import org.scalatest.{BeforeAndAfterAll, WordSpec}
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, WordSpec}
 
-trait WiremockTestServer extends WordSpec with BeforeAndAfterAll {
+trait WiremockTestServer extends WordSpec with BeforeAndAfterEach {
 
   val wireHost = "localhost"
   val wirePort = 20001
@@ -31,14 +31,14 @@ trait WiremockTestServer extends WordSpec with BeforeAndAfterAll {
   protected def stubFor(mappingBuilder: MappingBuilder): StubMapping =
     wireMockServer.stubFor(mappingBuilder)
 
-  override protected def beforeAll(): Unit = {
-    super.beforeAll()
+  override protected def beforeEach(): Unit = {
+    super.beforeEach()
     wireMockServer.start()
     WireMock.configureFor(wireHost, wirePort)
   }
 
-  override protected def afterAll(): Unit = {
+  override protected def afterEach(): Unit = {
     wireMockServer.stop()
-    super.afterAll()
+    super.afterEach()
   }
 }

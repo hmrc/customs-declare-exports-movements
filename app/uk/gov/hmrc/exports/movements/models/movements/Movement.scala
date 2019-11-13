@@ -18,18 +18,19 @@ package uk.gov.hmrc.exports.movements.models.movements
 
 import play.api.libs.json.Json
 import uk.gov.hmrc.exports.movements.controllers.util.JSONResponses
+import uk.gov.hmrc.exports.movements.models.UserIdentification
 
-case class MovementRequest(
-  eori: String,
-  providerId: Option[String] = None,
+case class Movement(
+  override val eori: String,
+  override val providerId: Option[String] = None,
   choice: String,
   consignmentReference: ConsignmentReference,
   movementDetails: MovementDetails,
   location: Option[Location] = None,
   arrivalReference: Option[ArrivalReference] = None,
   transport: Option[Transport] = None
-)
+) extends UserIdentification
 
-object MovementRequest extends JSONResponses {
-  implicit val format = Json.format[MovementRequest]
+object Movement extends JSONResponses {
+  implicit val format = Json.format[Movement]
 }

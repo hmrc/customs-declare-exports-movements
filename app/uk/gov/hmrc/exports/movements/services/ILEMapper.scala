@@ -17,15 +17,62 @@
 package uk.gov.hmrc.exports.movements.services
 
 import javax.inject.Singleton
-import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationRequest
-import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationType.{ConsolidationType, _}
+import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation
+import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationType.{
+  ASSOCIATE_DUCR,
+  ASSOCIATE_MUCR,
+  ConsolidationType,
+  DISASSOCIATE_DUCR,
+  DISASSOCIATE_MUCR,
+  SHUT_MUCR
+}
+import uk.gov.hmrc.exports.movements.models.movements.Choice.{Arrival, Departure}
+import uk.gov.hmrc.exports.movements.models.movements.{Movement, MovementDetails, Transport}
+import uk.gov.hmrc.wco.dec.inventorylinking.common.{TransportDetails, UcrBlock}
+import uk.gov.hmrc.wco.dec.inventorylinking.movement.request.InventoryLinkingMovementRequest
 
 import scala.xml.{Node, NodeSeq}
 
 @Singleton
 class ILEMapper {
 
-  def generateConsolidationXml(consolidation: ConsolidationRequest): Node =
+  def generateInventoryLinkingMovementRequestXml(request: Movement): Node =
+    xml.XML.loadString(generateInventoryLinkingMovementRequest(request).toXml)
+
+  private def generateInventoryLinkingMovementRequest(request: Movement): InventoryLinkingMovementRequest = {
+    val departureDetails: Option[MovementDetails] = request.choice match {
+      case Departure => Some(request.movementDetails)
+      case _         => None
+    }
+
+    val arrivalDetails: Option[MovementDetails] = request.choice match {
+      case Arrival => Some(request.movementDetails)
+      case _       => None
+    }
+
+    InventoryLinkingMovementRequest(
+      messageCode = request.choice,
+      agentDetails = None,
+      ucrBlock = UcrBlock(ucr = request.consignmentReference.referenceValue, ucrType = request.consignmentReference.reference),
+      goodsLocation = request.location.map(_.code).getOrElse(""),
+      goodsArrivalDateTime = arrivalDetails.map(_.dateTime),
+      goodsDepartureDateTime = departureDetails.map(_.dateTime),
+      transportDetails = mapTransportDetails(request.transport),
+      movementReference = request.arrivalReference.flatMap(_.reference)
+    )
+  }
+
+  private def mapTransportDetails(transport: Option[Transport]): Option[TransportDetails] =
+    transport.map(
+      data =>
+        TransportDetails(
+          transportID = Some(data.transportId),
+          transportMode = Some(data.modeOfTransport),
+          transportNationality = Some(data.nationality)
+      )
+    )
+
+  def generateConsolidationXml(consolidation: Consolidation): Node =
     scala.xml.Utility.trim {
       <inventoryLinkingConsolidationRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
         <messageCode>{buildMessageCode(consolidation.consolidationType)}</messageCode>

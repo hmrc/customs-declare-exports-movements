@@ -21,8 +21,8 @@ import play.api.http.Status.ACCEPTED
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
 import uk.gov.hmrc.exports.movements.exceptions.CustomsInventoryLinkingUpstreamException
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
-import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationRequest
-import uk.gov.hmrc.exports.movements.models.movements.MovementRequest
+import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation
+import uk.gov.hmrc.exports.movements.models.movements.Movement
 import uk.gov.hmrc.exports.movements.models.submissions.{Submission, SubmissionFactory}
 import uk.gov.hmrc.exports.movements.repositories.{SearchParameters, SubmissionRepository}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -34,14 +34,13 @@ class SubmissionService @Inject()(
   customsInventoryLinkingExportsConnector: CustomsInventoryLinkingExportsConnector,
   submissionRepository: SubmissionRepository,
   submissionFactory: SubmissionFactory,
-  ileMapper: ILEMapper,
-  wcoMapper: WCOMapper
+  ileMapper: ILEMapper
 )(implicit executionContext: ExecutionContext) {
 
-  def submitMovement(movementRequest: MovementRequest)(implicit hc: HeaderCarrier): Future[Unit] = {
-    val requestXml = wcoMapper.generateInventoryLinkingMovementRequestXml(movementRequest)
+  def submitMovement(movementRequest: Movement)(implicit hc: HeaderCarrier): Future[Unit] = {
+    val requestXml = ileMapper.generateInventoryLinkingMovementRequestXml(movementRequest)
 
-    customsInventoryLinkingExportsConnector.sendInventoryLinkingRequest(movementRequest.eori, requestXml).flatMap {
+    customsInventoryLinkingExportsConnector.submit(movementRequest, requestXml).flatMap {
 
       case CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId)) =>
         val newSubmission =
@@ -58,10 +57,10 @@ class SubmissionService @Inject()(
     }
   }
 
-  def submitConsolidation(consolidationRequest: ConsolidationRequest)(implicit hc: HeaderCarrier): Future[Unit] = {
+  def submitConsolidation(consolidationRequest: Consolidation)(implicit hc: HeaderCarrier): Future[Unit] = {
     val requestXml = ileMapper.generateConsolidationXml(consolidationRequest)
 
-    customsInventoryLinkingExportsConnector.sendInventoryLinkingRequest(consolidationRequest.eori, requestXml).flatMap {
+    customsInventoryLinkingExportsConnector.submit(consolidationRequest, requestXml).flatMap {
 
       case CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId)) =>
         val newSubmission =

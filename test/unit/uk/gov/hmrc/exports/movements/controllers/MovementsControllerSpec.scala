@@ -24,7 +24,7 @@ import play.api.mvc.Request
 import play.api.test.Helpers._
 import play.api.test._
 import uk.gov.hmrc.exports.movements.controllers.MovementsController
-import uk.gov.hmrc.exports.movements.models.movements.{Choice, ConsignmentReference, MovementDetails, MovementRequest}
+import uk.gov.hmrc.exports.movements.models.movements.{Choice, ConsignmentReference, Movement, MovementDetails}
 import uk.gov.hmrc.exports.movements.services.SubmissionService
 import unit.uk.gov.hmrc.exports.movements.base.UnitSpec
 import utils.FakeRequestCSRFSupport._
@@ -40,7 +40,7 @@ class MovementsControllerSpec extends UnitSpec with MockitoSugar with BeforeAndA
   val controller =
     new MovementsController(submissionServiceMock, stubControllerComponents())(global)
 
-  val correctJson = MovementRequest(
+  val correctJson = Movement(
     eori = validEori,
     choice = Choice.Arrival,
     consignmentReference = ConsignmentReference("reference", "value"),
@@ -56,7 +56,7 @@ class MovementsControllerSpec extends UnitSpec with MockitoSugar with BeforeAndA
     super.afterEach()
   }
 
-  protected def postRequest(body: MovementRequest): Request[MovementRequest] =
+  protected def postRequest(body: Movement): Request[Movement] =
     FakeRequest("POST", "")
       .withHeaders(JsonContentTypeHeader)
       .withBody(body)

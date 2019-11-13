@@ -20,17 +20,18 @@ import java.time.Instant
 import java.util.UUID
 
 import play.api.libs.json._
+import uk.gov.hmrc.exports.movements.models.UserIdentification
 import uk.gov.hmrc.exports.movements.models.notifications.UcrBlock
 
 case class Submission(
   uuid: String = UUID.randomUUID().toString,
-  eori: String,
-  providerId: Option[String],
+  override val eori: String,
+  override val providerId: Option[String],
   conversationId: String,
   ucrBlocks: Seq[UcrBlock],
   actionType: ActionType,
   requestTimestamp: Instant = Instant.now()
-)
+) extends UserIdentification
 
 object Submission {
   implicit val format: OFormat[Submission] = Json.format[Submission]
