@@ -31,10 +31,10 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class SubmissionService @Inject()(
-                                   customsInventoryLinkingExportsConnector: CustomsInventoryLinkingExportsConnector,
-                                   submissionRepository: SubmissionRepository,
-                                   submissionFactory: SubmissionFactory,
-                                   wcoMapper: WCOMapper
+  customsInventoryLinkingExportsConnector: CustomsInventoryLinkingExportsConnector,
+  submissionRepository: SubmissionRepository,
+  submissionFactory: SubmissionFactory,
+  wcoMapper: WCOMapper
 )(implicit executionContext: ExecutionContext) {
 
   def submitMovement(movementRequest: Movement)(implicit hc: HeaderCarrier): Future[Unit] = {

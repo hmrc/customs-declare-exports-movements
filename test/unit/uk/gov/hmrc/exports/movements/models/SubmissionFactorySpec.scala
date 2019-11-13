@@ -19,7 +19,7 @@ package unit.uk.gov.hmrc.exports.movements.models
 import org.scalatest.{MustMatchers, WordSpec}
 import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationType._
-import uk.gov.hmrc.exports.movements.models.movements.{ConsignmentReference, MovementDetails, Movement}
+import uk.gov.hmrc.exports.movements.models.movements.{ConsignmentReference, Movement, MovementDetails}
 import uk.gov.hmrc.exports.movements.models.notifications.UcrBlock
 import uk.gov.hmrc.exports.movements.models.submissions.{ActionType, Submission, SubmissionFactory}
 import utils.testdata.CommonTestData.{conversationId, _}

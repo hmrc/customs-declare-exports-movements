@@ -27,7 +27,7 @@ import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationType.{
   SHUT_MUCR
 }
 import uk.gov.hmrc.exports.movements.models.movements.Choice.{Arrival, Departure}
-import uk.gov.hmrc.exports.movements.models.movements.{MovementDetails, Movement, Transport}
+import uk.gov.hmrc.exports.movements.models.movements.{Movement, MovementDetails, Transport}
 import uk.gov.hmrc.wco.dec.inventorylinking.common.{TransportDetails, UcrBlock}
 import uk.gov.hmrc.wco.dec.inventorylinking.movement.request.InventoryLinkingMovementRequest
 
