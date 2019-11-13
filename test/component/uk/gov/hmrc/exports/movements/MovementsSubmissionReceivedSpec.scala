@@ -81,7 +81,7 @@ class MovementsSubmissionReceivedSpec extends ComponentTestSpec with Integration
       exception.getStatus shouldBe INTERNAL_SERVER_ERROR
 
       And("the ILE API service is called correctly")
-      eventually(verifyILEServiceWasCalled(requestBody = exampleDepartureRequestXML.toString, expectedEori = validEori))
+      eventually(verifyILEServiceWasCalled(requestBody = exampleDepartureRequestXML.toString))
 
       And("the movements submission repository is not called")
       verifyMovementSubmissionRepositoryWasNotCalled()
@@ -105,7 +105,7 @@ class MovementsSubmissionReceivedSpec extends ComponentTestSpec with Integration
       exception.getStatus shouldBe BAD_REQUEST
 
       And("the ILE API service is called correctly")
-      eventually(verifyILEServiceWasCalled(requestBody = exampleDepartureRequestXML.toString, expectedEori = validEori))
+      eventually(verifyILEServiceWasCalled(requestBody = exampleDepartureRequestXML.toString))
 
       And("the movements submission repository is not called")
       verifyMovementSubmissionRepositoryWasNotCalled()
@@ -129,7 +129,7 @@ class MovementsSubmissionReceivedSpec extends ComponentTestSpec with Integration
       exception.getStatus shouldBe UNAUTHORIZED
 
       And("the ILE API service is called correctly")
-      eventually(verifyILEServiceWasCalled(requestBody = exampleDepartureRequestXML.toString, expectedEori = validEori))
+      eventually(verifyILEServiceWasCalled(requestBody = exampleDepartureRequestXML.toString))
 
       And("the movements submission repository is not called")
       verifyMovementSubmissionRepositoryWasNotCalled()
@@ -153,7 +153,7 @@ class MovementsSubmissionReceivedSpec extends ComponentTestSpec with Integration
       exception.getStatus shouldBe NOT_FOUND
 
       And("the ILE API service is called correctly")
-      eventually(verifyILEServiceWasCalled(requestBody = exampleDepartureRequestXML.toString, expectedEori = validEori))
+      eventually(verifyILEServiceWasCalled(requestBody = exampleDepartureRequestXML.toString))
 
       And("the movements submission repository is not called")
       verifyMovementSubmissionRepositoryWasNotCalled()
@@ -179,7 +179,7 @@ class MovementsSubmissionReceivedSpec extends ComponentTestSpec with Integration
       exception.getStatus shouldBe NOT_FOUND
 
       And("the ILE API service was called correctly")
-      eventually(verifyILEServiceWasCalled(requestBody = exampleDepartureRequestXML.toString, expectedEori = validEori))
+      eventually(verifyILEServiceWasCalled(requestBody = exampleDepartureRequestXML.toString))
 
       And("the movement submission repository was not called")
       eventually(verifyMovementSubmissionRepositoryWasNotCalled())
@@ -209,7 +209,7 @@ class MovementsSubmissionReceivedSpec extends ComponentTestSpec with Integration
       }
 
       And("the ILE API service is called correctly")
-      eventually(verifyILEServiceWasCalled(requestBody = exampleDepartureRequestXML.toString, expectedEori = validEori))
+      eventually(verifyILEServiceWasCalled(requestBody = exampleDepartureRequestXML.toString))
 
       And("the movement submission repository is called correctly")
       eventually(verifyMovementSubmissionRepositoryIsCorrectlyCalled(validEori))
@@ -237,7 +237,7 @@ class MovementsSubmissionReceivedSpec extends ComponentTestSpec with Integration
       contentAsString(result) should include(exampleDepartureRequestJson.toString)
 
       And("the ILE API service is called correctly")
-      eventually(verifyILEServiceWasCalled(requestBody = exampleDepartureRequestXML.toString, expectedEori = validEori))
+      eventually(verifyILEServiceWasCalled(requestBody = exampleDepartureRequestXML.toString))
 
       And("the movements submission repository is called correctly")
       eventually(verifyMovementSubmissionRepositoryIsCorrectlyCalled(validEori))
@@ -282,7 +282,7 @@ class MovementsSubmissionReceivedSpec extends ComponentTestSpec with Integration
       }
 
       And("the ILE API service is called correctly")
-      eventually(verifyILEServiceWasCalled(requestBody = exampleDepartureRequestXML.toString, expectedEori = validEori))
+      eventually(verifyILEServiceWasCalled(requestBody = exampleDepartureRequestXML.toString))
 
       if (moveSubRepoIsCalled) {
         And("the movements submission repository is called correctly")

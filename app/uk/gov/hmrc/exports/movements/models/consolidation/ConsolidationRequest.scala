@@ -18,16 +18,17 @@ package uk.gov.hmrc.exports.movements.models.consolidation
 
 import play.api.libs.json.Json
 import uk.gov.hmrc.exports.movements.controllers.util.JSONResponses
+import uk.gov.hmrc.exports.movements.models.UserIdentification
 import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationType._
 import uk.gov.hmrc.play.json.Union
 
 sealed abstract class ConsolidationRequest(
   val consolidationType: ConsolidationType,
-  val eori: String,
-  val providerId: Option[String],
+  override val eori: String,
+  override val providerId: Option[String],
   val mucrOpt: Option[String],
   val ucrOpt: Option[String]
-)
+) extends UserIdentification
 
 object ConsolidationRequest extends JSONResponses {
   implicit val associateDucrFormat = Json.format[AssociateDucrRequest]

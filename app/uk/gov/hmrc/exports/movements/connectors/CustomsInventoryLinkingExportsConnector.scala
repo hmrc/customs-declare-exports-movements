@@ -21,10 +21,10 @@ import play.api.Logger
 import play.api.http.{ContentTypes, HeaderNames}
 import play.api.mvc.Codec
 import play.mvc.Http.Status
-import uk.gov.hmrc.exports.movements.config.AppConfig
+import uk.gov.hmrc.exports.movements.config.{AppConfig}
 import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames
-import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
-import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse}
+import uk.gov.hmrc.exports.movements.models.{CustomsInventoryLinkingResponse, UserIdentification}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -34,33 +34,38 @@ import scala.xml.NodeSeq
 class CustomsInventoryLinkingExportsConnector @Inject()(appConfig: AppConfig, httpClient: HttpClient)(implicit ec: ExecutionContext) {
 
   private val logger = Logger(this.getClass)
+  private val contentHeaders = Seq(
+    HeaderNames.ACCEPT -> "application/vnd.hmrc.1.0+xml",
+    HeaderNames.CONTENT_TYPE -> ContentTypes.XML(Codec.utf_8)
+  )
 
-  def sendInventoryLinkingRequest(eori: String, body: NodeSeq)(implicit hc: HeaderCarrier): Future[CustomsInventoryLinkingResponse] =
-    post(eori, body.toString).map { response =>
-      logger.debug(s"CUSTOMS_INVENTORY_LINKING_EXPORTS response is --> ${response.toString}")
-      response
-    }
-
-  private[connectors] def post(eori: String, body: String)(implicit hc: HeaderCarrier): Future[CustomsInventoryLinkingResponse] = {
-    logger.debug(s"CUSTOMS_INVENTORY_LINKING_EXPORTS request payload is -> $body")
+  def submit(identification: UserIdentification, body: NodeSeq)(
+    implicit hc: HeaderCarrier
+  ): Future[CustomsInventoryLinkingResponse] =
     httpClient
       .POSTString[CustomsInventoryLinkingResponse](
         s"${appConfig.customsInventoryLinkingExportsRootUrl}${appConfig.sendArrivalUrlSuffix}",
-        body,
-        headers = headers(eori)
+        body.toString,
+        headers = headers(identification)
       )
       .recover {
         case error: Throwable =>
           logger.warn(s"Error from Customs Inventory Linking. $error")
           CustomsInventoryLinkingResponse(Status.INTERNAL_SERVER_ERROR, None)
       }
-  }
 
-  private def headers(eori: String)(implicit hc: HeaderCarrier): Seq[(String, String)] =
-    Seq(
-      HeaderNames.ACCEPT -> "application/vnd.hmrc.1.0+xml",
-      HeaderNames.CONTENT_TYPE -> ContentTypes.XML(Codec.utf_8),
-      CustomsHeaderNames.XClientIdName -> appConfig.clientIdInventory,
-      CustomsHeaderNames.XEoriIdentifierHeaderName -> eori
-    )
+  private def headers(identification: UserIdentification)(implicit hc: HeaderCarrier): Seq[(String, String)] = {
+    val authHeaders = identification.providerId match {
+      case Some(_) => Seq(
+        CustomsHeaderNames.BadgeIdentifier -> "ABC123",
+        CustomsHeaderNames.SubmitterIdentifier -> "ABC123",
+        CustomsHeaderNames.XClientIdName -> appConfig.clientIdInventory
+      )
+      case _ => Seq(
+        CustomsHeaderNames.XClientIdName -> appConfig.clientIdInventory
+      )
+    }
+
+    contentHeaders ++ authHeaders
+  }
 }

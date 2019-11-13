@@ -65,7 +65,6 @@ object CommonTestData {
   val declarantMrnValue: String = "MyMucrValue1234"
   val XmlContentTypeHeader: (String, String) = CONTENT_TYPE -> ContentTypes.XML(Codec.utf_8)
   val JsonContentTypeHeader: (String, String) = CONTENT_TYPE -> ContentTypes.JSON
-  val ValidXEoriIdentifierHeader: (String, String) = XEoriIdentifierHeaderName -> validEori
   val ValidAuthorizationHeader: (String, String) = HeaderNames.AUTHORIZATION -> dummyToken
   val ValidConversationIdHeader: (String, String) = XConversationIdName -> conversationId
   val ValidUcrHeader: (String, String) = XUcrHeaderName -> declarantUcrValue
@@ -73,8 +72,8 @@ object CommonTestData {
   val ValidMovementTypeHeader: (String, String) = XMovementTypeHeaderName -> "Arrival"
 
   val ValidHeaders: Map[String, String] =
-    Map(XmlContentTypeHeader, ValidAuthorizationHeader, ValidConversationIdHeader, ValidXEoriIdentifierHeader)
+    Map(XmlContentTypeHeader, ValidAuthorizationHeader, ValidConversationIdHeader)
   val ValidJsonHeaders: Map[String, String] =
-    Map(JsonContentTypeHeader, ValidAuthorizationHeader, ValidConversationIdHeader, ValidXEoriIdentifierHeader)
+    Map(JsonContentTypeHeader, ValidAuthorizationHeader, ValidConversationIdHeader)
 
 }

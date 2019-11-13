@@ -17,12 +17,21 @@
 package uk.gov.hmrc.exports.movements.services
 
 import javax.inject.Singleton
+import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationRequest
+import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationType.{
+  ASSOCIATE_DUCR,
+  ASSOCIATE_MUCR,
+  ConsolidationType,
+  DISASSOCIATE_DUCR,
+  DISASSOCIATE_MUCR,
+  SHUT_MUCR
+}
 import uk.gov.hmrc.exports.movements.models.movements.Choice.{Arrival, Departure}
 import uk.gov.hmrc.exports.movements.models.movements.{MovementDetails, MovementRequest, Transport}
 import uk.gov.hmrc.wco.dec.inventorylinking.common.{TransportDetails, UcrBlock}
 import uk.gov.hmrc.wco.dec.inventorylinking.movement.request.InventoryLinkingMovementRequest
 
-import scala.xml.Node
+import scala.xml.{Node, NodeSeq}
 
 @Singleton
 class WCOMapper {
@@ -62,4 +71,34 @@ class WCOMapper {
           transportNationality = Some(data.nationality)
       )
     )
+
+  def generateConsolidationXml(consolidation: ConsolidationRequest): Node =
+    scala.xml.Utility.trim {
+      <inventoryLinkingConsolidationRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
+        <messageCode>{buildMessageCode(consolidation.consolidationType)}</messageCode>
+        {buildMasterUcrNode(consolidation.mucrOpt)}
+        {buildUcrBlockNode(consolidation.consolidationType, consolidation.ucrOpt)}
+      </inventoryLinkingConsolidationRequest>
+    }
+
+  private def buildMessageCode(consolidationType: ConsolidationType): String = consolidationType match {
+    case ASSOCIATE_DUCR | DISASSOCIATE_DUCR | ASSOCIATE_MUCR | DISASSOCIATE_MUCR => "EAC"
+    case SHUT_MUCR                                                               => "CST"
+  }
+
+  private def buildMasterUcrNode(mucrOpt: Option[String]): NodeSeq =
+    mucrOpt.map(mucr => <masterUCR>{mucr}</masterUCR>).getOrElse(NodeSeq.Empty)
+
+  private def buildUcrBlockNode(consolidationType: ConsolidationType, ucrOpt: Option[String]): NodeSeq =
+    ucrOpt.map { ducr =>
+      <ucrBlock>
+        <ucr>{ducr}</ucr>
+        <ucrType>{ucrType(consolidationType)}</ucrType>
+      </ucrBlock>
+    }.getOrElse(NodeSeq.Empty)
+
+  private def ucrType(consolidationType: ConsolidationType): String = consolidationType match {
+    case ASSOCIATE_DUCR | DISASSOCIATE_DUCR => "D"
+    case ASSOCIATE_MUCR | DISASSOCIATE_MUCR => "M"
+  }
 }

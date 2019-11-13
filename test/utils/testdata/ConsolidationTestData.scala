@@ -86,7 +86,6 @@ object ConsolidationTestData {
   val ValidConsolidationRequestHeaders = Map(
     HeaderNames.CONTENT_TYPE -> ContentTypes.XML(Codec.utf_8),
     HeaderNames.AUTHORIZATION -> dummyToken,
-    CustomsHeaderNames.XEoriIdentifierHeaderName -> validEori,
     HeaderNames.ACCEPT -> s"application/vnd.hmrc.${2.0}+xml"
   )
 }

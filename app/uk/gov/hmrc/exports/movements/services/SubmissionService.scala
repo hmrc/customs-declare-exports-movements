@@ -31,17 +31,16 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class SubmissionService @Inject()(
-  customsInventoryLinkingExportsConnector: CustomsInventoryLinkingExportsConnector,
-  submissionRepository: SubmissionRepository,
-  submissionFactory: SubmissionFactory,
-  ileMapper: ILEMapper,
-  wcoMapper: WCOMapper
+                                   customsInventoryLinkingExportsConnector: CustomsInventoryLinkingExportsConnector,
+                                   submissionRepository: SubmissionRepository,
+                                   submissionFactory: SubmissionFactory,
+                                   wcoMapper: WCOMapper
 )(implicit executionContext: ExecutionContext) {
 
   def submitMovement(movementRequest: MovementRequest)(implicit hc: HeaderCarrier): Future[Unit] = {
     val requestXml = wcoMapper.generateInventoryLinkingMovementRequestXml(movementRequest)
 
-    customsInventoryLinkingExportsConnector.sendInventoryLinkingRequest(movementRequest.eori, requestXml).flatMap {
+    customsInventoryLinkingExportsConnector.submit(movementRequest, requestXml).flatMap {
 
       case CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId)) =>
         val newSubmission =
@@ -59,9 +58,9 @@ class SubmissionService @Inject()(
   }
 
   def submitConsolidation(consolidationRequest: ConsolidationRequest)(implicit hc: HeaderCarrier): Future[Unit] = {
-    val requestXml = ileMapper.generateConsolidationXml(consolidationRequest)
+    val requestXml = wcoMapper.generateConsolidationXml(consolidationRequest)
 
-    customsInventoryLinkingExportsConnector.sendInventoryLinkingRequest(consolidationRequest.eori, requestXml).flatMap {
+    customsInventoryLinkingExportsConnector.submit(consolidationRequest, requestXml).flatMap {
 
       case CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId)) =>
         val newSubmission =

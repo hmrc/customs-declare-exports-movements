@@ -14,16 +14,9 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.exports.movements.controllers.util
+package uk.gov.hmrc.exports.movements.models
 
-object CustomsHeaderNames {
-  val Authorization = "Authorization"
-  val BadgeIdentifier = "X-Badge-Identifier"
-  val SubmitterIdentifier = "X-Submitter-Identifier"
-  val XLrnHeaderName = "X-LRN"
-  val XUcrHeaderName = "X-UCR"
-  val XMovementTypeHeaderName = "X-MOVEMENT-TYPE"
-  val XClientIdName = "X-Client-ID"
-  val XConversationIdName = "X-Conversation-ID"
-
+trait UserIdentification {
+  val eori: String
+  val providerId: Option[String]
 }

@@ -81,7 +81,7 @@ object UnitTestMockBuilder extends MockitoSugar {
   def buildCustomsInventoryLinkingExportsConnectorMock: CustomsInventoryLinkingExportsConnector = {
     val customsInventoryLinkingExportsConnectorMock = mock[CustomsInventoryLinkingExportsConnector]
 
-    when(customsInventoryLinkingExportsConnectorMock.sendInventoryLinkingRequest(any(), any())(any()))
+    when(customsInventoryLinkingExportsConnectorMock.submit(any(), any())(any()))
       .thenReturn(Future.successful(CustomsInventoryLinkingResponse.empty))
 
     customsInventoryLinkingExportsConnectorMock

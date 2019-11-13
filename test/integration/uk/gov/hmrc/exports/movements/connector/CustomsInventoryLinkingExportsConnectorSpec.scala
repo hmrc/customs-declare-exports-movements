@@ -25,7 +25,7 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.exports.movements.config.AppConfig
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
 import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames
-import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
+import uk.gov.hmrc.exports.movements.models.{CustomsInventoryLinkingResponse, UserIdentification}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.xml.Elem
@@ -41,27 +41,62 @@ class CustomsInventoryLinkingExportsConnectorSpec extends ConnectorSpec {
     given(config.sendArrivalUrlSuffix).willReturn("/path")
     given(config.clientIdInventory(ArgumentMatchers.any[HeaderCarrier]())).willReturn("client-id")
 
-    "POST to ILE" in {
-      stubFor(
-        post("/path")
-          .willReturn(
-            aResponse()
-              .withStatus(Status.ACCEPTED)
-              .withHeader(CustomsHeaderNames.XConversationIdName, "conv-id")
-          )
-      )
+    "POST to ILE" when {
+      "EORI only request" in {
+        stubFor(
+          post("/path")
+            .willReturn(
+              aResponse()
+                .withStatus(Status.ACCEPTED)
+                .withHeader(CustomsHeaderNames.XConversationIdName, "conv-id")
+            )
+        )
 
-      val result: CustomsInventoryLinkingResponse = await(connector.sendInventoryLinkingRequest("eori", xml)(hc))
+        val result: CustomsInventoryLinkingResponse = await(connector.submit(identification("eori", None), xml)(hc))
 
-      result.status mustBe ACCEPTED
-      result.conversationId mustBe Some("conv-id")
-      verify(
-        postRequestedFor(urlEqualTo("/path"))
-          .withRequestBody(equalTo("<Xml></Xml>"))
-          .withHeader("Accept", equalTo("application/vnd.hmrc.1.0+xml"))
-          .withHeader("Content-Type", equalTo("application/xml; charset=utf-8"))
-          .withHeader("X-Client-ID", equalTo("client-id"))
-      )
+        result.status mustBe ACCEPTED
+        result.conversationId mustBe Some("conv-id")
+        verify(
+          postRequestedFor(urlEqualTo("/path"))
+            .withRequestBody(equalTo("<Xml></Xml>"))
+            .withHeader("Accept", equalTo("application/vnd.hmrc.1.0+xml"))
+            .withHeader("Content-Type", equalTo("application/xml; charset=utf-8"))
+            .withHeader("X-Client-ID", equalTo("client-id"))
+            .withoutHeader("X-Badge-Identifier")
+            .withoutHeader("X-Submitter-Identifier")
+        )
+      }
+
+      "privileged request" in {
+        stubFor(
+          post("/path")
+            .willReturn(
+              aResponse()
+                .withStatus(Status.ACCEPTED)
+                .withHeader(CustomsHeaderNames.XConversationIdName, "conv-id")
+            )
+        )
+
+        val result: CustomsInventoryLinkingResponse = await(connector.submit(identification("eori", Some("id")), xml)(hc))
+
+        result.status mustBe ACCEPTED
+        result.conversationId mustBe Some("conv-id")
+        verify(
+          postRequestedFor(urlEqualTo("/path"))
+            .withRequestBody(equalTo("<Xml></Xml>"))
+            .withHeader("Accept", equalTo("application/vnd.hmrc.1.0+xml"))
+            .withHeader("Content-Type", equalTo("application/xml; charset=utf-8"))
+            .withHeader("X-Client-ID", equalTo("client-id"))
+            .withHeader("X-Badge-Identifier", equalTo("ABC123"))
+            .withHeader("X-Submitter-Identifier", equalTo("ABC123"))
+        )
+      }
     }
   }
+
+  private def identification(userEori: String, userProviderId: Option[String]): UserIdentification = new UserIdentification {
+    override val eori: String = userEori
+    override val providerId: Option[String] = userProviderId
+  }
+
 }
