@@ -16,6 +16,9 @@
 
 package uk.gov.hmrc.exports.movements.services
 
+import java.time.Instant
+import java.time.format.DateTimeFormatter
+
 import javax.inject.Singleton
 import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation
 import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationType._
@@ -34,13 +37,14 @@ class ILEMapper {
 
   private def generateInventoryLinkingMovementRequest(request: Movement): InventoryLinkingMovementRequest = {
     val departureDetails: Option[MovementDetails] = request.choice match {
-      case Departure => Some(request.movementDetails)
+      case Departure => request.movementDetails
       case _         => None
     }
 
     val arrivalDetails: Option[MovementDetails] = request.choice match {
-      case Arrival | RetrospectiveArrival => Some(request.movementDetails)
-      case _                              => None
+      case Arrival              => request.movementDetails
+      case RetrospectiveArrival => Some(MovementDetails(DateTimeFormatter.ISO_INSTANT.format(Instant.now())))
+      case _                    => None
     }
 
     InventoryLinkingMovementRequest(

@@ -44,7 +44,7 @@ class MovementsControllerSpec extends UnitSpec with MockitoSugar with BeforeAndA
     eori = validEori,
     choice = MovementType.Arrival,
     consignmentReference = ConsignmentReference("reference", "value"),
-    movementDetails = MovementDetails("dateTime")
+    movementDetails = Some(MovementDetails("dateTime"))
   )
 
   override protected def beforeEach(): Unit =

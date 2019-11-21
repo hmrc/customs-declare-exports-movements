@@ -50,13 +50,26 @@ object MovementsTestData {
     providerId = Some(validProviderId),
     choice = MovementType.Arrival,
     consignmentReference = ConsignmentReference("D", "7GB123456789000-123ABC456DEFQWERT"),
-    movementDetails = MovementDetails("2019-07-12T13:14:54.000Z"),
+    movementDetails = Some(MovementDetails("2019-07-12T13:14:54.000Z")),
     location = Some(Location("GBAUlocation")),
     arrivalReference = Some(ArrivalReference(Some(movementReference))),
     transport = None
   )
 
   val exampleArrivalRequestJson: JsValue = Json.toJson(exampleArrivalRequest)
+
+  val exampleRetrospectiveArrivalRequest = Movement(
+    eori = validEori,
+    providerId = Some(validProviderId),
+    choice = MovementType.RetrospectiveArrival,
+    consignmentReference = ConsignmentReference("D", "7GB123456789000-123ABC456DEFQWERT"),
+    movementDetails = None,
+    location = Some(Location("GBAUlocation")),
+    arrivalReference = None,
+    transport = Some(Transport(Some(transportMode), Some(transportNationality), Some(transportId)))
+  )
+
+  val exampleRetrospectiveArrivalRequestJson: JsValue = Json.toJson(exampleRetrospectiveArrivalRequest)
 
   val exampleDepartureRequestXML: Node =
     scala.xml.Utility.trim {
@@ -81,7 +94,7 @@ object MovementsTestData {
     providerId = Some(validProviderId),
     choice = MovementType.Departure,
     consignmentReference = ConsignmentReference("D", "7GB123456789000-123ABC456DEFQWERT"),
-    movementDetails = MovementDetails("2019-07-12T13:14:54.000Z"),
+    movementDetails = Some(MovementDetails("2019-07-12T13:14:54.000Z")),
     location = Some(Location("GBAUlocation")),
     transport = Some(Transport(Some(transportMode), Some(transportNationality), Some(transportId)))
   )

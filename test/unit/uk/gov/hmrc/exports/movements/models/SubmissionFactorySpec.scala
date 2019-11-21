@@ -19,7 +19,7 @@ package unit.uk.gov.hmrc.exports.movements.models
 import org.scalatest.{MustMatchers, WordSpec}
 import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationType._
-import uk.gov.hmrc.exports.movements.models.movements.{ConsignmentReference, Movement, MovementDetails, MovementType}
+import uk.gov.hmrc.exports.movements.models.movements.{ConsignmentReference, Movement, MovementType}
 import uk.gov.hmrc.exports.movements.models.notifications.UcrBlock
 import uk.gov.hmrc.exports.movements.models.submissions.{ActionType, Submission, SubmissionFactory}
 import utils.testdata.CommonTestData.{conversationId, _}
@@ -43,7 +43,7 @@ class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar
           providerId = Some(validProviderId),
           choice = MovementType.Arrival,
           consignmentReference = ConsignmentReference("", ""),
-          movementDetails = MovementDetails("")
+          movementDetails = None
         )
 
         val submission =
@@ -67,7 +67,7 @@ class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar
           providerId = Some(validProviderId),
           choice = MovementType.Departure,
           consignmentReference = ConsignmentReference("", ""),
-          movementDetails = MovementDetails("")
+          movementDetails = None
         )
 
         val submission =
