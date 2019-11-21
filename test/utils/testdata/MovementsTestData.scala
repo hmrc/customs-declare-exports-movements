@@ -48,7 +48,7 @@ object MovementsTestData {
   val exampleArrivalRequest = Movement(
     eori = validEori,
     providerId = Some(validProviderId),
-    choice = "EAL",
+    choice = MovementType.Arrival,
     consignmentReference = ConsignmentReference("D", "7GB123456789000-123ABC456DEFQWERT"),
     movementDetails = MovementDetails("2019-07-12T13:14:54.000Z"),
     location = Some(Location("GBAUlocation")),
@@ -79,7 +79,7 @@ object MovementsTestData {
   val exampleDepartureRequest: Movement = Movement(
     eori = validEori,
     providerId = Some(validProviderId),
-    choice = "EDL",
+    choice = MovementType.Departure,
     consignmentReference = ConsignmentReference("D", "7GB123456789000-123ABC456DEFQWERT"),
     movementDetails = MovementDetails("2019-07-12T13:14:54.000Z"),
     location = Some(Location("GBAUlocation")),

@@ -19,7 +19,7 @@ package uk.gov.hmrc.exports.movements.services
 import javax.inject.Singleton
 import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation
 import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationType._
-import uk.gov.hmrc.exports.movements.models.movements.Choice.{Arrival, Departure}
+import uk.gov.hmrc.exports.movements.models.movements.MovementType.{Arrival, Departure, RetrospectiveArrival}
 import uk.gov.hmrc.exports.movements.models.movements.{Movement, MovementDetails, Transport}
 import uk.gov.hmrc.wco.dec.inventorylinking.common.{TransportDetails, UcrBlock}
 import uk.gov.hmrc.wco.dec.inventorylinking.movement.request.InventoryLinkingMovementRequest
@@ -39,12 +39,12 @@ class ILEMapper {
     }
 
     val arrivalDetails: Option[MovementDetails] = request.choice match {
-      case Arrival => Some(request.movementDetails)
-      case _       => None
+      case Arrival | RetrospectiveArrival => Some(request.movementDetails)
+      case _                              => None
     }
 
     InventoryLinkingMovementRequest(
-      messageCode = request.choice,
+      messageCode = request.choice.value,
       agentDetails = None,
       ucrBlock = UcrBlock(ucr = request.consignmentReference.referenceValue, ucrType = request.consignmentReference.reference),
       goodsLocation = request.location.map(_.code).getOrElse(""),
