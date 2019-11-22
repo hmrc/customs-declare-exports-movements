@@ -28,12 +28,14 @@ class NotificationService @Inject()(notificationRepository: NotificationReposito
   implicit executionContext: ExecutionContext
 ) {
 
-  val logger = Logger(this.getClass)
+  private val logger: Logger = Logger(this.getClass)
 
-  def save(notification: Notification): Future[Unit] =
+  def save(notification: Notification): Future[Unit] = {
+    logger.info(s"Notification created with conversation-id=[${notification.conversationId}] and payload=[${notification.payload}]")
     notificationRepository
       .insert(notification)
       .map(_ => (): Unit)
+  }
 
   def getAllNotifications(searchParameters: SearchParameters): Future[Seq[NotificationFrontendModel]] =
     submissionRepository.findBy(searchParameters).flatMap { submissions =>

@@ -43,7 +43,7 @@ class NotificationController @Inject()(
 )(implicit executionContext: ExecutionContext)
     extends BackendController(cc) {
 
-  val logger = Logger(this.getClass)
+  private val logger = Logger(this.getClass)
 
   def saveNotification(): Action[NodeSeq] = Action.async(parse.xml) { implicit request =>
     val timer = metrics.startTimer(movementMetric)
@@ -57,10 +57,13 @@ class NotificationController @Inject()(
     headerValidator.extractConversationIdHeader(request.headers.toSimpleMap) match {
       case Some(conversationId) =>
         buildNotificationFromResponse(conversationId, request.body) match {
-          case Some(notificationToSave) => forwardNotificationToService(notificationToSave)
-          case None                     => Future.successful(Accepted)
+          case Some(notificationToSave) =>
+            forwardNotificationToService(notificationToSave)
+          case None => Future.successful(Accepted)
         }
-      case None => Future.successful(Accepted)
+      case None =>
+        logger.warn("Notification received without a conversation-id. It will be dropped.")
+        Future.successful(Accepted)
     }
 
   private def buildNotificationFromResponse(conversationId: String, responseXml: NodeSeq): Option[Notification] =
@@ -68,7 +71,7 @@ class NotificationController @Inject()(
       Some(notificationFactory.buildMovementNotification(conversationId, responseXml))
     } catch {
       case exc: IllegalArgumentException =>
-        logger.warn(s"There is a problem during parsing notification with exception: ${exc.getMessage}")
+        logger.warn(s"Failed to parse notification with conversation-id=[$conversationId]", exc)
         None
     }
 

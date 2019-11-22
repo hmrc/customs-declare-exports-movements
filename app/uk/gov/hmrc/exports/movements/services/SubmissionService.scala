@@ -17,6 +17,7 @@
 package uk.gov.hmrc.exports.movements.services
 
 import javax.inject.{Inject, Singleton}
+import play.api.Logger
 import play.api.http.Status.ACCEPTED
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
 import uk.gov.hmrc.exports.movements.exceptions.CustomsInventoryLinkingUpstreamException
@@ -37,12 +38,14 @@ class SubmissionService @Inject()(
   ileMapper: ILEMapper
 )(implicit executionContext: ExecutionContext) {
 
+  private val logger = Logger(this.getClass)
+
   def submitMovement(movementRequest: Movement)(implicit hc: HeaderCarrier): Future[Unit] = {
     val requestXml = ileMapper.generateInventoryLinkingMovementRequestXml(movementRequest)
 
     customsInventoryLinkingExportsConnector.submit(movementRequest, requestXml).flatMap {
-
       case CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId)) =>
+        logger.info(s"Movement Submission Accepted with conversation-id=[$conversationId]")
         val newSubmission =
           submissionFactory.buildMovementSubmission(movementRequest.eori, movementRequest.providerId, conversationId, requestXml, movementRequest)
 
@@ -51,6 +54,7 @@ class SubmissionService @Inject()(
           .map(_ => (): Unit)
 
       case CustomsInventoryLinkingResponse(status, conversationId) =>
+        logger.warn(s"Movement Submission failed with conversation-id=[$conversationId] and status [$status]")
         Future.failed(
           new CustomsInventoryLinkingUpstreamException(status, conversationId, "Non Accepted status returned by Customs Inventory Linking Exports")
         )
@@ -61,8 +65,8 @@ class SubmissionService @Inject()(
     val requestXml = ileMapper.generateConsolidationXml(consolidationRequest)
 
     customsInventoryLinkingExportsConnector.submit(consolidationRequest, requestXml).flatMap {
-
       case CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId)) =>
+        logger.info(s"Consolidation Submission Accepted with conversation-id=[$conversationId]")
         val newSubmission =
           submissionFactory
             .buildConsolidationSubmission(
@@ -78,6 +82,7 @@ class SubmissionService @Inject()(
           .map(_ => (): Unit)
 
       case CustomsInventoryLinkingResponse(status, conversationId) =>
+        logger.warn(s"Consolidation Submission failed with conversation-id=[$conversationId] and status [$status]")
         Future.failed(
           new CustomsInventoryLinkingUpstreamException(status, conversationId, "Non Accepted status returned by Customs Inventory Linking Exports")
         )
