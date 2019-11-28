@@ -25,7 +25,7 @@ case class Movement(
   override val providerId: Option[String] = None,
   choice: MovementType,
   consignmentReference: ConsignmentReference,
-  movementDetails: Option[MovementDetails],
+  movementDetails: Option[MovementDetails] = None,
   location: Option[Location] = None,
   arrivalReference: Option[ArrivalReference] = None,
   transport: Option[Transport] = None
