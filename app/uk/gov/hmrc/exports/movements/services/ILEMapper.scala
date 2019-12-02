@@ -18,14 +18,7 @@ package uk.gov.hmrc.exports.movements.services
 
 import javax.inject.Singleton
 import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation
-import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationType.{
-  ASSOCIATE_DUCR,
-  ASSOCIATE_MUCR,
-  ConsolidationType,
-  DISASSOCIATE_DUCR,
-  DISASSOCIATE_MUCR,
-  SHUT_MUCR
-}
+import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationType._
 import uk.gov.hmrc.exports.movements.models.movements.Choice.{Arrival, Departure}
 import uk.gov.hmrc.exports.movements.models.movements.{Movement, MovementDetails, Transport}
 import uk.gov.hmrc.wco.dec.inventorylinking.common.{TransportDetails, UcrBlock}
@@ -64,12 +57,7 @@ class ILEMapper {
 
   private def mapTransportDetails(transport: Option[Transport]): Option[TransportDetails] =
     transport.map(
-      data =>
-        TransportDetails(
-          transportID = Some(data.transportId),
-          transportMode = Some(data.modeOfTransport),
-          transportNationality = Some(data.nationality)
-      )
+      data => TransportDetails(transportID = data.transportId, transportMode = data.modeOfTransport, transportNationality = data.nationality)
     )
 
   def generateConsolidationXml(consolidation: Consolidation): Node =
