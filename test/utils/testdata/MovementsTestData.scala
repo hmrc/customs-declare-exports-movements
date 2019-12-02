@@ -42,11 +42,6 @@ object MovementsTestData {
         <goodsLocation>GBAUlocation</goodsLocation>
         <goodsArrivalDateTime>2019-07-12T13:14:54.000Z</goodsArrivalDateTime>
         <movementReference>{movementReference}</movementReference>
-        <transportDetails>
-          <transportID>{transportId}</transportID>
-          <transportMode>{transportMode}</transportMode>
-          <transportNationality>{transportNationality}</transportNationality>
-        </transportDetails>
       </inventoryLinkingMovementRequest>
     }
 
@@ -58,7 +53,7 @@ object MovementsTestData {
     movementDetails = MovementDetails("2019-07-12T13:14:54.000Z"),
     location = Some(Location("GBAUlocation")),
     arrivalReference = Some(ArrivalReference(Some(movementReference))),
-    transport = Some(Transport(transportMode, transportNationality, transportId))
+    transport = None
   )
 
   val exampleArrivalRequestJson: JsValue = Json.toJson(exampleArrivalRequest)
@@ -73,7 +68,6 @@ object MovementsTestData {
       </ucrBlock>
       <goodsLocation>GBAUlocation</goodsLocation>
       <goodsDepartureDateTime>2019-07-12T13:14:54.000Z</goodsDepartureDateTime>
-      <movementReference>{movementReference}</movementReference>
       <transportDetails>
         <transportID>{transportId}</transportID>
         <transportMode>{transportMode}</transportMode>
@@ -89,21 +83,10 @@ object MovementsTestData {
     consignmentReference = ConsignmentReference("D", "7GB123456789000-123ABC456DEFQWERT"),
     movementDetails = MovementDetails("2019-07-12T13:14:54.000Z"),
     location = Some(Location("GBAUlocation")),
-    arrivalReference = Some(ArrivalReference(Some(movementReference))),
-    transport = Some(Transport(transportMode, transportNationality, transportId))
+    transport = Some(Transport(Some(transportMode), Some(transportNationality), Some(transportId)))
   )
 
-  val exampleDepartureRequestJson: JsValue = Json.toJson(
-    Movement(
-      eori = validEori,
-      choice = "EDL",
-      consignmentReference = ConsignmentReference("D", "7GB123456789000-123ABC456DEFQWERT"),
-      movementDetails = MovementDetails("2019-07-12T13:14:54.000Z"),
-      location = Some(Location("GBAUlocation")),
-      arrivalReference = Some(ArrivalReference(Some(movementReference))),
-      transport = Some(Transport(transportMode, transportNationality, transportId))
-    )
-  )
+  val exampleDepartureRequestJson: JsValue = Json.toJson(exampleDepartureRequest)
 
   def exampleSubmission(
     eori: String = validEori,

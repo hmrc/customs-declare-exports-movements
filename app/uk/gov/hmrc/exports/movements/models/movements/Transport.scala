@@ -15,9 +15,10 @@
  */
 
 package uk.gov.hmrc.exports.movements.models.movements
+
 import play.api.libs.json.{Json, OFormat}
 
-case class Transport(modeOfTransport: String, nationality: String, transportId: String)
+case class Transport(modeOfTransport: Option[String], nationality: Option[String], transportId: Option[String])
 
 object Transport {
   implicit val format: OFormat[Transport] = Json.format[Transport]
