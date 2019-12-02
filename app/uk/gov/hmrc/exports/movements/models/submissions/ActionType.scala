@@ -61,6 +61,6 @@ object ActionType {
     case MovementType.Arrival              => Arrival
     case MovementType.RetrospectiveArrival => RetrospectiveArrival
     case MovementType.Departure            => Departure
-    case _                                 => throw new IllegalArgumentException("Movement request can be only for arrival or departure")
+    case _                                 => throw new IllegalArgumentException("Incorrect movement type")
   }
 }
