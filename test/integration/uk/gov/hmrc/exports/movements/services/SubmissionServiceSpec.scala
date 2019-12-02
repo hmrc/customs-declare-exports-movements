@@ -83,7 +83,7 @@ class SubmissionServiceSpec
         startInventoryLinkingService(ACCEPTED)
         withMovementSubmissionPersisted(true)
 
-        movementsService.submitMovement(exampleArrivalRequest).futureValue should equal((): Unit)
+        movementsService.submit(exampleArrivalRequest).futureValue should equal((): Unit)
       }
 
       "Departure is persisted" in {
@@ -91,7 +91,7 @@ class SubmissionServiceSpec
         startInventoryLinkingService(ACCEPTED)
         withMovementSubmissionPersisted(true)
 
-        movementsService.submitMovement(exampleDepartureRequest).futureValue should equal((): Unit)
+        movementsService.submit(exampleDepartureRequest).futureValue should equal((): Unit)
       }
     }
 
@@ -103,7 +103,7 @@ class SubmissionServiceSpec
         withMovementSubmissionPersisted(false)
 
         an[Exception] mustBe thrownBy {
-          Await.result(movementsService.submitMovement(exampleArrivalRequest), patienceConfig.timeout)
+          Await.result(movementsService.submit(exampleArrivalRequest), patienceConfig.timeout)
         }
       }
 
@@ -113,7 +113,7 @@ class SubmissionServiceSpec
         withMovementSubmissionPersisted(false)
 
         an[GenericDatabaseException] mustBe thrownBy {
-          Await.result(movementsService.submitMovement(exampleDepartureRequest), patienceConfig.timeout)
+          Await.result(movementsService.submit(exampleDepartureRequest), patienceConfig.timeout)
         }
       }
 
@@ -123,7 +123,7 @@ class SubmissionServiceSpec
         withMovementSubmissionPersisted(false)
 
         the[CustomsInventoryLinkingUpstreamException] thrownBy {
-          Await.result(movementsService.submitMovement(exampleArrivalRequest), patienceConfig.timeout)
+          Await.result(movementsService.submit(exampleArrivalRequest), patienceConfig.timeout)
         } should have message "Status: 202. ConverstationId: Not preset . Non Accepted status returned by Customs Inventory Linking Exports"
       }
 
@@ -133,7 +133,7 @@ class SubmissionServiceSpec
         withMovementSubmissionPersisted(false)
 
         the[CustomsInventoryLinkingUpstreamException] thrownBy {
-          Await.result(movementsService.submitMovement(exampleDepartureRequest), patienceConfig.timeout)
+          Await.result(movementsService.submit(exampleDepartureRequest), patienceConfig.timeout)
         } should have message "Status: 202. ConverstationId: Not preset . Non Accepted status returned by Customs Inventory Linking Exports"
       }
 
@@ -143,7 +143,7 @@ class SubmissionServiceSpec
         withMovementSubmissionPersisted(false)
 
         val result = the[CustomsInventoryLinkingUpstreamException] thrownBy {
-          Await.result(movementsService.submitMovement(exampleArrivalRequest), patienceConfig.timeout)
+          Await.result(movementsService.submit(exampleArrivalRequest), patienceConfig.timeout)
         }
         result.getMessage should fullyMatch regex "Status: 400. ConverstationId: '.*' . Non Accepted status returned by Customs Inventory Linking Exports"
       }
@@ -154,7 +154,7 @@ class SubmissionServiceSpec
         withMovementSubmissionPersisted(false)
 
         a[CustomsInventoryLinkingUpstreamException] mustBe thrownBy {
-          Await.result(movementsService.submitMovement(exampleArrivalRequest), patienceConfig.timeout)
+          Await.result(movementsService.submit(exampleArrivalRequest), patienceConfig.timeout)
         }
       }
 
@@ -164,7 +164,7 @@ class SubmissionServiceSpec
         withMovementSubmissionPersisted(false)
 
         a[CustomsInventoryLinkingUpstreamException] mustBe thrownBy {
-          Await.result(movementsService.submitMovement(exampleArrivalRequest), patienceConfig.timeout)
+          Await.result(movementsService.submit(exampleArrivalRequest), patienceConfig.timeout)
         }
       }
 
@@ -174,7 +174,7 @@ class SubmissionServiceSpec
         withMovementSubmissionPersisted(false)
 
         a[CustomsInventoryLinkingUpstreamException] mustBe thrownBy {
-          Await.result(movementsService.submitMovement(exampleArrivalRequest), patienceConfig.timeout)
+          Await.result(movementsService.submit(exampleArrivalRequest), patienceConfig.timeout)
         }
       }
     }

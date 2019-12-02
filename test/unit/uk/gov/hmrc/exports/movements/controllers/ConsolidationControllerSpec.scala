@@ -63,13 +63,13 @@ class ConsolidationControllerSpec extends WordSpec with BeforeAndAfterEach with 
 
       "consolidation submission ends with success" in {
 
-        when(submissionService.submitConsolidation(any())(any()))
+        when(submissionService.submit(any[Consolidation]())(any()))
           .thenReturn(Future.successful((): Unit))
 
         val result = controller.submitConsolidation()(postRequest(correctRequest))
 
         status(result) mustBe ACCEPTED
-        verify(submissionService).submitConsolidation(any())(any())
+        verify(submissionService).submit(any[Consolidation]())(any())
       }
     }
   }

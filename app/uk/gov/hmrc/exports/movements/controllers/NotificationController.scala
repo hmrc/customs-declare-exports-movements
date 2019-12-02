@@ -56,9 +56,13 @@ class NotificationController @Inject()(
   private def saveNotification(request: Request[NodeSeq]): Future[Status] =
     headerValidator.extractConversationIdHeader(request.headers.toSimpleMap) match {
       case Some(conversationId) =>
-        buildNotificationFromResponse(conversationId, request.body) match {
-          case Some(notificationToSave) =>
-            forwardNotificationToService(notificationToSave)
+        logger.info(s"Notification received with conversation-id=[$conversationId]")
+        parseNotification(conversationId, request.body) match {
+          case Some(notification) =>
+            notificationService.save(notification).map(_ => Accepted).andThen {
+              case Success(_) =>
+                metrics.incrementCounter(movementMetric)
+            }
           case None => Future.successful(Accepted)
         }
       case None =>
@@ -66,19 +70,13 @@ class NotificationController @Inject()(
         Future.successful(Accepted)
     }
 
-  private def buildNotificationFromResponse(conversationId: String, responseXml: NodeSeq): Option[Notification] =
+  private def parseNotification(conversationId: String, responseXml: NodeSeq): Option[Notification] =
     try {
       Some(notificationFactory.buildMovementNotification(conversationId, responseXml))
     } catch {
       case exc: IllegalArgumentException =>
         logger.warn(s"Failed to parse notification with conversation-id=[$conversationId]", exc)
         None
-    }
-
-  private def forwardNotificationToService(notification: Notification): Future[Status] =
-    notificationService.save(notification).map(_ => Accepted).andThen {
-      case Success(_) =>
-        metrics.incrementCounter(movementMetric)
     }
 
   def getNotificationsForSubmission(eori: Option[String], providerId: Option[String], conversationId: String): Action[AnyContent] =

@@ -40,19 +40,18 @@ class SubmissionService @Inject()(
 
   private val logger = Logger(this.getClass)
 
-  def submitMovement(movementRequest: Movement)(implicit hc: HeaderCarrier): Future[Unit] = {
-    val requestXml = ileMapper.generateInventoryLinkingMovementRequestXml(movementRequest)
+  def submit(movement: Movement)(implicit hc: HeaderCarrier): Future[Unit] = {
+    val requestXml = ileMapper.generateInventoryLinkingMovementRequestXml(movement)
 
-    customsInventoryLinkingExportsConnector.submit(movementRequest, requestXml).flatMap {
+    customsInventoryLinkingExportsConnector.submit(movement, requestXml).flatMap {
       case CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId)) =>
         logger.info(s"Movement Submission Accepted with conversation-id=[$conversationId]")
         val newSubmission =
-          submissionFactory.buildMovementSubmission(movementRequest.eori, movementRequest.providerId, conversationId, requestXml, movementRequest)
+          submissionFactory.buildMovementSubmission(movement.eori, movement.providerId, conversationId, requestXml, movement)
 
         submissionRepository
           .insert(newSubmission)
           .map(_ => (): Unit)
-
       case CustomsInventoryLinkingResponse(status, conversationId) =>
         logger.warn(s"Movement Submission failed with conversation-id=[$conversationId] and status [$status]")
         Future.failed(
@@ -61,26 +60,19 @@ class SubmissionService @Inject()(
     }
   }
 
-  def submitConsolidation(consolidationRequest: Consolidation)(implicit hc: HeaderCarrier): Future[Unit] = {
-    val requestXml = ileMapper.generateConsolidationXml(consolidationRequest)
+  def submit(consolidation: Consolidation)(implicit hc: HeaderCarrier): Future[Unit] = {
+    val requestXml = ileMapper.generateConsolidationXml(consolidation)
 
-    customsInventoryLinkingExportsConnector.submit(consolidationRequest, requestXml).flatMap {
+    customsInventoryLinkingExportsConnector.submit(consolidation, requestXml).flatMap {
       case CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId)) =>
         logger.info(s"Consolidation Submission Accepted with conversation-id=[$conversationId]")
         val newSubmission =
           submissionFactory
-            .buildConsolidationSubmission(
-              consolidationRequest.eori,
-              consolidationRequest.providerId,
-              conversationId,
-              requestXml,
-              consolidationRequest.consolidationType
-            )
+            .buildConsolidationSubmission(consolidation.eori, consolidation.providerId, conversationId, requestXml, consolidation.consolidationType)
 
         submissionRepository
           .insert(newSubmission)
           .map(_ => (): Unit)
-
       case CustomsInventoryLinkingResponse(status, conversationId) =>
         logger.warn(s"Consolidation Submission failed with conversation-id=[$conversationId] and status [$status]")
         Future.failed(

@@ -30,6 +30,6 @@ class MovementsController @Inject()(submissionService: SubmissionService, overri
 ) extends BackendController(controllerComponents) {
 
   def createMovement(): Action[Movement] = Action.async(parse.json[Movement]) { implicit request =>
-    submissionService.submitMovement(request.body).map(_ => Accepted(request.body))
+    submissionService.submit(request.body).map(_ => Accepted(request.body))
   }
 }

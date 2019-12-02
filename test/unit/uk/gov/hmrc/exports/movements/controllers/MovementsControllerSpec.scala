@@ -35,12 +35,12 @@ import scala.concurrent.Future
 
 class MovementsControllerSpec extends UnitSpec with MockitoSugar with BeforeAndAfterEach {
 
-  val submissionServiceMock = mock[SubmissionService]
+  private val submissionServiceMock = mock[SubmissionService]
 
-  val controller =
+  private val controller =
     new MovementsController(submissionServiceMock, stubControllerComponents())(global)
 
-  val correctJson = Movement(
+  private val correctJson = Movement(
     eori = validEori,
     choice = MovementType.Arrival,
     consignmentReference = ConsignmentReference("reference", "value"),
@@ -68,7 +68,7 @@ class MovementsControllerSpec extends UnitSpec with MockitoSugar with BeforeAndA
 
       "consolidation submission ends with success" in {
 
-        when(submissionServiceMock.submitMovement(any())(any()))
+        when(submissionServiceMock.submit(any[Movement]())(any()))
           .thenReturn(Future.successful((): Unit))
 
         val result = controller.createMovement()(postRequest(correctJson))

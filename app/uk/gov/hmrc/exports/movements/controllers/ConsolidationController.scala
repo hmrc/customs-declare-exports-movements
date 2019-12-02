@@ -30,6 +30,6 @@ class ConsolidationController @Inject()(consolidationService: SubmissionService,
 ) extends BackendController(cc) {
 
   def submitConsolidation(): Action[Consolidation] = Action.async(parse.json[Consolidation]) { implicit request =>
-    consolidationService.submitConsolidation(request.body).map(_ => Accepted(request.body))
+    consolidationService.submit(request.body).map(_ => Accepted(request.body))
   }
 }

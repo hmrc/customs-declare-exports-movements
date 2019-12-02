@@ -74,7 +74,7 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
         .thenReturn(arrivalSubmission)
       when(submissionRepositoryMock.insert(any())(any())).thenReturn(Future.successful(dummyWriteResultSuccess))
 
-      submissionService.submitMovement(exampleArrivalRequest).futureValue
+      submissionService.submit(exampleArrivalRequest).futureValue
 
       verify(wcoMapperMock).generateInventoryLinkingMovementRequestXml(meq(exampleArrivalRequest))
       verify(customsInventoryLinkingExportsConnectorMock)
@@ -95,7 +95,7 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
         .thenReturn(Future.successful(CustomsInventoryLinkingResponse(BAD_REQUEST, None)))
 
       intercept[CustomsInventoryLinkingUpstreamException] {
-        await(submissionService.submitMovement(exampleArrivalRequest))
+        await(submissionService.submit(exampleArrivalRequest))
       }
     }
   }
@@ -120,7 +120,7 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
         .thenReturn(shutMucrSubmission)
       when(submissionRepositoryMock.insert(any())(any())).thenReturn(Future.successful(dummyWriteResultSuccess))
 
-      submissionService.submitConsolidation(shutMucrRequest).futureValue
+      submissionService.submit(shutMucrRequest).futureValue
 
       verify(wcoMapperMock).generateConsolidationXml(meq(shutMucrRequest))
       verify(customsInventoryLinkingExportsConnectorMock)
@@ -140,7 +140,7 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
         .thenReturn(Future.successful(CustomsInventoryLinkingResponse(BAD_REQUEST, None)))
 
       intercept[CustomsInventoryLinkingUpstreamException] {
-        await(submissionService.submitConsolidation(shutMucrRequest))
+        await(submissionService.submit(shutMucrRequest))
       }
     }
   }
