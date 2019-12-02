@@ -18,12 +18,13 @@ package uk.gov.hmrc.exports.movements.models.submissions
 
 import play.api.libs.json._
 import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationType.{ConsolidationType, _}
-import uk.gov.hmrc.exports.movements.models.movements.{Choice, Movement}
+import uk.gov.hmrc.exports.movements.models.movements.{Movement, MovementType}
 
 sealed abstract class ActionType(val value: String)
 
 object ActionType {
   case object Arrival extends ActionType("Arrival")
+  case object RetrospectiveArrival extends ActionType("RetrospectiveArrival")
   case object Departure extends ActionType("Departure")
   case object DucrAssociation extends ActionType("DucrAssociation")
   case object DucrDisassociation extends ActionType("DucrDisassociation")
@@ -35,14 +36,15 @@ object ActionType {
     override def writes(actionType: ActionType): JsValue = JsString(actionType.value)
 
     override def reads(json: JsValue): JsResult[ActionType] = json match {
-      case JsString("Arrival")            => JsSuccess(Arrival)
-      case JsString("Departure")          => JsSuccess(Departure)
-      case JsString("DucrAssociation")    => JsSuccess(DucrAssociation)
-      case JsString("DucrDisassociation") => JsSuccess(DucrDisassociation)
-      case JsString("MucrAssociation")    => JsSuccess(MucrAssociation)
-      case JsString("MucrDisassociation") => JsSuccess(MucrDisassociation)
-      case JsString("ShutMucr")           => JsSuccess(ShutMucr)
-      case _                              => JsError("Unknown ActionType")
+      case JsString("Arrival")              => JsSuccess(Arrival)
+      case JsString("RetrospectiveArrival") => JsSuccess(RetrospectiveArrival)
+      case JsString("Departure")            => JsSuccess(Departure)
+      case JsString("DucrAssociation")      => JsSuccess(DucrAssociation)
+      case JsString("DucrDisassociation")   => JsSuccess(DucrDisassociation)
+      case JsString("MucrAssociation")      => JsSuccess(MucrAssociation)
+      case JsString("MucrDisassociation")   => JsSuccess(MucrDisassociation)
+      case JsString("ShutMucr")             => JsSuccess(ShutMucr)
+      case _                                => JsError("Unknown ActionType")
     }
   }
 
@@ -56,8 +58,9 @@ object ActionType {
   }
 
   def apply(movementRequest: Movement): ActionType = movementRequest.choice match {
-    case Choice.Arrival   => Arrival
-    case Choice.Departure => Departure
-    case _                => throw new IllegalArgumentException("Movement request can be only for arrival or departure")
+    case MovementType.Arrival              => Arrival
+    case MovementType.RetrospectiveArrival => RetrospectiveArrival
+    case MovementType.Departure            => Departure
+    case _                                 => throw new IllegalArgumentException("Incorrect movement type")
   }
 }

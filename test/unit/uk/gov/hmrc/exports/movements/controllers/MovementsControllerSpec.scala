@@ -24,7 +24,7 @@ import play.api.mvc.Request
 import play.api.test.Helpers._
 import play.api.test._
 import uk.gov.hmrc.exports.movements.controllers.MovementsController
-import uk.gov.hmrc.exports.movements.models.movements.{Choice, ConsignmentReference, Movement, MovementDetails}
+import uk.gov.hmrc.exports.movements.models.movements.{ConsignmentReference, Movement, MovementDetails, MovementType}
 import uk.gov.hmrc.exports.movements.services.SubmissionService
 import unit.uk.gov.hmrc.exports.movements.base.UnitSpec
 import utils.FakeRequestCSRFSupport._
@@ -42,9 +42,9 @@ class MovementsControllerSpec extends UnitSpec with MockitoSugar with BeforeAndA
 
   val correctJson = Movement(
     eori = validEori,
-    choice = Choice.Arrival,
+    choice = MovementType.Arrival,
     consignmentReference = ConsignmentReference("reference", "value"),
-    movementDetails = MovementDetails("dateTime")
+    movementDetails = Some(MovementDetails("dateTime"))
   )
 
   override protected def beforeEach(): Unit =

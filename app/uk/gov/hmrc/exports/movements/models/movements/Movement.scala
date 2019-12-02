@@ -23,9 +23,9 @@ import uk.gov.hmrc.exports.movements.models.UserIdentification
 case class Movement(
   override val eori: String,
   override val providerId: Option[String] = None,
-  choice: String,
+  choice: MovementType,
   consignmentReference: ConsignmentReference,
-  movementDetails: MovementDetails,
+  movementDetails: Option[MovementDetails] = None,
   location: Option[Location] = None,
   arrivalReference: Option[ArrivalReference] = None,
   transport: Option[Transport] = None

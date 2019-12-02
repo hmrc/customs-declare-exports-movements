@@ -16,10 +16,13 @@
 
 package uk.gov.hmrc.exports.movements.services
 
+import java.time.Instant
+import java.time.format.DateTimeFormatter
+
 import javax.inject.Singleton
 import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation
 import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationType._
-import uk.gov.hmrc.exports.movements.models.movements.Choice.{Arrival, Departure}
+import uk.gov.hmrc.exports.movements.models.movements.MovementType.{Arrival, Departure, RetrospectiveArrival}
 import uk.gov.hmrc.exports.movements.models.movements.{Movement, MovementDetails, Transport}
 import uk.gov.hmrc.wco.dec.inventorylinking.common.{TransportDetails, UcrBlock}
 import uk.gov.hmrc.wco.dec.inventorylinking.movement.request.InventoryLinkingMovementRequest
@@ -34,17 +37,18 @@ class ILEMapper {
 
   private def generateInventoryLinkingMovementRequest(request: Movement): InventoryLinkingMovementRequest = {
     val departureDetails: Option[MovementDetails] = request.choice match {
-      case Departure => Some(request.movementDetails)
+      case Departure => request.movementDetails
       case _         => None
     }
 
     val arrivalDetails: Option[MovementDetails] = request.choice match {
-      case Arrival => Some(request.movementDetails)
-      case _       => None
+      case Arrival              => request.movementDetails
+      case RetrospectiveArrival => Some(MovementDetails(DateTimeFormatter.ISO_INSTANT.format(Instant.now())))
+      case _                    => None
     }
 
     InventoryLinkingMovementRequest(
-      messageCode = request.choice,
+      messageCode = request.choice.value,
       agentDetails = None,
       ucrBlock = UcrBlock(ucr = request.consignmentReference.referenceValue, ucrType = request.consignmentReference.reference),
       goodsLocation = request.location.map(_.code).getOrElse(""),

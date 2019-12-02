@@ -20,28 +20,46 @@ import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation.Associat
 import uk.gov.hmrc.exports.movements.services.ILEMapper
 import unit.uk.gov.hmrc.exports.movements.base.UnitSpec
 import utils.testdata.CommonTestData._
+import utils.testdata.ConsolidationTestData.exampleAssociateDucrConsolidationRequestXML
+import utils.testdata.MovementsTestData._
 
 class ILEMapperSpec extends UnitSpec {
 
-  val ileMapper = new ILEMapper
-  val associateDucrCode = "EAC"
+  private val ileMapper = new ILEMapper
 
   "ILE Mapper" should {
 
+    "create correct XML for Arrival" in {
+
+      val input = exampleArrivalRequest
+      val expectedXml = exampleArrivalRequestXML
+
+      ileMapper.generateInventoryLinkingMovementRequestXml(input) shouldBe expectedXml
+    }
+
+    "create correct XML for Retrospective Arrival" which {
+      "contains added goodsArrivalDateTime at the moment of creating the payload" in {
+
+        val input = exampleRetrospectiveArrivalRequest
+
+        val xml = ileMapper.generateInventoryLinkingMovementRequestXml(input)
+
+        assert((xml \ "goodsArrivalDateTime").nonEmpty)
+      }
+    }
+
+    "create correct XML for Departure" in {
+
+      val input = exampleDepartureRequest
+      val expectedXml = exampleDepartureRequestXML
+
+      ileMapper.generateInventoryLinkingMovementRequestXml(input) shouldBe expectedXml
+    }
+
     "create correct XML based on the consolidation" in {
 
-      val consolidation = AssociateDucrRequest(eori = validEori, mucr = ucr, ucr = ucr_2)
-
-      val expectedXml = scala.xml.Utility.trim {
-        <inventoryLinkingConsolidationRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
-          <messageCode>{associateDucrCode}</messageCode>
-          <masterUCR>{ucr}</masterUCR>
-          <ucrBlock>
-            <ucr>{ucr_2}</ucr>
-            <ucrType>D</ucrType>
-          </ucrBlock>
-        </inventoryLinkingConsolidationRequest>
-      }
+      val consolidation = AssociateDucrRequest(eori = validEori, mucr = ucr_2, ucr = ucr)
+      val expectedXml = scala.xml.Utility.trim(exampleAssociateDucrConsolidationRequestXML)
 
       ileMapper.generateConsolidationXml(consolidation) shouldBe expectedXml
     }
