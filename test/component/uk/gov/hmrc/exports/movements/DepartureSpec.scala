@@ -31,23 +31,17 @@ class DepartureSpec extends ComponentSpec {
       givenIleApiAcceptsTheSubmission("conversation-id")
 
       // When
-      val response = post(routes.MovementsController.createMovement(), Json.obj(
-        "eori" -> "eori",
-        "choice"-> "EDL",
-        "consignmentReference" -> Json.obj(
-          "reference" -> "M",
-          "referenceValue" -> "UCR"
-        ),
-        "location" -> Json.obj(
-          "code" -> "abc"
-        ),
-        "movementDetails" -> Json.obj(
-          "dateTime" -> "2020-01-01T00:00:00Z"
-        ),
-        "arrivalReference" -> Json.obj(
-          "reference" -> "xyz"
+      val response = post(
+        routes.MovementsController.createMovement(),
+        Json.obj(
+          "eori" -> "eori",
+          "choice" -> "EDL",
+          "consignmentReference" -> Json.obj("reference" -> "M", "referenceValue" -> "UCR"),
+          "location" -> Json.obj("code" -> "abc"),
+          "movementDetails" -> Json.obj("dateTime" -> "2020-01-01T00:00:00Z"),
+          "arrivalReference" -> Json.obj("reference" -> "xyz")
         )
-      ))
+      )
 
       // Then
       status(response) mustBe ACCEPTED
@@ -60,8 +54,7 @@ class DepartureSpec extends ComponentSpec {
 
       verify(
         postRequestedToILE()
-          .withRequestBody(equalToXml(
-            <inventoryLinkingMovementRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
+          .withRequestBody(equalToXml(<inventoryLinkingMovementRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
               <messageCode>EDL</messageCode>
               <ucrBlock>
                 <ucr>UCR</ucr>
@@ -70,8 +63,7 @@ class DepartureSpec extends ComponentSpec {
               <goodsLocation>abc</goodsLocation>
               <goodsDepartureDateTime>2020-01-01T00:00:00Z</goodsDepartureDateTime>
               <movementReference>xyz</movementReference>
-            </inventoryLinkingMovementRequest>
-          ))
+            </inventoryLinkingMovementRequest>))
       )
     }
   }

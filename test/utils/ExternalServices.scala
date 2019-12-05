@@ -27,7 +27,6 @@ import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.exports.movements.models.Eori
 import utils.testdata.CommonTestData.{authToken, validEori}
 
-
 trait AuthService extends WireMockRunner {
   val authUrl = "/auth/authorise"
   private val authUrlMatcher = urlEqualTo(authUrl)

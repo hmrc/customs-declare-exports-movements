@@ -30,10 +30,12 @@ trait ILEAPIWiremockTestServer extends WiremockTestServer {
   protected val clientId = "xyz"
   protected val userAgent = "some-user-agent"
   protected val ileApieConfiguration: Configuration =
-    Configuration.from(Map(
-      "microservice.services.customs-inventory-linking-exports.port" -> wirePort,
-      "microservice.services.customs-inventory-linking-exports.client-id.some-user-agent" -> clientId
-    ))
+    Configuration.from(
+      Map(
+        "microservice.services.customs-inventory-linking-exports.port" -> wirePort,
+        "microservice.services.customs-inventory-linking-exports.client-id.some-user-agent" -> clientId
+      )
+    )
 
   protected def givenIleApiAcceptsTheSubmission(conversationId: String): Unit =
     stubFor(
