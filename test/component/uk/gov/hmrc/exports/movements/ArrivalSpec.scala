@@ -35,8 +35,8 @@ class ArrivalSpec extends ComponentSpec {
         "eori" -> "eori",
         "choice"-> "EAL",
         "consignmentReference" -> Json.obj(
-          "reference" -> "D",
-          "referenceValue" -> "DUCR"
+          "reference" -> "M",
+          "referenceValue" -> "UCR"
         ),
         "location" -> Json.obj(
           "code" -> "abc"
@@ -55,7 +55,7 @@ class ArrivalSpec extends ComponentSpec {
       val submissions: Seq[Submission] = theSubmissionsFor("eori")
       submissions.size mustBe 1
       submissions.head.conversationId mustBe "conversation-id"
-      submissions.head.ucrBlocks mustBe Seq(UcrBlock("DUCR", "D"))
+      submissions.head.ucrBlocks mustBe Seq(UcrBlock("UCR", "M"))
       submissions.head.actionType mustBe ActionType.Arrival
 
       verify(
@@ -64,8 +64,8 @@ class ArrivalSpec extends ComponentSpec {
             <inventoryLinkingMovementRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
             <messageCode>EAL</messageCode>
             <ucrBlock>
-              <ucr>DUCR</ucr>
-              <ucrType>D</ucrType>
+              <ucr>UCR</ucr>
+              <ucrType>M</ucrType>
             </ucrBlock>
             <goodsLocation>abc</goodsLocation>
             <goodsArrivalDateTime>2020-01-01T00:00:00Z</goodsArrivalDateTime>
