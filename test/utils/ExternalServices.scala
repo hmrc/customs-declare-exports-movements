@@ -27,23 +27,6 @@ import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.exports.movements.models.Eori
 import utils.testdata.CommonTestData.{authToken, validEori}
 
-trait AuditService extends WireMockRunner {
-
-  private val AuditWriteUrl: String = "/write/audit"
-
-  def stubAuditService(): Unit =
-    stubFor(
-      post(urlEqualTo(AuditWriteUrl))
-        .willReturn(
-          aResponse()
-            .withStatus(Status.OK)
-        )
-    )
-
-  def verifyAuditWrite(): Unit = verify(postRequestedFor(urlEqualTo(AuditWriteUrl)))
-
-  def verifyNoAuditWrite(): Unit = verify(0, postRequestedFor(urlEqualTo(AuditWriteUrl)))
-}
 
 trait AuthService extends WireMockRunner {
   val authUrl = "/auth/authorise"
