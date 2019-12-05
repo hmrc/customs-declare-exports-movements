@@ -16,25 +16,30 @@
 
 package integration.uk.gov.hmrc.exports.movements.connector
 
+import java.time.{Clock, Instant, ZoneOffset}
+
 import com.codahale.metrics.SharedMetricRegistries
 import org.scalatest.{BeforeAndAfterEach, MustMatchers, WordSpec}
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
+import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
+import utils.testdata.MovementsTestData.dateTimeString
 
 import scala.concurrent.ExecutionContext
 
 class ConnectorSpec extends WordSpec with GuiceOneAppPerSuite with WiremockTestServer with MustMatchers with MockitoSugar with BeforeAndAfterEach {
 
-  def overrideConfig: Map[String, Any] =
-    Map()
+  private val clock = Clock.fixed(Instant.parse(dateTimeString), ZoneOffset.UTC)
 
   override def fakeApplication(): Application = {
     SharedMetricRegistries.clear()
-    new GuiceApplicationBuilder().configure(overrideConfig).build()
+    new GuiceApplicationBuilder()
+      .overrides(bind[Clock].to(clock))
+      .build()
   }
 
   protected implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global

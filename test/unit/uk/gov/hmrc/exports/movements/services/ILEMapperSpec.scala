@@ -16,6 +16,9 @@
 
 package unit.uk.gov.hmrc.exports.movements.services
 
+import java.time.{Clock, Instant, ZoneOffset}
+
+import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation.AssociateDucrRequest
 import uk.gov.hmrc.exports.movements.services.ILEMapper
 import unit.uk.gov.hmrc.exports.movements.base.UnitSpec
@@ -23,9 +26,10 @@ import utils.testdata.CommonTestData._
 import utils.testdata.ConsolidationTestData.exampleAssociateDucrConsolidationRequestXML
 import utils.testdata.MovementsTestData._
 
-class ILEMapperSpec extends UnitSpec {
+class ILEMapperSpec extends UnitSpec with MockitoSugar {
 
-  private val ileMapper = new ILEMapper
+  private val clock = Clock.fixed(Instant.parse(dateTimeString), ZoneOffset.UTC)
+  private val ileMapper = new ILEMapper(clock)
 
   "ILE Mapper" should {
 
@@ -38,13 +42,14 @@ class ILEMapperSpec extends UnitSpec {
     }
 
     "create correct XML for Retrospective Arrival" which {
-      "contains added goodsArrivalDateTime at the moment of creating the payload" in {
+      "contains added goodsArrivalDateTime in correct format" in {
 
         val input = exampleRetrospectiveArrivalRequest
+        val expectedXml = exampleRetrospectiveArrivalRequestXML
 
         val xml = ileMapper.generateInventoryLinkingMovementRequestXml(input)
 
-        assert((xml \ "goodsArrivalDateTime").nonEmpty)
+        xml shouldBe expectedXml
       }
     }
 

@@ -16,34 +16,38 @@
 
 package uk.gov.hmrc.exports.movements.services
 
-import java.time.Instant
 import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
+import java.time.{Clock, Instant}
 
-import javax.inject.Singleton
+import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation
 import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationType._
 import uk.gov.hmrc.exports.movements.models.movements.MovementType.{Arrival, Departure, RetrospectiveArrival}
-import uk.gov.hmrc.exports.movements.models.movements.{Movement, MovementDetails, Transport}
+import uk.gov.hmrc.exports.movements.models.movements.{Movement, Transport}
 import uk.gov.hmrc.wco.dec.inventorylinking.common.{TransportDetails, UcrBlock}
 import uk.gov.hmrc.wco.dec.inventorylinking.movement.request.InventoryLinkingMovementRequest
 
 import scala.xml.{Node, NodeSeq}
 
 @Singleton
-class ILEMapper {
+class ILEMapper @Inject()(clock: Clock) {
+
+  private val dateTimeFormatter = DateTimeFormatter.ISO_INSTANT
 
   def generateInventoryLinkingMovementRequestXml(request: Movement): Node =
     xml.XML.loadString(generateInventoryLinkingMovementRequest(request).toXml)
 
   private def generateInventoryLinkingMovementRequest(request: Movement): InventoryLinkingMovementRequest = {
-    val departureDetails: Option[MovementDetails] = request.choice match {
-      case Departure => request.movementDetails
+
+    val departureDetails: Option[String] = request.choice match {
+      case Departure => request.movementDetails.map(movement => formatOutputDateTime(parseDateTime(movement.dateTime)))
       case _         => None
     }
 
-    val arrivalDetails: Option[MovementDetails] = request.choice match {
-      case Arrival              => request.movementDetails
-      case RetrospectiveArrival => Some(MovementDetails(DateTimeFormatter.ISO_INSTANT.format(Instant.now())))
+    val arrivalDetails: Option[String] = request.choice match {
+      case Arrival              => request.movementDetails.map(movement => formatOutputDateTime(parseDateTime(movement.dateTime)))
+      case RetrospectiveArrival => Some(formatOutputDateTime(Instant.now(clock)))
       case _                    => None
     }
 
@@ -52,12 +56,16 @@ class ILEMapper {
       agentDetails = None,
       ucrBlock = UcrBlock(ucr = request.consignmentReference.referenceValue, ucrType = request.consignmentReference.reference),
       goodsLocation = request.location.map(_.code).getOrElse(""),
-      goodsArrivalDateTime = arrivalDetails.map(_.dateTime),
-      goodsDepartureDateTime = departureDetails.map(_.dateTime),
+      goodsArrivalDateTime = arrivalDetails,
+      goodsDepartureDateTime = departureDetails,
       transportDetails = mapTransportDetails(request.transport),
       movementReference = request.arrivalReference.flatMap(_.reference)
     )
   }
+
+  private def parseDateTime(dateTime: String): Instant = Instant.from(dateTimeFormatter.parse(dateTime))
+
+  private def formatOutputDateTime(dateTime: Instant): String = dateTimeFormatter.format(dateTime.truncatedTo(ChronoUnit.SECONDS))
 
   private def mapTransportDetails(transport: Option[Transport]): Option[TransportDetails] =
     transport.map(
