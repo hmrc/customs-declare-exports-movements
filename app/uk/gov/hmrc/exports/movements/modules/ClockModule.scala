@@ -14,13 +14,19 @@
  * limitations under the License.
  */
 
-package integration.uk.gov.hmrc.exports.movements.util
+package uk.gov.hmrc.exports.movements.modules
+
+import java.time.Clock
 
 import com.google.inject.AbstractModule
-import play.api.inject.guice.GuiceableModule
+import javax.inject.{Inject, Provider, Singleton}
 
-object TestModule extends AbstractModule {
-  def configure(): Unit = ()
+class ClockModule extends AbstractModule {
+  override def configure(): Unit =
+    bind(classOf[Clock]).toProvider(classOf[ClockProvider])
+}
 
-  def asGuiceableModule: GuiceableModule = GuiceableModule.guiceable(this)
+@Singleton
+class ClockProvider @Inject() extends Provider[Clock] {
+  override def get(): Clock = Clock.systemUTC()
 }

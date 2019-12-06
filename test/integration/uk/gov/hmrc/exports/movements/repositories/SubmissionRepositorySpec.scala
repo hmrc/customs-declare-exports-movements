@@ -16,11 +16,14 @@
 
 package integration.uk.gov.hmrc.exports.movements.repositories
 
+import java.time.{Clock, Instant, ZoneOffset}
+
 import com.codahale.metrics.SharedMetricRegistries
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.{BeforeAndAfterEach, MustMatchers, WordSpec}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
+import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.JsString
 import reactivemongo.core.errors.DatabaseException
@@ -34,9 +37,13 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class SubmissionRepositorySpec
     extends WordSpec with GuiceOneAppPerSuite with BeforeAndAfterEach with ScalaFutures with MustMatchers with IntegrationPatience {
 
+  private val clock = Clock.fixed(Instant.parse(dateTimeString), ZoneOffset.UTC)
+
   override def fakeApplication: Application = {
     SharedMetricRegistries.clear()
-    GuiceApplicationBuilder().build()
+    GuiceApplicationBuilder()
+      .overrides(bind[Clock].to(clock))
+      .build()
   }
   private val repo = app.injector.instanceOf[SubmissionRepository]
 

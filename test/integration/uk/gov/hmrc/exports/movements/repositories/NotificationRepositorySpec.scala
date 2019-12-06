@@ -16,14 +16,18 @@
 
 package integration.uk.gov.hmrc.exports.movements.repositories
 
+import java.time.{Clock, Instant, ZoneOffset}
+
 import com.codahale.metrics.SharedMetricRegistries
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.{BeforeAndAfterEach, MustMatchers, WordSpec}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
+import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.exports.movements.repositories.NotificationRepository
 import utils.testdata.CommonTestData.{conversationId, conversationId_2}
+import utils.testdata.MovementsTestData.dateTimeString
 import utils.testdata.notifications.NotificationTestData._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -31,9 +35,13 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class NotificationRepositorySpec
     extends WordSpec with GuiceOneAppPerSuite with BeforeAndAfterEach with ScalaFutures with MustMatchers with IntegrationPatience {
 
+  private val clock = Clock.fixed(Instant.parse(dateTimeString), ZoneOffset.UTC)
+
   override def fakeApplication: Application = {
     SharedMetricRegistries.clear()
-    GuiceApplicationBuilder().build()
+    GuiceApplicationBuilder()
+      .overrides(bind[Clock].to(clock))
+      .build()
   }
   private val repo = app.injector.instanceOf[NotificationRepository]
 

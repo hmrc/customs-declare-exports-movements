@@ -16,6 +16,8 @@
 
 package integration.uk.gov.hmrc.exports.movements.services
 
+import java.time.{Clock, Instant, ZoneOffset}
+
 import com.codahale.metrics.SharedMetricRegistries
 import integration.uk.gov.hmrc.exports.movements.base.IntegrationTestSpec
 import org.mockito.ArgumentMatchers.any
@@ -44,7 +46,8 @@ class SubmissionServiceSpec
     extends IntegrationTestSpec with GuiceOneAppPerSuite with MockitoSugar with CustomsMovementsAPIService with ScalaFutures
     with IntegrationPatience {
 
-  val mockMovementsRepository: SubmissionRepository = buildSubmissionRepositoryMock
+  private val submissionRepository: SubmissionRepository = buildSubmissionRepositoryMock
+  private val clock = Clock.fixed(Instant.parse(dateTimeString), ZoneOffset.UTC)
 
   def overrideModules: Seq[GuiceableModule] = Nil
 
@@ -52,7 +55,8 @@ class SubmissionServiceSpec
     SharedMetricRegistries.clear()
     GuiceApplicationBuilder()
       .overrides(overrideModules: _*)
-      .overrides(bind[SubmissionRepository].to(mockMovementsRepository))
+      .overrides(bind[SubmissionRepository].to(submissionRepository))
+      .overrides(bind[Clock].to(clock))
       .configure(
         Map(
           "microservice.services.customs-inventory-linking-exports.host" -> Host,
@@ -69,7 +73,7 @@ class SubmissionServiceSpec
   private implicit val hc: HeaderCarrier = HeaderCarrier()
 
   def withMovementSubmissionPersisted(result: Boolean): Unit =
-    when(mockMovementsRepository.insert(any())(any())).thenReturn(if (result) {
+    when(submissionRepository.insert(any())(any())).thenReturn(if (result) {
       Future.successful(dummyWriteResultSuccess)
     } else {
       Future.failed(GenericDatabaseException("There was a problem with Database", None))

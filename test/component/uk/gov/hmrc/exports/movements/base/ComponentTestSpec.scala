@@ -16,6 +16,8 @@
 
 package component.uk.gov.hmrc.exports.movements.base
 
+import java.time.{Clock, Instant, ZoneOffset}
+
 import com.codahale.metrics.SharedMetricRegistries
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
@@ -35,6 +37,7 @@ import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, Submi
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder.dummyWriteResultSuccess
 import utils.ExternalServicesConfig.{Host, Port}
 import utils.stubs.CustomsMovementsAPIService
+import utils.testdata.MovementsTestData.dateTimeString
 import utils.{AuthService, CustomsMovementsAPIConfig}
 
 import scala.concurrent.Future
@@ -43,6 +46,7 @@ trait ComponentTestSpec
     extends FeatureSpec with GivenWhenThen with GuiceOneAppPerSuite with BeforeAndAfterAll with BeforeAndAfterEach with Eventually with MockitoSugar
     with Matchers with OptionValues with AuthService with CustomsMovementsAPIService {
 
+  private val clock = Clock.fixed(Instant.parse(dateTimeString), ZoneOffset.UTC)
   private val movementNotificationsRepositoryMock = mock[NotificationRepository]
   val movementSubmissionsRepositoryMock = mock[SubmissionRepository]
 
@@ -83,8 +87,9 @@ trait ComponentTestSpec
   override def fakeApplication(): Application = {
     SharedMetricRegistries.clear()
     GuiceApplicationBuilder()
-      .overrides(bind[SubmissionRepository].toInstance(movementSubmissionsRepositoryMock))
-      .overrides(bind[NotificationRepository].toInstance(movementNotificationsRepositoryMock))
+      .overrides(bind[SubmissionRepository].to(movementSubmissionsRepositoryMock))
+      .overrides(bind[NotificationRepository].to(movementNotificationsRepositoryMock))
+      .overrides(bind[Clock].to(clock))
       .configure(
         Map(
           "microservice.services.auth.host" -> Host,
