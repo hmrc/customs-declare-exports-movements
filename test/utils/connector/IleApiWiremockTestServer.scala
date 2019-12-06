@@ -27,7 +27,7 @@ import scala.xml.NodeSeq
 
 trait IleApiWiremockTestServer extends WiremockTestServer {
 
-  protected val clientId = "xyz"
+  protected val clientId = "some-client-id"
   protected val userAgent = "some-user-agent"
   protected val ileApieConfiguration: Configuration =
     Configuration.from(
