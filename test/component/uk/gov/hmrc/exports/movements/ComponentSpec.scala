@@ -41,9 +41,9 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 /*
-* Component Tests are Intentionally Explicit with the JSON input, XML & DB output and DONT use TestData helpers.
-* That way these tests act as a "spec" for our API, and we dont get unintentional API changes as a result of Model/TestData refactors etc.
-*/
+ * Component Tests are Intentionally Explicit with the JSON input, XML & DB output and DONT use TestData helpers.
+ * That way these tests act as a "spec" for our API, and we dont get unintentional API changes as a result of Model/TestData refactors etc.
+ */
 abstract class ComponentSpec
     extends WordSpec with MustMatchers with BeforeAndAfterEach with GuiceOneServerPerSuite with IleApiWiremockTestServer with AuditWiremockTestServer
     with FixedTime with Eventually with TestMongoDB {
