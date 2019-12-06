@@ -35,13 +35,13 @@ import uk.gov.hmrc.exports.movements.models.notifications.Notification
 import uk.gov.hmrc.exports.movements.models.submissions.Submission
 import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, SubmissionRepository}
 import utils.FixedTime
-import utils.connector.{AuditWiremockTestServer, ILEAPIWiremockTestServer}
+import utils.connector.{AuditWiremockTestServer, IleApiWiremockTestServer}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 abstract class ComponentSpec
-    extends WordSpec with MustMatchers with BeforeAndAfterEach with GuiceOneServerPerSuite with ILEAPIWiremockTestServer with AuditWiremockTestServer
+    extends WordSpec with MustMatchers with BeforeAndAfterEach with GuiceOneServerPerSuite with IleApiWiremockTestServer with AuditWiremockTestServer
     with FixedTime with Eventually with TestMongoDB {
 
   /*

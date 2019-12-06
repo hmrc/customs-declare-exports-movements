@@ -25,7 +25,7 @@ import play.api.http.Status
 
 import scala.xml.NodeSeq
 
-trait ILEAPIWiremockTestServer extends WiremockTestServer {
+trait IleApiWiremockTestServer extends WiremockTestServer {
 
   protected val clientId = "xyz"
   protected val userAgent = "some-user-agent"
