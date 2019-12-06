@@ -18,7 +18,6 @@ package unit.uk.gov.hmrc.exports.movements.services
 
 import java.time.{Clock, Instant, ZoneOffset}
 
-import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation.AssociateDucrRequest
 import uk.gov.hmrc.exports.movements.services.ILEMapper
 import unit.uk.gov.hmrc.exports.movements.base.UnitSpec
@@ -26,7 +25,7 @@ import utils.testdata.CommonTestData._
 import utils.testdata.ConsolidationTestData.exampleAssociateDucrConsolidationRequestXML
 import utils.testdata.MovementsTestData._
 
-class ILEMapperSpec extends UnitSpec with MockitoSugar {
+class ILEMapperSpec extends UnitSpec {
 
   private val clock = Clock.fixed(Instant.parse(dateTimeString), ZoneOffset.UTC)
   private val ileMapper = new ILEMapper(clock)
