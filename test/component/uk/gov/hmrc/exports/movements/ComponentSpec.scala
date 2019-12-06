@@ -39,6 +39,7 @@ import utils.connector.{AuditWiremockTestServer, IleApiWiremockTestServer}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.xml.NodeSeq
 
 /*
  * Component Tests are Intentionally Explicit with the JSON input, XML & DB output and DONT use TestData helpers.
@@ -70,8 +71,8 @@ abstract class ComponentSpec
     await(submissionRepository.drop(failIfNotFound = false))
   }
 
-  protected def givenSubmission(submission: Submission): Unit = await(submissionRepository.insert(Submission.format.writes(submission)))
-  protected def givenNotification(notification: Notification): Unit = await(submissionRepository.insert(Notification.format.writes(notification)))
+  protected def givenAnExisting(submission: Submission): Unit = await(submissionRepository.insert(Submission.format.writes(submission)))
+  protected def givenAnExisting(notification: Notification): Unit = await(notificationRepository.insert(Notification.format.writes(notification)))
   protected def theSubmissionsFor(eori: String): Seq[Submission] =
     await(
       submissionRepository
@@ -81,15 +82,21 @@ abstract class ComponentSpec
     )
   protected def theNotificationsFor(conversationId: String): Seq[Notification] =
     await(
-      submissionRepository
+      notificationRepository
         .find(Json.obj("conversationId" -> conversationId))
         .cursor[Notification](ReadPreference.primaryPreferred)
         .collect(maxDocs = -1, Cursor.FailOnError[Seq[Notification]]())
     )
 
-  protected def get(call: Call): Future[Result] = route(app, FakeRequest("GET", call.url).withHeaders("User-Agent" -> userAgent)).get
-  protected def post[T](call: Call, payload: JsObject): Future[Result] =
-    route(app, FakeRequest("POST", call.url).withHeaders("User-Agent" -> userAgent).withJsonBody(payload)).get
+  protected def get(call: Call, headers: (String, String)*): Future[Result] =
+    route(app, FakeRequest("GET", call.url).withHeaders(headers: _*).withHeaders("User-Agent" -> userAgent)).get
+
+  protected def post[T](call: Call, payload: JsObject, headers: (String, String)*): Future[Result] =
+    route(app, FakeRequest("POST", call.url).withHeaders(headers: _*).withHeaders("User-Agent" -> userAgent).withJsonBody(payload)).get
+
+  protected def post[T](call: Call, payload: NodeSeq, headers: (String, String)*): Future[Result] =
+    route(app, FakeRequest("POST", call.url).withHeaders(headers: _*).withHeaders("User-Agent" -> userAgent).withXmlBody(payload)).get
+
   protected def verifyEventually(requestPatternBuilder: RequestPatternBuilder): Unit = eventually(WireMock.verify(requestPatternBuilder))
 
 }
