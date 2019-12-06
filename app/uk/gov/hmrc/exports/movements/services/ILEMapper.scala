@@ -90,9 +90,9 @@ class ILEMapper @Inject()(clock: Clock) {
     mucrOpt.map(mucr => <masterUCR>{mucr}</masterUCR>).getOrElse(NodeSeq.Empty)
 
   private def buildUcrBlockNode(consolidationType: ConsolidationType, ucrOpt: Option[String]): NodeSeq =
-    ucrOpt.map { ducr =>
+    ucrOpt.map { ucr =>
       <ucrBlock>
-        <ucr>{ducr}</ucr>
+        <ucr>{ucr}</ucr>
         <ucrType>{ucrType(consolidationType)}</ucrType>
       </ucrBlock>
     }.getOrElse(NodeSeq.Empty)
