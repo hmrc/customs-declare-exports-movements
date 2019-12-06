@@ -23,6 +23,10 @@ import uk.gov.hmrc.exports.movements.controllers.routes
 import uk.gov.hmrc.exports.movements.models.notifications.UcrBlock
 import uk.gov.hmrc.exports.movements.models.submissions.{ActionType, Submission}
 
+/*
+* Component Tests are Intentionally Explicit with the JSON input, XML & DB output and DONT use TestData helpers.
+* That way these tests act as a "spec" for our API, and we dont get unintentional API changes as a result of Model/TestData refactors etc.
+*/
 class RetrospectiveArrivalSpec extends ComponentSpec {
 
   "POST" should {
