@@ -50,6 +50,7 @@ import reactivemongo.play.json.collection.JSONCollection
 import uk.gov.hmrc.exports.movements.models.notifications.Notification
 import uk.gov.hmrc.exports.movements.models.submissions.Submission
 import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, SubmissionRepository}
+import utils.FixedTime
 import utils.connector.{AuditWiremockTestServer, ILEAPIWiremockTestServer}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -57,10 +58,10 @@ import scala.concurrent.Future
 
 abstract class ComponentSpec
     extends WordSpec with MustMatchers with BeforeAndAfterEach with GuiceOneServerPerSuite with ILEAPIWiremockTestServer with AuditWiremockTestServer
-    with Eventually with TestMongoDB {
+    with FixedTime with Eventually with TestMongoDB {
 
   /*
-    Intentionally NOT exposing the real CacheRepository as we shouldn't test our production code using our production classes.
+    Intentionally NOT exposing the real Repository as we shouldn't test our production code using our production classes.
    */
   private lazy val notificationRepository: JSONCollection = app.injector.instanceOf[NotificationRepository].collection
   private lazy val submissionRepository: JSONCollection = app.injector.instanceOf[SubmissionRepository].collection
@@ -72,6 +73,7 @@ abstract class ComponentSpec
       .configure(ileApieConfiguration)
       .configure(mongoConfiguration)
       .configure(auditConfiguration)
+      .overrides(fixedTimeBinding)
       .build()
 
   override def beforeEach(): Unit = {

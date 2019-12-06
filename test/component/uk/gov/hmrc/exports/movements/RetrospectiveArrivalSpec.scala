@@ -23,7 +23,7 @@ import uk.gov.hmrc.exports.movements.controllers.routes
 import uk.gov.hmrc.exports.movements.models.notifications.UcrBlock
 import uk.gov.hmrc.exports.movements.models.submissions.{ActionType, Submission}
 
-class DepartureSpec extends ComponentSpec {
+class RetrospectiveArrivalSpec extends ComponentSpec {
 
   "POST" should {
     "return 201" in {
@@ -35,10 +35,10 @@ class DepartureSpec extends ComponentSpec {
         routes.MovementsController.createMovement(),
         Json.obj(
           "eori" -> "eori",
-          "choice" -> "EDL",
+          "choice" -> "RET",
           "consignmentReference" -> Json.obj("reference" -> "M", "referenceValue" -> "UCR"),
           "location" -> Json.obj("code" -> "abc"),
-          "movementDetails" -> Json.obj("dateTime" -> "2020-01-01T00:00:00Z"),
+          "movementDetails" -> Json.obj("dateTime" -> "some date time"),
           "arrivalReference" -> Json.obj("reference" -> "xyz"),
           "transport" -> Json.obj("modeOfTransport" -> "mode", "nationality" -> "nationality", "transportId" -> "transportId")
         )
@@ -51,25 +51,25 @@ class DepartureSpec extends ComponentSpec {
       submissions.size mustBe 1
       submissions.head.conversationId mustBe "conversation-id"
       submissions.head.ucrBlocks mustBe Seq(UcrBlock("UCR", "M"))
-      submissions.head.actionType mustBe ActionType.Departure
+      submissions.head.actionType mustBe ActionType.RetrospectiveArrival
 
       verify(
         postRequestedToILE()
           .withRequestBody(equalToXml(<inventoryLinkingMovementRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
-              <messageCode>EDL</messageCode>
-              <ucrBlock>
-                <ucr>UCR</ucr>
-                <ucrType>M</ucrType>
-              </ucrBlock>
-              <goodsLocation>abc</goodsLocation>
-              <goodsDepartureDateTime>2020-01-01T00:00:00Z</goodsDepartureDateTime>
-              <movementReference>xyz</movementReference>
-              <transportDetails>
-                <transportID>transportId</transportID>
-                <transportMode>mode</transportMode>
-                <transportNationality>nationality</transportNationality>
-              </transportDetails>
-            </inventoryLinkingMovementRequest>))
+            <messageCode>RET</messageCode>
+            <ucrBlock>
+              <ucr>UCR</ucr>
+              <ucrType>M</ucrType>
+            </ucrBlock>
+            <goodsLocation>abc</goodsLocation>
+            <goodsArrivalDateTime>{currentInstant}</goodsArrivalDateTime>
+            <movementReference>xyz</movementReference>
+            <transportDetails>
+              <transportID>transportId</transportID>
+              <transportMode>mode</transportMode>
+              <transportNationality>nationality</transportNationality>
+            </transportDetails>
+          </inventoryLinkingMovementRequest>))
       )
     }
   }

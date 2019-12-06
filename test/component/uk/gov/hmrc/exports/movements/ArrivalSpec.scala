@@ -39,7 +39,8 @@ class ArrivalSpec extends ComponentSpec {
           "consignmentReference" -> Json.obj("reference" -> "M", "referenceValue" -> "UCR"),
           "location" -> Json.obj("code" -> "abc"),
           "movementDetails" -> Json.obj("dateTime" -> "2020-01-01T00:00:00Z"),
-          "arrivalReference" -> Json.obj("reference" -> "xyz")
+          "arrivalReference" -> Json.obj("reference" -> "xyz"),
+          "transport" -> Json.obj("modeOfTransport" -> "mode", "nationality" -> "nationality", "transportId" -> "transportId")
         )
       )
 
@@ -63,6 +64,11 @@ class ArrivalSpec extends ComponentSpec {
             <goodsLocation>abc</goodsLocation>
             <goodsArrivalDateTime>2020-01-01T00:00:00Z</goodsArrivalDateTime>
             <movementReference>xyz</movementReference>
+            <transportDetails>
+              <transportID>transportId</transportID>
+              <transportMode>mode</transportMode>
+              <transportNationality>nationality</transportNationality>
+            </transportDetails>
           </inventoryLinkingMovementRequest>))
       )
     }
