@@ -30,6 +30,7 @@ import scala.xml.Node
 object MovementsTestData {
 
   val now: DateTime = DateTime.now.withZone(DateTimeZone.UTC)
+  val dateTimeString: String = "2019-07-12T13:14:54Z"
 
   val exampleArrivalRequestXML: Node =
     scala.xml.Utility.trim {
@@ -40,7 +41,7 @@ object MovementsTestData {
           <ucrType>D</ucrType>
         </ucrBlock>
         <goodsLocation>GBAUlocation</goodsLocation>
-        <goodsArrivalDateTime>2019-07-12T13:14:54.000Z</goodsArrivalDateTime>
+        <goodsArrivalDateTime>{dateTimeString}</goodsArrivalDateTime>
         <movementReference>{movementReference}</movementReference>
       </inventoryLinkingMovementRequest>
     }
@@ -49,8 +50,8 @@ object MovementsTestData {
     eori = validEori,
     providerId = Some(validProviderId),
     choice = MovementType.Arrival,
-    consignmentReference = ConsignmentReference("D", "7GB123456789000-123ABC456DEFQWERT"),
-    movementDetails = Some(MovementDetails("2019-07-12T13:14:54.000Z")),
+    consignmentReference = ConsignmentReference("D", ucr),
+    movementDetails = Some(MovementDetails(dateTimeString)),
     location = Some(Location("GBAUlocation")),
     arrivalReference = Some(ArrivalReference(Some(movementReference))),
     transport = None
@@ -58,15 +59,28 @@ object MovementsTestData {
 
   val exampleArrivalRequestJson: JsValue = Json.toJson(exampleArrivalRequest)
 
+  val exampleRetrospectiveArrivalRequestXML: Node =
+    scala.xml.Utility.trim {
+      <inventoryLinkingMovementRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
+        <messageCode>{MessageCodes.RET}</messageCode>
+        <ucrBlock>
+          <ucr>{ucr}</ucr>
+          <ucrType>D</ucrType>
+        </ucrBlock>
+        <goodsLocation>GBAUlocation</goodsLocation>
+        <goodsArrivalDateTime>{dateTimeString}</goodsArrivalDateTime>
+      </inventoryLinkingMovementRequest>
+    }
+
   val exampleRetrospectiveArrivalRequest = Movement(
     eori = validEori,
     providerId = Some(validProviderId),
     choice = MovementType.RetrospectiveArrival,
-    consignmentReference = ConsignmentReference("D", "7GB123456789000-123ABC456DEFQWERT"),
+    consignmentReference = ConsignmentReference("D", ucr),
     movementDetails = None,
     location = Some(Location("GBAUlocation")),
     arrivalReference = None,
-    transport = Some(Transport(Some(transportMode), Some(transportNationality), Some(transportId)))
+    transport = None
   )
 
   val exampleRetrospectiveArrivalRequestJson: JsValue = Json.toJson(exampleRetrospectiveArrivalRequest)
@@ -80,7 +94,7 @@ object MovementsTestData {
         <ucrType>D</ucrType>
       </ucrBlock>
       <goodsLocation>GBAUlocation</goodsLocation>
-      <goodsDepartureDateTime>2019-07-12T13:14:54.000Z</goodsDepartureDateTime>
+      <goodsDepartureDateTime>{dateTimeString}</goodsDepartureDateTime>
       <transportDetails>
         <transportID>{transportId}</transportID>
         <transportMode>{transportMode}</transportMode>
@@ -94,7 +108,7 @@ object MovementsTestData {
     providerId = Some(validProviderId),
     choice = MovementType.Departure,
     consignmentReference = ConsignmentReference("D", "7GB123456789000-123ABC456DEFQWERT"),
-    movementDetails = Some(MovementDetails("2019-07-12T13:14:54.000Z")),
+    movementDetails = Some(MovementDetails(dateTimeString)),
     location = Some(Location("GBAUlocation")),
     transport = Some(Transport(Some(transportMode), Some(transportNationality), Some(transportId)))
   )

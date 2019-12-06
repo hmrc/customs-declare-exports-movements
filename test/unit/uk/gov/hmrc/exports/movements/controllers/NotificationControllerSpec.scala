@@ -16,6 +16,8 @@
 
 package unit.uk.gov.hmrc.exports.movements.controllers
 
+import java.time.{Clock, Instant, ZoneOffset}
+
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.mockito.{ArgumentCaptor, InOrder, Mockito}
@@ -35,6 +37,7 @@ import uk.gov.hmrc.exports.movements.services.NotificationService
 import unit.uk.gov.hmrc.exports.movements.base.AuthTestSupport
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
 import utils.testdata.CommonTestData.conversationId
+import utils.testdata.MovementsTestData.dateTimeString
 import utils.testdata.notifications.NotificationTestData._
 import utils.testdata.notifications.{ExampleInventoryLinkingControlResponse, ExampleInventoryLinkingMovementTotalsResponse}
 
@@ -48,11 +51,14 @@ class NotificationControllerSpec
 
   private val notificationServiceMock: NotificationService = buildNotificationServiceMock
   private val movementNotificationFactoryMock: NotificationFactory = buildMovementNotificationFactoryMock
+  private val clock = Clock.fixed(Instant.parse(dateTimeString), ZoneOffset.UTC)
+
   override lazy val app: Application = GuiceApplicationBuilder()
     .overrides(
       bind[AuthConnector].to(mockAuthConnector),
       bind[NotificationService].to(notificationServiceMock),
-      bind[NotificationFactory].to(movementNotificationFactoryMock)
+      bind[NotificationFactory].to(movementNotificationFactoryMock),
+      bind[Clock].to(clock)
     )
     .build()
 
