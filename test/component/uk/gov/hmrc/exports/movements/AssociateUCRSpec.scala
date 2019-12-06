@@ -33,13 +33,7 @@ class AssociateUCRSpec extends ComponentSpec {
       // When
       val response = post(
         routes.ConsolidationController.submitConsolidation(),
-        Json.obj(
-          "providerId" -> "pid",
-          "eori" -> "eori",
-          "consolidationType" -> "ASSOCIATE_DUCR",
-          "mucr" -> "MUCR",
-          "ucr" -> "UCR"
-        )
+        Json.obj("providerId" -> "pid", "eori" -> "eori", "consolidationType" -> "ASSOCIATE_DUCR", "mucr" -> "MUCR", "ucr" -> "UCR")
       )
 
       // Then

@@ -33,12 +33,7 @@ class DissociateUCRSpec extends ComponentSpec {
       // When
       val response = post(
         routes.ConsolidationController.submitConsolidation(),
-        Json.obj(
-          "providerId" -> "pid",
-          "eori" -> "eori",
-          "consolidationType" -> "DISASSOCIATE_DUCR",
-          "ucr" -> "UCR"
-        )
+        Json.obj("providerId" -> "pid", "eori" -> "eori", "consolidationType" -> "DISASSOCIATE_DUCR", "ucr" -> "UCR")
       )
 
       // Then

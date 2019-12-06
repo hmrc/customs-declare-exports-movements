@@ -33,12 +33,7 @@ class ShutMUCRSpec extends ComponentSpec {
       // When
       val response = post(
         routes.ConsolidationController.submitConsolidation(),
-        Json.obj(
-          "providerId" -> "pid",
-          "eori" -> "eori",
-          "consolidationType" -> "SHUT_MUCR",
-          "mucr" -> "UCR"
-        )
+        Json.obj("providerId" -> "pid", "eori" -> "eori", "consolidationType" -> "SHUT_MUCR", "mucr" -> "UCR")
       )
 
       // Then
