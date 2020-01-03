@@ -41,12 +41,12 @@ class ILEMapper @Inject()(clock: Clock) {
   private def generateInventoryLinkingMovementRequest(request: Movement): InventoryLinkingMovementRequest = {
 
     val departureDetails: Option[String] = request.choice match {
-      case Departure => request.movementDetails.map(movement => formatOutputDateTime(parseDateTime(movement.dateTime)))
+      case Departure => request.movementDetails.map(movement => formatOutputDateTime(movement.dateTime))
       case _         => None
     }
 
     val arrivalDetails: Option[String] = request.choice match {
-      case Arrival              => request.movementDetails.map(movement => formatOutputDateTime(parseDateTime(movement.dateTime)))
+      case Arrival              => request.movementDetails.map(movement => formatOutputDateTime(movement.dateTime))
       case RetrospectiveArrival => Some(formatOutputDateTime(Instant.now(clock)))
       case _                    => None
     }
@@ -62,8 +62,6 @@ class ILEMapper @Inject()(clock: Clock) {
       movementReference = request.arrivalReference.flatMap(_.reference)
     )
   }
-
-  private def parseDateTime(dateTime: String): Instant = Instant.from(dateTimeFormatter.parse(dateTime))
 
   private def formatOutputDateTime(dateTime: Instant): String = dateTimeFormatter.format(dateTime.truncatedTo(ChronoUnit.SECONDS))
 

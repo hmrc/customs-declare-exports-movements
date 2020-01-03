@@ -16,6 +16,8 @@
 
 package unit.uk.gov.hmrc.exports.movements.controllers
 
+import java.time.Instant
+
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}
 import org.scalatest.BeforeAndAfterEach
@@ -44,7 +46,7 @@ class MovementsControllerSpec extends UnitSpec with MockitoSugar with BeforeAndA
     eori = validEori,
     choice = MovementType.Arrival,
     consignmentReference = ConsignmentReference("reference", "value"),
-    movementDetails = Some(MovementDetails("dateTime"))
+    movementDetails = Some(MovementDetails(Instant.now()))
   )
 
   override protected def beforeEach(): Unit =

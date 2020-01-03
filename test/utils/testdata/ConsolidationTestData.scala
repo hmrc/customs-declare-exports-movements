@@ -38,7 +38,7 @@ object ConsolidationTestData {
     </inventoryLinkingConsolidationRequest>
 
   val exampleAssociateDucrConsolidationRequestXML: Elem =
-    <inventoryLinkingConsolidationRequest>
+    <inventoryLinkingConsolidationRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
       <messageCode>{MessageCodes.EAC}</messageCode>
       <masterUCR>{ucr_2}</masterUCR>
       <ucrBlock>

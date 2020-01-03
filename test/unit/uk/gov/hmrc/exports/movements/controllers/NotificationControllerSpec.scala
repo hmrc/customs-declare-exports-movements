@@ -37,7 +37,7 @@ import uk.gov.hmrc.exports.movements.services.NotificationService
 import unit.uk.gov.hmrc.exports.movements.base.AuthTestSupport
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
 import utils.testdata.CommonTestData.conversationId
-import utils.testdata.MovementsTestData.dateTimeString
+import utils.testdata.MovementsTestData.dateTime
 import utils.testdata.notifications.NotificationTestData._
 import utils.testdata.notifications.{ExampleInventoryLinkingControlResponse, ExampleInventoryLinkingMovementTotalsResponse}
 
@@ -51,7 +51,7 @@ class NotificationControllerSpec
 
   private val notificationServiceMock: NotificationService = buildNotificationServiceMock
   private val movementNotificationFactoryMock: NotificationFactory = buildMovementNotificationFactoryMock
-  private val clock = Clock.fixed(Instant.parse(dateTimeString), ZoneOffset.UTC)
+  private val clock = Clock.fixed(dateTime, ZoneOffset.UTC)
 
   override lazy val app: Application = GuiceApplicationBuilder()
     .overrides(

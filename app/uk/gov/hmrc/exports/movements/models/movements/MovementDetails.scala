@@ -15,9 +15,11 @@
  */
 
 package uk.gov.hmrc.exports.movements.models.movements
+import java.time.Instant
+
 import play.api.libs.json.{Json, OFormat}
 
-case class MovementDetails(dateTime: String)
+case class MovementDetails(dateTime: Instant)
 
 object MovementDetails {
   implicit val format: OFormat[MovementDetails] = Json.format[MovementDetails]

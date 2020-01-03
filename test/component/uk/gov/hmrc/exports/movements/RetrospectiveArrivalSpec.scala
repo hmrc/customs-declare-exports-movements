@@ -42,7 +42,6 @@ class RetrospectiveArrivalSpec extends ComponentSpec {
           "choice" -> "RET",
           "consignmentReference" -> Json.obj("reference" -> "M", "referenceValue" -> "UCR"),
           "location" -> Json.obj("code" -> "abc"),
-          "movementDetails" -> Json.obj("dateTime" -> "some date time"),
           "arrivalReference" -> Json.obj("reference" -> "xyz"),
           "transport" -> Json.obj("modeOfTransport" -> "mode", "nationality" -> "nationality", "transportId" -> "transportId")
         )

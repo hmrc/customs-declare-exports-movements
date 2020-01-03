@@ -27,7 +27,7 @@ import utils.testdata.MovementsTestData._
 
 class ILEMapperSpec extends UnitSpec {
 
-  private val clock = Clock.fixed(Instant.parse(dateTimeString), ZoneOffset.UTC)
+  private val clock = Clock.fixed(dateTime, ZoneOffset.UTC)
   private val ileMapper = new ILEMapper(clock)
 
   "ILE Mapper" should {
@@ -37,7 +37,7 @@ class ILEMapperSpec extends UnitSpec {
       val input = exampleArrivalRequest
       val expectedXml = exampleArrivalRequestXML
 
-      ileMapper.generateInventoryLinkingMovementRequestXml(input) shouldBe expectedXml
+      ileMapper.generateInventoryLinkingMovementRequestXml(input).toString should equal(expectedXml.toString)
     }
 
     "create correct XML for Retrospective Arrival" which {
@@ -48,7 +48,7 @@ class ILEMapperSpec extends UnitSpec {
 
         val xml = ileMapper.generateInventoryLinkingMovementRequestXml(input)
 
-        xml shouldBe expectedXml
+        xml.toString shouldEqual expectedXml.toString
       }
     }
 
@@ -57,7 +57,7 @@ class ILEMapperSpec extends UnitSpec {
       val input = exampleDepartureRequest
       val expectedXml = exampleDepartureRequestXML
 
-      ileMapper.generateInventoryLinkingMovementRequestXml(input) shouldBe expectedXml
+      ileMapper.generateInventoryLinkingMovementRequestXml(input).toString should equal(expectedXml.toString)
     }
 
     "create correct XML based on the consolidation" in {
@@ -65,7 +65,7 @@ class ILEMapperSpec extends UnitSpec {
       val consolidation = AssociateDucrRequest(eori = validEori, mucr = ucr_2, ucr = ucr)
       val expectedXml = scala.xml.Utility.trim(exampleAssociateDucrConsolidationRequestXML)
 
-      ileMapper.generateConsolidationXml(consolidation) shouldBe expectedXml
+      ileMapper.generateConsolidationXml(consolidation).toString shouldEqual expectedXml.toString
     }
   }
 }

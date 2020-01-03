@@ -16,6 +16,8 @@
 
 package utils.testdata
 
+import java.time.Instant
+
 import org.joda.time.{DateTime, DateTimeZone}
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.exports.movements.models.movements.{Movement, _}
@@ -30,7 +32,7 @@ import scala.xml.Node
 object MovementsTestData {
 
   val now: DateTime = DateTime.now.withZone(DateTimeZone.UTC)
-  val dateTimeString: String = "2019-07-12T13:14:54Z"
+  val dateTime = Instant.parse("2019-07-12T13:14:54Z")
 
   val exampleArrivalRequestXML: Node =
     scala.xml.Utility.trim {
@@ -41,7 +43,7 @@ object MovementsTestData {
           <ucrType>D</ucrType>
         </ucrBlock>
         <goodsLocation>GBAUlocation</goodsLocation>
-        <goodsArrivalDateTime>{dateTimeString}</goodsArrivalDateTime>
+        <goodsArrivalDateTime>{dateTime}</goodsArrivalDateTime>
         <movementReference>{movementReference}</movementReference>
       </inventoryLinkingMovementRequest>
     }
@@ -51,7 +53,7 @@ object MovementsTestData {
     providerId = Some(validProviderId),
     choice = MovementType.Arrival,
     consignmentReference = ConsignmentReference("D", ucr),
-    movementDetails = Some(MovementDetails(dateTimeString)),
+    movementDetails = Some(MovementDetails(dateTime)),
     location = Some(Location("GBAUlocation")),
     arrivalReference = Some(ArrivalReference(Some(movementReference))),
     transport = None
@@ -68,7 +70,7 @@ object MovementsTestData {
           <ucrType>D</ucrType>
         </ucrBlock>
         <goodsLocation>GBAUlocation</goodsLocation>
-        <goodsArrivalDateTime>{dateTimeString}</goodsArrivalDateTime>
+        <goodsArrivalDateTime>{dateTime}</goodsArrivalDateTime>
       </inventoryLinkingMovementRequest>
     }
 
@@ -94,7 +96,7 @@ object MovementsTestData {
         <ucrType>D</ucrType>
       </ucrBlock>
       <goodsLocation>GBAUlocation</goodsLocation>
-      <goodsDepartureDateTime>{dateTimeString}</goodsDepartureDateTime>
+      <goodsDepartureDateTime>{dateTime}</goodsDepartureDateTime>
       <transportDetails>
         <transportID>{transportId}</transportID>
         <transportMode>{transportMode}</transportMode>
@@ -108,7 +110,7 @@ object MovementsTestData {
     providerId = Some(validProviderId),
     choice = MovementType.Departure,
     consignmentReference = ConsignmentReference("D", "7GB123456789000-123ABC456DEFQWERT"),
-    movementDetails = Some(MovementDetails(dateTimeString)),
+    movementDetails = Some(MovementDetails(dateTime)),
     location = Some(Location("GBAUlocation")),
     transport = Some(Transport(Some(transportMode), Some(transportNationality), Some(transportId)))
   )

@@ -27,13 +27,13 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
-import utils.testdata.MovementsTestData.dateTimeString
+import utils.testdata.MovementsTestData.dateTime
 
 import scala.concurrent.ExecutionContext
 
 class ConnectorSpec extends WordSpec with GuiceOneAppPerSuite with WiremockTestServer with MustMatchers with MockitoSugar with BeforeAndAfterEach {
 
-  private val clock = Clock.fixed(Instant.parse(dateTimeString), ZoneOffset.UTC)
+  private val clock = Clock.fixed(dateTime, ZoneOffset.UTC)
 
   override def fakeApplication(): Application = {
     SharedMetricRegistries.clear()

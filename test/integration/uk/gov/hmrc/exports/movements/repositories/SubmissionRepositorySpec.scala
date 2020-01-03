@@ -37,7 +37,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class SubmissionRepositorySpec
     extends WordSpec with GuiceOneAppPerSuite with BeforeAndAfterEach with ScalaFutures with MustMatchers with IntegrationPatience {
 
-  private val clock = Clock.fixed(Instant.parse(dateTimeString), ZoneOffset.UTC)
+  private val clock = Clock.fixed(dateTime, ZoneOffset.UTC)
 
   override def fakeApplication: Application = {
     SharedMetricRegistries.clear()

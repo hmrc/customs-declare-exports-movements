@@ -27,7 +27,7 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.exports.movements.repositories.NotificationRepository
 import utils.testdata.CommonTestData.{conversationId, conversationId_2}
-import utils.testdata.MovementsTestData.dateTimeString
+import utils.testdata.MovementsTestData.dateTime
 import utils.testdata.notifications.NotificationTestData._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -35,7 +35,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class NotificationRepositorySpec
     extends WordSpec with GuiceOneAppPerSuite with BeforeAndAfterEach with ScalaFutures with MustMatchers with IntegrationPatience {
 
-  private val clock = Clock.fixed(Instant.parse(dateTimeString), ZoneOffset.UTC)
+  private val clock = Clock.fixed(dateTime, ZoneOffset.UTC)
 
   override def fakeApplication: Application = {
     SharedMetricRegistries.clear()

@@ -47,7 +47,7 @@ class SubmissionServiceSpec
     with IntegrationPatience {
 
   private val submissionRepository: SubmissionRepository = buildSubmissionRepositoryMock
-  private val clock = Clock.fixed(Instant.parse(dateTimeString), ZoneOffset.UTC)
+  private val clock = Clock.fixed(dateTime, ZoneOffset.UTC)
 
   def overrideModules: Seq[GuiceableModule] = Nil
 
