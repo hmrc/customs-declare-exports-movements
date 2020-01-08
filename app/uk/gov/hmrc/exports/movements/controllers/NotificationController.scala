@@ -24,7 +24,7 @@ import play.api.mvc._
 import uk.gov.hmrc.exports.movements.controllers.util.HeaderValidator
 import uk.gov.hmrc.exports.movements.metrics.MetricIdentifiers._
 import uk.gov.hmrc.exports.movements.metrics.MovementsMetrics
-import uk.gov.hmrc.exports.movements.models.notifications.{Notification, NotificationFactory}
+import uk.gov.hmrc.exports.movements.models.notifications.NotificationFactory
 import uk.gov.hmrc.exports.movements.repositories.SearchParameters
 import uk.gov.hmrc.exports.movements.services.NotificationService
 import uk.gov.hmrc.play.bootstrap.controller.BackendController
@@ -57,26 +57,20 @@ class NotificationController @Inject()(
     headerValidator.extractConversationIdHeader(request.headers.toSimpleMap) match {
       case Some(conversationId) =>
         logger.info(s"Notification received with conversation-id=[$conversationId]")
-        parseNotification(conversationId, request.body) match {
-          case Some(notification) =>
-            notificationService.save(notification).map(_ => Accepted).andThen {
-              case Success(_) =>
-                metrics.incrementCounter(movementMetric)
-            }
-          case None => Future.successful(Accepted)
+        try {
+          val notification = notificationFactory.buildMovementNotification(conversationId, request.body)
+          notificationService.save(notification).map(_ => Accepted).andThen {
+            case Success(_) =>
+              metrics.incrementCounter(movementMetric)
+          }
+        } catch {
+          case exc: IllegalArgumentException =>
+            logger.warn(s"Failed to parse notification with conversation-id=[$conversationId]", exc)
+            Future.successful(Accepted)
         }
       case None =>
         logger.warn("Notification received without a conversation-id. It will be dropped.")
         Future.successful(Accepted)
-    }
-
-  private def parseNotification(conversationId: String, responseXml: NodeSeq): Option[Notification] =
-    try {
-      Some(notificationFactory.buildMovementNotification(conversationId, responseXml))
-    } catch {
-      case exc: IllegalArgumentException =>
-        logger.warn(s"Failed to parse notification with conversation-id=[$conversationId]", exc)
-        None
     }
 
   def getNotificationsForSubmission(eori: Option[String], providerId: Option[String], conversationId: String): Action[AnyContent] =
