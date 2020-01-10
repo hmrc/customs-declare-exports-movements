@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package integration.uk.gov.hmrc.exports.movements.repositories
+package utils
 
 import play.api.Configuration
 

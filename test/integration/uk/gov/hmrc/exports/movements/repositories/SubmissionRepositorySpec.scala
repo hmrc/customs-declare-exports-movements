@@ -29,13 +29,14 @@ import play.api.libs.json.JsString
 import reactivemongo.core.errors.DatabaseException
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType
 import uk.gov.hmrc.exports.movements.repositories.{SearchParameters, SubmissionRepository}
+import utils.TestMongoDB
 import utils.testdata.CommonTestData.{conversationId, _}
 import utils.testdata.MovementsTestData._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class SubmissionRepositorySpec
-    extends WordSpec with GuiceOneAppPerSuite with BeforeAndAfterEach with ScalaFutures with MustMatchers with IntegrationPatience {
+    extends WordSpec with GuiceOneAppPerSuite with BeforeAndAfterEach with ScalaFutures with MustMatchers with IntegrationPatience with TestMongoDB {
 
   private val clock = Clock.fixed(Instant.parse(dateTimeString), ZoneOffset.UTC)
 
@@ -43,6 +44,7 @@ class SubmissionRepositorySpec
     SharedMetricRegistries.clear()
     GuiceApplicationBuilder()
       .overrides(bind[Clock].to(clock))
+      .configure(mongoConfiguration)
       .build()
   }
   private val repo = app.injector.instanceOf[SubmissionRepository]
@@ -81,7 +83,7 @@ class SubmissionRepositorySpec
 
         exc mustBe an[DatabaseException]
         exc.getMessage must include(
-          "E11000 duplicate key error collection: customs-declare-exports-movements.movementSubmissions index: conversationIdIdx dup key"
+          "E11000 duplicate key error collection: test-customs-declare-exports-movements.movementSubmissions index: conversationIdIdx dup key"
         )
       }
 

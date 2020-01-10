@@ -26,6 +26,7 @@ import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.exports.movements.repositories.NotificationRepository
+import utils.TestMongoDB
 import utils.testdata.CommonTestData.{conversationId, conversationId_2}
 import utils.testdata.MovementsTestData.dateTimeString
 import utils.testdata.notifications.NotificationTestData._
@@ -33,7 +34,7 @@ import utils.testdata.notifications.NotificationTestData._
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class NotificationRepositorySpec
-    extends WordSpec with GuiceOneAppPerSuite with BeforeAndAfterEach with ScalaFutures with MustMatchers with IntegrationPatience {
+    extends WordSpec with GuiceOneAppPerSuite with BeforeAndAfterEach with ScalaFutures with MustMatchers with IntegrationPatience with TestMongoDB {
 
   private val clock = Clock.fixed(Instant.parse(dateTimeString), ZoneOffset.UTC)
 
@@ -41,6 +42,7 @@ class NotificationRepositorySpec
     SharedMetricRegistries.clear()
     GuiceApplicationBuilder()
       .overrides(bind[Clock].to(clock))
+      .configure(mongoConfiguration)
       .build()
   }
   private val repo = app.injector.instanceOf[NotificationRepository]
