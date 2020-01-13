@@ -27,11 +27,11 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.Application
 import play.api.i18n.MessagesApi
 import play.api.inject._
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.ws.WSClient
+import play.api.{Application, inject}
 import play.filters.csrf.{CSRFConfig, CSRFConfigProvider, CSRFFilter}
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.exports.movements.config.AppConfig
@@ -76,7 +76,7 @@ trait CustomsExportsBaseSpec
 
   def messagesApi: MessagesApi = injector.instanceOf[MessagesApi]
 
-  def injector: Injector = app.injector
+  def injector: inject.Injector = app.injector
 
   def wsClient: WSClient = injector.instanceOf[WSClient]
 
