@@ -20,7 +20,7 @@ import com.codahale.metrics.Timer
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import reactivemongo.api.commands.{DefaultWriteResult, LastError, WriteResult}
+import reactivemongo.api.commands.{LastError, WriteResult}
 import reactivemongo.core.errors.GenericDatabaseException
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
 import uk.gov.hmrc.exports.movements.metrics.MovementsMetrics
@@ -37,7 +37,7 @@ import scala.xml.NodeSeq
 object UnitTestMockBuilder extends MockitoSugar {
 
   val dummyWriteResultSuccess: WriteResult =
-    DefaultWriteResult(ok = true, n = 1, writeErrors = Seq.empty, writeConcernError = None, code = None, errmsg = None)
+    LastError(true, None, None, None, 0, None, false, None, None, false, None, None)
 
   def buildNotificationRepositoryMock: NotificationRepository = {
     val notificationRepositoryMock = mock[NotificationRepository]
