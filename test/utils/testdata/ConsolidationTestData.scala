@@ -75,6 +75,14 @@ object ConsolidationTestData {
       </ucrBlock>
     </inventoryLinkingConsolidationRequest>
 
+  val exampleIleQueryRequestXml: Elem =
+    <inventoryLinkingQueryRequest>
+      <queryUCR>
+        <ucr>{ucr}</ucr>
+        <ucrType>D</ucrType>
+      </queryUCR>
+    </inventoryLinkingQueryRequest>
+
   val exampleDisassociateDucrConsolidationRequestJson: JsValue = JsObject(
     Map(
       "inventoryLinkingConsolidationRequest" -> JsObject(

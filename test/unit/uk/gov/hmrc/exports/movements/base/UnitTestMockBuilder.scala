@@ -20,7 +20,7 @@ import com.codahale.metrics.Timer
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import reactivemongo.api.commands.{DefaultWriteResult, WriteResult}
+import reactivemongo.api.commands.{DefaultWriteResult, LastError, WriteResult}
 import reactivemongo.core.errors.GenericDatabaseException
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
 import uk.gov.hmrc.exports.movements.metrics.MovementsMetrics
