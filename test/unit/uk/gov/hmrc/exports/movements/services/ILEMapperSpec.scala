@@ -19,10 +19,11 @@ package unit.uk.gov.hmrc.exports.movements.services
 import java.time.{Clock, Instant, ZoneOffset}
 
 import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation.AssociateDucrRequest
+import uk.gov.hmrc.exports.movements.models.notifications.UcrBlock
 import uk.gov.hmrc.exports.movements.services.ILEMapper
 import unit.uk.gov.hmrc.exports.movements.base.UnitSpec
 import utils.testdata.CommonTestData._
-import utils.testdata.ConsolidationTestData.exampleAssociateDucrConsolidationRequestXML
+import utils.testdata.ConsolidationTestData._
 import utils.testdata.MovementsTestData._
 
 class ILEMapperSpec extends UnitSpec {
@@ -66,6 +67,14 @@ class ILEMapperSpec extends UnitSpec {
       val expectedXml = scala.xml.Utility.trim(exampleAssociateDucrConsolidationRequestXML)
 
       ileMapper.generateConsolidationXml(consolidation) shouldBe expectedXml
+    }
+
+    "create correct XML based on the ILE Query" in {
+
+      val ucrBlock = UcrBlock(ucr, "D")
+      val expectedXml = scala.xml.Utility.trim(exampleIleQueryRequestXml)
+
+      ileMapper.generateIleQuery(ucrBlock) shouldBe expectedXml
     }
   }
 }

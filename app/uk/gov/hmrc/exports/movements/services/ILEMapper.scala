@@ -101,4 +101,14 @@ class ILEMapper @Inject()(clock: Clock) {
     case ASSOCIATE_DUCR | DISASSOCIATE_DUCR => "D"
     case ASSOCIATE_MUCR | DISASSOCIATE_MUCR => "M"
   }
+
+  def generateIleQuery(ucrBlock: uk.gov.hmrc.exports.movements.models.notifications.UcrBlock): NodeSeq =
+    scala.xml.Utility.trim {
+      <inventoryLinkingQueryRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
+        <queryUCR>
+          <ucr>{ucrBlock.ucr}</ucr>
+          <ucrType>{ucrBlock.ucrType}</ucrType>
+        </queryUCR>
+      </inventoryLinkingQueryRequest>
+    }
 }

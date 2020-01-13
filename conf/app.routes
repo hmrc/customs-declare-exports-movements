@@ -13,3 +13,7 @@ GET         /submissions/:conversationId                    uk.gov.hmrc.exports.
 # Movements Consolidations
 
 POST        /consolidation                                  uk.gov.hmrc.exports.movements.controllers.ConsolidationController.submitConsolidation()
+
+# ILE Query
+
+POST        /consignment-query                              uk.gov.hmrc.exports.movements.controllers.IleQueryController.submitIleQuery()

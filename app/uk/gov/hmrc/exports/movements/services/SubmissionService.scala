@@ -49,9 +49,8 @@ class SubmissionService @Inject()(
         val newSubmission =
           submissionFactory.buildMovementSubmission(movement.eori, movement.providerId, conversationId, requestXml, movement)
 
-        submissionRepository
-          .insert(newSubmission)
-          .map(_ => (): Unit)
+        submissionRepository.insert(newSubmission).map(_ => (): Unit)
+
       case CustomsInventoryLinkingResponse(status, conversationId) =>
         logger.warn(s"Movement Submission failed with conversation-id=[$conversationId] and status [$status]")
         Future.failed(
