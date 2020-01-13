@@ -39,6 +39,12 @@ class IleQueryControllerSpec extends WordSpec with MustMatchers with MockitoSuga
 
   private val controller = new IleQueryController(ileQueryService, stubControllerComponents())(global)
 
+  override protected def beforeEach(): Unit = {
+    super.beforeEach()
+
+    reset(ileQueryService)
+  }
+
   override protected def afterEach(): Unit = {
     reset(ileQueryService)
 

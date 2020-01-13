@@ -25,7 +25,6 @@ import org.scalatest.time.{Millis, Seconds, Span}
 import org.scalatest.{BeforeAndAfterEach, MustMatchers, WordSpec}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.Helpers._
-import reactivemongo.api.commands.LastError
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
 import uk.gov.hmrc.exports.movements.exceptions.CustomsInventoryLinkingUpstreamException
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
@@ -34,6 +33,8 @@ import uk.gov.hmrc.exports.movements.models.notifications.UcrBlock
 import uk.gov.hmrc.exports.movements.repositories.SubmissionRepository
 import uk.gov.hmrc.exports.movements.services.{ILEMapper, IleQueryService}
 import uk.gov.hmrc.http.HeaderCarrier
+import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder.dummyWriteResultSuccess
+import utils.testdata.CommonTestData._
 
 import scala.concurrent.ExecutionContext.global
 import scala.concurrent.Future
@@ -52,9 +53,13 @@ class IleQueryServiceSpec extends WordSpec with MockitoSugar with MustMatchers w
   val ileQueryService = new IleQueryService(ileMapper, submissionRepository, ileConnector)(global)
 
   val conversationId = "conversationId"
-  val ileQueryRequest = IleQueryRequest("GB1234564654", Some("12345"), UcrBlock("9GB025115188654-IAZ1", "D"))
+  val ileQueryRequest = IleQueryRequest(validEori, Some(validProviderId), UcrBlock(ucr, "D"))
 
-  val writeResult = LastError(true, None, None, None, 0, None, false, None, None, false, None, None)
+  override protected def beforeEach(): Unit = {
+    super.beforeEach()
+
+    reset(submissionRepository, ileConnector)
+  }
 
   override protected def afterEach(): Unit = {
     reset(submissionRepository, ileConnector)
@@ -68,7 +73,7 @@ class IleQueryServiceSpec extends WordSpec with MockitoSugar with MustMatchers w
 
       when(ileConnector.submit(any(), any())(any()))
         .thenReturn(Future.successful(CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId))))
-      when(submissionRepository.insert(any())(any())).thenReturn(Future.successful(writeResult))
+      when(submissionRepository.insert(any())(any())).thenReturn(Future.successful(dummyWriteResultSuccess))
 
       val result = ileQueryService.submit(ileQueryRequest)(hc).futureValue
 
