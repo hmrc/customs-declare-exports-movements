@@ -30,35 +30,69 @@ import uk.gov.hmrc.exports.movements.models.submissions.{ActionType, Submission}
 class DissociateUCRSpec extends ComponentSpec {
 
   "POST" should {
-    "return 201" in {
-      // Given
-      givenIleApiAcceptsTheSubmission("conversation-id")
+    "return 201" when {
 
-      // When
-      val response = post(
-        routes.ConsolidationController.submitConsolidation(),
-        Json.obj("providerId" -> "pid", "eori" -> "eori", "consolidationType" -> "DISASSOCIATE_DUCR", "ucr" -> "UCR")
-      )
+      "used for DUCR dissociation" in {
+        // Given
+        givenIleApiAcceptsTheSubmission("conversation-id")
 
-      // Then
-      status(response) mustBe ACCEPTED
+        // When
+        val response = post(
+          routes.ConsolidationController.submitConsolidation(),
+          Json.obj("providerId" -> "pid", "eori" -> "eori", "consolidationType" -> "DISASSOCIATE_DUCR", "ucr" -> "DUCR")
+        )
 
-      val submissions: Seq[Submission] = theSubmissionsFor("eori")
-      submissions.size mustBe 1
-      submissions.head.conversationId mustBe "conversation-id"
-      submissions.head.ucrBlocks mustBe Seq(UcrBlock("UCR", "D"))
-      submissions.head.actionType mustBe ActionType.DucrDisassociation
+        // Then
+        status(response) mustBe ACCEPTED
 
-      verify(
-        postRequestedToILE()
-          .withRequestBody(equalToXml(<inventoryLinkingConsolidationRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
-            <messageCode>EAC</messageCode>
-            <ucrBlock>
-              <ucr>UCR</ucr>
-              <ucrType>D</ucrType>
-            </ucrBlock>
-          </inventoryLinkingConsolidationRequest>))
-      )
+        val submissions: Seq[Submission] = theSubmissionsFor("eori")
+        submissions.size mustBe 1
+        submissions.head.conversationId mustBe "conversation-id"
+        submissions.head.ucrBlocks mustBe Seq(UcrBlock("DUCR", "D"))
+        submissions.head.actionType mustBe ActionType.DucrDisassociation
+
+        verify(
+          postRequestedToILE()
+            .withRequestBody(equalToXml(<inventoryLinkingConsolidationRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
+              <messageCode>EAC</messageCode>
+              <ucrBlock>
+                <ucr>DUCR</ucr>
+                <ucrType>D</ucrType>
+              </ucrBlock>
+            </inventoryLinkingConsolidationRequest>))
+        )
+      }
+
+      "used for MUCR dissociation" in {
+        // Given
+        givenIleApiAcceptsTheSubmission("conversation-id")
+
+        // When
+        val response = post(
+          routes.ConsolidationController.submitConsolidation(),
+          Json.obj("providerId" -> "pid", "eori" -> "eori", "consolidationType" -> "DISASSOCIATE_MUCR", "ucr" -> "MUCR")
+        )
+
+        // Then
+        status(response) mustBe ACCEPTED
+
+        val submissions: Seq[Submission] = theSubmissionsFor("eori")
+        submissions.size mustBe 1
+        submissions.head.conversationId mustBe "conversation-id"
+        submissions.head.ucrBlocks mustBe Seq(UcrBlock("MUCR", "M"))
+        submissions.head.actionType mustBe ActionType.MucrDisassociation
+
+        verify(
+          postRequestedToILE()
+            .withRequestBody(equalToXml(<inventoryLinkingConsolidationRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
+              <messageCode>EAC</messageCode>
+              <ucrBlock>
+                <ucr>MUCR</ucr>
+                <ucrType>M</ucrType>
+              </ucrBlock>
+            </inventoryLinkingConsolidationRequest>))
+        )
+      }
     }
   }
 
