@@ -71,7 +71,7 @@ class AssociateUCRSpec extends ComponentSpec {
         // When
         val response = post(
           routes.ConsolidationController.submitConsolidation(),
-          Json.obj("providerId" -> "pid", "eori" -> "eori", "consolidationType" -> "ASSOCIATE_MUCR", "mucr" -> "MUCR", "ucr" -> "MUCR")
+          Json.obj("providerId" -> "pid", "eori" -> "eori", "consolidationType" -> "ASSOCIATE_MUCR", "mucr" -> "MUCR", "ucr" -> "MUCR_2")
         )
 
         // Then
@@ -80,7 +80,7 @@ class AssociateUCRSpec extends ComponentSpec {
         val submissions: Seq[Submission] = theSubmissionsFor("eori")
         submissions.size mustBe 1
         submissions.head.conversationId mustBe "conversation-id"
-        submissions.head.ucrBlocks mustBe Seq(UcrBlock("MUCR", "M"), UcrBlock("MUCR", "M"))
+        submissions.head.ucrBlocks mustBe Seq(UcrBlock("MUCR", "M"), UcrBlock("MUCR_2", "M"))
         submissions.head.actionType mustBe ActionType.MucrAssociation
 
         verify(
@@ -89,7 +89,7 @@ class AssociateUCRSpec extends ComponentSpec {
               <messageCode>EAC</messageCode>
               <masterUCR>MUCR</masterUCR>
               <ucrBlock>
-                <ucr>MUCR</ucr>
+                <ucr>MUCR_2</ucr>
                 <ucrType>M</ucrType>
               </ucrBlock>
             </inventoryLinkingConsolidationRequest>))
