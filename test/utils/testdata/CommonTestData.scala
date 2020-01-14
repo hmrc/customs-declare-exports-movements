@@ -35,8 +35,8 @@ object CommonTestData {
     val EMR = "EMR"
   }
 
-  val validEori: String = "GB167676"
-  val validEori_2: String = "GB089393"
+  val validEori: String = "GB167676514785214"
+  val validEori_2: String = "GB089393635248512"
   val validProviderId: String = "PROVIDERID123"
   val validProviderId_2: String = "PROVIDERID456"
   val conversationId: String = "b1c09f1b-7c94-4e90-b754-7c5c71c44e11"
