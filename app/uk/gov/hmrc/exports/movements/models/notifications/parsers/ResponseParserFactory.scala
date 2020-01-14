@@ -17,6 +17,7 @@
 package uk.gov.hmrc.exports.movements.models.notifications.parsers
 
 import javax.inject.{Inject, Singleton}
+import uk.gov.hmrc.exports.movements.models.notifications.NotificationData
 
 import scala.xml.NodeSeq
 
@@ -31,13 +32,13 @@ class ResponseParserFactory @Inject()(
   private val inventoryLinkingMovementTotalsResponseLabel = "inventoryLinkingMovementTotalsResponse"
   private val inventoryLinkingControlResponseLabel = "inventoryLinkingControlResponse"
 
-  def buildResponseParserContext(responseXml: NodeSeq): ResponseParserContext =
+  def buildResponseParserContext(responseXml: NodeSeq): ResponseParserContext[NotificationData] =
     if (responseXml.nonEmpty)
       ResponseParserContext(responseXml.head.label, buildResponseParser(responseXml))
     else
       throw new IllegalArgumentException(s"Cannot find root element in: $responseXml")
 
-  def buildResponseParser(responseXml: NodeSeq): ResponseParser =
+  def buildResponseParser(responseXml: NodeSeq): ResponseParser[NotificationData] =
     if (responseXml.nonEmpty) {
       responseXml.head.label match {
         case `inventoryLinkingMovementResponseLabel`       => movementResponseParser

@@ -20,12 +20,12 @@ import play.api.libs.json.Json
 import uk.gov.hmrc.exports.movements.models.movements.Transport
 
 case class MovementInfo(
-  messageCode: Seq[String],
-  goodsLocation: Seq[String],
-  goodsArrivalDateTime: Seq[String] = Seq.empty,
-  goodsDepartureDateTime: Seq[String] = Seq.empty,
-  movementReference: Seq[String] = Seq.empty,
-  transportDetails: Seq[Transport] = Seq.empty
+  messageCode: String,
+  goodsLocation: String,
+  goodsArrivalDateTime: Option[String] = None,
+  goodsDepartureDateTime: Option[String] = None,
+  movementReference: Option[String] = None,
+  transportDetails: Option[Transport] = None
 )
 
 object MovementInfo {

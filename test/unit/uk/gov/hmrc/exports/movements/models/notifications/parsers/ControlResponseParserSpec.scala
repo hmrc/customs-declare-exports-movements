@@ -31,7 +31,7 @@ class ControlResponseParserSpec extends WordSpec with MustMatchers {
     val parser = new ControlResponseParser(errorValidator)
   }
 
-  "MovementResponseParser on buildNotification" when {
+  "MovementResponseParser on parse" when {
 
     "provided with correct inventoryLinkingControlResponse" should {
       "return NotificationData" in new Test {

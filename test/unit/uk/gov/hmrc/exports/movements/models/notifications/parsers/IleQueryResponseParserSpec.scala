@@ -17,14 +17,59 @@
 package unit.uk.gov.hmrc.exports.movements.models.notifications.parsers
 
 import org.scalatest.{MustMatchers, WordSpec}
+import uk.gov.hmrc.exports.movements.models.notifications.parsers.IleQueryResponseParser
+import utils.testdata.notifications.{ExampleInventoryLinkingQueryResponse, ExampleQueryResponse}
 
 class IleQueryResponseParserSpec extends WordSpec with MustMatchers {
 
+  private val parser = new IleQueryResponseParser
 
+  "IleQueryResponseParser on parse" should {
 
-  "IleQueryResponseParser on parse" when {
+    def executeTest(testQueryResponse: ExampleQueryResponse): Unit = {
+      val inputXml = testQueryResponse.asXml
+      val expectedResult = testQueryResponse.asDomainModel
 
-    "provided with correct inventoryLinkingQueryResponse" in {}
+      val result = parser.parse(inputXml)
+
+      result mustBe expectedResult
+    }
+
+    "return correct QueryResponseData" when {
+
+      "provided with inventoryLinkingQueryResponse" which {
+
+        "contains only queriedDUCR element" in {
+
+          executeTest(ExampleInventoryLinkingQueryResponse.Correct.QueriedDucr)
+        }
+
+        "contains only queriedMUCR element" in {
+
+          executeTest(ExampleInventoryLinkingQueryResponse.Correct.QueriedMucr)
+        }
+
+        "contains only parentMUCR element" in {
+
+          executeTest(ExampleInventoryLinkingQueryResponse.Correct.ParentMucr)
+        }
+
+        "contains only 2 childDUCR elements" in {
+
+          executeTest(ExampleInventoryLinkingQueryResponse.Correct.ChildDucrs)
+        }
+
+        "contains only 2 childMUCR elements" in {
+
+          executeTest(ExampleInventoryLinkingQueryResponse.Correct.ChildMucrs)
+        }
+
+        "contains no elements" in {
+
+          executeTest(ExampleInventoryLinkingQueryResponse.Correct.Empty)
+        }
+      }
+    }
 
   }
 

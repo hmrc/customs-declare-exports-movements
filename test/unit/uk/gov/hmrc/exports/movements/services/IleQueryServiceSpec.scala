@@ -67,9 +67,11 @@ class IleQueryServiceSpec extends WordSpec with MockitoSugar with MustMatchers w
     super.afterEach()
   }
 
-  "Ile Query Service" should {
+  "IleQueryService on submit" should {
 
-    "successful submit ILE Query" in {
+    val ileQueryRequest = IleQueryRequest(validEori, Some(validProviderId), UcrBlock(ucr, "D"))
+
+    "successfully submit ILE Query" in {
 
       when(ileConnector.submit(any(), any())(any()))
         .thenReturn(Future.successful(CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId))))

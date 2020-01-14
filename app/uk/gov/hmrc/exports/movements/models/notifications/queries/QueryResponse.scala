@@ -14,6 +14,14 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.exports.movements.models.notifications.parsers
+package uk.gov.hmrc.exports.movements.models.notifications.queries
 
-final case class ResponseParserContext[T](responseType: String, parser: ResponseParser[T])
+import java.time.Instant
+
+import play.api.libs.json.Json
+
+case class QueryResponse(timestampReceived: Instant = Instant.now(), conversationId: String, payload: String, data: QueryResponseData)
+
+object QueryResponse {
+  implicit val format = Json.format[QueryResponse]
+}

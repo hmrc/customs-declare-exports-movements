@@ -17,12 +17,16 @@
 package uk.gov.hmrc.exports.movements.models
 
 object XmlTags {
+
   val messageCode = "messageCode"
   val actionCode = "actionCode"
   val crc = "crc"
   val declarationCount = "declarationCount"
+  val declarationId = "declarationID"
   val goodsArrivalDateTime = "goodsArrivalDateTime"
+  val goodsDepartureDateTime = "goodsDepartureDateTime"
   val goodsLocation = "goodsLocation"
+  val movement = "movement"
   val movementReference = "movementReference"
   val ucrBlock = "ucrBlock"
   val ucr = "ucr"
@@ -47,4 +51,17 @@ object XmlTags {
 
   val error = "error"
   val errorCode = "errorCode"
+
+  val transportDetails = "transportDetails"
+  val transportId = "transportID"
+  val transportMode = "transportMode"
+  val transportNationality = "transportNationality"
+  val shut = "shut"
+
+  val queriedDucr = "queriedDUCR"
+  val queriedMucr = "queriedMUCR"
+  val parentMucr = "parentMUCR"
+  val childDucr = "childDUCR"
+  val childMucr = "childMUCR"
+
 }

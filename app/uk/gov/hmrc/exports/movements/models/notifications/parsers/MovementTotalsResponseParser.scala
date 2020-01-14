@@ -21,7 +21,7 @@ import uk.gov.hmrc.exports.movements.models.notifications._
 
 import scala.xml.NodeSeq
 
-class MovementTotalsResponseParser extends ResponseParser {
+class MovementTotalsResponseParser extends ResponseParser[NotificationData] {
 
   override def parse(responseXml: NodeSeq): NotificationData = NotificationData(
     messageCode = StringOption((responseXml \ XmlTags.messageCode).text),

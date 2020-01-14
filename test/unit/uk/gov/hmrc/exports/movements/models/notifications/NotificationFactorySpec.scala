@@ -37,7 +37,7 @@ class NotificationFactorySpec extends WordSpec with MustMatchers with MockitoSug
     val responseParserFactoryMock = UnitTestMockBuilder.buildResponseParserFactoryMock
 
     when(responseValidatorMock.validate(any[NodeSeq])).thenReturn(Try((): Unit))
-    val responseParserMock = UnitTestMockBuilder.buildResponseParserMock
+    val responseParserMock = UnitTestMockBuilder.buildResponseParserMock(NotificationData.empty)
     when(responseParserFactoryMock.buildResponseParser(any())).thenReturn(responseParserMock)
     val exampleResponseParserContext = ResponseParserContext("ResponseType", responseParserMock)
     when(responseParserFactoryMock.buildResponseParserContext(any())).thenReturn(exampleResponseParserContext)

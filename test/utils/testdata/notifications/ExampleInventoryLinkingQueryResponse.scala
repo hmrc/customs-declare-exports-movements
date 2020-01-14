@@ -26,6 +26,11 @@ object ExampleInventoryLinkingQueryResponse {
 
   object Correct {
 
+    lazy val Empty = ExampleQueryResponse(asXml = <inventoryLinkingQueryResponse
+        xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
+        xmlns="http://gov.uk/customs/inventoryLinking/v1">
+      </inventoryLinkingQueryResponse>, asDomainModel = QueryResponseData())
+
     lazy val QueriedDucr = ExampleQueryResponse(
       asXml = <inventoryLinkingQueryResponse
         xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
@@ -58,13 +63,13 @@ object ExampleInventoryLinkingQueryResponse {
               </transportDetails>
             </movement>
             <goodsItem>
-              <totalPackages>10</totalPackages>
+              <totalPackages>11</totalPackages>
             </goodsItem>
           </queriedDUCR>
-      
+
       </inventoryLinkingQueryResponse>,
       asDomainModel = QueryResponseData(
-        queriedDucr = Seq(
+        queriedDucr = Some(
           DucrInfo(
             ucr = ucr,
             parentMucr = Some(mucr),
@@ -72,21 +77,21 @@ object ExampleInventoryLinkingQueryResponse {
             entryStatus = Some(EntryStatus(ics = Some("2"), roe = Some("H"), soe = Some("14"))),
             movements = Seq(
               MovementInfo(
-                messageCode = Seq(MessageCodes.EAL),
-                goodsLocation = Seq(goodsLocation),
-                goodsArrivalDateTime = Seq("2019-12-23T11:30:00.000Z"),
-                movementReference = Seq(movementReference)
+                messageCode = MessageCodes.EAL,
+                goodsLocation = goodsLocation,
+                goodsArrivalDateTime = Some("2019-12-23T11:30:00.000Z"),
+                movementReference = Some(movementReference)
               ),
               MovementInfo(
-                messageCode = Seq(MessageCodes.EDL),
-                goodsLocation = Seq(goodsLocation),
-                goodsDepartureDateTime = Seq("2019-12-23T11:40:00.000Z"),
-                movementReference = Seq(movementReference),
+                messageCode = MessageCodes.EDL,
+                goodsLocation = goodsLocation,
+                goodsDepartureDateTime = Some("2019-12-23T11:40:00.000Z"),
+                movementReference = Some(movementReference),
                 transportDetails =
-                  Seq(Transport(transportId = Some(transportId), modeOfTransport = Some(transportMode), nationality = Some(transportNationality)))
+                  Some(Transport(transportId = Some(transportId), modeOfTransport = Some(transportMode), nationality = Some(transportNationality)))
               )
             ),
-            goodsItem = Seq(GoodsItemInfo(totalPackages = Seq(10)))
+            goodsItem = Seq(GoodsItemInfo(totalPackages = Some(11)))
           )
         )
       )
@@ -96,7 +101,7 @@ object ExampleInventoryLinkingQueryResponse {
       asXml = <inventoryLinkingQueryResponse
         xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
         xmlns="http://gov.uk/customs/inventoryLinking/v1">
-      
+
           <queriedMUCR>
             <UCR>{mucr_2}</UCR>
             <parentMUCR>{mucr}</parentMUCR>
@@ -116,7 +121,7 @@ object ExampleInventoryLinkingQueryResponse {
 
       </inventoryLinkingQueryResponse>,
       asDomainModel = QueryResponseData(
-        queriedMucr = Seq(
+        queriedMucr = Some(
           MucrInfo(
             ucr = mucr_2,
             parentMucr = Some(mucr),
@@ -124,10 +129,10 @@ object ExampleInventoryLinkingQueryResponse {
             isShut = Some(true),
             movements = Seq(
               MovementInfo(
-                messageCode = Seq(MessageCodes.EAL),
-                goodsLocation = Seq(goodsLocation),
-                goodsArrivalDateTime = Seq("2019-12-23T11:30:00.000Z"),
-                movementReference = Seq(movementReference)
+                messageCode = MessageCodes.EAL,
+                goodsLocation = goodsLocation,
+                goodsArrivalDateTime = Some("2019-12-23T11:30:00.000Z"),
+                movementReference = Some(movementReference)
               )
             )
           )
@@ -159,7 +164,7 @@ object ExampleInventoryLinkingQueryResponse {
 
       </inventoryLinkingQueryResponse>,
       asDomainModel = QueryResponseData(
-        parentMucr = Seq(
+        parentMucr = Some(
           MucrInfo(
             ucr = mucr_2,
             parentMucr = Some(mucr),
@@ -167,10 +172,10 @@ object ExampleInventoryLinkingQueryResponse {
             isShut = Some(true),
             movements = Seq(
               MovementInfo(
-                messageCode = Seq(MessageCodes.EAL),
-                goodsLocation = Seq(goodsLocation),
-                goodsArrivalDateTime = Seq("2019-12-23T11:30:00.000Z"),
-                movementReference = Seq(movementReference)
+                messageCode = MessageCodes.EAL,
+                goodsLocation = goodsLocation,
+                goodsArrivalDateTime = Some("2019-12-23T11:30:00.000Z"),
+                movementReference = Some(movementReference)
               )
             )
           )
@@ -206,7 +211,7 @@ object ExampleInventoryLinkingQueryResponse {
 
       </inventoryLinkingQueryResponse>,
       asDomainModel = QueryResponseData(
-        childDucr = Seq(
+        childDucrs = Seq(
           DucrInfo(
             ucr = ucr,
             parentMucr = Some(mucr),
@@ -227,7 +232,7 @@ object ExampleInventoryLinkingQueryResponse {
       asXml = <inventoryLinkingQueryResponse
         xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
         xmlns="http://gov.uk/customs/inventoryLinking/v1">
-  
+
           <childMUCR>
             <UCR>{mucr}</UCR>
             <entryStatus>
@@ -249,7 +254,7 @@ object ExampleInventoryLinkingQueryResponse {
 
       </inventoryLinkingQueryResponse>,
       asDomainModel = QueryResponseData(
-        childMucr = Seq(
+        childMucrs = Seq(
           MucrInfo(ucr = mucr, entryStatus = Some(EntryStatus(ics = Some("2"), roe = Some("H"), soe = Some("14"))), isShut = Some(true)),
           MucrInfo(ucr = mucr_2, entryStatus = Some(EntryStatus(ics = Some("7"), roe = Some("6"), soe = Some("3"))), isShut = Some(false))
         )

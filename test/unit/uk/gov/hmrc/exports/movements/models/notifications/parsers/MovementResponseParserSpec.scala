@@ -28,7 +28,7 @@ class MovementResponseParserSpec extends WordSpec with MustMatchers {
     val parser = new MovementResponseParser
   }
 
-  "MovementResponseParser on buildNotification" when {
+  "MovementResponseParser on parse" when {
 
     "provided with correct inventoryLinkingMovementResponse" should {
       "return NotificationData" in new Test {

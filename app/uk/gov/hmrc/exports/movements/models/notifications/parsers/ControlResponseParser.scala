@@ -22,7 +22,7 @@ import uk.gov.hmrc.exports.movements.models.notifications.{Entry, NotificationDa
 
 import scala.xml.NodeSeq
 
-class ControlResponseParser @Inject()(errorValidator: ErrorValidator) extends ResponseParser {
+class ControlResponseParser @Inject()(errorValidator: ErrorValidator) extends ResponseParser[NotificationData] {
 
   override def parse(responseXml: NodeSeq): NotificationData = NotificationData(
     messageCode = StringOption((responseXml \ XmlTags.messageCode).text),
@@ -34,7 +34,6 @@ class ControlResponseParser @Inject()(errorValidator: ErrorValidator) extends Re
     errorCodes = (responseXml \ XmlTags.error \ XmlTags.errorCode)
       .map(_.text)
       .filter(errorValidator.hasErrorMessage)
-      .map(errorValidator.retrieveCode)
-      .flatten
+      .flatMap(errorValidator.retrieveCode)
   )
 }
