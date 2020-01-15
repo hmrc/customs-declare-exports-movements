@@ -14,10 +14,19 @@
  * limitations under the License.
  */
 
-package utils.testdata.notifications
+package uk.gov.hmrc.exports.movements.models.notifications.queries
 
-import uk.gov.hmrc.exports.movements.models.notifications.NotificationData
+import play.api.libs.json.Json
+import uk.gov.hmrc.exports.movements.models.notifications.EntryStatus
 
-import scala.xml.Elem
+case class MucrInfo(
+  ucr: String,
+  parentMucr: Option[String] = None,
+  entryStatus: Option[EntryStatus] = None,
+  isShut: Option[Boolean] = None,
+  movements: Seq[MovementInfo] = Seq.empty
+)
 
-case class ExampleResponse(asXml: Elem = <empty/>, asNotificationData: NotificationData = NotificationData.empty)
+object MucrInfo {
+  implicit val format = Json.format[MucrInfo]
+}

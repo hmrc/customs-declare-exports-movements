@@ -18,8 +18,8 @@ package unit.uk.gov.hmrc.exports.movements.models.notifications
 
 import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito.{verify, when}
-import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.{MustMatchers, WordSpec}
+import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.exports.movements.models.notifications.parsers.ResponseParserContext
 import uk.gov.hmrc.exports.movements.models.notifications.{Notification, NotificationData, NotificationFactory}
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder
@@ -114,7 +114,7 @@ class NotificationFactorySpec extends WordSpec with MustMatchers with MockitoSug
           conversationId = "",
           responseType = "inventoryLinkingControlResponse",
           payload = Utility.trim(ExampleInventoryLinkingControlResponse.Correct.Rejected.asXml).toString(),
-          data = ExampleInventoryLinkingControlResponse.Correct.Rejected.asNotificationData
+          data = ExampleInventoryLinkingControlResponse.Correct.Rejected.asDomainModel
         )
 
         val resultNotification = notificationFactory.buildMovementNotification("", responseXml)

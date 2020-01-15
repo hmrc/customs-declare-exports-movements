@@ -37,7 +37,7 @@ class ControlResponseParserSpec extends WordSpec with MustMatchers {
       "return NotificationData" in new Test {
         val xml = ExampleInventoryLinkingControlResponse.Correct.Rejected.asXml
         val expectedNotificationData =
-          ExampleInventoryLinkingControlResponse.Correct.Rejected.asNotificationData
+          ExampleInventoryLinkingControlResponse.Correct.Rejected.asDomainModel
 
         val resultNotificationData = parser.parse(xml)
 
@@ -49,7 +49,7 @@ class ControlResponseParserSpec extends WordSpec with MustMatchers {
       "return NotificationData" in new Test {
         val xml = ExampleInventoryLinkingControlResponse.Correct.RejectedMultipleErrors.asXml
         val expectedNotificationData =
-          ExampleInventoryLinkingControlResponse.Correct.RejectedMultipleErrors.asNotificationData
+          ExampleInventoryLinkingControlResponse.Correct.RejectedMultipleErrors.asDomainModel
 
         val resultNotificationData = parser.parse(xml)
 

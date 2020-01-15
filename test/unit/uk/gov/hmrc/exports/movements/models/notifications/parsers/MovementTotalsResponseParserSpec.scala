@@ -35,7 +35,7 @@ class MovementTotalsResponseParserSpec extends WordSpec with MustMatchers {
       "return NotificationData" in new Test {
         val xml = ExampleInventoryLinkingMovementTotalsResponse.Correct.AllElements.asXml
         val expectedNotificationData =
-          ExampleInventoryLinkingMovementTotalsResponse.Correct.AllElements.asNotificationData
+          ExampleInventoryLinkingMovementTotalsResponse.Correct.AllElements.asDomainModel
 
         val resultNotificationData = parser.parse(xml)
 

@@ -17,14 +17,14 @@
 package utils.testdata.notifications
 
 import uk.gov.hmrc.exports.movements.models.notifications._
-import utils.testdata.CommonTestData.{movementReference, ucr, ucr_2, MessageCodes}
+import utils.testdata.CommonTestData.{MessageCodes, movementReference, ucr, ucr_2}
 import utils.testdata.notifications.NotificationTestData._
 
 object ExampleInventoryLinkingMovementTotalsResponse {
 
   object Correct {
 
-    lazy val AllElements = ExampleResponse(
+    lazy val AllElements = ExampleRegularResponse(
       asXml = <inventoryLinkingMovementTotalsResponse
         xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
         xmlns="http://gov.uk/customs/inventoryLinking/v1">
@@ -60,7 +60,7 @@ object ExampleInventoryLinkingMovementTotalsResponse {
             </entryStatus>
           </entry>
         </inventoryLinkingMovementTotalsResponse>,
-      asNotificationData = NotificationData(
+      asDomainModel = NotificationData(
         messageCode = Some(MessageCodes.ERS),
         crcCode = Some(crcCode_success),
         declarationCount = Some(declarationCount),
@@ -87,7 +87,7 @@ object ExampleInventoryLinkingMovementTotalsResponse {
       )
     )
 
-    lazy val MandatoryElementsOnly = ExampleResponse(asXml = <inventoryLinkingMovementTotalsResponse
+    lazy val MandatoryElementsOnly = ExampleRegularResponse(asXml = <inventoryLinkingMovementTotalsResponse
       xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
       xmlns="http://gov.uk/customs/inventoryLinking/v1">
         <messageCode>{MessageCodes.ERS}</messageCode>
@@ -98,33 +98,33 @@ object ExampleInventoryLinkingMovementTotalsResponse {
 
   object Incorrect {
 
-    lazy val NoMessageCode = ExampleResponse(asXml = <inventoryLinkingMovementTotalsResponse
+    lazy val NoMessageCode = ExampleRegularResponse(asXml = <inventoryLinkingMovementTotalsResponse
         xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
         xmlns="http://gov.uk/customs/inventoryLinking/v1">
           <goodsLocation>{goodsLocation}</goodsLocation>
         </inventoryLinkingMovementTotalsResponse>)
 
-    lazy val NoGoodsLocation = ExampleResponse(asXml = <inventoryLinkingMovementTotalsResponse
+    lazy val NoGoodsLocation = ExampleRegularResponse(asXml = <inventoryLinkingMovementTotalsResponse
         xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
         xmlns="http://gov.uk/customs/inventoryLinking/v1">
           <messageCode>{MessageCodes.ERS}</messageCode>
         </inventoryLinkingMovementTotalsResponse>)
 
-    lazy val WrongMessageCode = ExampleResponse(asXml = <inventoryLinkingMovementTotalsResponse
+    lazy val WrongMessageCode = ExampleRegularResponse(asXml = <inventoryLinkingMovementTotalsResponse
         xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
         xmlns="http://gov.uk/customs/inventoryLinking/v1">
           <messageCode>{MessageCodes.EAC}</messageCode>
           <goodsLocation>{goodsLocation}</goodsLocation>
         </inventoryLinkingMovementTotalsResponse>)
 
-    lazy val WrongGoodsLocation = ExampleResponse(asXml = <inventoryLinkingMovementTotalsResponse
+    lazy val WrongGoodsLocation = ExampleRegularResponse(asXml = <inventoryLinkingMovementTotalsResponse
         xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
         xmlns="http://gov.uk/customs/inventoryLinking/v1">
           <messageCode>{MessageCodes.ERS}</messageCode>
           <goodsLocation>GoodsLocationThatIsTooLong</goodsLocation>
         </inventoryLinkingMovementTotalsResponse>)
 
-    lazy val EntryNodeWithoutUcrBlockNode = ExampleResponse(asXml = <inventoryLinkingMovementTotalsResponse
+    lazy val EntryNodeWithoutUcrBlockNode = ExampleRegularResponse(asXml = <inventoryLinkingMovementTotalsResponse
         xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
         xmlns="http://gov.uk/customs/inventoryLinking/v1">
           <messageCode>{MessageCodes.ERS}</messageCode>
