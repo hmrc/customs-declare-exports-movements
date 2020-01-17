@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package integration.uk.gov.hmrc.exports.movements.repositories
+package unit.uk.gov.hmrc.exports.movements.controllers
 
-import play.api.Configuration
+import play.api.test.{CSRFTokenHelper, FakeRequest}
 
-trait TestMongoDB {
+object CSRFSupport {
 
-  protected val mongoConfiguration: Configuration =
-    Configuration.from(Map("mongodb.uri" -> "mongodb://localhost:27017/test-customs-declare-exports-movements"))
-
+  implicit class CSRFFakeRequest[A](request: FakeRequest[A]) {
+    def addCSRFToken: FakeRequest[A] = new FakeRequest(CSRFTokenHelper.addCSRFToken(request))
+  }
 }

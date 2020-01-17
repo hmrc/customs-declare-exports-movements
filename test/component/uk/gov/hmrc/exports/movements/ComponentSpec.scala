@@ -18,7 +18,6 @@ package component.uk.gov.hmrc.exports.movements
 
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder
-import integration.uk.gov.hmrc.exports.movements.repositories.TestMongoDB
 import org.scalatest.concurrent.Eventually
 import org.scalatest.{BeforeAndAfterEach, MustMatchers, WordSpec}
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
@@ -34,8 +33,8 @@ import reactivemongo.play.json.collection.JSONCollection
 import uk.gov.hmrc.exports.movements.models.notifications.Notification
 import uk.gov.hmrc.exports.movements.models.submissions.Submission
 import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, SubmissionRepository}
-import utils.FixedTime
 import utils.connector.{AuditWiremockTestServer, IleApiWiremockTestServer}
+import utils.{FixedTime, TestMongoDB}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future

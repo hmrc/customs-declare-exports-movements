@@ -18,24 +18,33 @@ package uk.gov.hmrc.exports.movements.services
 
 import javax.inject.{Inject, Singleton}
 import play.api.Logger
-import uk.gov.hmrc.exports.movements.models.notifications.{Notification, NotificationFrontendModel}
+import uk.gov.hmrc.exports.movements.models.notifications.{NotificationFactory, NotificationFrontendModel}
 import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, SearchParameters, SubmissionRepository}
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.xml.NodeSeq
 
 @Singleton
-class NotificationService @Inject()(notificationRepository: NotificationRepository, submissionRepository: SubmissionRepository)(
-  implicit executionContext: ExecutionContext
-) {
+class NotificationService @Inject()(
+  notificationFactory: NotificationFactory,
+  notificationRepository: NotificationRepository,
+  submissionRepository: SubmissionRepository
+)(implicit executionContext: ExecutionContext) {
 
   private val logger: Logger = Logger(this.getClass)
 
-  def save(notification: Notification): Future[Unit] = {
-    logger.info(s"Notification created with conversation-id=[${notification.conversationId}] and payload=[${notification.payload}]")
-    notificationRepository
-      .insert(notification)
-      .map(_ => (): Unit)
-  }
+  def save(conversationId: String, body: NodeSeq): Future[Unit] =
+    try {
+      val notification = notificationFactory.buildMovementNotification(conversationId, body)
+      logger.info(s"Notification created with conversation-id=[${notification.conversationId}] and payload=[${notification.payload}]")
+
+      notificationRepository.insert(notification).map(_ => (): Unit)
+
+    } catch {
+      case exc: IllegalArgumentException =>
+        logger.warn(s"Failed to parse notification with conversation-id=[$conversationId]", exc)
+        Future.successful((): Unit)
+    }
 
   def getAllNotifications(searchParameters: SearchParameters): Future[Seq[NotificationFrontendModel]] =
     submissionRepository.findBy(searchParameters).flatMap { submissions =>

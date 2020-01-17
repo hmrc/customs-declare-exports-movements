@@ -46,10 +46,9 @@ class SubmissionServiceSpec
     extends IntegrationTestSpec with GuiceOneAppPerSuite with MockitoSugar with CustomsMovementsAPIService with ScalaFutures
     with IntegrationPatience {
 
+  private def overrideModules: Seq[GuiceableModule] = Nil
   private val submissionRepository: SubmissionRepository = buildSubmissionRepositoryMock
   private val clock = Clock.fixed(Instant.parse(dateTimeString), ZoneOffset.UTC)
-
-  def overrideModules: Seq[GuiceableModule] = Nil
 
   override def fakeApplication: Application = {
     SharedMetricRegistries.clear()

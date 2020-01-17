@@ -16,222 +16,197 @@
 
 package unit.uk.gov.hmrc.exports.movements.controllers
 
-import java.time.{Clock, Instant, ZoneOffset}
-
-import org.mockito.ArgumentMatchers.any
+import akka.actor.ActorSystem
+import akka.stream.ActorMaterializer
+import org.mockito.ArgumentCaptor
+import org.mockito.ArgumentMatchers.{any, anyString}
 import org.mockito.Mockito._
-import org.mockito.{ArgumentCaptor, InOrder, Mockito}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{BeforeAndAfterEach, MustMatchers, WordSpec}
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.Application
-import play.api.inject.bind
-import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.mvc.Result
-import play.api.test.FakeRequest
+import org.scalatestplus.mockito.MockitoSugar
+import play.api.libs.json.Json
+import play.api.mvc.ControllerComponents
 import play.api.test.Helpers._
-import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames
-import uk.gov.hmrc.exports.movements.models.notifications.{Notification, NotificationFactory}
+import uk.gov.hmrc.exports.movements.controllers.NotificationController
+import uk.gov.hmrc.exports.movements.controllers.util.HeaderValidator
+import uk.gov.hmrc.exports.movements.models.notifications.NotificationFrontendModel
+import uk.gov.hmrc.exports.movements.repositories.SearchParameters
 import uk.gov.hmrc.exports.movements.services.NotificationService
-import unit.uk.gov.hmrc.exports.movements.base.AuthTestSupport
+import unit.uk.gov.hmrc.exports.movements.base.Injector
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
-import utils.testdata.CommonTestData.conversationId
-import utils.testdata.MovementsTestData.dateTimeString
+import unit.uk.gov.hmrc.exports.movements.controllers.FakeRequestFactory._
+import utils.testdata.CommonTestData._
 import utils.testdata.notifications.NotificationTestData._
 import utils.testdata.notifications.{ExampleInventoryLinkingControlResponse, ExampleInventoryLinkingMovementTotalsResponse}
 
-import scala.concurrent.Future
-import scala.xml._
+import scala.concurrent.{ExecutionContext, Future}
+import scala.xml.{Elem, NodeSeq, Utility}
 
-class NotificationControllerSpec
-    extends WordSpec with GuiceOneAppPerSuite with AuthTestSupport with BeforeAndAfterEach with ScalaFutures with MustMatchers {
+class NotificationControllerSpec extends WordSpec with MustMatchers with MockitoSugar with ScalaFutures with BeforeAndAfterEach with Injector {
 
-  val saveMovementNotificationUri = "/customs-declare-exports/notifyMovement"
+  private val headerValidator = mock[HeaderValidator]
+  private val notificationService = mock[NotificationService]
+  private val movementsMetrics = buildMovementsMetricsMock
 
-  private val notificationServiceMock: NotificationService = buildNotificationServiceMock
-  private val movementNotificationFactoryMock: NotificationFactory = buildMovementNotificationFactoryMock
-  private val clock = Clock.fixed(Instant.parse(dateTimeString), ZoneOffset.UTC)
+  private val controllerComponents: ControllerComponents = instanceOf[ControllerComponents]
+  implicit private val actorSystem: ActorSystem = ActorSystem()
+  implicit private val materializer: ActorMaterializer = ActorMaterializer()
 
-  override lazy val app: Application = GuiceApplicationBuilder()
-    .overrides(
-      bind[AuthConnector].to(mockAuthConnector),
-      bind[NotificationService].to(notificationServiceMock),
-      bind[NotificationFactory].to(movementNotificationFactoryMock),
-      bind[Clock].to(clock)
-    )
-    .build()
+  private val controller =
+    new NotificationController(headerValidator, movementsMetrics, notificationService, controllerComponents)(ExecutionContext.global)
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    reset(mockAuthConnector, notificationServiceMock, movementNotificationFactoryMock)
+    reset(headerValidator, notificationService)
+
+    when(headerValidator.extractConversationIdHeader(any())).thenReturn(Some(conversationId))
   }
 
-  "Notification Controller on saveNotification" when {
+  override def afterEach(): Unit = {
+    reset(headerValidator, notificationService)
+    super.afterEach()
+  }
+
+  "NotificationController on saveNotification" when {
 
     "received inventoryLinkingControlResponse and everything works correctly" should {
 
-      "return Accepted status" in new HappyPathSaveControlResponseTest {
+      "return Accepted (200) status" in {
+        when(notificationService.save(anyString, any[NodeSeq])).thenReturn(Future.successful((): Unit))
+        val request = postRequestWithXmlBody(ExampleInventoryLinkingControlResponse.Correct.Rejected.asXml)
 
-        val result = routePostSaveNotification()
+        val result = call(controller.saveNotification(), request)
 
-        status(result) must be(ACCEPTED)
+        status(result) mustBe ACCEPTED
       }
 
-      "call MovementNotificationFactory and NotificationService afterwards" in new HappyPathSaveControlResponseTest {
+      "call NotificationService once, passing conversationId from headers and request body" in {
+        when(notificationService.save(anyString, any[NodeSeq])).thenReturn(Future.successful((): Unit))
+        val request = postRequestWithXmlBody(ExampleInventoryLinkingControlResponse.Correct.Rejected.asXml)
 
-        routePostSaveNotification().futureValue
-
-        val inOrder: InOrder = Mockito.inOrder(movementNotificationFactoryMock, notificationServiceMock)
-        inOrder.verify(movementNotificationFactoryMock, times(1)).buildMovementNotification(any(), any())
-        inOrder.verify(notificationServiceMock, times(1)).save(any())
-      }
-
-      "call MovementNotificationFactory once, " +
-        "passing conversationId from headers and request body" in new HappyPathSaveControlResponseTest {
-
-        routePostSaveNotification().futureValue
+        call(controller.saveNotification(), request).futureValue
 
         val conversationIdCaptor: ArgumentCaptor[String] = ArgumentCaptor.forClass(classOf[String])
         val requestBodyCaptor: ArgumentCaptor[NodeSeq] = ArgumentCaptor.forClass(classOf[NodeSeq])
-        verify(movementNotificationFactoryMock, times(1))
-          .buildMovementNotification(conversationIdCaptor.capture(), requestBodyCaptor.capture())
+        verify(notificationService, times(1)).save(conversationIdCaptor.capture(), requestBodyCaptor.capture())
 
-        conversationIdCaptor.getValue must equal(validHeaders(CustomsHeaderNames.XConversationIdName))
+        conversationIdCaptor.getValue must equal(conversationId)
         requestBodyCaptor.getValue must equal(ExampleInventoryLinkingControlResponse.Correct.Rejected.asXml)
-      }
-
-      "call NotificationService once, passing parsed MovementNotification" in new HappyPathSaveControlResponseTest {
-
-        routePostSaveNotification().futureValue
-
-        val notificationCaptor: ArgumentCaptor[Notification] =
-          ArgumentCaptor.forClass(classOf[Notification])
-        verify(notificationServiceMock, times(1)).save(notificationCaptor.capture())
-        notificationCaptor.getValue must equal(defaultNotification)
-      }
-
-      trait HappyPathSaveControlResponseTest {
-        withAuthorizedUser()
-        when(notificationServiceMock.save(any())).thenReturn(Future.successful((): Unit))
-
-        val defaultNotification = Notification(
-          conversationId = conversationId,
-          responseType = "inventoryLinkingControlResponse",
-          payload = Utility.trim(ExampleInventoryLinkingControlResponse.Correct.Rejected.asXml).toString(),
-          data = ExampleInventoryLinkingControlResponse.Correct.Rejected.asNotificationData
-        )
-        when(movementNotificationFactoryMock.buildMovementNotification(any(), any()))
-          .thenReturn(defaultNotification)
       }
     }
 
     "received inventoryLinkingMovementTotalsResponse and everything works correctly" should {
 
-      "return Accepted status" in new HappyPathSaveTotalsResponseTest {
+      "return Accepted (200) status" in {
+        when(notificationService.save(anyString, any[NodeSeq])).thenReturn(Future.successful((): Unit))
+        val request = postRequestWithXmlBody(ExampleInventoryLinkingMovementTotalsResponse.Correct.AllElements.asXml)
 
-        val result =
-          routePostSaveNotification(xmlBody = ExampleInventoryLinkingMovementTotalsResponse.Correct.AllElements.asXml)
+        val result = call(controller.saveNotification(), request)
 
-        status(result) must be(ACCEPTED)
+        status(result) mustBe ACCEPTED
       }
 
-      "call MovementNotificationFactory and NotificationService afterwards" in new HappyPathSaveTotalsResponseTest {
+      "call NotificationService once, passing conversationId from headers and request body" in {
+        when(notificationService.save(anyString, any[NodeSeq])).thenReturn(Future.successful((): Unit))
+        val request = postRequestWithXmlBody(ExampleInventoryLinkingMovementTotalsResponse.Correct.AllElements.asXml)
 
-        routePostSaveNotification(xmlBody = ExampleInventoryLinkingMovementTotalsResponse.Correct.AllElements.asXml).futureValue
-
-        val inOrder: InOrder = Mockito.inOrder(movementNotificationFactoryMock, notificationServiceMock)
-        inOrder.verify(movementNotificationFactoryMock, times(1)).buildMovementNotification(any(), any())
-        inOrder.verify(notificationServiceMock, times(1)).save(any())
-      }
-
-      "call MovementNotificationFactory once, " +
-        "passing conversationId from headers and request body" in new HappyPathSaveTotalsResponseTest {
-
-        routePostSaveNotification(xmlBody = ExampleInventoryLinkingMovementTotalsResponse.Correct.AllElements.asXml).futureValue
+        call(controller.saveNotification(), request).futureValue
 
         val conversationIdCaptor: ArgumentCaptor[String] = ArgumentCaptor.forClass(classOf[String])
         val requestBodyCaptor: ArgumentCaptor[Elem] = ArgumentCaptor.forClass(classOf[Elem])
-        verify(movementNotificationFactoryMock)
-          .buildMovementNotification(conversationIdCaptor.capture(), requestBodyCaptor.capture())
+        verify(notificationService, times(1)).save(conversationIdCaptor.capture(), requestBodyCaptor.capture())
 
-        conversationIdCaptor.getValue must equal(validHeaders(CustomsHeaderNames.XConversationIdName))
+        conversationIdCaptor.getValue must equal(conversationId)
         Utility.trim(clearNamespaces(requestBodyCaptor.getValue)).toString must equal(
           Utility
             .trim(clearNamespaces(ExampleInventoryLinkingMovementTotalsResponse.Correct.AllElements.asXml))
             .toString
         )
       }
-
-      "call NotificationService once, passing parsed MovementNotification" in new HappyPathSaveTotalsResponseTest {
-
-        routePostSaveNotification(xmlBody = ExampleInventoryLinkingMovementTotalsResponse.Correct.AllElements.asXml).futureValue
-
-        val notificationCaptor: ArgumentCaptor[Notification] =
-          ArgumentCaptor.forClass(classOf[Notification])
-        verify(notificationServiceMock, times(1)).save(notificationCaptor.capture())
-        notificationCaptor.getValue must equal(defaultNotification)
-      }
-
-      trait HappyPathSaveTotalsResponseTest {
-        withAuthorizedUser()
-        when(notificationServiceMock.save(any())).thenReturn(Future.successful((): Unit))
-
-        val defaultNotification = Notification(
-          conversationId = conversationId,
-          responseType = "inventoryLinkingMovementTotalsResponse",
-          payload = Utility.trim(ExampleInventoryLinkingMovementTotalsResponse.Correct.AllElements.asXml).toString(),
-          data = ExampleInventoryLinkingMovementTotalsResponse.Correct.AllElements.asNotificationData
-        )
-        when(movementNotificationFactoryMock.buildMovementNotification(any(), any()))
-          .thenReturn(defaultNotification)
-      }
     }
 
     "NotificationService returns failure" should {
 
       "return InternalServerError" in {
-        withAuthorizedUser()
-        when(notificationServiceMock.save(any())).thenReturn(Future.failed(new Exception("")))
+        when(notificationService.save(anyString, any[NodeSeq])).thenReturn(Future.failed(new Exception("")))
+
+        val request = postRequestWithXmlBody(ExampleInventoryLinkingControlResponse.Correct.Rejected.asXml)
 
         an[Exception] mustBe thrownBy {
-          await(routePostSaveNotification())
+          await(call(controller.saveNotification(), request))
         }
-      }
-    }
-
-    "MovementNotificationFactory throws an Exception" should {
-
-      "return Accepted status" in {
-        withAuthorizedUser()
-        when(movementNotificationFactoryMock.buildMovementNotification(any(), any()))
-          .thenThrow(new IllegalArgumentException("Unknown Inventory Linking Response: UnknownLabel"))
-
-        val result = routePostSaveNotification(xmlBody = unknownFormatResponseXML)
-
-        status(result) must be(ACCEPTED)
-      }
-
-      "not call NotificationService" in {
-        withAuthorizedUser()
-        when(movementNotificationFactoryMock.buildMovementNotification(any(), any()))
-          .thenThrow(new IllegalArgumentException("Unknown Inventory Linking Response: UnknownLabel"))
-
-        routePostSaveNotification(xmlBody = unknownFormatResponseXML).futureValue
-
-        verifyZeroInteractions(notificationServiceMock)
       }
     }
   }
 
-  def routePostSaveNotification(
-    headers: Map[String, String] = validHeaders,
-    xmlBody: Elem = ExampleInventoryLinkingControlResponse.Correct.Rejected.asXml
-  ): Future[Result] =
-    route(
-      app,
-      FakeRequest(POST, saveMovementNotificationUri)
-        .withHeaders(headers.toSeq: _*)
-        .withXmlBody(xmlBody)
-    ).get
+  "NotificationController on getNotificationsForSubmission" should {
+
+    "return Accepted (200) status" in {
+      when(notificationService.getAllNotifications(any[SearchParameters])).thenReturn(Future.successful(Seq.empty))
+
+      val result = controller.getNotificationsForSubmission(Some(validEori), None, conversationId)(getRequest())
+
+      status(result) must be(OK)
+    }
+
+    "call NotificationService once, passing SearchParameters" in {
+      when(notificationService.getAllNotifications(any[SearchParameters])).thenReturn(Future.successful(Seq.empty))
+      val searchParameters =
+        SearchParameters(eori = Some(validEori), providerId = Some(validProviderId), conversationId = Some(conversationId))
+
+      controller
+        .getNotificationsForSubmission(searchParameters.eori, searchParameters.providerId, searchParameters.conversationId.get)(getRequest())
+        .futureValue
+
+      searchParametersPassed mustBe searchParameters
+    }
+
+    "return list of notifications returned by NotificationService" in {
+      val notificationsToReturn = Seq(notification_1, notification_2).map(NotificationFrontendModel(_))
+      when(notificationService.getAllNotifications(any[SearchParameters])).thenReturn(Future.successful(notificationsToReturn))
+
+      val notifications = controller.getNotificationsForSubmission(Some(validEori), None, conversationId)(getRequest())
+
+      contentAsJson(notifications) mustBe Json.toJson(notificationsToReturn)
+    }
+  }
+
+  "NotificationController on getAllNotificationsForUser" should {
+
+    "return Accepted (200) status" in {
+      when(notificationService.getAllNotifications(any[SearchParameters])).thenReturn(Future.successful(Seq.empty))
+
+      val result = controller.getAllNotificationsForUser(Some(validEori), None)(getRequest())
+
+      status(result) must be(OK)
+    }
+
+    "call NotificationService once, passing SearchParameters" in {
+      when(notificationService.getAllNotifications(any[SearchParameters])).thenReturn(Future.successful(Seq.empty))
+      val searchParameters =
+        SearchParameters(eori = Some(validEori), providerId = Some(validProviderId), conversationId = None)
+
+      controller
+        .getAllNotificationsForUser(searchParameters.eori, searchParameters.providerId)(getRequest())
+        .futureValue
+
+      searchParametersPassed mustBe searchParameters
+    }
+
+    "return list of notifications returned by NotificationService" in {
+      val notificationsToReturn = Seq(notification_1, notification_2).map(NotificationFrontendModel(_))
+      when(notificationService.getAllNotifications(any[SearchParameters])).thenReturn(Future.successful(notificationsToReturn))
+
+      val notifications = controller.getAllNotificationsForUser(Some(validEori), None)(getRequest())
+
+      contentAsJson(notifications) mustBe Json.toJson(notificationsToReturn)
+    }
+  }
+
+  private def searchParametersPassed: SearchParameters = {
+    val captor: ArgumentCaptor[SearchParameters] = ArgumentCaptor.forClass(classOf[SearchParameters])
+    verify(notificationService).getAllNotifications(captor.capture())
+    captor.getValue
+  }
+
 }

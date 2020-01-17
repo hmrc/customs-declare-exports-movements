@@ -17,7 +17,7 @@
 package unit.uk.gov.hmrc.exports.movements.base
 
 import com.codahale.metrics.Timer
-import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.{any, anyString}
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import reactivemongo.api.commands.{LastError, WriteResult}
@@ -63,7 +63,7 @@ object UnitTestMockBuilder extends MockitoSugar {
   def buildNotificationServiceMock: NotificationService = {
     val notificationServiceMock = mock[NotificationService]
 
-    when(notificationServiceMock.save(any[Notification])).thenReturn(Future.failed(new Exception("")))
+    when(notificationServiceMock.save(anyString, any[NodeSeq])).thenReturn(Future.failed(new Exception("")))
     when(notificationServiceMock.getAllNotifications(any())).thenReturn(Future.successful(Seq.empty))
 
     notificationServiceMock
