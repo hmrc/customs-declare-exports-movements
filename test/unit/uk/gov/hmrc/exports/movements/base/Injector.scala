@@ -30,9 +30,10 @@ trait Injector {
     *
     * Reference and other solutions: https://github.com/kenshoo/metrics-play/issues/74
     */
-  SharedMetricRegistries.clear()
-
-  private val injector = GuiceApplicationBuilder().injector()
+  private val injector = {
+    SharedMetricRegistries.clear()
+    GuiceApplicationBuilder().injector()
+  }
 
   def instanceOf[T <: AnyRef](implicit classTag: ClassTag[T]): T = injector.instanceOf[T]
 }
