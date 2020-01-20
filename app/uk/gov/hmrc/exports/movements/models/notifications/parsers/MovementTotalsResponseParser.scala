@@ -16,12 +16,13 @@
 
 package uk.gov.hmrc.exports.movements.models.notifications.parsers
 
+import javax.inject.Inject
 import uk.gov.hmrc.exports.movements.models.XmlTags
 import uk.gov.hmrc.exports.movements.models.notifications._
 
 import scala.xml.NodeSeq
 
-class MovementTotalsResponseParser extends ResponseParser {
+class MovementTotalsResponseParser @Inject()(commonTypesParser: CommonTypesParser) extends ResponseParser[NotificationData] {
 
   override def parse(responseXml: NodeSeq): NotificationData = NotificationData(
     messageCode = StringOption((responseXml \ XmlTags.messageCode).text),
@@ -38,23 +39,9 @@ class MovementTotalsResponseParser extends ResponseParser {
 
   private def buildEntriesTotalsResponse(xml: NodeSeq): Seq[Entry] = (xml \ XmlTags.entry).map { entry =>
     Entry(
-      ucrBlock = (entry \ XmlTags.ucrBlock).map { ucrBlockNode =>
-        UcrBlock(ucr = (ucrBlockNode \ XmlTags.ucr).text, ucrType = (ucrBlockNode \ XmlTags.ucrType).text)
-      }.headOption,
-      goodsItem = (entry \ XmlTags.goodsItem).map { goodsItemNode =>
-        GoodsItem(
-          commodityCode = StringOption((goodsItemNode \ XmlTags.commodityCode).text).map(_.toInt),
-          totalPackages = StringOption((goodsItemNode \ XmlTags.totalPackages).text).map(_.toInt),
-          totalNetMass = StringOption((goodsItemNode \ XmlTags.totalNetMass).text).map(BigDecimal(_))
-        )
-      },
-      entryStatus = (entry \ XmlTags.entryStatus).map { entryStatusNode =>
-        EntryStatus(
-          ics = StringOption((entryStatusNode \ XmlTags.ics).text),
-          roe = StringOption((entryStatusNode \ XmlTags.roe).text),
-          soe = StringOption((entryStatusNode \ XmlTags.soe).text)
-        )
-      }.headOption
+      ucrBlock = (entry \ XmlTags.ucrBlock).map(commonTypesParser.parseUcrBlock).headOption,
+      goodsItem = (entry \ XmlTags.goodsItem).map(commonTypesParser.parseGoodsItem),
+      entryStatus = (entry \ XmlTags.entryStatus).map(commonTypesParser.parseEntryStatus).headOption
     )
   }
 

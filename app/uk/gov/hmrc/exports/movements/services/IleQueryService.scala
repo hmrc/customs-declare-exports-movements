@@ -37,7 +37,7 @@ class IleQueryService @Inject()(
   ileConnector: CustomsInventoryLinkingExportsConnector
 )(implicit ec: ExecutionContext) {
 
-  private val logger = Logger(this.getClass())
+  private val logger = Logger(this.getClass)
 
   def submit(ileQueryRequest: IleQueryRequest)(implicit hc: HeaderCarrier): Future[String] = {
     val requestXml = ileMapper.generateIleQuery(ileQueryRequest.ucrBlock)

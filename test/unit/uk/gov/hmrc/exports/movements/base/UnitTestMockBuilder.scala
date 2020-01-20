@@ -98,7 +98,7 @@ object UnitTestMockBuilder extends MockitoSugar {
   def buildResponseParserFactoryMock: ResponseParserFactory = {
     val responseParserFactoryMock = mock[ResponseParserFactory]
 
-    val responseParserMock = buildResponseParserMock
+    val responseParserMock = buildResponseParserMock(NotificationData.empty)
     when(responseParserFactoryMock.buildResponseParser(any())).thenReturn(responseParserMock)
     val responseParserContext = ResponseParserContext("", responseParserMock)
     when(responseParserFactoryMock.buildResponseParserContext(any())).thenReturn(responseParserContext)
@@ -106,10 +106,10 @@ object UnitTestMockBuilder extends MockitoSugar {
     responseParserFactoryMock
   }
 
-  def buildResponseParserMock: ResponseParser = {
-    val responseParserMock = mock[ResponseParser]
+  def buildResponseParserMock[T](returnValue: T): ResponseParser[T] = {
+    val responseParserMock = mock[ResponseParser[T]]
 
-    when(responseParserMock.parse(any())).thenReturn(NotificationData.empty)
+    when(responseParserMock.parse(any())).thenReturn(returnValue)
 
     responseParserMock
   }

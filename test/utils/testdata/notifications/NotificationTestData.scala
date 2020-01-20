@@ -56,6 +56,9 @@ object NotificationTestData {
   val totalNetMass_1 = "123456789012.3456"
   val totalNetMass_2 = "123.45"
 
+  val declarationId = "DeclarationID"
+  val declarationId_2 = "DeclarationID2"
+
   def clearNamespaces(xml: Node): Node = xml match {
     case e: Elem => e.copy(scope = TopScope, child = e.child.map(clearNamespaces))
     case o       => o

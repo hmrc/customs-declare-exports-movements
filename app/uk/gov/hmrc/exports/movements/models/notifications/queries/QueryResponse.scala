@@ -14,10 +14,14 @@
  * limitations under the License.
  */
 
-package utils.testdata.notifications
+package uk.gov.hmrc.exports.movements.models.notifications.queries
 
-import uk.gov.hmrc.exports.movements.models.notifications.NotificationData
+import java.time.Instant
 
-import scala.xml.Elem
+import play.api.libs.json.Json
 
-case class ExampleResponse(asXml: Elem = <empty/>, asNotificationData: NotificationData = NotificationData.empty)
+case class QueryResponse(timestampReceived: Instant = Instant.now(), conversationId: String, payload: String, data: QueryResponseData)
+
+object QueryResponse {
+  implicit val format = Json.format[QueryResponse]
+}

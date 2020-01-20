@@ -14,6 +14,20 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.exports.movements.models.notifications.parsers
+package uk.gov.hmrc.exports.movements.models.notifications.queries
 
-final case class ResponseParserContext[T](responseType: String, parser: ResponseParser[T])
+import play.api.libs.json.Json
+import uk.gov.hmrc.exports.movements.models.notifications.EntryStatus
+
+case class DucrInfo(
+  ucr: String,
+  parentMucr: Option[String] = None,
+  declarationId: String,
+  entryStatus: Option[EntryStatus] = None,
+  movements: Seq[MovementInfo] = Seq.empty,
+  goodsItem: Seq[GoodsItemInfo] = Seq.empty
+)
+
+object DucrInfo {
+  implicit val format = Json.format[DucrInfo]
+}

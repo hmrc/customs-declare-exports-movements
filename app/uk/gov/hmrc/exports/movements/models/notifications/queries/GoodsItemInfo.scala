@@ -14,6 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.exports.movements.models.notifications.parsers
+package uk.gov.hmrc.exports.movements.models.notifications.queries
 
-final case class ResponseParserContext[T](responseType: String, parser: ResponseParser[T])
+import play.api.libs.json.Json
+
+case class GoodsItemInfo(totalPackages: Option[Int])
+
+object GoodsItemInfo {
+  implicit val format = Json.format[GoodsItemInfo]
+}

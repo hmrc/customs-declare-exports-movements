@@ -18,23 +18,24 @@ package unit.uk.gov.hmrc.exports.movements.models.notifications.parsers
 
 import org.scalatest.{MustMatchers, WordSpec}
 import uk.gov.hmrc.exports.movements.models.notifications.NotificationData
-import uk.gov.hmrc.exports.movements.models.notifications.parsers.MovementResponseParser
+import uk.gov.hmrc.exports.movements.models.notifications.parsers.{CommonTypesParser, MovementResponseParser}
 import utils.testdata.CommonTestData.MessageCodes
 import utils.testdata.notifications.ExampleInventoryLinkingMovementResponse
 
 class MovementResponseParserSpec extends WordSpec with MustMatchers {
 
   private trait Test {
-    val parser = new MovementResponseParser
+    val commonTypesParser = new CommonTypesParser
+    val parser = new MovementResponseParser(commonTypesParser)
   }
 
-  "MovementResponseParser on buildNotification" when {
+  "MovementResponseParser on parse" when {
 
     "provided with correct inventoryLinkingMovementResponse" should {
       "return NotificationData" in new Test {
         val xml = ExampleInventoryLinkingMovementResponse.Correct.AllElements.asXml
         val expectedNotificationData: NotificationData =
-          ExampleInventoryLinkingMovementResponse.Correct.AllElements.asNotificationData
+          ExampleInventoryLinkingMovementResponse.Correct.AllElements.asDomainModel
 
         val resultNotificationData: NotificationData = parser.parse(xml)
 
