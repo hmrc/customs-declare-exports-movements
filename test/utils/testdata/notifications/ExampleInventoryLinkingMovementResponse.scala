@@ -16,7 +16,8 @@
 
 package utils.testdata.notifications
 import uk.gov.hmrc.exports.movements.models.notifications._
-import utils.testdata.CommonTestData.{MessageCodes, movementReference, ucr}
+import utils.testdata.CommonTestData._
+import utils.testdata.notifications.ExampleXmlAndDomainModelPair.ExampleRegularResponse
 import utils.testdata.notifications.NotificationTestData._
 
 object ExampleInventoryLinkingMovementResponse {

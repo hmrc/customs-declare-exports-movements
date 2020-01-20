@@ -16,12 +16,13 @@
 
 package uk.gov.hmrc.exports.movements.models.notifications.parsers
 
+import javax.inject.Inject
 import uk.gov.hmrc.exports.movements.models.XmlTags
 import uk.gov.hmrc.exports.movements.models.notifications._
 
 import scala.xml.NodeSeq
 
-class MovementResponseParser extends ResponseParser[NotificationData] {
+class MovementResponseParser @Inject()(commonTypesParser: CommonTypesParser) extends ResponseParser[NotificationData] {
 
   override def parse(responseXml: NodeSeq): NotificationData =
     NotificationData(
@@ -35,25 +36,11 @@ class MovementResponseParser extends ResponseParser[NotificationData] {
 
   private def buildEntries(responseXml: NodeSeq): Seq[Entry] = {
     val ucrBlock =
-      (responseXml \ XmlTags.ucrBlock).map { ucrBlockNode =>
-        UcrBlock(ucr = (ucrBlockNode \ XmlTags.ucr).text, ucrType = (ucrBlockNode \ XmlTags.ucrType).text)
-      }.headOption
+      (responseXml \ XmlTags.ucrBlock).map(commonTypesParser.parseUcrBlock).headOption
 
-    val goodsItem = (responseXml \ XmlTags.goodsItem).map { goodsItemNode =>
-      GoodsItem(
-        commodityCode = StringOption((goodsItemNode \ XmlTags.commodityCode).text).map(_.toInt),
-        totalPackages = StringOption((goodsItemNode \ XmlTags.totalPackages).text).map(_.toInt),
-        totalNetMass = StringOption((goodsItemNode \ XmlTags.totalNetMass).text).map(BigDecimal(_))
-      )
-    }
+    val goodsItem = (responseXml \ XmlTags.goodsItem).map(commonTypesParser.parseGoodsItem)
 
-    val entryStatus = (responseXml \ XmlTags.entryStatus).map { entryStatusNode =>
-      EntryStatus(
-        ics = StringOption((entryStatusNode \ XmlTags.ics).text),
-        roe = StringOption((entryStatusNode \ XmlTags.roe).text),
-        soe = StringOption((entryStatusNode \ XmlTags.soe).text)
-      )
-    }.headOption
+    val entryStatus = (responseXml \ XmlTags.entryStatus).map(commonTypesParser.parseEntryStatus).headOption
 
     (ucrBlock, goodsItem, entryStatus) match {
       case (None, Nil, None) => Seq.empty

@@ -20,6 +20,7 @@ import uk.gov.hmrc.exports.movements.models.movements.Transport
 import uk.gov.hmrc.exports.movements.models.notifications.EntryStatus
 import uk.gov.hmrc.exports.movements.models.notifications.queries._
 import utils.testdata.CommonTestData._
+import utils.testdata.notifications.ExampleXmlAndDomainModelPair.ExampleQueryResponse
 import utils.testdata.notifications.NotificationTestData.{declarationId, declarationId_2, goodsLocation}
 
 object ExampleInventoryLinkingQueryResponse {

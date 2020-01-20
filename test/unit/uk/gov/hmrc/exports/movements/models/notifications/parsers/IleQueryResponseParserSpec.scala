@@ -17,12 +17,14 @@
 package unit.uk.gov.hmrc.exports.movements.models.notifications.parsers
 
 import org.scalatest.{MustMatchers, WordSpec}
-import uk.gov.hmrc.exports.movements.models.notifications.parsers.IleQueryResponseParser
-import utils.testdata.notifications.{ExampleInventoryLinkingQueryResponse, ExampleQueryResponse}
+import uk.gov.hmrc.exports.movements.models.notifications.parsers.{CommonTypesParser, IleQueryResponseParser}
+import utils.testdata.notifications.ExampleInventoryLinkingQueryResponse
+import utils.testdata.notifications.ExampleXmlAndDomainModelPair.ExampleQueryResponse
 
 class IleQueryResponseParserSpec extends WordSpec with MustMatchers {
 
-  private val parser = new IleQueryResponseParser
+  private val commonTypesParser = new CommonTypesParser
+  private val parser = new IleQueryResponseParser(commonTypesParser)
 
   "IleQueryResponseParser on parse" should {
 

@@ -25,8 +25,9 @@ class ResponseParserFactorySpec extends WordSpec with MustMatchers {
 
   private trait Test {
     val errorValidator = new ErrorValidator
-    val movementResponseParser = new MovementResponseParser
-    val movementTotalsResponseParser = new MovementTotalsResponseParser
+    val commonTypesParser = new CommonTypesParser
+    val movementResponseParser = new MovementResponseParser(commonTypesParser)
+    val movementTotalsResponseParser = new MovementTotalsResponseParser(commonTypesParser)
     val controlResponseParser = new ControlResponseParser(errorValidator)
     val parserFactory =
       new ResponseParserFactory(movementResponseParser, movementTotalsResponseParser, controlResponseParser)

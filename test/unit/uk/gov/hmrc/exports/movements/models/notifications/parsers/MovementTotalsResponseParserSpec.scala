@@ -18,7 +18,7 @@ package unit.uk.gov.hmrc.exports.movements.models.notifications.parsers
 
 import org.scalatest.{MustMatchers, WordSpec}
 import uk.gov.hmrc.exports.movements.models.notifications.NotificationData
-import uk.gov.hmrc.exports.movements.models.notifications.parsers.MovementTotalsResponseParser
+import uk.gov.hmrc.exports.movements.models.notifications.parsers.{CommonTypesParser, MovementTotalsResponseParser}
 import utils.testdata.CommonTestData.MessageCodes
 import utils.testdata.notifications.ExampleInventoryLinkingMovementTotalsResponse
 import utils.testdata.notifications.NotificationTestData.goodsLocation
@@ -26,7 +26,8 @@ import utils.testdata.notifications.NotificationTestData.goodsLocation
 class MovementTotalsResponseParserSpec extends WordSpec with MustMatchers {
 
   private trait Test {
-    val parser = new MovementTotalsResponseParser
+    val commonTypesParser = new CommonTypesParser
+    val parser = new MovementTotalsResponseParser(commonTypesParser)
   }
 
   "MovementResponseParser on parse" when {

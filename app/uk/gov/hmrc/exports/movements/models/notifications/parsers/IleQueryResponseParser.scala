@@ -16,14 +16,14 @@
 
 package uk.gov.hmrc.exports.movements.models.notifications.parsers
 
+import javax.inject.Inject
 import uk.gov.hmrc.exports.movements.models.XmlTags
 import uk.gov.hmrc.exports.movements.models.movements.Transport
-import uk.gov.hmrc.exports.movements.models.notifications.EntryStatus
 import uk.gov.hmrc.exports.movements.models.notifications.queries._
 
 import scala.xml.{Node, NodeSeq}
 
-class IleQueryResponseParser extends ResponseParser[QueryResponseData] {
+class IleQueryResponseParser @Inject()(commonTypesParser: CommonTypesParser) extends ResponseParser[QueryResponseData] {
 
   override def parse(responseXml: NodeSeq): QueryResponseData = QueryResponseData(
     queriedDucr = buildQueriedDucr(responseXml \ XmlTags.queriedDucr),
@@ -43,7 +43,7 @@ class IleQueryResponseParser extends ResponseParser[QueryResponseData] {
     ucr = (ducrObjectXml \ XmlTags.ucr.toUpperCase).text,
     parentMucr = StringOption((ducrObjectXml \ XmlTags.parentMucr).text),
     declarationId = (ducrObjectXml \ XmlTags.declarationId).text,
-    entryStatus = (ducrObjectXml \ XmlTags.entryStatus).map(parseEntryStatus).headOption,
+    entryStatus = (ducrObjectXml \ XmlTags.entryStatus).map(commonTypesParser.parseEntryStatus).headOption,
     movements = (ducrObjectXml \ XmlTags.movement).map(parseMovement),
     goodsItem = (ducrObjectXml \ XmlTags.goodsItem).map(parseGoodsItemInfo)
   )
@@ -51,15 +51,9 @@ class IleQueryResponseParser extends ResponseParser[QueryResponseData] {
   private def parseMucrObject(mucrObjectXml: Node): MucrInfo = MucrInfo(
     ucr = (mucrObjectXml \ XmlTags.ucr.toUpperCase).text,
     parentMucr = StringOption((mucrObjectXml \ XmlTags.parentMucr).text),
-    entryStatus = (mucrObjectXml \ XmlTags.entryStatus).map(parseEntryStatus).headOption,
+    entryStatus = (mucrObjectXml \ XmlTags.entryStatus).map(commonTypesParser.parseEntryStatus).headOption,
     isShut = StringOption((mucrObjectXml \ XmlTags.shut).text).map(_.toBoolean),
     movements = (mucrObjectXml \ XmlTags.movement).map(parseMovement)
-  )
-
-  private def parseEntryStatus(entryStatusXml: Node): EntryStatus = EntryStatus(
-    ics = StringOption((entryStatusXml \ XmlTags.ics).text),
-    roe = StringOption((entryStatusXml \ XmlTags.roe).text),
-    soe = StringOption((entryStatusXml \ XmlTags.soe).text)
   )
 
   private def parseMovement(movementXml: Node): MovementInfo = MovementInfo(
