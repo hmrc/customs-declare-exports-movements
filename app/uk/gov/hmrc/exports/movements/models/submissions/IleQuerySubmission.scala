@@ -29,7 +29,7 @@ case class IleQuerySubmission(
   override val providerId: Option[String],
   conversationId: String,
   ucrBlock: UcrBlock,
-  responses: Seq[IleQueryResponse]
+  responses: Seq[IleQueryResponse] = Seq.empty
 ) extends UserIdentification
 
 object IleQuerySubmission {

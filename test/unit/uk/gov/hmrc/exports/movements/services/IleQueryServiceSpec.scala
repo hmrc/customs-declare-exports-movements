@@ -16,80 +16,211 @@
 
 package unit.uk.gov.hmrc.exports.movements.services
 
-import java.time.{Clock, Instant, ZoneOffset}
-
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{reset, when}
-import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.time.{Millis, Seconds, Span}
+import org.mockito.ArgumentMatchers.{any, eq => meq}
+import org.mockito.Mockito._
+import org.mockito.{ArgumentCaptor, InOrder, Mockito}
+import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.{BeforeAndAfterEach, MustMatchers, WordSpec}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.Helpers._
+import reactivemongo.api.commands.WriteResult
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
-import uk.gov.hmrc.exports.movements.exceptions.CustomsInventoryLinkingUpstreamException
-import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
 import uk.gov.hmrc.exports.movements.models.movements.IleQueryRequest
 import uk.gov.hmrc.exports.movements.models.notifications.UcrBlock
-import uk.gov.hmrc.exports.movements.repositories.SubmissionRepository
+import uk.gov.hmrc.exports.movements.models.submissions.IleQuerySubmission
+import uk.gov.hmrc.exports.movements.models.{CustomsInventoryLinkingResponse, UserIdentification}
+import uk.gov.hmrc.exports.movements.repositories.IleQueryRepository
 import uk.gov.hmrc.exports.movements.services.{ILEMapper, IleQueryService}
 import uk.gov.hmrc.http.HeaderCarrier
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder.dummyWriteResultSuccess
 import utils.testdata.CommonTestData._
+import utils.testdata.IleQuerySubmissionTestData.ileQueryXml
 
 import scala.concurrent.ExecutionContext.global
 import scala.concurrent.Future
+import scala.xml.NodeSeq
 
-class IleQueryServiceSpec extends WordSpec with MockitoSugar with MustMatchers with ScalaFutures with BeforeAndAfterEach {
+class IleQueryServiceSpec extends WordSpec with MockitoSugar with MustMatchers with ScalaFutures with BeforeAndAfterEach with IntegrationPatience {
 
-  implicit val defaultPatience: PatienceConfig =
-    PatienceConfig(timeout = Span(5, Seconds), interval = Span(10, Millis))
+  implicit private val hc = mock[HeaderCarrier]
 
-  val hc = mock[HeaderCarrier]
+  private val ileMapper = mock[ILEMapper]
+  private val ileQueryRepository = mock[IleQueryRepository]
+  private val ileConnector = mock[CustomsInventoryLinkingExportsConnector]
 
-  val ileMapper = new ILEMapper(Clock.fixed(Instant.now(), ZoneOffset.UTC))
-  val submissionRepository = mock[SubmissionRepository]
-  val ileConnector = mock[CustomsInventoryLinkingExportsConnector]
-
-  val ileQueryService = new IleQueryService(ileMapper, submissionRepository, ileConnector)(global)
-
-  val conversationId = "conversationId"
-  val ileQueryRequest = IleQueryRequest(validEori, Some(validProviderId), UcrBlock(ucr, "D"))
+  private val ileQueryService = new IleQueryService(ileMapper, ileQueryRepository, ileConnector)(global)
 
   override protected def beforeEach(): Unit = {
     super.beforeEach()
 
-    reset(submissionRepository, ileConnector)
+    reset(ileMapper, ileQueryRepository, ileConnector)
+    when(ileMapper.generateIleQuery(any[UcrBlock])).thenReturn(ileQueryXml(UcrBlock(ucr = ucr, ucrType = "D")))
+    when(ileConnector.submit(any[UserIdentification], any[NodeSeq])(any()))
+      .thenReturn(Future.successful(CustomsInventoryLinkingResponse(ACCEPTED, Some(""))))
+    when(ileQueryRepository.insert(any[IleQuerySubmission])(any())).thenReturn(Future.successful(dummyWriteResultSuccess))
   }
 
   override protected def afterEach(): Unit = {
-    reset(submissionRepository, ileConnector)
+    reset(ileMapper, ileQueryRepository, ileConnector)
 
     super.afterEach()
   }
 
-  "IleQueryService on submit" should {
+  "IleQueryService on submit" when {
 
-    val ileQueryRequest = IleQueryRequest(validEori, Some(validProviderId), UcrBlock(ucr, "D"))
+    val ileQueryRequest = IleQueryRequest(validEori, Some(validProviderId), UcrBlock(ucr = ucr, ucrType = "D"))
 
-    "successfully submit ILE Query" in {
+    "everything works correctly" should {
 
-      when(ileConnector.submit(any(), any())(any()))
-        .thenReturn(Future.successful(CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId))))
-      when(submissionRepository.insert(any())(any())).thenReturn(Future.successful(dummyWriteResultSuccess))
+      "call ILEMapper, IleConnector and IleQueryRepository in this order" in {
 
-      val result = ileQueryService.submit(ileQueryRequest)(hc).futureValue
+        ileQueryService.submit(ileQueryRequest).futureValue
 
-      result mustBe conversationId
+        val inOrder: InOrder = Mockito.inOrder(ileMapper, ileConnector, ileQueryRepository)
+        inOrder.verify(ileMapper, times(1)).generateIleQuery(any())
+        inOrder.verify(ileConnector, times(1)).submit(any(), any())(any())
+        inOrder.verify(ileQueryRepository, times(1)).insert(any())(any())
+      }
+
+      "call ILEMapper once, passing UcrBlock from request" in {
+
+        ileQueryService.submit(ileQueryRequest).futureValue
+
+        verify(ileMapper, times(1)).generateIleQuery(ileQueryRequest.ucrBlock)
+      }
+
+      "call IleConnector once, passing IleQueryRequest and request xml returned from ILEMapper" in {
+
+        val queryXml = ileQueryXml(UcrBlock(ucr = ucr, ucrType = "D"))
+        when(ileMapper.generateIleQuery(any[UcrBlock])).thenReturn(queryXml)
+
+        ileQueryService.submit(ileQueryRequest).futureValue
+
+        verify(ileConnector, times(1)).submit(meq(ileQueryRequest), meq(queryXml))(any())
+      }
+
+      "call IleQueryRepository once, passing constructed IleQuerySubmission with Conversation ID returned from IleConnector" in {
+
+        when(ileConnector.submit(any[UserIdentification], any[NodeSeq])(any()))
+          .thenReturn(Future.successful(CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId))))
+
+        ileQueryService.submit(ileQueryRequest).futureValue
+
+        val ileQuerySubmissionCaptor: ArgumentCaptor[IleQuerySubmission] = ArgumentCaptor.forClass(classOf[IleQuerySubmission])
+        verify(ileQueryRepository, times(1)).insert(ileQuerySubmissionCaptor.capture())(any())
+        val actualIleQuerySubmission = ileQuerySubmissionCaptor.getValue
+
+        actualIleQuerySubmission.eori mustBe validEori
+        actualIleQuerySubmission.providerId mustBe defined
+        actualIleQuerySubmission.providerId.get mustBe validProviderId
+        actualIleQuerySubmission.conversationId mustBe conversationId
+        actualIleQuerySubmission.ucrBlock mustBe UcrBlock(ucr = ucr, ucrType = "D")
+        actualIleQuerySubmission.responses mustBe Seq.empty
+      }
+
+      "return successful Future with Conversation ID returned from IleConnector" in {
+
+        when(ileConnector.submit(any[UserIdentification], any[NodeSeq])(any()))
+          .thenReturn(Future.successful(CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId))))
+
+        ileQueryService.submit(ileQueryRequest).futureValue mustBe conversationId
+      }
     }
 
-    "fail when non accepted response from ILE" in {
+    "ILEMapper throws an exception" should {
 
-      when(ileConnector.submit(any(), any())(any()))
-        .thenReturn(Future.successful(CustomsInventoryLinkingResponse(OK, Some(conversationId))))
+      "return failed Future" in {
 
-      intercept[CustomsInventoryLinkingUpstreamException] {
-        await(ileQueryService.submit(ileQueryRequest)(hc))
+        val exceptionMsg = "Test Exception message"
+        when(ileMapper.generateIleQuery(any[UcrBlock]))
+          .thenThrow(new RuntimeException(exceptionMsg))
+
+        the[Exception] thrownBy {
+          ileQueryService.submit(ileQueryRequest).futureValue
+        } must have message exceptionMsg
+      }
+
+      "not call IleConnector" in {
+
+        when(ileMapper.generateIleQuery(any[UcrBlock])).thenThrow(new RuntimeException("Test Exception message"))
+
+        an[Exception] mustBe thrownBy {
+          ileQueryService.submit(ileQueryRequest).futureValue
+        }
+
+        verifyZeroInteractions(ileConnector)
+      }
+
+      "not call IleQueryRepository" in {
+
+        when(ileMapper.generateIleQuery(any[UcrBlock])).thenThrow(new RuntimeException("Test Exception message"))
+
+        an[Exception] mustBe thrownBy {
+          ileQueryService.submit(ileQueryRequest).futureValue
+        }
+
+        verifyZeroInteractions(ileQueryRepository)
+      }
+    }
+
+    "IleConnector returns CustomsInventoryLinkingResponse without Conversation ID" should {
+
+      "return failed Future" in {
+
+        when(ileConnector.submit(any[UserIdentification], any[NodeSeq])(any()))
+          .thenReturn(Future.successful(CustomsInventoryLinkingResponse(ACCEPTED, None)))
+
+        an[Exception] mustBe thrownBy {
+          ileQueryService.submit(ileQueryRequest).futureValue
+        }
+      }
+
+      "not call IleQueryRepository" in {
+
+        when(ileConnector.submit(any[UserIdentification], any[NodeSeq])(any()))
+          .thenReturn(Future.successful(CustomsInventoryLinkingResponse(ACCEPTED, None)))
+
+        ileQueryService.submit(ileQueryRequest).failed.futureValue
+
+        verifyZeroInteractions(ileQueryRepository)
+      }
+    }
+
+    "IleConnector returns CustomsInventoryLinkingResponse with InternalServerError status" should {
+
+      "return failed Future" in {
+
+        when(ileConnector.submit(any[UserIdentification], any[NodeSeq])(any()))
+          .thenReturn(Future.successful(CustomsInventoryLinkingResponse(INTERNAL_SERVER_ERROR, Some(conversationId))))
+
+        an[Exception] mustBe thrownBy {
+          ileQueryService.submit(ileQueryRequest).futureValue
+        }
+      }
+
+      "not call IleQueryRepository" in {
+
+        when(ileConnector.submit(any[UserIdentification], any[NodeSeq])(any()))
+          .thenReturn(Future.successful(CustomsInventoryLinkingResponse(INTERNAL_SERVER_ERROR, Some(conversationId))))
+
+        ileQueryService.submit(ileQueryRequest).failed.futureValue
+
+        verifyZeroInteractions(ileQueryRepository)
+      }
+    }
+
+    "IleQueryRepository on insert returns WriteResult with Error" should {
+
+      "return failed Future" in {
+
+        val exceptionMsg = "Test Exception message"
+        when(ileQueryRepository.insert(any[IleQuerySubmission])(any()))
+          .thenReturn(Future.failed[WriteResult](new Exception(exceptionMsg)))
+
+        val exc = ileQueryService.submit(ileQueryRequest).failed.futureValue
+        exc.getMessage must include(exceptionMsg)
       }
     }
   }
+
 }

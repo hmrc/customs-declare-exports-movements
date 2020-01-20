@@ -18,24 +18,21 @@ package uk.gov.hmrc.exports.movements.services
 
 import javax.inject.{Inject, Singleton}
 import play.api.Logger
-import play.api.http.Status.ACCEPTED
+import play.api.http.Status
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
 import uk.gov.hmrc.exports.movements.exceptions.CustomsInventoryLinkingUpstreamException
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
 import uk.gov.hmrc.exports.movements.models.movements.IleQueryRequest
-import uk.gov.hmrc.exports.movements.models.submissions.ActionType.IleQuery
-import uk.gov.hmrc.exports.movements.models.submissions.Submission
-import uk.gov.hmrc.exports.movements.repositories.SubmissionRepository
+import uk.gov.hmrc.exports.movements.models.submissions.IleQuerySubmission
+import uk.gov.hmrc.exports.movements.repositories.IleQueryRepository
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class IleQueryService @Inject()(
-  ileMapper: ILEMapper,
-  submissionRepository: SubmissionRepository,
-  ileConnector: CustomsInventoryLinkingExportsConnector
-)(implicit ec: ExecutionContext) {
+class IleQueryService @Inject()(ileMapper: ILEMapper, ileQueryRepository: IleQueryRepository, ileConnector: CustomsInventoryLinkingExportsConnector)(
+  implicit ec: ExecutionContext
+) {
 
   private val logger = Logger(this.getClass)
 
@@ -44,16 +41,15 @@ class IleQueryService @Inject()(
 
     ileConnector.submit(ileQueryRequest, requestXml).flatMap {
 
-      case CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId)) =>
-        val submission = Submission(
+      case CustomsInventoryLinkingResponse(Status.ACCEPTED, Some(conversationId)) =>
+        val ileQuerySubmission = IleQuerySubmission(
           eori = ileQueryRequest.eori,
           providerId = ileQueryRequest.providerId,
           conversationId = conversationId,
-          ucrBlocks = Seq(ileQueryRequest.ucrBlock),
-          actionType = IleQuery
+          ucrBlock = ileQueryRequest.ucrBlock
         )
 
-        submissionRepository.insert(submission).map(_ => conversationId)
+        ileQueryRepository.insert(ileQuerySubmission).map(_ => conversationId)
 
       case CustomsInventoryLinkingResponse(status, conversationId) =>
         logger.warn(s"ILE Query failed with conversation-id=[$conversationId] and status [$status]")
@@ -62,4 +58,5 @@ class IleQueryService @Inject()(
         )
     }
   }
+
 }

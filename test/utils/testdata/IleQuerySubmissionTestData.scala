@@ -19,7 +19,9 @@ package utils.testdata
 import uk.gov.hmrc.exports.movements.models.notifications.UcrBlock
 import uk.gov.hmrc.exports.movements.models.submissions.IleQuerySubmission
 import utils.testdata.CommonTestData._
-import utils.testdata.QueryResponseTestData._
+import utils.testdata.IleQueryResponseTestData._
+
+import scala.xml.Elem
 
 object IleQuerySubmissionTestData {
 
@@ -28,7 +30,7 @@ object IleQuerySubmissionTestData {
     providerId = Some(validProviderId),
     conversationId = conversationId,
     ucrBlock = UcrBlock(ucr = ucr, ucrType = "D"),
-    responses = Seq(queryResponse_1)
+    responses = Seq(ileQueryResponse_1)
   )
 
   val ileQuerySubmission_2 = IleQuerySubmission(
@@ -36,7 +38,15 @@ object IleQuerySubmissionTestData {
     providerId = Some(validProviderId_2),
     conversationId = conversationId_2,
     ucrBlock = UcrBlock(ucr = ucr_2, ucrType = "D"),
-    responses = Seq(queryResponse_2)
+    responses = Seq(ileQueryResponse_2)
   )
+
+  def ileQueryXml(ucrBlock: UcrBlock): Elem =
+    <inventoryLinkingQueryRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
+      <queryUCR>
+        <ucr>{ucrBlock.ucr}</ucr>
+        <ucrType>{ucrBlock.ucrType}</ucrType>
+      </queryUCR>
+    </inventoryLinkingQueryRequest>
 
 }

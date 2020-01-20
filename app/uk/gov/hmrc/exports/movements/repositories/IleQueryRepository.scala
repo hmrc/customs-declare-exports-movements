@@ -26,7 +26,7 @@ import uk.gov.hmrc.mongo.ReactiveRepository
 import scala.concurrent.ExecutionContext
 
 class IleQueryRepository @Inject()(implicit mc: ReactiveMongoComponent, ec: ExecutionContext)
-  extends ReactiveRepository[IleQuerySubmission, BSONObjectID]("ileQuerySubmissions", mc.mongoConnector.db, IleQuerySubmission.format) {
+    extends ReactiveRepository[IleQuerySubmission, BSONObjectID]("ileQuerySubmissions", mc.mongoConnector.db, IleQuerySubmission.format) {
 
   override def indexes: Seq[Index] = Seq(
     Index(Seq("eori" -> IndexType.Ascending), name = Some("eoriIdx")),
