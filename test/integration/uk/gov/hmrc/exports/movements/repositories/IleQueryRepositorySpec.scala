@@ -53,8 +53,8 @@ class IleQueryRepositorySpec
   }
 
   override def afterEach(): Unit = {
-    super.beforeEach()
     repo.removeAll().futureValue
+    super.afterEach()
   }
 
   "IleQueryRepository on insert" when {
