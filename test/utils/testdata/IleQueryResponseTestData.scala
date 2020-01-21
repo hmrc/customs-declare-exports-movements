@@ -16,16 +16,16 @@
 
 package utils.testdata
 
-import uk.gov.hmrc.exports.movements.models.notifications.queries.{QueryResponse, QueryResponseData}
+import uk.gov.hmrc.exports.movements.models.notifications.queries.{IleQueryResponse, IleQueryResponseData}
 import utils.testdata.CommonTestData.{conversationId, conversationId_2}
 
-object QueryResponseTestData {
+object IleQueryResponseTestData {
 
   private val payloadExemplaryLength = 10
   private val payload_1 = TestDataHelper.randomAlphanumericString(payloadExemplaryLength)
   private val payload_2 = TestDataHelper.randomAlphanumericString(payloadExemplaryLength)
 
-  val queryResponse_1: QueryResponse = QueryResponse(conversationId = conversationId, payload = payload_1, data = QueryResponseData())
-  val queryResponse_2: QueryResponse = QueryResponse(conversationId = conversationId_2, payload = payload_2, data = QueryResponseData())
+  val ileQueryResponse_1: IleQueryResponse = IleQueryResponse(conversationId = conversationId, payload = payload_1, data = IleQueryResponseData())
+  val ileQueryResponse_2: IleQueryResponse = IleQueryResponse(conversationId = conversationId_2, payload = payload_2, data = IleQueryResponseData())
 
 }
