@@ -140,7 +140,7 @@ class IleQueryServiceSpec extends WordSpec with MockitoSugar with MustMatchers w
         } must have message exceptionMsg
       }
 
-      "not call IleConnector" in {
+      "not call IleConnector nor IleQueryRepository" in {
 
         when(ileMapper.generateIleQuery(any[UcrBlock])).thenThrow(new RuntimeException("Test Exception message"))
 
@@ -149,16 +149,6 @@ class IleQueryServiceSpec extends WordSpec with MockitoSugar with MustMatchers w
         }
 
         verifyZeroInteractions(ileConnector)
-      }
-
-      "not call IleQueryRepository" in {
-
-        when(ileMapper.generateIleQuery(any[UcrBlock])).thenThrow(new RuntimeException("Test Exception message"))
-
-        an[Exception] mustBe thrownBy {
-          ileQueryService.submit(ileQueryRequest).futureValue
-        }
-
         verifyZeroInteractions(ileQueryRepository)
       }
     }
