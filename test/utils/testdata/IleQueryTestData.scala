@@ -16,7 +16,8 @@
 
 package utils.testdata
 
-import uk.gov.hmrc.exports.movements.models.notifications.queries.{IleQueryResponse, IleQueryResponseData}
+import uk.gov.hmrc.exports.movements.models.notifications.Notification
+import uk.gov.hmrc.exports.movements.models.notifications.queries.IleQueryResponseData
 import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
 import utils.testdata.CommonTestData.{conversationId, conversationId_2}
 
@@ -28,8 +29,10 @@ object IleQueryTestData {
   private val payload_1 = TestDataHelper.randomAlphanumericString(payloadExemplaryLength)
   private val payload_2 = TestDataHelper.randomAlphanumericString(payloadExemplaryLength)
 
-  val ileQueryResponse_1: IleQueryResponse = IleQueryResponse(conversationId = conversationId, payload = payload_1, data = IleQueryResponseData())
-  val ileQueryResponse_2: IleQueryResponse = IleQueryResponse(conversationId = conversationId_2, payload = payload_2, data = IleQueryResponseData())
+  val ileQueryResponse_1: Notification =
+    Notification(conversationId = conversationId, responseType = "QueryTestResponse_1", payload = payload_1, data = IleQueryResponseData())
+  val ileQueryResponse_2: Notification =
+    Notification(conversationId = conversationId_2, responseType = "QueryTestResponse_2", payload = payload_2, data = IleQueryResponseData())
 
   def ileQueryXml(ucrBlock: UcrBlock): Elem =
     <inventoryLinkingQueryRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
