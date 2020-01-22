@@ -28,6 +28,8 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import reactivemongo.core.errors.DatabaseException
 import uk.gov.hmrc.exports.movements.repositories.IleQueryRepository
 import utils.TestMongoDB
+import utils.testdata.CommonTestData.conversationId_2
+import utils.testdata.IleQueryResponseTestData.ileQueryResponse_1
 import utils.testdata.IleQuerySubmissionTestData._
 import utils.testdata.MovementsTestData.dateTimeString
 
@@ -103,6 +105,77 @@ class IleQueryRepositorySpec
         val submissionsFromDB = repo.findAll().futureValue
         submissionsFromDB.size mustBe 1
         submissionsFromDB.head mustBe submission_1
+      }
+    }
+  }
+
+  "IleQueryRepository on addResponse" when {
+
+    "adding response to existing IleQuerySubmission" should {
+
+      "return the IleQuerySubmission updated" in {
+        val submission = ileQuerySubmission_1.copy(responses = Seq.empty)
+        val response = ileQueryResponse_1.copy(conversationId = submission.conversationId)
+        val expectedUpdatedSubmission = submission.copy(responses = Seq(response))
+        repo.insert(submission).futureValue.ok mustBe true
+
+        val updatedSubmission = repo.addResponse(response).futureValue
+
+        updatedSubmission mustBe expectedUpdatedSubmission
+      }
+
+      "result in having the IleQuerySubmission updated in the DB" in {
+        val submission = ileQuerySubmission_1.copy(responses = Seq.empty)
+        val response = ileQueryResponse_1.copy(conversationId = submission.conversationId)
+        val expectedUpdatedSubmission = submission.copy(responses = Seq(response))
+        repo.insert(submission).futureValue.ok mustBe true
+
+        repo.addResponse(response).futureValue
+
+        val submissionsFromDB = repo.findAll().futureValue
+        submissionsFromDB.size mustBe 1
+        submissionsFromDB.head mustBe expectedUpdatedSubmission
+      }
+    }
+
+    "trying to add response for non-existing IleQuerySubmission" should {
+
+      "return failed Future with IllegalStateException" in {
+        val submission = ileQuerySubmission_1.copy(responses = Seq.empty)
+        val response = ileQueryResponse_1.copy(conversationId = conversationId_2)
+        repo.insert(submission).futureValue.ok mustBe true
+
+        val exc = repo.addResponse(response).failed.futureValue
+
+        exc.getMessage must include("IleQuerySubmission must exist before adding a response")
+      }
+    }
+
+    "trying to add the same response to the IleQuerySubmission twice" should {
+
+      "return the IleQuerySubmission not updated" in {
+        val submission = ileQuerySubmission_1.copy(responses = Seq.empty)
+        val response = ileQueryResponse_1.copy(conversationId = submission.conversationId)
+        repo.insert(submission).futureValue.ok mustBe true
+
+        val updatedSubmission_1 = repo.addResponse(response).futureValue
+        val updatedSubmission_2 = repo.addResponse(response).futureValue
+
+        updatedSubmission_1 mustBe updatedSubmission_2
+      }
+
+      "result in having the IleQuerySubmission with just a single response in the DB" in {
+        val submission = ileQuerySubmission_1.copy(responses = Seq.empty)
+        val response = ileQueryResponse_1.copy(conversationId = submission.conversationId)
+        val expectedUpdatedSubmission = submission.copy(responses = Seq(response))
+        repo.insert(submission).futureValue.ok mustBe true
+
+        repo.addResponse(response).futureValue
+        repo.addResponse(response).futureValue
+
+        val submissionsFromDB = repo.findAll().futureValue
+        submissionsFromDB.size mustBe 1
+        submissionsFromDB.head mustBe expectedUpdatedSubmission
       }
     }
   }
