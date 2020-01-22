@@ -17,6 +17,7 @@
 package uk.gov.hmrc.exports.movements.models.notifications.queries
 
 import play.api.libs.json.Json
+import uk.gov.hmrc.exports.movements.models.notifications.{NotificationData, NotificationType}
 
 case class IleQueryResponseData(
   queriedDucr: Option[DucrInfo] = None,
@@ -24,7 +25,9 @@ case class IleQueryResponseData(
   parentMucr: Option[MucrInfo] = None,
   childDucrs: Seq[DucrInfo] = Seq.empty,
   childMucrs: Seq[MucrInfo] = Seq.empty
-)
+) extends NotificationData {
+  override val typ: NotificationType = NotificationType.QueryResponse
+}
 
 object IleQueryResponseData {
   implicit val format = Json.format[IleQueryResponseData]
