@@ -55,8 +55,8 @@ class SubmissionRepositorySpec
   }
 
   override def afterEach(): Unit = {
+    super.beforeEach()
     repo.removeAll().futureValue
-    super.afterEach()
   }
 
   "SubmissionRepository on insert" when {

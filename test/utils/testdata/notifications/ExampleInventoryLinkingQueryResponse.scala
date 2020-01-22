@@ -30,7 +30,7 @@ object ExampleInventoryLinkingQueryResponse {
     lazy val Empty = ExampleQueryResponse(asXml = <inventoryLinkingQueryResponse
         xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
         xmlns="http://gov.uk/customs/inventoryLinking/v1">
-      </inventoryLinkingQueryResponse>, asDomainModel = IleQueryResponseData())
+      </inventoryLinkingQueryResponse>, asDomainModel = QueryResponseData())
 
     lazy val QueriedDucr = ExampleQueryResponse(
       asXml = <inventoryLinkingQueryResponse
@@ -69,7 +69,7 @@ object ExampleInventoryLinkingQueryResponse {
           </queriedDUCR>
 
       </inventoryLinkingQueryResponse>,
-      asDomainModel = IleQueryResponseData(
+      asDomainModel = QueryResponseData(
         queriedDucr = Some(
           DucrInfo(
             ucr = ucr,
@@ -121,7 +121,7 @@ object ExampleInventoryLinkingQueryResponse {
           </queriedMUCR>
 
       </inventoryLinkingQueryResponse>,
-      asDomainModel = IleQueryResponseData(
+      asDomainModel = QueryResponseData(
         queriedMucr = Some(
           MucrInfo(
             ucr = mucr_2,
@@ -164,7 +164,7 @@ object ExampleInventoryLinkingQueryResponse {
           </parentMUCR>
 
       </inventoryLinkingQueryResponse>,
-      asDomainModel = IleQueryResponseData(
+      asDomainModel = QueryResponseData(
         parentMucr = Some(
           MucrInfo(
             ucr = mucr_2,
@@ -211,7 +211,7 @@ object ExampleInventoryLinkingQueryResponse {
           </childDUCR>
 
       </inventoryLinkingQueryResponse>,
-      asDomainModel = IleQueryResponseData(
+      asDomainModel = QueryResponseData(
         childDucrs = Seq(
           DucrInfo(
             ucr = ucr,
@@ -254,7 +254,7 @@ object ExampleInventoryLinkingQueryResponse {
           </childMUCR>
 
       </inventoryLinkingQueryResponse>,
-      asDomainModel = IleQueryResponseData(
+      asDomainModel = QueryResponseData(
         childMucrs = Seq(
           MucrInfo(ucr = mucr, entryStatus = Some(EntryStatus(ics = Some("2"), roe = Some("H"), soe = Some("14"))), isShut = Some(true)),
           MucrInfo(ucr = mucr_2, entryStatus = Some(EntryStatus(ics = Some("7"), roe = Some("6"), soe = Some("3"))), isShut = Some(false))

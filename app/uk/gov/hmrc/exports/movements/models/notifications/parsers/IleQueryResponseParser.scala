@@ -23,9 +23,9 @@ import uk.gov.hmrc.exports.movements.models.notifications.queries._
 
 import scala.xml.{Node, NodeSeq}
 
-class IleQueryResponseParser @Inject()(commonTypesParser: CommonTypesParser) extends ResponseParser[IleQueryResponseData] {
+class IleQueryResponseParser @Inject()(commonTypesParser: CommonTypesParser) extends ResponseParser[QueryResponseData] {
 
-  override def parse(responseXml: NodeSeq): IleQueryResponseData = IleQueryResponseData(
+  override def parse(responseXml: NodeSeq): QueryResponseData = QueryResponseData(
     queriedDucr = buildQueriedDucr(responseXml \ XmlTags.queriedDucr),
     queriedMucr = buildQueriedMucr(responseXml \ XmlTags.queriedMucr),
     parentMucr = buildParentMucr(responseXml \ XmlTags.parentMucr),

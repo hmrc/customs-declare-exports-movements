@@ -53,8 +53,8 @@ class NotificationRepositorySpec
   }
 
   override def afterEach(): Unit = {
+    super.beforeEach()
     repo.removeAll().futureValue
-    super.afterEach()
   }
 
   "NotificationRepository on insert" when {

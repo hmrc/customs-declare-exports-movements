@@ -16,16 +16,12 @@
 
 package uk.gov.hmrc.exports.movements.models.notifications.queries
 
+import java.time.Instant
+
 import play.api.libs.json.Json
 
-case class IleQueryResponseData(
-  queriedDucr: Option[DucrInfo] = None,
-  queriedMucr: Option[MucrInfo] = None,
-  parentMucr: Option[MucrInfo] = None,
-  childDucrs: Seq[DucrInfo] = Seq.empty,
-  childMucrs: Seq[MucrInfo] = Seq.empty
-)
+case class QueryResponse(timestampReceived: Instant = Instant.now(), conversationId: String, payload: String, data: QueryResponseData)
 
-object IleQueryResponseData {
-  implicit val format = Json.format[IleQueryResponseData]
+object QueryResponse {
+  implicit val format = Json.format[QueryResponse]
 }

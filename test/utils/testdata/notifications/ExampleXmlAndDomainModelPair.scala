@@ -16,7 +16,7 @@
 
 package utils.testdata.notifications
 
-import uk.gov.hmrc.exports.movements.models.notifications.queries.IleQueryResponseData
+import uk.gov.hmrc.exports.movements.models.notifications.queries.QueryResponseData
 import uk.gov.hmrc.exports.movements.models.notifications.{EntryStatus, GoodsItem, NotificationData, UcrBlock}
 
 import scala.xml.Elem
@@ -31,8 +31,8 @@ object ExampleXmlAndDomainModelPair {
   case class ExampleRegularResponse(asXml: Elem = <empty/>, asDomainModel: NotificationData = NotificationData.empty)
       extends ExampleXmlAndDomainModelPair[NotificationData]
 
-  case class ExampleQueryResponse(asXml: Elem = <empty/>, asDomainModel: IleQueryResponseData = IleQueryResponseData())
-      extends ExampleXmlAndDomainModelPair[IleQueryResponseData]
+  case class ExampleQueryResponse(asXml: Elem = <empty/>, asDomainModel: QueryResponseData = QueryResponseData())
+      extends ExampleXmlAndDomainModelPair[QueryResponseData]
 
   case class ExampleUcrBlockPair(asXml: Elem = <empty/>, asDomainModel: UcrBlock) extends ExampleXmlAndDomainModelPair[UcrBlock]
 
