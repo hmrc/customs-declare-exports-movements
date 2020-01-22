@@ -16,10 +16,13 @@
 
 package utils.testdata
 
+import uk.gov.hmrc.exports.movements.models.notifications.UcrBlock
 import uk.gov.hmrc.exports.movements.models.notifications.queries.{IleQueryResponse, IleQueryResponseData}
 import utils.testdata.CommonTestData.{conversationId, conversationId_2}
 
-object IleQueryResponseTestData {
+import scala.xml.Elem
+
+object IleQueryTestData {
 
   private val payloadExemplaryLength = 10
   private val payload_1 = TestDataHelper.randomAlphanumericString(payloadExemplaryLength)
@@ -27,5 +30,13 @@ object IleQueryResponseTestData {
 
   val ileQueryResponse_1: IleQueryResponse = IleQueryResponse(conversationId = conversationId, payload = payload_1, data = IleQueryResponseData())
   val ileQueryResponse_2: IleQueryResponse = IleQueryResponse(conversationId = conversationId_2, payload = payload_2, data = IleQueryResponseData())
+
+  def ileQueryXml(ucrBlock: UcrBlock): Elem =
+    <inventoryLinkingQueryRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
+      <queryUCR>
+        <ucr>{ucrBlock.ucr}</ucr>
+        <ucrType>{ucrBlock.ucrType}</ucrType>
+      </queryUCR>
+    </inventoryLinkingQueryRequest>
 
 }
