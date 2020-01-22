@@ -16,9 +16,28 @@
 
 package uk.gov.hmrc.exports.movements.models.notifications
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Format, Json, OFormat}
+import uk.gov.hmrc.play.json.Union
 
-final case class NotificationData(
+sealed trait NotificationType
+
+object NotificationType {
+  case object StandardResponse extends NotificationType
+  case object QueryResponse extends NotificationType
+}
+
+trait NotificationData {
+  val typ: NotificationType
+}
+
+object NotificationData {
+  implicit val format: Format[NotificationData] = Union
+    .from[NotificationData]("typ")
+    .and[StandardNotificationData](NotificationType.StandardResponse.toString)
+    .format
+}
+
+final case class StandardNotificationData(
   messageCode: Option[String] = None,
   crcCode: Option[String] = None,
   declarationCount: Option[Int] = None,
@@ -31,10 +50,10 @@ final case class NotificationData(
   movementReference: Option[String] = None,
   actionCode: Option[String] = None,
   errorCodes: Seq[String] = Seq.empty
-)
+) extends NotificationData {
+  override val typ: NotificationType = NotificationType.StandardResponse
+}
 
-object NotificationData {
-  implicit val format = Json.format[NotificationData]
-
-  def empty = NotificationData()
+object StandardNotificationData {
+  implicit val format: OFormat[StandardNotificationData] = Json.format[StandardNotificationData]
 }

@@ -17,14 +17,14 @@
 package utils.testdata.notifications
 import uk.gov.hmrc.exports.movements.models.notifications._
 import utils.testdata.CommonTestData._
-import utils.testdata.notifications.ExampleXmlAndDomainModelPair.ExampleRegularResponse
+import utils.testdata.notifications.ExampleXmlAndDomainModelPair.ExampleStandardResponse
 import utils.testdata.notifications.NotificationTestData._
 
 object ExampleInventoryLinkingMovementResponse {
 
   object Correct {
 
-    lazy val AllElements = ExampleRegularResponse(
+    lazy val AllElements = ExampleStandardResponse(
       asXml = <inventoryLinkingMovementResponse
         xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
         xmlns="http://gov.uk/customs/inventoryLinking/v1">
@@ -54,7 +54,7 @@ object ExampleInventoryLinkingMovementResponse {
             <soe>3</soe>
           </entryStatus>
         </inventoryLinkingMovementResponse>,
-      asDomainModel = NotificationData(
+      asDomainModel = StandardNotificationData(
         messageCode = Some(MessageCodes.EAL),
         crcCode = Some(crcCode_success),
         goodsArrivalDateTime = Some("2019-07-12T13:14:54.000Z"),
@@ -77,7 +77,7 @@ object ExampleInventoryLinkingMovementResponse {
       )
     )
 
-    lazy val MandatoryElementsOnly = ExampleRegularResponse(asXml = <inventoryLinkingMovementResponse
+    lazy val MandatoryElementsOnly = ExampleStandardResponse(asXml = <inventoryLinkingMovementResponse
         xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
         xmlns="http://gov.uk/customs/inventoryLinking/v1">
           <messageCode>{MessageCodes.EAL}</messageCode>
@@ -87,12 +87,12 @@ object ExampleInventoryLinkingMovementResponse {
 
   object Incorrect {
 
-    lazy val NoMessageCode = ExampleRegularResponse(asXml = <inventoryLinkingMovementResponse
+    lazy val NoMessageCode = ExampleStandardResponse(asXml = <inventoryLinkingMovementResponse
         xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
         xmlns="http://gov.uk/customs/inventoryLinking/v1">
         </inventoryLinkingMovementResponse>)
 
-    lazy val WrongMessageCode = ExampleRegularResponse(asXml = <inventoryLinkingMovementResponse
+    lazy val WrongMessageCode = ExampleStandardResponse(asXml = <inventoryLinkingMovementResponse
       xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
       xmlns="http://gov.uk/customs/inventoryLinking/v1">
         <messageCode>{MessageCodes.EAC}</messageCode>

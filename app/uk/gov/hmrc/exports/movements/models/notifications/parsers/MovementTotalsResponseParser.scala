@@ -24,7 +24,7 @@ import scala.xml.NodeSeq
 
 class MovementTotalsResponseParser @Inject()(commonTypesParser: CommonTypesParser) extends ResponseParser[NotificationData] {
 
-  override def parse(responseXml: NodeSeq): NotificationData = NotificationData(
+  override def parse(responseXml: NodeSeq): StandardNotificationData = StandardNotificationData(
     messageCode = StringOption((responseXml \ XmlTags.messageCode).text),
     crcCode = StringOption((responseXml \ XmlTags.crc).text),
     declarationCount = StringOption((responseXml \ XmlTags.declarationCount).text).map(_.toInt),

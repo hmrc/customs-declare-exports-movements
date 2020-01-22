@@ -17,7 +17,7 @@
 package utils.testdata.notifications
 
 import uk.gov.hmrc.exports.movements.models.notifications.queries.IleQueryResponseData
-import uk.gov.hmrc.exports.movements.models.notifications.{EntryStatus, GoodsItem, NotificationData, UcrBlock}
+import uk.gov.hmrc.exports.movements.models.notifications._
 
 import scala.xml.Elem
 
@@ -28,7 +28,7 @@ sealed trait ExampleXmlAndDomainModelPair[T] {
 
 object ExampleXmlAndDomainModelPair {
 
-  case class ExampleRegularResponse(asXml: Elem = <empty/>, asDomainModel: NotificationData = NotificationData.empty)
+  case class ExampleStandardResponse(asXml: Elem = <empty/>, asDomainModel: NotificationData = StandardNotificationData())
       extends ExampleXmlAndDomainModelPair[NotificationData]
 
   case class ExampleQueryResponse(asXml: Elem = <empty/>, asDomainModel: IleQueryResponseData = IleQueryResponseData())

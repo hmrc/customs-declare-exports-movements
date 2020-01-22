@@ -34,26 +34,27 @@ final case class NotificationFrontendModel(
 object NotificationFrontendModel {
   implicit val format = Json.format[NotificationFrontendModel]
 
-  def apply(notification: Notification): NotificationFrontendModel = {
-    val mucrEntry = buildMucrEntry(notification)
+  def apply(notification: Notification): NotificationFrontendModel = notification.data match {
+    case standardNotificationData: StandardNotificationData =>
+      val mucrEntry = buildMucrEntry(standardNotificationData)
 
-    NotificationFrontendModel(
-      timestampReceived = notification.timestampReceived,
-      conversationId = notification.conversationId,
-      responseType = notification.responseType,
-      entries = mucrEntry.toSeq ++ notification.entries,
-      crcCode = notification.crcCode,
-      actionCode = notification.actionCode,
-      errorCodes = notification.errorCodes,
-      messageCode = notification.messageCode.getOrElse("")
-    )
+      NotificationFrontendModel(
+        timestampReceived = notification.timestampReceived,
+        conversationId = notification.conversationId,
+        responseType = notification.responseType,
+        entries = mucrEntry.toSeq ++ standardNotificationData.entries,
+        crcCode = standardNotificationData.crcCode,
+        actionCode = standardNotificationData.actionCode,
+        errorCodes = standardNotificationData.errorCodes,
+        messageCode = standardNotificationData.messageCode.getOrElse("")
+      )
   }
 
-  private def buildMucrEntry(notification: Notification): Option[Entry] =
-    notification.masterUcr.map { ucr =>
+  private def buildMucrEntry(standardNotificationData: StandardNotificationData): Option[Entry] =
+    standardNotificationData.masterUcr.map { ucr =>
       Entry(
         ucrBlock = Some(UcrBlock(ucr = ucr, ucrType = "M")),
-        entryStatus = Some(EntryStatus(roe = notification.masterRoe, soe = notification.masterSoe, ics = None)),
+        entryStatus = Some(EntryStatus(roe = standardNotificationData.masterRoe, soe = standardNotificationData.masterSoe, ics = None)),
         goodsItem = Seq.empty
       )
     }

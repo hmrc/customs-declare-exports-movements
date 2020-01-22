@@ -18,13 +18,13 @@ package uk.gov.hmrc.exports.movements.models.notifications.parsers
 
 import javax.inject.Inject
 import uk.gov.hmrc.exports.movements.models.XmlTags
-import uk.gov.hmrc.exports.movements.models.notifications.{Entry, NotificationData, UcrBlock}
+import uk.gov.hmrc.exports.movements.models.notifications.{Entry, NotificationData, StandardNotificationData, UcrBlock}
 
 import scala.xml.NodeSeq
 
 class ControlResponseParser @Inject()(errorValidator: ErrorValidator) extends ResponseParser[NotificationData] {
 
-  override def parse(responseXml: NodeSeq): NotificationData = NotificationData(
+  override def parse(responseXml: NodeSeq): StandardNotificationData = StandardNotificationData(
     messageCode = StringOption((responseXml \ XmlTags.messageCode).text),
     actionCode = StringOption((responseXml \ XmlTags.actionCode).text),
     entries = (responseXml \ XmlTags.ucr).map { ucrNode =>

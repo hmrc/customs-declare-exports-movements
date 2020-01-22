@@ -19,7 +19,7 @@ package component.uk.gov.hmrc.exports.movements
 import play.api.libs.json.Json
 import play.api.test.Helpers._
 import uk.gov.hmrc.exports.movements.controllers.routes
-import uk.gov.hmrc.exports.movements.models.notifications.{Entry, Notification, NotificationData, UcrBlock}
+import uk.gov.hmrc.exports.movements.models.notifications.{Entry, Notification, StandardNotificationData, UcrBlock}
 import uk.gov.hmrc.exports.movements.models.submissions.{ActionType, Submission}
 
 /*
@@ -34,7 +34,7 @@ class NotificationSpec extends ComponentSpec {
     conversationId = "conversation-id",
     responseType = "response-type",
     payload = "",
-    data = NotificationData(
+    data = StandardNotificationData(
       messageCode = Some("message-code"),
       crcCode = Some("crc-code"),
       declarationCount = Some(1),
@@ -101,7 +101,7 @@ class NotificationSpec extends ComponentSpec {
       notifications.size mustBe 1
       notifications.head.conversationId mustBe "conversation-id"
       notifications.head.responseType mustBe "inventoryLinkingControlResponse"
-      notifications.head.data mustBe NotificationData(
+      notifications.head.data mustBe StandardNotificationData(
         messageCode = Some("CST"),
         entries = Seq(Entry(ucrBlock = Some(UcrBlock("UCR", "M")))),
         movementReference = Some("Reference"),
