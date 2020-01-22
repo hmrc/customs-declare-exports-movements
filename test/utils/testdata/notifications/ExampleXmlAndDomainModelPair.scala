@@ -16,8 +16,9 @@
 
 package utils.testdata.notifications
 
-import uk.gov.hmrc.exports.movements.models.notifications.queries.IleQueryResponseData
 import uk.gov.hmrc.exports.movements.models.notifications._
+import uk.gov.hmrc.exports.movements.models.notifications.queries.IleQueryResponseData
+import uk.gov.hmrc.exports.movements.models.notifications.standard.{EntryStatus, GoodsItem, StandardNotificationData, UcrBlock}
 
 import scala.xml.Elem
 

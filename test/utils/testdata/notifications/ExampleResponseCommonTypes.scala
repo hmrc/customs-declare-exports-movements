@@ -16,7 +16,7 @@
 
 package utils.testdata.notifications
 
-import uk.gov.hmrc.exports.movements.models.notifications.{EntryStatus, GoodsItem, UcrBlock}
+import uk.gov.hmrc.exports.movements.models.notifications.standard.{EntryStatus, GoodsItem, UcrBlock}
 import utils.testdata.CommonTestData.{mucr, ucr}
 import utils.testdata.notifications.ExampleXmlAndDomainModelPair.{ExampleEntryStatusPair, ExampleGoodsItemPair, ExampleUcrBlockPair}
 import utils.testdata.notifications.NotificationTestData.{commodityCode_1, totalNetMass_1, totalPackages_1}

@@ -20,7 +20,7 @@ import javax.inject.Singleton
 import uk.gov.hmrc.exports.movements.models.XmlTags
 import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationType.ConsolidationType
 import uk.gov.hmrc.exports.movements.models.movements.Movement
-import uk.gov.hmrc.exports.movements.models.notifications.UcrBlock
+import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
 
 import scala.xml.{Node, NodeSeq}
 

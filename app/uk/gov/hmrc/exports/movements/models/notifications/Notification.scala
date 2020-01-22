@@ -19,6 +19,7 @@ package uk.gov.hmrc.exports.movements.models.notifications
 import java.time.Instant
 
 import play.api.libs.json.Json
+import uk.gov.hmrc.exports.movements.models.notifications.standard.StandardNotificationData
 
 final case class Notification(
   timestampReceived: Instant = Instant.now(),

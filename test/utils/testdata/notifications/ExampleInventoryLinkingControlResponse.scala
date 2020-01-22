@@ -16,7 +16,7 @@
 
 package utils.testdata.notifications
 
-import uk.gov.hmrc.exports.movements.models.notifications.{Entry, StandardNotificationData, UcrBlock}
+import uk.gov.hmrc.exports.movements.models.notifications.standard.{Entry, StandardNotificationData, UcrBlock}
 import utils.testdata.CommonTestData._
 import utils.testdata.notifications.ExampleXmlAndDomainModelPair.ExampleStandardResponse
 import utils.testdata.notifications.NotificationTestData._

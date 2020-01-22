@@ -19,6 +19,7 @@ package uk.gov.hmrc.exports.movements.models.notifications
 import javax.inject.{Inject, Singleton}
 import org.slf4j.MDC
 import play.api.Logger
+import uk.gov.hmrc.exports.movements.models.notifications
 import uk.gov.hmrc.exports.movements.models.notifications.parsers.ResponseParserFactory
 
 import scala.xml.{NodeSeq, SAXParseException, Utility}
@@ -33,7 +34,7 @@ class NotificationFactory @Inject()(responseValidator: ResponseValidator, respon
     checkResponseCompliance(conversationId, xml)
 
     val notificationData = context.parser.parse(xml)
-    Notification(
+    notifications.Notification(
       conversationId = conversationId,
       responseType = context.responseType,
       data = notificationData,

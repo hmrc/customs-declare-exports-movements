@@ -17,8 +17,8 @@
 package unit.uk.gov.hmrc.exports.movements.models.notifications.parsers
 
 import org.scalatest.{MustMatchers, WordSpec}
-import uk.gov.hmrc.exports.movements.models.notifications.StandardNotificationData
 import uk.gov.hmrc.exports.movements.models.notifications.parsers.{CommonTypesParser, MovementTotalsResponseParser}
+import uk.gov.hmrc.exports.movements.models.notifications.standard.StandardNotificationData
 import utils.testdata.CommonTestData.MessageCodes
 import utils.testdata.notifications.ExampleInventoryLinkingMovementTotalsResponse
 import utils.testdata.notifications.NotificationTestData.goodsLocation

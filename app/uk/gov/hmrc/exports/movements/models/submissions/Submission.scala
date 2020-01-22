@@ -21,7 +21,7 @@ import java.util.UUID
 
 import play.api.libs.json._
 import uk.gov.hmrc.exports.movements.models.UserIdentification
-import uk.gov.hmrc.exports.movements.models.notifications.UcrBlock
+import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
 
 case class Submission(
   uuid: String = UUID.randomUUID().toString,

@@ -18,7 +18,7 @@ package uk.gov.hmrc.exports.movements.models.notifications.parsers
 
 import javax.inject.Singleton
 import uk.gov.hmrc.exports.movements.models.XmlTags
-import uk.gov.hmrc.exports.movements.models.notifications.{EntryStatus, GoodsItem, UcrBlock}
+import uk.gov.hmrc.exports.movements.models.notifications.standard.{EntryStatus, GoodsItem, UcrBlock}
 
 import scala.xml.Node
 

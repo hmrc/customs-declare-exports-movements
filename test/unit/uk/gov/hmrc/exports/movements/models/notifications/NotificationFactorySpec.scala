@@ -21,7 +21,8 @@ import org.mockito.Mockito.{verify, when}
 import org.scalatest.{MustMatchers, WordSpec}
 import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.exports.movements.models.notifications.parsers.{ResponseParser, ResponseParserContext}
-import uk.gov.hmrc.exports.movements.models.notifications.{Notification, NotificationData, NotificationFactory, StandardNotificationData}
+import uk.gov.hmrc.exports.movements.models.notifications.standard.StandardNotificationData
+import uk.gov.hmrc.exports.movements.models.notifications.{Notification, NotificationData, NotificationFactory}
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder
 import utils.testdata.CommonTestData.conversationId
 import utils.testdata.notifications.NotificationTestData._

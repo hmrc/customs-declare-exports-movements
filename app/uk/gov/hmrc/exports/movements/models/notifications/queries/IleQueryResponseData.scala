@@ -19,7 +19,7 @@ package uk.gov.hmrc.exports.movements.models.notifications.queries
 import play.api.libs.json.Json
 import uk.gov.hmrc.exports.movements.models.notifications.{NotificationData, NotificationType}
 
-case class IleQueryResponseData(
+final case class IleQueryResponseData(
   queriedDucr: Option[DucrInfo] = None,
   queriedMucr: Option[MucrInfo] = None,
   parentMucr: Option[MucrInfo] = None,

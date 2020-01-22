@@ -25,6 +25,7 @@ import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation
 import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationType._
 import uk.gov.hmrc.exports.movements.models.movements.MovementType.{Arrival, Departure, RetrospectiveArrival}
 import uk.gov.hmrc.exports.movements.models.movements.{Movement, Transport}
+import uk.gov.hmrc.exports.movements.models.notifications.standard
 import uk.gov.hmrc.wco.dec.inventorylinking.common.{TransportDetails, UcrBlock}
 import uk.gov.hmrc.wco.dec.inventorylinking.movement.request.InventoryLinkingMovementRequest
 
@@ -102,7 +103,7 @@ class ILEMapper @Inject()(clock: Clock) {
     case ASSOCIATE_MUCR | DISASSOCIATE_MUCR => "M"
   }
 
-  def generateIleQuery(ucrBlock: uk.gov.hmrc.exports.movements.models.notifications.UcrBlock): NodeSeq =
+  def generateIleQuery(ucrBlock: standard.UcrBlock): NodeSeq =
     scala.xml.Utility.trim {
       <inventoryLinkingQueryRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
         <queryUCR>

@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.exports.movements.models.notifications
+package uk.gov.hmrc.exports.movements.models.notifications.standard
 
 import play.api.libs.json.Json
 
-final case class GoodsItem(commodityCode: Option[Int] = None, totalPackages: Option[Int] = None, totalNetMass: Option[BigDecimal] = None)
+final case class EntryStatus(ics: Option[String] = None, roe: Option[String] = None, soe: Option[String] = None)
 
-object GoodsItem {
-  implicit val format = Json.format[GoodsItem]
+object EntryStatus {
+  implicit val format = Json.format[EntryStatus]
 }

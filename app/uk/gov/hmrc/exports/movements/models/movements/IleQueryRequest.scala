@@ -19,7 +19,7 @@ package uk.gov.hmrc.exports.movements.models.movements
 import play.api.libs.json.Json
 import uk.gov.hmrc.exports.movements.controllers.util.JSONResponses
 import uk.gov.hmrc.exports.movements.models.UserIdentification
-import uk.gov.hmrc.exports.movements.models.notifications.UcrBlock
+import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
 
 case class IleQueryRequest(override val eori: String, override val providerId: Option[String], ucrBlock: UcrBlock) extends UserIdentification
 

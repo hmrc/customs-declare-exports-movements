@@ -16,10 +16,9 @@
 
 package uk.gov.hmrc.exports.movements.models.notifications
 
-import play.api.libs.json.Json
+sealed trait NotificationType
 
-final case class UcrBlock(ucr: String, ucrType: String)
-
-object UcrBlock {
-  implicit val format = Json.format[UcrBlock]
+object NotificationType {
+  case object StandardResponse extends NotificationType
+  case object QueryResponse extends NotificationType
 }

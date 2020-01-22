@@ -16,8 +16,8 @@
 
 package utils.testdata
 
-import uk.gov.hmrc.exports.movements.models.notifications.UcrBlock
 import uk.gov.hmrc.exports.movements.models.notifications.queries.{IleQueryResponse, IleQueryResponseData}
+import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
 import utils.testdata.CommonTestData.{conversationId, conversationId_2}
 
 import scala.xml.Elem

@@ -19,7 +19,8 @@ package component.uk.gov.hmrc.exports.movements
 import play.api.libs.json.Json
 import play.api.test.Helpers._
 import uk.gov.hmrc.exports.movements.controllers.routes
-import uk.gov.hmrc.exports.movements.models.notifications.{Entry, Notification, StandardNotificationData, UcrBlock}
+import uk.gov.hmrc.exports.movements.models.notifications.Notification
+import uk.gov.hmrc.exports.movements.models.notifications.standard.{Entry, StandardNotificationData, UcrBlock}
 import uk.gov.hmrc.exports.movements.models.submissions.{ActionType, Submission}
 
 /*

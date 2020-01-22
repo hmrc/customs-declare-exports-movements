@@ -14,19 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.exports.movements.models.notifications
+package uk.gov.hmrc.exports.movements.models.notifications.standard
 
-import play.api.libs.json.Format
-import uk.gov.hmrc.exports.movements.models.notifications.standard.StandardNotificationData
-import uk.gov.hmrc.play.json.Union
+import play.api.libs.json.Json
 
-trait NotificationData {
-  val typ: NotificationType
-}
+final case class GoodsItem(commodityCode: Option[Int] = None, totalPackages: Option[Int] = None, totalNetMass: Option[BigDecimal] = None)
 
-object NotificationData {
-  implicit val format: Format[NotificationData] = Union
-    .from[NotificationData]("typ")
-    .and[StandardNotificationData](NotificationType.StandardResponse.toString)
-    .format
+object GoodsItem {
+  implicit val format = Json.format[GoodsItem]
 }
