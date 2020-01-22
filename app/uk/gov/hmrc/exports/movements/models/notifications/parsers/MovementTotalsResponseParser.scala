@@ -22,7 +22,7 @@ import uk.gov.hmrc.exports.movements.models.notifications._
 
 import scala.xml.NodeSeq
 
-class MovementTotalsResponseParser @Inject()(commonTypesParser: CommonTypesParser) extends ResponseParser[NotificationData] {
+class MovementTotalsResponseParser @Inject()(commonTypesParser: CommonTypesParser) extends ResponseParser[StandardNotificationData] {
 
   override def parse(responseXml: NodeSeq): StandardNotificationData = StandardNotificationData(
     messageCode = StringOption((responseXml \ XmlTags.messageCode).text),
