@@ -21,7 +21,7 @@ import uk.gov.hmrc.exports.movements.models.notifications.parsers._
 import utils.testdata.notifications.NotificationTestData._
 import utils.testdata.notifications._
 
-class ResponseParserFactorySpec extends WordSpec with MustMatchers {
+class ResponseParserProviderSpec extends WordSpec with MustMatchers {
 
   private trait Test {
     val errorValidator = new ErrorValidator
@@ -30,7 +30,7 @@ class ResponseParserFactorySpec extends WordSpec with MustMatchers {
     val movementTotalsResponseParser = new MovementTotalsResponseParser(commonTypesParser)
     val controlResponseParser = new ControlResponseParser(errorValidator)
     val parserFactory =
-      new ResponseParserFactory(movementResponseParser, movementTotalsResponseParser, controlResponseParser)
+      new ResponseParserProvider(movementResponseParser, movementTotalsResponseParser, controlResponseParser)
   }
 
   "ResponseParserFactory on buildResponseParser" when {
@@ -39,7 +39,7 @@ class ResponseParserFactorySpec extends WordSpec with MustMatchers {
       "return MovementResponseParser" in new Test {
         val responseXml = ExampleInventoryLinkingMovementResponse.Correct.AllElements.asXml
 
-        val parser = parserFactory.buildResponseParser(responseXml)
+        val parser = parserFactory.provideResponseParser(responseXml)
 
         parser mustBe a[MovementResponseParser]
       }
@@ -49,7 +49,7 @@ class ResponseParserFactorySpec extends WordSpec with MustMatchers {
       "return MovementTotalsResponseParser" in new Test {
         val responseXml = ExampleInventoryLinkingMovementTotalsResponse.Correct.AllElements.asXml
 
-        val parser = parserFactory.buildResponseParser(responseXml)
+        val parser = parserFactory.provideResponseParser(responseXml)
 
         parser mustBe a[MovementTotalsResponseParser]
       }
@@ -59,7 +59,7 @@ class ResponseParserFactorySpec extends WordSpec with MustMatchers {
       "return ControlResponseParser" in new Test {
         val responseXml = ExampleInventoryLinkingControlResponse.Correct.Rejected.asXml
 
-        val parser = parserFactory.buildResponseParser(responseXml)
+        val parser = parserFactory.provideResponseParser(responseXml)
 
         parser mustBe a[ControlResponseParser]
       }
@@ -69,7 +69,7 @@ class ResponseParserFactorySpec extends WordSpec with MustMatchers {
       "throw an IllegalArgumentException" in new Test {
         val responseXml = unknownFormatResponseXML
         val exc = intercept[IllegalArgumentException] {
-          parserFactory.buildResponseParser(responseXml)
+          parserFactory.provideResponseParser(responseXml)
         }
 
         exc.getMessage must include("Unknown Inventory Linking Response: UnknownFormat")
@@ -84,7 +84,7 @@ class ResponseParserFactorySpec extends WordSpec with MustMatchers {
       "return ResponseParserContext with MovementResponseParser" in new Test {
         val responseXml = ExampleInventoryLinkingMovementResponse.Correct.AllElements.asXml
 
-        val parserContext = parserFactory.buildResponseParserContext(responseXml)
+        val parserContext = parserFactory.provideResponseParserContext(responseXml)
 
         parserContext.responseType must equal("inventoryLinkingMovementResponse")
         parserContext.parser mustBe a[MovementResponseParser]
@@ -95,7 +95,7 @@ class ResponseParserFactorySpec extends WordSpec with MustMatchers {
       "return ResponseParserContext with MovementTotalsResponseParser" in new Test {
         val responseXml = ExampleInventoryLinkingMovementTotalsResponse.Correct.AllElements.asXml
 
-        val parserContext = parserFactory.buildResponseParserContext(responseXml)
+        val parserContext = parserFactory.provideResponseParserContext(responseXml)
 
         parserContext.responseType must equal("inventoryLinkingMovementTotalsResponse")
         parserContext.parser mustBe a[MovementTotalsResponseParser]
@@ -106,7 +106,7 @@ class ResponseParserFactorySpec extends WordSpec with MustMatchers {
       "return ResponseParserContext with ControlResponseParser" in new Test {
         val responseXml = ExampleInventoryLinkingControlResponse.Correct.Rejected.asXml
 
-        val parserContext = parserFactory.buildResponseParserContext(responseXml)
+        val parserContext = parserFactory.provideResponseParserContext(responseXml)
 
         parserContext.responseType must equal("inventoryLinkingControlResponse")
         parserContext.parser mustBe a[ControlResponseParser]
@@ -117,7 +117,7 @@ class ResponseParserFactorySpec extends WordSpec with MustMatchers {
       "throw an IllegalArgumentException" in new Test {
         val responseXml = unknownFormatResponseXML
         val exc = intercept[IllegalArgumentException] {
-          parserFactory.buildResponseParserContext(responseXml)
+          parserFactory.provideResponseParserContext(responseXml)
         }
 
         exc.getMessage must include("Unknown Inventory Linking Response: UnknownFormat")

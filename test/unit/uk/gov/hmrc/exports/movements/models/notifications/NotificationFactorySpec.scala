@@ -39,9 +39,9 @@ class NotificationFactorySpec extends WordSpec with MustMatchers with MockitoSug
 
     when(responseValidatorMock.validate(any[NodeSeq])).thenReturn(Try((): Unit))
     val responseParserMock: ResponseParser[NotificationData] = UnitTestMockBuilder.buildResponseParserMock(StandardNotificationData())
-    when(responseParserFactoryMock.buildResponseParser(any())).thenReturn(responseParserMock)
+    when(responseParserFactoryMock.provideResponseParser(any())).thenReturn(responseParserMock)
     val exampleResponseParserContext = ResponseParserContext("ResponseType", responseParserMock)
-    when(responseParserFactoryMock.buildResponseParserContext(any())).thenReturn(exampleResponseParserContext)
+    when(responseParserFactoryMock.provideResponseParserContext(any())).thenReturn(exampleResponseParserContext)
 
     val notificationFactory = new NotificationFactory(responseValidatorMock, responseParserFactoryMock)
   }
@@ -54,7 +54,7 @@ class NotificationFactorySpec extends WordSpec with MustMatchers with MockitoSug
         val responseXml = ExampleInventoryLinkingControlResponse.Correct.Rejected.asXml
         notificationFactory.buildMovementNotification(conversationId, responseXml)
 
-        verify(responseParserFactoryMock).buildResponseParserContext(meq(responseXml))
+        verify(responseParserFactoryMock).provideResponseParserContext(meq(responseXml))
       }
 
       "call ResponseValidator, passing response XML provided" in new Test {
