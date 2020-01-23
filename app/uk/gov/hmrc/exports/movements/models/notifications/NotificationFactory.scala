@@ -20,17 +20,17 @@ import javax.inject.{Inject, Singleton}
 import org.slf4j.MDC
 import play.api.Logger
 import uk.gov.hmrc.exports.movements.models.notifications
-import uk.gov.hmrc.exports.movements.models.notifications.parsers.ResponseParserFactory
+import uk.gov.hmrc.exports.movements.models.notifications.parsers.ResponseParserProvider
 
 import scala.xml.{NodeSeq, SAXParseException, Utility}
 
 @Singleton
-class NotificationFactory @Inject()(responseValidator: ResponseValidator, responseParserFactory: ResponseParserFactory) {
+class NotificationFactory @Inject()(responseValidator: ResponseValidator, responseParserFactory: ResponseParserProvider) {
 
   private val logger = Logger(this.getClass)
 
   def buildMovementNotification(conversationId: String, xml: NodeSeq): Notification = {
-    val context = responseParserFactory.buildResponseParserContext(xml)
+    val context = responseParserFactory.provideResponseParserContext(xml)
     checkResponseCompliance(conversationId, xml)
 
     val notificationData = context.parser.parse(xml)

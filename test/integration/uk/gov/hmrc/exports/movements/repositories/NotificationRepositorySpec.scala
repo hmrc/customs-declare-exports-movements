@@ -60,13 +60,26 @@ class NotificationRepositorySpec
   "NotificationRepository on insert" when {
 
     "the operation was successful" should {
-      "result in a success" in {
-        repo.insert(notification_1).futureValue.ok must be(true)
 
-        val notificationInDB = repo.findByConversationIds(Seq(conversationId)).futureValue
+      "result in a success" when {
 
-        notificationInDB.length must equal(1)
-        notificationInDB.head must equal(notification_1)
+        "provided with StandardNotification" in {
+          repo.insert(notification_1).futureValue.ok must be(true)
+
+          val notificationInDB = repo.findAll().futureValue
+
+          notificationInDB.length must equal(1)
+          notificationInDB.head must equal(notification_1)
+        }
+
+        "provided with IleQueryResponseNotification" in {
+          repo.insert(notificationIleQueryResponse_1).futureValue.ok must be(true)
+
+          val notificationInDB = repo.findAll().futureValue
+
+          notificationInDB.length must equal(1)
+          notificationInDB.head must equal(notificationIleQueryResponse_1)
+        }
       }
     }
 
@@ -80,11 +93,27 @@ class NotificationRepositorySpec
         repo.insert(notification_1).futureValue.ok must be(true)
         repo.insert(notification_1).futureValue.ok must be(true)
 
-        val notificationsInDB = repo.findByConversationIds(Seq(conversationId)).futureValue
+        val notificationsInDB = repo.findAll().futureValue
 
         notificationsInDB.length must equal(2)
         notificationsInDB.head must equal(notification_1)
         notificationsInDB(1) must equal(notification_1)
+      }
+    }
+
+    "trying to insert different Notifications but with the same Conversation ID" should {
+      "result in having all Notifications persisted" in {
+        val notificationsToInsert = Seq(notification_1, notification_2.copy(conversationId = conversationId), notificationIleQueryResponse_1)
+        notificationsToInsert.foreach { notification =>
+          repo.insert(notification).futureValue.ok must be(true)
+        }
+
+        val notificationsInDB = repo.findAll().futureValue
+
+        notificationsInDB.length must equal(3)
+        notificationsToInsert.foreach { notification =>
+          notificationsInDB must contain(notification)
+        }
       }
     }
   }

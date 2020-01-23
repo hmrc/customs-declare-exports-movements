@@ -19,8 +19,10 @@ package component.uk.gov.hmrc.exports.movements
 import play.api.libs.json.Json
 import play.api.test.Helpers._
 import uk.gov.hmrc.exports.movements.controllers.routes
+import uk.gov.hmrc.exports.movements.models.movements.Transport
 import uk.gov.hmrc.exports.movements.models.notifications.Notification
-import uk.gov.hmrc.exports.movements.models.notifications.standard.{Entry, StandardNotificationData, UcrBlock}
+import uk.gov.hmrc.exports.movements.models.notifications.queries.{DucrInfo, GoodsItemInfo, IleQueryResponseData, MovementInfo}
+import uk.gov.hmrc.exports.movements.models.notifications.standard.{Entry, EntryStatus, StandardNotificationData, UcrBlock}
 import uk.gov.hmrc.exports.movements.models.submissions.{ActionType, Submission}
 
 /*
@@ -70,45 +72,109 @@ class NotificationSpec extends ComponentSpec {
   )
 
   "POST" should {
-    "return 202" in {
-      // Given
-      givenAnExisting(
-        Submission(eori = "eori", providerId = None, conversationId = "conversation-id", ucrBlocks = Seq.empty, actionType = ActionType.Arrival)
-      )
+    "return 202" when {
 
-      // When
-      val payload =
-        <inventoryLinkingControlResponse xmlns="http://gov.uk/customs/inventoryLinking/v1" xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1">
-        <messageCode>CST</messageCode>
-        <actionCode>3</actionCode>
-        <ucr>
-          <ucr>UCR</ucr>
-          <ucrType>M</ucrType>
-        </ucr>
-        <movementReference>Reference</movementReference>
-        <error>
-          <errorCode>22</errorCode>
-        </error>
-        <error>
-          <errorCode>Description</errorCode>
-        </error>
-      </inventoryLinkingControlResponse>
-      val response = post(routes.NotificationController.saveNotification(), payload, "X-Conversation-Id" -> "conversation-id")
+      "payload contains ControlResponse" in {
+        // Given
+        val payload =
+          <inventoryLinkingControlResponse
+          xmlns="http://gov.uk/customs/inventoryLinking/v1"
+          xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1">
+            <messageCode>CST</messageCode>
+            <actionCode>3</actionCode>
+            <ucr>
+              <ucr>UCR</ucr>
+              <ucrType>M</ucrType>
+            </ucr>
+            <movementReference>Reference</movementReference>
+            <error>
+              <errorCode>22</errorCode>
+            </error>
+            <error>
+              <errorCode>Description</errorCode>
+            </error>
+          </inventoryLinkingControlResponse>
 
-      // Then
-      status(response) mustBe ACCEPTED
+        // When
+        val response = post(routes.NotificationController.saveNotification(), payload, "X-Conversation-Id" -> "conversation-id")
 
-      val notifications = theNotificationsFor("conversation-id")
-      notifications.size mustBe 1
-      notifications.head.conversationId mustBe "conversation-id"
-      notifications.head.responseType mustBe "inventoryLinkingControlResponse"
-      notifications.head.data mustBe StandardNotificationData(
-        messageCode = Some("CST"),
-        entries = Seq(Entry(ucrBlock = Some(UcrBlock("UCR", "M")))),
-        movementReference = Some("Reference"),
-        actionCode = Some("3"),
-        errorCodes = Seq("22")
-      )
+        // Then
+        status(response) mustBe ACCEPTED
+
+        val notifications = theNotificationsFor("conversation-id")
+        notifications.size mustBe 1
+        notifications.head.conversationId mustBe "conversation-id"
+        notifications.head.responseType mustBe "inventoryLinkingControlResponse"
+        notifications.head.data mustBe StandardNotificationData(
+          messageCode = Some("CST"),
+          entries = Seq(Entry(ucrBlock = Some(UcrBlock("UCR", "M")))),
+          movementReference = Some("Reference"),
+          actionCode = Some("3"),
+          errorCodes = Seq("22")
+        )
+      }
+
+      "payload contains QueryResponse" in {
+        // Given
+        val payload =
+          <inventoryLinkingQueryResponse
+          xmlns="http://gov.uk/customs/inventoryLinking/v1"
+          xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1">
+            <queriedDUCR>
+              <UCR>UCR</UCR>
+              <declarationID>DeclarationID</declarationID>
+              <entryStatus>
+                <ics>1</ics>
+                <roe>2</roe>
+                <soe>3</soe>
+              </entryStatus>
+              <movement>
+                <messageCode>EDL</messageCode>
+                <goodsLocation>GoodsLocation</goodsLocation>
+                <goodsDepartureDateTime>2019-12-23T11:40:00.000Z</goodsDepartureDateTime>
+                <movementReference>MovementReference</movementReference>
+                <transportDetails>
+                  <transportID>TransportID</transportID>
+                  <transportMode>1</transportMode>
+                  <transportNationality>GB</transportNationality>
+                </transportDetails>
+              </movement>
+              <goodsItem>
+                <totalPackages>10</totalPackages>
+              </goodsItem>
+            </queriedDUCR>
+          </inventoryLinkingQueryResponse>
+
+        // When
+        val response = post(routes.NotificationController.saveNotification(), payload, "X-Conversation-Id" -> "conversation-id")
+
+        // Then
+        status(response) mustBe ACCEPTED
+
+        val notifications = theNotificationsFor("conversation-id")
+        notifications.size mustBe 1
+        notifications.head.conversationId mustBe "conversation-id"
+        notifications.head.responseType mustBe "inventoryLinkingQueryResponse"
+        notifications.head.data mustBe IleQueryResponseData(
+          queriedDucr = Some(
+            DucrInfo(
+              ucr = "UCR",
+              declarationId = "DeclarationID",
+              entryStatus = Some(EntryStatus(ics = Some("1"), roe = Some("2"), soe = Some("3"))),
+              movements = Seq(
+                MovementInfo(
+                  messageCode = "EDL",
+                  goodsLocation = "GoodsLocation",
+                  goodsDepartureDateTime = Some("2019-12-23T11:40:00.000Z"),
+                  movementReference = Some("MovementReference"),
+                  transportDetails = Some(Transport(transportId = Some("TransportID"), modeOfTransport = Some("1"), nationality = Some("GB")))
+                )
+              ),
+              goodsItem = Seq(GoodsItemInfo(totalPackages = Some(10)))
+            )
+          )
+        )
+      }
     }
   }
 
