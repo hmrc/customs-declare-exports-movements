@@ -17,6 +17,7 @@
 package uk.gov.hmrc.exports.movements.models.notifications
 
 import play.api.libs.json.Format
+import uk.gov.hmrc.exports.movements.models.notifications.queries.IleQueryResponseData
 import uk.gov.hmrc.exports.movements.models.notifications.standard.StandardNotificationData
 import uk.gov.hmrc.play.json.Union
 
@@ -28,5 +29,6 @@ object NotificationData {
   implicit val format: Format[NotificationData] = Union
     .from[NotificationData]("typ")
     .and[StandardNotificationData](NotificationType.StandardResponse.toString)
+    .and[IleQueryResponseData](NotificationType.QueryResponse.toString)
     .format
 }
