@@ -16,16 +16,16 @@
 
 package utils.testdata.notifications
 
-import uk.gov.hmrc.exports.movements.models.notifications.{Entry, NotificationData, UcrBlock}
+import uk.gov.hmrc.exports.movements.models.notifications.standard.{Entry, StandardNotificationData, UcrBlock}
 import utils.testdata.CommonTestData._
-import utils.testdata.notifications.ExampleXmlAndDomainModelPair.ExampleRegularResponse
+import utils.testdata.notifications.ExampleXmlAndDomainModelPair.ExampleStandardResponse
 import utils.testdata.notifications.NotificationTestData._
 
 object ExampleInventoryLinkingControlResponse {
 
   object Correct {
 
-    lazy val Acknowledged = ExampleRegularResponse(asXml = <inventoryLinkingControlResponse
+    lazy val Acknowledged = ExampleStandardResponse(asXml = <inventoryLinkingControlResponse
         xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
         xmlns="http://gov.uk/customs/inventoryLinking/v1">
           <messageCode>{MessageCodes.CST}</messageCode>
@@ -37,14 +37,14 @@ object ExampleInventoryLinkingControlResponse {
           <movementReference>{movementReference}</movementReference>
         </inventoryLinkingControlResponse>)
 
-    lazy val AcknowledgedMandatoryElementsOnly = ExampleRegularResponse(asXml = <inventoryLinkingControlResponse
+    lazy val AcknowledgedMandatoryElementsOnly = ExampleStandardResponse(asXml = <inventoryLinkingControlResponse
         xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
         xmlns="http://gov.uk/customs/inventoryLinking/v1">
           <messageCode>{MessageCodes.CST}</messageCode>
           <actionCode>{actionCode_acknowledgedAndProcessed}</actionCode>
         </inventoryLinkingControlResponse>)
 
-    lazy val Rejected = ExampleRegularResponse(
+    lazy val Rejected = ExampleStandardResponse(
       asXml = <inventoryLinkingControlResponse
         xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
         xmlns="http://gov.uk/customs/inventoryLinking/v1">
@@ -62,7 +62,7 @@ object ExampleInventoryLinkingControlResponse {
             <errorCode>{errorCodeDescriptive}</errorCode>
           </error>
         </inventoryLinkingControlResponse>,
-      asDomainModel = NotificationData(
+      asDomainModel = StandardNotificationData(
         messageCode = Some(MessageCodes.CST),
         actionCode = Some(actionCode_rejected),
         movementReference = Some(movementReference),
@@ -71,7 +71,7 @@ object ExampleInventoryLinkingControlResponse {
       )
     )
 
-    lazy val RejectedSingleError = ExampleRegularResponse(asXml = <inventoryLinkingControlResponse
+    lazy val RejectedSingleError = ExampleStandardResponse(asXml = <inventoryLinkingControlResponse
         xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
         xmlns="http://gov.uk/customs/inventoryLinking/v1">
           <messageCode>{MessageCodes.CST}</messageCode>
@@ -86,7 +86,7 @@ object ExampleInventoryLinkingControlResponse {
           </error>
         </inventoryLinkingControlResponse>)
 
-    lazy val RejectedDescriptiveError = ExampleRegularResponse(asXml = <inventoryLinkingControlResponse
+    lazy val RejectedDescriptiveError = ExampleStandardResponse(asXml = <inventoryLinkingControlResponse
         xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
         xmlns="http://gov.uk/customs/inventoryLinking/v1">
           <messageCode>{MessageCodes.CST}</messageCode>
@@ -101,7 +101,7 @@ object ExampleInventoryLinkingControlResponse {
           </error>
         </inventoryLinkingControlResponse>)
 
-    lazy val RejectedMultipleErrors = ExampleRegularResponse(
+    lazy val RejectedMultipleErrors = ExampleStandardResponse(
       asXml = <inventoryLinkingControlResponse
         xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
         xmlns="http://gov.uk/customs/inventoryLinking/v1">
@@ -125,7 +125,7 @@ object ExampleInventoryLinkingControlResponse {
             <errorCode>{errorCodeDescriptive}</errorCode>
           </error>
         </inventoryLinkingControlResponse>,
-      asDomainModel = NotificationData(
+      asDomainModel = StandardNotificationData(
         messageCode = Some(MessageCodes.CST),
         actionCode = Some(actionCode_rejected),
         movementReference = Some(movementReference),
@@ -138,26 +138,26 @@ object ExampleInventoryLinkingControlResponse {
 
   object Incorrect {
 
-    lazy val NoMessageCode = ExampleRegularResponse(asXml = <inventoryLinkingControlResponse
+    lazy val NoMessageCode = ExampleStandardResponse(asXml = <inventoryLinkingControlResponse
       xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
       xmlns="http://gov.uk/customs/inventoryLinking/v1">
         <actionCode>{actionCode_acknowledgedAndProcessed}</actionCode>
       </inventoryLinkingControlResponse>)
 
-    lazy val NoActionCode = ExampleRegularResponse(asXml = <inventoryLinkingControlResponse
+    lazy val NoActionCode = ExampleStandardResponse(asXml = <inventoryLinkingControlResponse
       xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
       xmlns="http://gov.uk/customs/inventoryLinking/v1">
         <messageCode>{MessageCodes.CST}</messageCode>
       </inventoryLinkingControlResponse>)
 
-    lazy val WrongActionCode = ExampleRegularResponse(asXml = <inventoryLinkingControlResponse
+    lazy val WrongActionCode = ExampleStandardResponse(asXml = <inventoryLinkingControlResponse
       xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
       xmlns="http://gov.uk/customs/inventoryLinking/v1">
         <messageCode>{MessageCodes.CST}</messageCode>
         <actionCode>12</actionCode>
       </inventoryLinkingControlResponse>)
 
-    lazy val DoubleUcrBlock = ExampleRegularResponse(asXml = <inventoryLinkingControlResponse
+    lazy val DoubleUcrBlock = ExampleStandardResponse(asXml = <inventoryLinkingControlResponse
       xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
       xmlns="http://gov.uk/customs/inventoryLinking/v1">
         <messageCode>{MessageCodes.CST}</messageCode>
@@ -172,7 +172,7 @@ object ExampleInventoryLinkingControlResponse {
         </ucr>
       </inventoryLinkingControlResponse>)
 
-    lazy val DoubleMovementReference = ExampleRegularResponse(asXml = <inventoryLinkingControlResponse
+    lazy val DoubleMovementReference = ExampleStandardResponse(asXml = <inventoryLinkingControlResponse
       xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
       xmlns="http://gov.uk/customs/inventoryLinking/v1">
         <messageCode>{MessageCodes.CST}</messageCode>
@@ -181,7 +181,7 @@ object ExampleInventoryLinkingControlResponse {
         <movementReference>{movementReference}</movementReference>
       </inventoryLinkingControlResponse>)
 
-    lazy val MultipleErrorCodesInsideErrorNode = ExampleRegularResponse(asXml = <inventoryLinkingControlResponse
+    lazy val MultipleErrorCodesInsideErrorNode = ExampleStandardResponse(asXml = <inventoryLinkingControlResponse
       xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
       xmlns="http://gov.uk/customs/inventoryLinking/v1">
         <messageCode>{MessageCodes.CST}</messageCode>

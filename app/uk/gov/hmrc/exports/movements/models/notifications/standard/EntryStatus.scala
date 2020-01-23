@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.exports.movements.models.notifications.queries
-
-import java.time.Instant
+package uk.gov.hmrc.exports.movements.models.notifications.standard
 
 import play.api.libs.json.Json
 
-case class IleQueryResponse(timestampReceived: Instant = Instant.now(), conversationId: String, payload: String, data: IleQueryResponseData)
+final case class EntryStatus(ics: Option[String] = None, roe: Option[String] = None, soe: Option[String] = None)
 
-object IleQueryResponse {
-  implicit val format = Json.format[IleQueryResponse]
+object EntryStatus {
+  implicit val format = Json.format[EntryStatus]
 }

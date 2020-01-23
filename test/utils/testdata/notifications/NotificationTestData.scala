@@ -20,6 +20,7 @@ import play.api.http.{ContentTypes, HeaderNames}
 import play.api.mvc.Codec
 import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames
 import uk.gov.hmrc.exports.movements.models.notifications._
+import uk.gov.hmrc.exports.movements.models.notifications.standard.StandardNotificationData
 import utils.testdata.CommonTestData._
 import utils.testdata.TestDataHelper
 
@@ -107,18 +108,11 @@ object NotificationTestData {
   val payload_1 = TestDataHelper.randomAlphanumericString(payloadExemplaryLength)
   val payload_2 = TestDataHelper.randomAlphanumericString(payloadExemplaryLength)
 
+  val standardNotificationDataArrival = StandardNotificationData(messageCode = Some(MessageCodes.EAL))
+  val standardNotificationDataDeparture = StandardNotificationData(messageCode = Some(MessageCodes.EDL))
+
   val notification_1: Notification =
-    Notification(
-      conversationId = conversationId,
-      responseType = "TestResponse_1",
-      payload = payload_1,
-      data = NotificationData(messageCode = Some(MessageCodes.EAL))
-    )
+    Notification(conversationId = conversationId, responseType = "TestResponse_1", payload = payload_1, data = standardNotificationDataArrival)
   val notification_2: Notification =
-    Notification(
-      conversationId = conversationId_2,
-      responseType = "TestResponse_2",
-      payload = payload_2,
-      data = NotificationData(messageCode = Some(MessageCodes.EDL))
-    )
+    Notification(conversationId = conversationId_2, responseType = "TestResponse_2", payload = payload_2, data = standardNotificationDataDeparture)
 }

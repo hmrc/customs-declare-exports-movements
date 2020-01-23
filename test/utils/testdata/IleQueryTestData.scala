@@ -16,30 +16,23 @@
 
 package utils.testdata
 
-import uk.gov.hmrc.exports.movements.models.notifications.UcrBlock
-import uk.gov.hmrc.exports.movements.models.submissions.IleQuerySubmission
-import utils.testdata.CommonTestData._
-import utils.testdata.IleQueryResponseTestData._
+import uk.gov.hmrc.exports.movements.models.notifications.Notification
+import uk.gov.hmrc.exports.movements.models.notifications.queries.IleQueryResponseData
+import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
+import utils.testdata.CommonTestData.{conversationId, conversationId_2}
 
 import scala.xml.Elem
 
-object IleQuerySubmissionTestData {
+object IleQueryTestData {
 
-  val ileQuerySubmission_1 = IleQuerySubmission(
-    eori = validEori,
-    providerId = Some(validProviderId),
-    conversationId = conversationId,
-    ucrBlock = UcrBlock(ucr = ucr, ucrType = "D"),
-    responses = Seq(ileQueryResponse_1)
-  )
+  private val payloadExemplaryLength = 10
+  private val payload_1 = TestDataHelper.randomAlphanumericString(payloadExemplaryLength)
+  private val payload_2 = TestDataHelper.randomAlphanumericString(payloadExemplaryLength)
 
-  val ileQuerySubmission_2 = IleQuerySubmission(
-    eori = validEori_2,
-    providerId = Some(validProviderId_2),
-    conversationId = conversationId_2,
-    ucrBlock = UcrBlock(ucr = ucr_2, ucrType = "D"),
-    responses = Seq(ileQueryResponse_2)
-  )
+  val ileQueryResponse_1: Notification =
+    Notification(conversationId = conversationId, responseType = "QueryTestResponse_1", payload = payload_1, data = IleQueryResponseData())
+  val ileQueryResponse_2: Notification =
+    Notification(conversationId = conversationId_2, responseType = "QueryTestResponse_2", payload = payload_2, data = IleQueryResponseData())
 
   def ileQueryXml(ucrBlock: UcrBlock): Elem =
     <inventoryLinkingQueryRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">

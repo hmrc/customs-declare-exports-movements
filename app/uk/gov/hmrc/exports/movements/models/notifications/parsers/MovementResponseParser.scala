@@ -18,14 +18,14 @@ package uk.gov.hmrc.exports.movements.models.notifications.parsers
 
 import javax.inject.Inject
 import uk.gov.hmrc.exports.movements.models.XmlTags
-import uk.gov.hmrc.exports.movements.models.notifications._
+import uk.gov.hmrc.exports.movements.models.notifications.standard.{Entry, StandardNotificationData}
 
 import scala.xml.NodeSeq
 
-class MovementResponseParser @Inject()(commonTypesParser: CommonTypesParser) extends ResponseParser[NotificationData] {
+class MovementResponseParser @Inject()(commonTypesParser: CommonTypesParser) extends ResponseParser[StandardNotificationData] {
 
-  override def parse(responseXml: NodeSeq): NotificationData =
-    NotificationData(
+  override def parse(responseXml: NodeSeq): StandardNotificationData =
+    StandardNotificationData(
       messageCode = StringOption((responseXml \ XmlTags.messageCode).text),
       crcCode = StringOption((responseXml \ XmlTags.crc).text),
       entries = buildEntries(responseXml),

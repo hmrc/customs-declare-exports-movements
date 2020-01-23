@@ -16,25 +16,17 @@
 
 package uk.gov.hmrc.exports.movements.models.notifications
 
-import play.api.libs.json.Json
+import play.api.libs.json.Format
+import uk.gov.hmrc.exports.movements.models.notifications.standard.StandardNotificationData
+import uk.gov.hmrc.play.json.Union
 
-final case class NotificationData(
-  messageCode: Option[String] = None,
-  crcCode: Option[String] = None,
-  declarationCount: Option[Int] = None,
-  entries: Seq[Entry] = Seq.empty,
-  goodsArrivalDateTime: Option[String] = None,
-  goodsLocation: Option[String] = None,
-  masterRoe: Option[String] = None,
-  masterSoe: Option[String] = None,
-  masterUcr: Option[String] = None,
-  movementReference: Option[String] = None,
-  actionCode: Option[String] = None,
-  errorCodes: Seq[String] = Seq.empty
-)
+trait NotificationData {
+  val typ: NotificationType
+}
 
 object NotificationData {
-  implicit val format = Json.format[NotificationData]
-
-  def empty = NotificationData()
+  implicit val format: Format[NotificationData] = Union
+    .from[NotificationData]("typ")
+    .and[StandardNotificationData](NotificationType.StandardResponse.toString)
+    .format
 }

@@ -20,7 +20,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.verify
 import play.api.libs.json.Json
 import play.api.test.Helpers._
 import uk.gov.hmrc.exports.movements.controllers.routes
-import uk.gov.hmrc.exports.movements.models.notifications.UcrBlock
+import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
 import uk.gov.hmrc.exports.movements.models.submissions.{ActionType, Submission}
 
 /*

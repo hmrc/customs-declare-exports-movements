@@ -19,7 +19,7 @@ package unit.uk.gov.hmrc.exports.movements.services
 import java.time.{Clock, Instant, ZoneOffset}
 
 import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation.AssociateDucrRequest
-import uk.gov.hmrc.exports.movements.models.notifications.UcrBlock
+import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
 import uk.gov.hmrc.exports.movements.services.ILEMapper
 import unit.uk.gov.hmrc.exports.movements.base.UnitSpec
 import utils.testdata.CommonTestData._

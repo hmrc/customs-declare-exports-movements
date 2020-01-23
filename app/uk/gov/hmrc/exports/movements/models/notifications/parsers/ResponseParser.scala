@@ -18,6 +18,6 @@ package uk.gov.hmrc.exports.movements.models.notifications.parsers
 
 import scala.xml.NodeSeq
 
-trait ResponseParser[T] {
+trait ResponseParser[+T] {
   def parse(responseXml: NodeSeq): T
 }

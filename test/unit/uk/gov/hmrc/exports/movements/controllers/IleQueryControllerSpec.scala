@@ -21,11 +21,11 @@ import org.mockito.Mockito.{reset, when}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{BeforeAndAfterEach, MustMatchers, WordSpec}
 import org.scalatestplus.mockito.MockitoSugar
-import play.api.test.Helpers._
 import play.api.test.FakeRequest
+import play.api.test.Helpers._
 import uk.gov.hmrc.exports.movements.controllers.IleQueryController
 import uk.gov.hmrc.exports.movements.models.movements.IleQueryRequest
-import uk.gov.hmrc.exports.movements.models.notifications.UcrBlock
+import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
 import uk.gov.hmrc.exports.movements.services.IleQueryService
 import utils.FakeRequestCSRFSupport._
 import utils.testdata.CommonTestData.JsonContentTypeHeader

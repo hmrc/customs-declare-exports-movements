@@ -17,7 +17,7 @@
 package uk.gov.hmrc.exports.movements.models.notifications.queries
 
 import play.api.libs.json.Json
-import uk.gov.hmrc.exports.movements.models.notifications.EntryStatus
+import uk.gov.hmrc.exports.movements.models.notifications.standard.EntryStatus
 
 case class DucrInfo(
   ucr: String,

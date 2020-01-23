@@ -26,15 +26,15 @@ import play.api.test.Helpers._
 import reactivemongo.api.commands.WriteResult
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
 import uk.gov.hmrc.exports.movements.models.movements.IleQueryRequest
-import uk.gov.hmrc.exports.movements.models.notifications.UcrBlock
-import uk.gov.hmrc.exports.movements.models.submissions.IleQuerySubmission
+import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
+import uk.gov.hmrc.exports.movements.models.submissions.{ActionType, Submission}
 import uk.gov.hmrc.exports.movements.models.{CustomsInventoryLinkingResponse, UserIdentification}
-import uk.gov.hmrc.exports.movements.repositories.IleQueryRepository
+import uk.gov.hmrc.exports.movements.repositories.SubmissionRepository
 import uk.gov.hmrc.exports.movements.services.{ILEMapper, IleQueryService}
 import uk.gov.hmrc.http.HeaderCarrier
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder.dummyWriteResultSuccess
 import utils.testdata.CommonTestData._
-import utils.testdata.IleQuerySubmissionTestData.ileQueryXml
+import utils.testdata.IleQueryTestData.ileQueryXml
 
 import scala.concurrent.ExecutionContext.global
 import scala.concurrent.Future
@@ -45,23 +45,23 @@ class IleQueryServiceSpec extends WordSpec with MockitoSugar with MustMatchers w
   implicit private val hc = mock[HeaderCarrier]
 
   private val ileMapper = mock[ILEMapper]
-  private val ileQueryRepository = mock[IleQueryRepository]
+  private val submissionRepository = mock[SubmissionRepository]
   private val ileConnector = mock[CustomsInventoryLinkingExportsConnector]
 
-  private val ileQueryService = new IleQueryService(ileMapper, ileQueryRepository, ileConnector)(global)
+  private val ileQueryService = new IleQueryService(ileMapper, submissionRepository, ileConnector)(global)
 
   override protected def beforeEach(): Unit = {
     super.beforeEach()
 
-    reset(ileMapper, ileQueryRepository, ileConnector)
+    reset(ileMapper, submissionRepository, ileConnector)
     when(ileMapper.generateIleQuery(any[UcrBlock])).thenReturn(ileQueryXml(UcrBlock(ucr = ucr, ucrType = "D")))
     when(ileConnector.submit(any[UserIdentification], any[NodeSeq])(any()))
       .thenReturn(Future.successful(CustomsInventoryLinkingResponse(ACCEPTED, Some(""))))
-    when(ileQueryRepository.insert(any[IleQuerySubmission])(any())).thenReturn(Future.successful(dummyWriteResultSuccess))
+    when(submissionRepository.insert(any[Submission])(any())).thenReturn(Future.successful(dummyWriteResultSuccess))
   }
 
   override protected def afterEach(): Unit = {
-    reset(ileMapper, ileQueryRepository, ileConnector)
+    reset(ileMapper, submissionRepository, ileConnector)
 
     super.afterEach()
   }
@@ -76,10 +76,10 @@ class IleQueryServiceSpec extends WordSpec with MockitoSugar with MustMatchers w
 
         ileQueryService.submit(ileQueryRequest).futureValue
 
-        val inOrder: InOrder = Mockito.inOrder(ileMapper, ileConnector, ileQueryRepository)
+        val inOrder: InOrder = Mockito.inOrder(ileMapper, ileConnector, submissionRepository)
         inOrder.verify(ileMapper, times(1)).generateIleQuery(any())
         inOrder.verify(ileConnector, times(1)).submit(any(), any())(any())
-        inOrder.verify(ileQueryRepository, times(1)).insert(any())(any())
+        inOrder.verify(submissionRepository, times(1)).insert(any())(any())
       }
 
       "call ILEMapper once, passing UcrBlock from request" in {
@@ -106,16 +106,16 @@ class IleQueryServiceSpec extends WordSpec with MockitoSugar with MustMatchers w
 
         ileQueryService.submit(ileQueryRequest).futureValue
 
-        val ileQuerySubmissionCaptor: ArgumentCaptor[IleQuerySubmission] = ArgumentCaptor.forClass(classOf[IleQuerySubmission])
-        verify(ileQueryRepository, times(1)).insert(ileQuerySubmissionCaptor.capture())(any())
+        val ileQuerySubmissionCaptor: ArgumentCaptor[Submission] = ArgumentCaptor.forClass(classOf[Submission])
+        verify(submissionRepository, times(1)).insert(ileQuerySubmissionCaptor.capture())(any())
         val actualIleQuerySubmission = ileQuerySubmissionCaptor.getValue
 
         actualIleQuerySubmission.eori mustBe validEori
         actualIleQuerySubmission.providerId mustBe defined
         actualIleQuerySubmission.providerId.get mustBe validProviderId
         actualIleQuerySubmission.conversationId mustBe conversationId
-        actualIleQuerySubmission.ucrBlock mustBe UcrBlock(ucr = ucr, ucrType = "D")
-        actualIleQuerySubmission.responses mustBe Seq.empty
+        actualIleQuerySubmission.ucrBlocks mustBe Seq(UcrBlock(ucr = ucr, ucrType = "D"))
+        actualIleQuerySubmission.actionType mustBe ActionType.IleQuery
       }
 
       "return successful Future with Conversation ID returned from IleConnector" in {
@@ -149,7 +149,7 @@ class IleQueryServiceSpec extends WordSpec with MockitoSugar with MustMatchers w
         }
 
         verifyZeroInteractions(ileConnector)
-        verifyZeroInteractions(ileQueryRepository)
+        verifyZeroInteractions(submissionRepository)
       }
     }
 
@@ -172,7 +172,7 @@ class IleQueryServiceSpec extends WordSpec with MockitoSugar with MustMatchers w
 
         ileQueryService.submit(ileQueryRequest).failed.futureValue
 
-        verifyZeroInteractions(ileQueryRepository)
+        verifyZeroInteractions(submissionRepository)
       }
     }
 
@@ -195,7 +195,7 @@ class IleQueryServiceSpec extends WordSpec with MockitoSugar with MustMatchers w
 
         ileQueryService.submit(ileQueryRequest).failed.futureValue
 
-        verifyZeroInteractions(ileQueryRepository)
+        verifyZeroInteractions(submissionRepository)
       }
     }
 
@@ -204,7 +204,7 @@ class IleQueryServiceSpec extends WordSpec with MockitoSugar with MustMatchers w
       "return failed Future" in {
 
         val exceptionMsg = "Test Exception message"
-        when(ileQueryRepository.insert(any[IleQuerySubmission])(any()))
+        when(submissionRepository.insert(any[Submission])(any()))
           .thenReturn(Future.failed[WriteResult](new Exception(exceptionMsg)))
 
         val exc = ileQueryService.submit(ileQueryRequest).failed.futureValue

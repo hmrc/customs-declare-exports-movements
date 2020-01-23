@@ -19,6 +19,7 @@ package uk.gov.hmrc.exports.movements.models.notifications
 import java.time.Instant
 
 import play.api.libs.json.Json
+import uk.gov.hmrc.exports.movements.models.notifications.standard.StandardNotificationData
 
 final case class Notification(
   timestampReceived: Instant = Instant.now(),
@@ -26,19 +27,10 @@ final case class Notification(
   responseType: String,
   payload: String,
   data: NotificationData
-) {
-  def messageCode: Option[String] = data.messageCode
-  def crcCode: Option[String] = data.crcCode
-  def actionCode: Option[String] = data.actionCode
-  def errorCodes: Seq[String] = data.errorCodes
-  def entries: Seq[Entry] = data.entries
-  def masterUcr: Option[String] = data.masterUcr
-  def masterRoe: Option[String] = data.masterRoe
-  def masterSoe: Option[String] = data.masterSoe
-}
+)
 
 object Notification {
   implicit val format = Json.format[Notification]
 
-  def empty = Notification(conversationId = "", responseType = "", payload = "", data = NotificationData())
+  def empty = Notification(conversationId = "", responseType = "", payload = "", data = StandardNotificationData())
 }

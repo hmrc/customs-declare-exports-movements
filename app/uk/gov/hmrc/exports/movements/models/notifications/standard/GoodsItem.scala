@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.exports.movements.models.notifications
+package uk.gov.hmrc.exports.movements.models.notifications.standard
 
 import play.api.libs.json.Json
 
