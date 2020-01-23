@@ -29,8 +29,9 @@ class ResponseParserProviderSpec extends WordSpec with MustMatchers {
     val movementResponseParser = new MovementResponseParser(commonTypesParser)
     val movementTotalsResponseParser = new MovementTotalsResponseParser(commonTypesParser)
     val controlResponseParser = new ControlResponseParser(errorValidator)
+    val ileQueryResponseParser = new IleQueryResponseParser(commonTypesParser)
     val parserFactory =
-      new ResponseParserProvider(movementResponseParser, movementTotalsResponseParser, controlResponseParser)
+      new ResponseParserProvider(movementResponseParser, movementTotalsResponseParser, controlResponseParser, ileQueryResponseParser)
   }
 
   "ResponseParserFactory on buildResponseParser" when {
@@ -62,6 +63,16 @@ class ResponseParserProviderSpec extends WordSpec with MustMatchers {
         val parser = parserFactory.provideResponseParser(responseXml)
 
         parser mustBe a[ControlResponseParser]
+      }
+    }
+
+    "provided with inventoryLinkingQueryResponse" should {
+      "return IleQueryResponseParser" in new Test {
+        val responseXml = ExampleInventoryLinkingQueryResponse.Correct.QueriedDucr.asXml
+
+        val parser = parserFactory.provideResponseParser(responseXml)
+
+        parser mustBe a[IleQueryResponseParser]
       }
     }
 
@@ -110,6 +121,17 @@ class ResponseParserProviderSpec extends WordSpec with MustMatchers {
 
         parserContext.responseType must equal("inventoryLinkingControlResponse")
         parserContext.parser mustBe a[ControlResponseParser]
+      }
+    }
+
+    "provided with inventoryLinkingQueryResponse" should {
+      "return ResponseParserContext with IleQueryResponseParser" in new Test {
+        val responseXml = ExampleInventoryLinkingQueryResponse.Correct.QueriedDucr.asXml
+
+        val parserContext = parserFactory.provideResponseParserContext(responseXml)
+
+        parserContext.responseType must equal("inventoryLinkingQueryResponse")
+        parserContext.parser mustBe a[IleQueryResponseParser]
       }
     }
 

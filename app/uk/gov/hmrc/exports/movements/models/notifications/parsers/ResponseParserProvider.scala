@@ -25,12 +25,14 @@ import scala.xml.NodeSeq
 class ResponseParserProvider @Inject()(
   movementResponseParser: MovementResponseParser,
   movementTotalsResponseParser: MovementTotalsResponseParser,
-  controlResponseParser: ControlResponseParser
+  controlResponseParser: ControlResponseParser,
+  ileQueryResponseParser: IleQueryResponseParser
 ) {
 
   private val inventoryLinkingMovementResponseLabel = "inventoryLinkingMovementResponse"
   private val inventoryLinkingMovementTotalsResponseLabel = "inventoryLinkingMovementTotalsResponse"
   private val inventoryLinkingControlResponseLabel = "inventoryLinkingControlResponse"
+  private val inventoryLinkingQueryResponseLabel = "inventoryLinkingQueryResponse"
 
   def provideResponseParserContext(responseXml: NodeSeq): ResponseParserContext[NotificationData] =
     if (responseXml.nonEmpty)
@@ -44,6 +46,7 @@ class ResponseParserProvider @Inject()(
         case `inventoryLinkingMovementResponseLabel`       => movementResponseParser
         case `inventoryLinkingMovementTotalsResponseLabel` => movementTotalsResponseParser
         case `inventoryLinkingControlResponseLabel`        => controlResponseParser
+        case `inventoryLinkingQueryResponseLabel`          => ileQueryResponseParser
         case unknownLabel                                  => throw new IllegalArgumentException(s"Unknown Inventory Linking Response: $unknownLabel")
       }
     } else throw new IllegalArgumentException(s"Cannot find root element in: $responseXml")
