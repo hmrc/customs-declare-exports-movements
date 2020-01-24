@@ -50,6 +50,8 @@ object NotificationFrontendModel {
         errorCodes = standardNotificationData.errorCodes,
         messageCode = standardNotificationData.messageCode.getOrElse("")
       )
+
+    case other => throw new IllegalStateException(s"Cannot build NotificationFrontendModel from ${other.typ} type")
   }
 
   private def buildMucrEntry(standardNotificationData: StandardNotificationData): Option[Entry] =

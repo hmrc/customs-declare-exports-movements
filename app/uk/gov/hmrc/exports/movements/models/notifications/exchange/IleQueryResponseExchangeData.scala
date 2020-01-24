@@ -17,9 +17,10 @@
 package uk.gov.hmrc.exports.movements.models.notifications.exchange
 
 import play.api.libs.json.{Format, Json, OFormat}
+import uk.gov.hmrc.exports.movements.models.notifications.NotificationData
 import uk.gov.hmrc.exports.movements.models.notifications.exchange.IleQueryResponseExchangeType._
-import uk.gov.hmrc.exports.movements.models.notifications.queries.{DucrInfo, MucrInfo}
-import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
+import uk.gov.hmrc.exports.movements.models.notifications.queries.{DucrInfo, IleQueryResponseData, MucrInfo}
+import uk.gov.hmrc.exports.movements.models.notifications.standard.{StandardNotificationData, UcrBlock}
 import uk.gov.hmrc.play.json.Union
 
 sealed trait IleQueryResponseExchangeData {
@@ -34,6 +35,13 @@ object IleQueryResponseExchangeData {
     .and[UcrNotFoundResponseExchangeData](UcrNotFoundResponseExchange.toString)
     .format
 
+  def apply(notificationData: NotificationData): IleQueryResponseExchangeData = notificationData match {
+    case ileQueryResponseData: IleQueryResponseData         => SuccessfulResponseExchangeData(ileQueryResponseData)
+    case standardNotificationData: StandardNotificationData => UcrNotFoundResponseExchangeData(standardNotificationData)
+    case other =>
+      throw new IllegalStateException(s"Cannot build IleQueryResponseExchangeData from ${other.typ} type")
+  }
+
   case class SuccessfulResponseExchangeData(
     queriedDucr: Option[DucrInfo] = None,
     queriedMucr: Option[MucrInfo] = None,
@@ -46,6 +54,15 @@ object IleQueryResponseExchangeData {
 
   object SuccessfulResponseExchangeData {
     implicit val format: OFormat[SuccessfulResponseExchangeData] = Json.format[SuccessfulResponseExchangeData]
+
+    def apply(ileQueryResponseData: IleQueryResponseData): SuccessfulResponseExchangeData =
+      new SuccessfulResponseExchangeData(
+        queriedDucr = ileQueryResponseData.queriedDucr,
+        queriedMucr = ileQueryResponseData.queriedMucr,
+        parentMucr = ileQueryResponseData.parentMucr,
+        childDucrs = ileQueryResponseData.childDucrs,
+        childMucrs = ileQueryResponseData.childMucrs
+      )
   }
 
   case class UcrNotFoundResponseExchangeData(
@@ -60,5 +77,14 @@ object IleQueryResponseExchangeData {
 
   object UcrNotFoundResponseExchangeData {
     implicit val format: OFormat[UcrNotFoundResponseExchangeData] = Json.format[UcrNotFoundResponseExchangeData]
+
+    def apply(standardNotificationData: StandardNotificationData): UcrNotFoundResponseExchangeData =
+      new UcrNotFoundResponseExchangeData(
+        messageCode = standardNotificationData.messageCode.getOrElse(""),
+        actionCode = standardNotificationData.actionCode.getOrElse(""),
+        ucrBlock = standardNotificationData.entries.flatMap(_.ucrBlock).headOption,
+        movementReference = standardNotificationData.movementReference,
+        errorCodes = standardNotificationData.errorCodes
+      )
   }
 }

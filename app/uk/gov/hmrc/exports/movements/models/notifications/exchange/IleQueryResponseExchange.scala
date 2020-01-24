@@ -19,14 +19,18 @@ package uk.gov.hmrc.exports.movements.models.notifications.exchange
 import java.time.Instant
 
 import play.api.libs.json.Json
+import uk.gov.hmrc.exports.movements.models.notifications.Notification
 
-case class IleQueryResponseExchange(
-  timestampReceived: Instant = Instant.now(),
-  conversationId: String,
-  responseType: String,
-  data: IleQueryResponseExchangeData
-)
+case class IleQueryResponseExchange(timestampReceived: Instant, conversationId: String, responseType: String, data: IleQueryResponseExchangeData)
 
 object IleQueryResponseExchange {
   implicit val format = Json.format[IleQueryResponseExchange]
+
+  def apply(notification: Notification): IleQueryResponseExchange = new IleQueryResponseExchange(
+    timestampReceived = notification.timestampReceived,
+    conversationId = notification.conversationId,
+    responseType = notification.responseType,
+    data = IleQueryResponseExchangeData(notification.data)
+  )
+
 }

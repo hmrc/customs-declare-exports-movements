@@ -20,12 +20,14 @@ import javax.inject.{Inject, Singleton}
 import play.api.Logger
 import play.api.http.Status.ACCEPTED
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
+import uk.gov.hmrc.exports.movements.errors.TimeoutError
 import uk.gov.hmrc.exports.movements.exceptions.CustomsInventoryLinkingUpstreamException
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
 import uk.gov.hmrc.exports.movements.models.movements.IleQueryRequest
+import uk.gov.hmrc.exports.movements.models.notifications.exchange.IleQueryResponseExchange
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType.IleQuery
 import uk.gov.hmrc.exports.movements.models.submissions.Submission
-import uk.gov.hmrc.exports.movements.repositories.SubmissionRepository
+import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, SearchParameters, SubmissionRepository}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -34,7 +36,9 @@ import scala.concurrent.{ExecutionContext, Future}
 class IleQueryService @Inject()(
   ileMapper: ILEMapper,
   submissionRepository: SubmissionRepository,
-  ileConnector: CustomsInventoryLinkingExportsConnector
+  notificationRepository: NotificationRepository,
+  ileConnector: CustomsInventoryLinkingExportsConnector,
+  ileQueryTimeoutCalculator: IleQueryTimeoutCalculator
 )(implicit ec: ExecutionContext) {
 
   private val logger = Logger(this.getClass)
@@ -62,4 +66,25 @@ class IleQueryService @Inject()(
         )
     }
   }
+
+  def fetchResponses(searchParameters: SearchParameters): Future[Either[TimeoutError, Seq[IleQueryResponseExchange]]] =
+    submissionRepository.findBy(searchParameters).flatMap {
+      case Nil => Future.successful(Right(Seq.empty))
+
+      case submission :: Nil =>
+        if (ileQueryTimeoutCalculator.hasQueryTimedOut(submission)) {
+          Future.successful(Left(TimeoutError(s"This ILE Query is too old to get information about it")))
+        } else {
+          getNotificationsConverted(Seq(submission.conversationId))
+        }
+
+      case _ => throw new IllegalStateException(s"Found multiple Submissions for given searchParameters: ${searchParameters}")
+    }
+
+  private def getNotificationsConverted(conversationIds: Seq[String]): Future[Either[TimeoutError, Seq[IleQueryResponseExchange]]] =
+    for {
+      notifications <- notificationRepository.findByConversationIds(conversationIds)
+      result <- Future.successful(notifications.map(IleQueryResponseExchange(_)))
+    } yield Right(result)
+
 }
