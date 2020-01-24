@@ -16,6 +16,8 @@
 
 package utils.testdata.notifications
 
+import java.time.Instant
+
 import uk.gov.hmrc.exports.movements.models.notifications.standard._
 import utils.testdata.CommonTestData._
 import utils.testdata.notifications.ExampleXmlAndDomainModelPair.ExampleStandardResponse
@@ -79,7 +81,7 @@ object ExampleInventoryLinkingMovementTotalsResponse {
             )
           )
         ),
-        goodsArrivalDateTime = Some("2019-07-12T13:14:54.000Z"),
+        goodsArrivalDateTime = Some(Instant.parse("2019-07-12T13:14:54.000Z")),
         goodsLocation = Some(goodsLocation),
         masterRoe = Some("RE"),
         masterSoe = Some("SO"),

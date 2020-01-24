@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.exports.movements.models.notifications.parsers
 
+import java.time.Instant
+
 import javax.inject.Inject
 import uk.gov.hmrc.exports.movements.models.XmlTags
 import uk.gov.hmrc.exports.movements.models.movements.Transport
@@ -59,8 +61,8 @@ class IleQueryResponseParser @Inject()(commonTypesParser: CommonTypesParser) ext
   private def parseMovement(movementXml: Node): MovementInfo = MovementInfo(
     messageCode = (movementXml \ XmlTags.messageCode).text,
     goodsLocation = (movementXml \ XmlTags.goodsLocation).text,
-    goodsArrivalDateTime = StringOption((movementXml \ XmlTags.goodsArrivalDateTime).text),
-    goodsDepartureDateTime = StringOption((movementXml \ XmlTags.goodsDepartureDateTime).text),
+    goodsArrivalDateTime = StringOption((movementXml \ XmlTags.goodsArrivalDateTime).text).map(Instant.parse),
+    goodsDepartureDateTime = StringOption((movementXml \ XmlTags.goodsDepartureDateTime).text).map(Instant.parse),
     movementReference = StringOption((movementXml \ XmlTags.movementReference).text),
     transportDetails = (movementXml \ XmlTags.transportDetails).map { transportDetailsNode =>
       Transport(

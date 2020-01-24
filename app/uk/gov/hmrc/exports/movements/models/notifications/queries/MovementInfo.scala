@@ -16,14 +16,16 @@
 
 package uk.gov.hmrc.exports.movements.models.notifications.queries
 
+import java.time.Instant
+
 import play.api.libs.json.Json
 import uk.gov.hmrc.exports.movements.models.movements.Transport
 
 case class MovementInfo(
   messageCode: String,
   goodsLocation: String,
-  goodsArrivalDateTime: Option[String] = None,
-  goodsDepartureDateTime: Option[String] = None,
+  goodsArrivalDateTime: Option[Instant] = None,
+  goodsDepartureDateTime: Option[Instant] = None,
   movementReference: Option[String] = None,
   transportDetails: Option[Transport] = None
 )
