@@ -29,7 +29,7 @@ import play.api.mvc.ControllerComponents
 import play.api.test.Helpers._
 import uk.gov.hmrc.exports.movements.controllers.NotificationController
 import uk.gov.hmrc.exports.movements.controllers.util.HeaderValidator
-import uk.gov.hmrc.exports.movements.models.notifications.NotificationFrontendModel
+import uk.gov.hmrc.exports.movements.models.notifications.exchange.NotificationFrontendModel
 import uk.gov.hmrc.exports.movements.repositories.SearchParameters
 import uk.gov.hmrc.exports.movements.services.NotificationService
 import unit.uk.gov.hmrc.exports.movements.base.Injector

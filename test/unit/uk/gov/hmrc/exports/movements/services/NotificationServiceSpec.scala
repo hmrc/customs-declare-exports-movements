@@ -23,7 +23,8 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{BeforeAndAfterEach, MustMatchers, WordSpec}
 import org.scalatestplus.mockito.MockitoSugar
 import reactivemongo.api.commands.WriteResult
-import uk.gov.hmrc.exports.movements.models.notifications.{Notification, NotificationFactory, NotificationFrontendModel}
+import uk.gov.hmrc.exports.movements.models.notifications.exchange.NotificationFrontendModel
+import uk.gov.hmrc.exports.movements.models.notifications.{Notification, NotificationFactory}
 import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, SearchParameters, SubmissionRepository}
 import uk.gov.hmrc.exports.movements.services.NotificationService
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
