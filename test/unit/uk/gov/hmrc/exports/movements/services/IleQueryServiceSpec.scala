@@ -25,6 +25,7 @@ import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.Helpers._
 import reactivemongo.api.commands.WriteResult
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
+import uk.gov.hmrc.exports.movements.misc.IleQueryTimeoutCalculator
 import uk.gov.hmrc.exports.movements.models.movements.IleQueryRequest
 import uk.gov.hmrc.exports.movements.models.notifications.exchange.IleQueryResponseExchange
 import uk.gov.hmrc.exports.movements.models.notifications.exchange.IleQueryResponseExchangeData.SuccessfulResponseExchangeData
@@ -33,7 +34,7 @@ import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
 import uk.gov.hmrc.exports.movements.models.submissions.{ActionType, Submission}
 import uk.gov.hmrc.exports.movements.models.{CustomsInventoryLinkingResponse, UserIdentification}
 import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, SearchParameters, SubmissionRepository}
-import uk.gov.hmrc.exports.movements.services.{ILEMapper, IleQueryService, IleQueryTimeoutCalculator}
+import uk.gov.hmrc.exports.movements.services.{ILEMapper, IleQueryService}
 import uk.gov.hmrc.http.HeaderCarrier
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder.dummyWriteResultSuccess
 import utils.testdata.CommonTestData._

@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.exports.movements.services
+package uk.gov.hmrc.exports.movements.misc
 
 import uk.gov.hmrc.exports.movements.models.submissions.Submission
 
 class IleQueryTimeoutCalculator {
 
-  def hasQueryTimedOut(submission: Submission): Boolean = ???
+  def hasQueryTimedOut(submission: Submission): Boolean = false
 }
