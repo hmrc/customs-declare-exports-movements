@@ -43,7 +43,7 @@ class IleQueryControllerSpec extends WordSpec with MustMatchers with MockitoSuga
   private val ileQueryService = mock[IleQueryService]
   private val controller = new IleQueryController(ileQueryService, stubControllerComponents())(global)
 
-  implicit val defaultPatience: PatienceConfig = PatienceConfig(timeout = Span(5, Seconds), interval = Span(10, Millis))
+  private implicit val defaultPatience: PatienceConfig = PatienceConfig(timeout = Span(5, Seconds), interval = Span(10, Millis))
 
   override protected def beforeEach(): Unit = {
     super.beforeEach()
