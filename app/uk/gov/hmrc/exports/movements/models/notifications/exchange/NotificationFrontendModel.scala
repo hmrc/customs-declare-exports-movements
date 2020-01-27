@@ -23,7 +23,7 @@ import uk.gov.hmrc.exports.movements.models.notifications.Notification
 import uk.gov.hmrc.exports.movements.models.notifications.standard.{Entry, EntryStatus, StandardNotificationData, UcrBlock}
 
 final case class NotificationFrontendModel(
-  timestampReceived: Instant = Instant.now(),
+  timestampReceived: Instant,
   conversationId: String,
   responseType: String,
   entries: Seq[Entry],
