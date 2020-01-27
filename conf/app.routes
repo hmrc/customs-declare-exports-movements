@@ -17,3 +17,5 @@ POST        /consolidation                                  uk.gov.hmrc.exports.
 # ILE Query
 
 POST        /consignment-query                              uk.gov.hmrc.exports.movements.controllers.IleQueryController.submitIleQuery()
+
+GET         /consignment-query/:conversationId              uk.gov.hmrc.exports.movements.controllers.IleQueryController.getIleQueryResponses(eori: Option[String], providerId: Option[String], conversationId: String)

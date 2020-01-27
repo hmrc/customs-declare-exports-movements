@@ -16,6 +16,8 @@
 
 package unit.uk.gov.hmrc.exports.movements.controllers
 
+import akka.actor.ActorSystem
+import akka.stream.ActorMaterializer
 import play.api.libs.json.Writes
 import play.api.mvc.{AnyContent, AnyContentAsJson, AnyContentAsXml}
 import play.api.test.FakeRequest
@@ -26,11 +28,16 @@ import scala.xml.Elem
 
 object FakeRequestFactory {
 
+  lazy val actorSystem: ActorSystem = ActorSystem()
+  lazy val materializer: ActorMaterializer = ActorMaterializer()(actorSystem)
+
   def getRequest(): FakeRequest[AnyContent] = FakeRequest(GET, "/").withHeaders(validHeaders.toSeq: _*)
 
   def postRequest(): FakeRequest[AnyContent] = FakeRequest(POST, "/").withHeaders(validHeaders.toSeq: _*)
 
-  def postRequest[T](body: T)(implicit wts: Writes[T]): FakeRequest[AnyContentAsJson] = postRequest().withJsonBody(wts.writes(body))
+  def postRequestWithBody[T](body: T): FakeRequest[T] = postRequest().withBody(body)
+
+  def postRequestWithJsonBody[T](body: T)(implicit wts: Writes[T]): FakeRequest[AnyContentAsJson] = postRequest().withJsonBody(wts.writes(body))
 
   def postRequestWithXmlBody(body: Elem): FakeRequest[AnyContentAsXml] = postRequest().withXmlBody(body)
 }

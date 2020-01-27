@@ -17,8 +17,10 @@
 package uk.gov.hmrc.exports.movements.controllers
 
 import javax.inject.{Inject, Singleton}
-import play.api.mvc.{Action, ControllerComponents}
+import play.api.libs.json.Json
+import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.exports.movements.models.movements.IleQueryRequest
+import uk.gov.hmrc.exports.movements.repositories.SearchParameters
 import uk.gov.hmrc.exports.movements.services.IleQueryService
 import uk.gov.hmrc.play.bootstrap.controller.BackendController
 
@@ -30,5 +32,15 @@ class IleQueryController @Inject()(ileQueryService: IleQueryService, cc: Control
 
   def submitIleQuery(): Action[IleQueryRequest] = Action.async(parse.json[IleQueryRequest]) { implicit request =>
     ileQueryService.submit(request.body).map(Accepted(_))
+  }
+
+  def getIleQueryResponses(eori: Option[String], providerId: Option[String], conversationId: String): Action[AnyContent] = Action.async {
+    implicit request =>
+      val searchParameters = SearchParameters(eori = eori, providerId = providerId, conversationId = Some(conversationId))
+
+      ileQueryService.fetchResponses(searchParameters).map {
+        case Right(ileQueryResponses) => Ok(Json.toJson(ileQueryResponses))
+        case Left(_)                  => GatewayTimeout
+      }
   }
 }
