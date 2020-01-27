@@ -65,6 +65,12 @@ object ExampleInventoryLinkingQueryResponse {
                 <transportNationality>{transportNationality}</transportNationality>
               </transportDetails>
             </movement>
+            <movement>
+              <messageCode>{MessageCodes.RET}</messageCode>
+              <goodsLocation>{goodsLocation}</goodsLocation>
+              <goodsArrivalDateTime>2019-12-23T11:50:00.000Z</goodsArrivalDateTime>
+              <movementReference>{movementReference}</movementReference>
+            </movement>
             <goodsItem>
               <totalPackages>11</totalPackages>
             </goodsItem>
@@ -82,16 +88,22 @@ object ExampleInventoryLinkingQueryResponse {
               MovementInfo(
                 messageCode = MessageCodes.EAL,
                 goodsLocation = goodsLocation,
-                goodsArrivalDateTime = Some(Instant.parse("2019-12-23T11:30:00.000Z")),
+                movementDateTime = Some(Instant.parse("2019-12-23T11:30:00.000Z")),
                 movementReference = Some(movementReference)
               ),
               MovementInfo(
                 messageCode = MessageCodes.EDL,
                 goodsLocation = goodsLocation,
-                goodsDepartureDateTime = Some(Instant.parse("2019-12-23T11:40:00.000Z")),
+                movementDateTime = Some(Instant.parse("2019-12-23T11:40:00.000Z")),
                 movementReference = Some(movementReference),
                 transportDetails =
                   Some(Transport(transportId = Some(transportId), modeOfTransport = Some(transportMode), nationality = Some(transportNationality)))
+              ),
+              MovementInfo(
+                messageCode = MessageCodes.RET,
+                goodsLocation = goodsLocation,
+                movementDateTime = Some(Instant.parse("2019-12-23T11:50:00.000Z")),
+                movementReference = Some(movementReference)
               )
             ),
             goodsItem = Seq(GoodsItemInfo(totalPackages = Some(11)))
@@ -134,7 +146,7 @@ object ExampleInventoryLinkingQueryResponse {
               MovementInfo(
                 messageCode = MessageCodes.EAL,
                 goodsLocation = goodsLocation,
-                goodsArrivalDateTime = Some(Instant.parse("2019-12-23T11:30:00.000Z")),
+                movementDateTime = Some(Instant.parse("2019-12-23T11:30:00.000Z")),
                 movementReference = Some(movementReference)
               )
             )
@@ -177,7 +189,7 @@ object ExampleInventoryLinkingQueryResponse {
               MovementInfo(
                 messageCode = MessageCodes.EAL,
                 goodsLocation = goodsLocation,
-                goodsArrivalDateTime = Some(Instant.parse("2019-12-23T11:30:00.000Z")),
+                movementDateTime = Some(Instant.parse("2019-12-23T11:30:00.000Z")),
                 movementReference = Some(movementReference)
               )
             )

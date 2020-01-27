@@ -167,7 +167,7 @@ class NotificationSpec extends ComponentSpec {
                 MovementInfo(
                   messageCode = "EDL",
                   goodsLocation = "GoodsLocation",
-                  goodsDepartureDateTime = Some(Instant.parse("2019-12-23T11:40:00.000Z")),
+                  movementDateTime = Some(Instant.parse("2019-12-23T11:40:00.000Z")),
                   movementReference = Some("MovementReference"),
                   transportDetails = Some(Transport(transportId = Some("TransportID"), modeOfTransport = Some("1"), nationality = Some("GB")))
                 )

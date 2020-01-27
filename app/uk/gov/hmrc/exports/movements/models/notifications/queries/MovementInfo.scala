@@ -24,8 +24,7 @@ import uk.gov.hmrc.exports.movements.models.movements.Transport
 case class MovementInfo(
   messageCode: String,
   goodsLocation: String,
-  goodsArrivalDateTime: Option[Instant] = None,
-  goodsDepartureDateTime: Option[Instant] = None,
+  movementDateTime: Option[Instant] = None,
   movementReference: Option[String] = None,
   transportDetails: Option[Transport] = None
 )
