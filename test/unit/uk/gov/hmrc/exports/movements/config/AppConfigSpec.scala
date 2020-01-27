@@ -16,6 +16,9 @@
 
 package unit.uk.gov.hmrc.exports.movements.config
 
+import java.time.Duration
+import java.time.temporal.ChronoUnit
+
 import com.typesafe.config.{Config, ConfigFactory}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.Configuration
@@ -39,6 +42,8 @@ class AppConfigSpec extends UnitSpec with MockitoSugar {
         |microservice.services.customs-inventory-linking-exports.client-id.some-user-agent=some-user-agent-client-id
         |microservice.services.customs-inventory-linking-exports.client-id.default=localhost-client-id
         |microservice.services.customs-inventory-linking-exports.schema-file-path=conf/schemas/exports/inventoryLinkingResponseExternal.xsd
+        |microservice.ileQueryResponseTimeout.value=30
+        |microservice.ileQueryResponseTimeout.unit=SECONDS
       """.stripMargin
     )
   private val emptyAppConfig: Config = ConfigFactory.parseString("")
@@ -96,6 +101,13 @@ class AppConfigSpec extends UnitSpec with MockitoSugar {
       val serviceConfig: AppConfig = appConfig(validServicesConfiguration)
 
       serviceConfig.ileSchemasFilePath shouldEqual "conf/schemas/exports/inventoryLinkingResponseExternal.xsd"
+    }
+
+    "contain correct value and unit for ILE Query response timeout" in {
+      val serviceConfig: AppConfig = appConfig(validServicesConfiguration)
+
+      val duration = serviceConfig.ileQueryResponseTimeout
+      duration shouldBe Duration.of(30, ChronoUnit.SECONDS)
     }
   }
 }

@@ -16,6 +16,9 @@
 
 package uk.gov.hmrc.exports.movements.config
 
+import java.time.Duration
+import java.time.temporal.ChronoUnit
+
 import com.google.inject.{Inject, Singleton}
 import play.api.{Configuration, Logger}
 import uk.gov.hmrc.exports.movements.exceptions.MissingClientIDException
@@ -29,9 +32,9 @@ class AppConfig @Inject()(runModeConfiguration: Configuration, servicesConfig: S
 
   lazy val authUrl: String = servicesConfig.baseUrl("auth")
 
-  lazy val customsInventoryLinkingExportsRootUrl = servicesConfig.baseUrl("customs-inventory-linking-exports")
+  lazy val customsInventoryLinkingExportsRootUrl: String = servicesConfig.baseUrl("customs-inventory-linking-exports")
 
-  lazy val sendArrivalUrlSuffix = servicesConfig.getConfString(
+  lazy val sendArrivalUrlSuffix: String = servicesConfig.getConfString(
     "customs-inventory-linking-exports.sendArrival",
     throw new IllegalStateException("Missing configuration for Customs Inventory Linking send arrival URI")
   )
@@ -44,8 +47,14 @@ class AppConfig @Inject()(runModeConfiguration: Configuration, servicesConfig: S
     servicesConfig.getConfString(s"customs-inventory-linking-exports.client-id.$userAgent", throw MissingClientIDException(userAgent))
   }
 
-  lazy val ileSchemasFilePath = servicesConfig.getConfString(
+  lazy val ileSchemasFilePath: String = servicesConfig.getConfString(
     "customs-inventory-linking-exports.schema-file-path",
     throw new IllegalStateException("Missing configuration for ILE schemas file path")
   )
+
+  lazy val ileQueryResponseTimeout: Duration = {
+    val value = servicesConfig.getInt("microservice.ileQueryResponseTimeout.value")
+    val unit = servicesConfig.getString("microservice.ileQueryResponseTimeout.unit")
+    Duration.of(value, ChronoUnit.valueOf(unit.toUpperCase))
+  }
 }
