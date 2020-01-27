@@ -20,5 +20,6 @@ import uk.gov.hmrc.exports.movements.models.submissions.Submission
 
 class IleQueryTimeoutCalculator {
 
+  // TODO: Implement this logic with the next opportunity
   def hasQueryTimedOut(submission: Submission): Boolean = false
 }
