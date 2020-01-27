@@ -16,6 +16,8 @@
 
 package component.uk.gov.hmrc.exports.movements
 
+import java.time.Instant
+
 import play.api.libs.json.Json
 import play.api.test.Helpers._
 import uk.gov.hmrc.exports.movements.controllers.routes
@@ -42,7 +44,7 @@ class NotificationSpec extends ComponentSpec {
       crcCode = Some("crc-code"),
       declarationCount = Some(1),
       entries = Seq(Entry(Some(UcrBlock("UCR", "M")))),
-      goodsArrivalDateTime = Some("arrival-time"),
+      goodsArrivalDateTime = Some(Instant.parse("2020-03-01T12:45:00.000Z")),
       goodsLocation = Some("location"),
       masterRoe = Some("master-roe"),
       masterSoe = Some("master-soe"),
@@ -165,7 +167,7 @@ class NotificationSpec extends ComponentSpec {
                 MovementInfo(
                   messageCode = "EDL",
                   goodsLocation = "GoodsLocation",
-                  goodsDepartureDateTime = Some("2019-12-23T11:40:00.000Z"),
+                  movementDateTime = Some(Instant.parse("2019-12-23T11:40:00.000Z")),
                   movementReference = Some("MovementReference"),
                   transportDetails = Some(Transport(transportId = Some("TransportID"), modeOfTransport = Some("1"), nationality = Some("GB")))
                 )

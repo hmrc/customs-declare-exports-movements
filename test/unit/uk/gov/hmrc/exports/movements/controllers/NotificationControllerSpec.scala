@@ -29,7 +29,7 @@ import play.api.mvc.ControllerComponents
 import play.api.test.Helpers._
 import uk.gov.hmrc.exports.movements.controllers.NotificationController
 import uk.gov.hmrc.exports.movements.controllers.util.HeaderValidator
-import uk.gov.hmrc.exports.movements.models.notifications.NotificationFrontendModel
+import uk.gov.hmrc.exports.movements.models.notifications.exchange.NotificationFrontendModel
 import uk.gov.hmrc.exports.movements.repositories.SearchParameters
 import uk.gov.hmrc.exports.movements.services.NotificationService
 import unit.uk.gov.hmrc.exports.movements.base.Injector
@@ -49,8 +49,8 @@ class NotificationControllerSpec extends WordSpec with MustMatchers with Mockito
   private val movementsMetrics = buildMovementsMetricsMock
 
   private val controllerComponents: ControllerComponents = instanceOf[ControllerComponents]
-  implicit private val actorSystem: ActorSystem = ActorSystem()
-  implicit private val materializer: ActorMaterializer = ActorMaterializer()
+  implicit private val actorSystem: ActorSystem = FakeRequestFactory.actorSystem
+  implicit private val materializer: ActorMaterializer = FakeRequestFactory.materializer
 
   private val controller =
     new NotificationController(headerValidator, movementsMetrics, notificationService, controllerComponents)(ExecutionContext.global)

@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.exports.movements.models.notifications
+package uk.gov.hmrc.exports.movements.models.notifications.exchange
 
 import java.time.Instant
 
 import play.api.libs.json.Json
+import uk.gov.hmrc.exports.movements.models.notifications.Notification
 import uk.gov.hmrc.exports.movements.models.notifications.standard.{Entry, EntryStatus, StandardNotificationData, UcrBlock}
 
 final case class NotificationFrontendModel(
-  timestampReceived: Instant = Instant.now(),
+  timestampReceived: Instant,
   conversationId: String,
   responseType: String,
   entries: Seq[Entry],
@@ -49,6 +50,8 @@ object NotificationFrontendModel {
         errorCodes = standardNotificationData.errorCodes,
         messageCode = standardNotificationData.messageCode.getOrElse("")
       )
+
+    case other => throw new IllegalStateException(s"Cannot build NotificationFrontendModel from ${other.typ} type")
   }
 
   private def buildMucrEntry(standardNotificationData: StandardNotificationData): Option[Entry] =

@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package unit.uk.gov.hmrc.exports.movements.models.notifications
+package unit.uk.gov.hmrc.exports.movements.models.notifications.exchange
 
 import org.scalatest.{MustMatchers, WordSpec}
-import uk.gov.hmrc.exports.movements.models.notifications.NotificationFrontendModel
+import uk.gov.hmrc.exports.movements.models.notifications.exchange.NotificationFrontendModel
 import uk.gov.hmrc.exports.movements.models.notifications.standard.{Entry, UcrBlock}
 import utils.testdata.CommonTestData.ucr
 import utils.testdata.notifications.NotificationTestData._

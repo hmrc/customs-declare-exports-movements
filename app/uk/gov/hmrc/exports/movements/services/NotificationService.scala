@@ -18,7 +18,8 @@ package uk.gov.hmrc.exports.movements.services
 
 import javax.inject.{Inject, Singleton}
 import play.api.Logger
-import uk.gov.hmrc.exports.movements.models.notifications.{NotificationFactory, NotificationFrontendModel}
+import uk.gov.hmrc.exports.movements.models.notifications.NotificationFactory
+import uk.gov.hmrc.exports.movements.models.notifications.exchange.NotificationFrontendModel
 import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, SearchParameters, SubmissionRepository}
 
 import scala.concurrent.{ExecutionContext, Future}

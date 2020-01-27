@@ -14,21 +14,11 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.exports.movements.models.notifications.queries
+package uk.gov.hmrc.exports.movements.models.notifications.exchange
 
-import java.time.Instant
+sealed trait IleQueryResponseExchangeType
 
-import play.api.libs.json.Json
-import uk.gov.hmrc.exports.movements.models.movements.Transport
-
-case class MovementInfo(
-  messageCode: String,
-  goodsLocation: String,
-  movementDateTime: Option[Instant] = None,
-  movementReference: Option[String] = None,
-  transportDetails: Option[Transport] = None
-)
-
-object MovementInfo {
-  implicit val format = Json.format[MovementInfo]
+object IleQueryResponseExchangeType {
+  case object SuccessfulResponseExchange extends IleQueryResponseExchangeType
+  case object UcrNotFoundResponseExchange extends IleQueryResponseExchangeType
 }

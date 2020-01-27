@@ -16,9 +16,11 @@
 
 package uk.gov.hmrc.exports.movements.models.notifications.parsers
 
+import java.time.Instant
+
 import javax.inject.Inject
 import uk.gov.hmrc.exports.movements.models.XmlTags
-import uk.gov.hmrc.exports.movements.models.movements.Transport
+import uk.gov.hmrc.exports.movements.models.movements.{MovementType, Transport}
 import uk.gov.hmrc.exports.movements.models.notifications.queries._
 
 import scala.xml.{Node, NodeSeq}
@@ -59,8 +61,7 @@ class IleQueryResponseParser @Inject()(commonTypesParser: CommonTypesParser) ext
   private def parseMovement(movementXml: Node): MovementInfo = MovementInfo(
     messageCode = (movementXml \ XmlTags.messageCode).text,
     goodsLocation = (movementXml \ XmlTags.goodsLocation).text,
-    goodsArrivalDateTime = StringOption((movementXml \ XmlTags.goodsArrivalDateTime).text),
-    goodsDepartureDateTime = StringOption((movementXml \ XmlTags.goodsDepartureDateTime).text),
+    movementDateTime = StringOption((movementXml \ getMovementDateTimeXmlTag(movementXml)).text).map(Instant.parse),
     movementReference = StringOption((movementXml \ XmlTags.movementReference).text),
     transportDetails = (movementXml \ XmlTags.transportDetails).map { transportDetailsNode =>
       Transport(
@@ -70,6 +71,11 @@ class IleQueryResponseParser @Inject()(commonTypesParser: CommonTypesParser) ext
       )
     }.headOption
   )
+
+  private def getMovementDateTimeXmlTag(movementXml: Node): String = (movementXml \ XmlTags.messageCode).text match {
+    case MovementType.Arrival.value | MovementType.RetrospectiveArrival.value => XmlTags.goodsArrivalDateTime
+    case MovementType.Departure.value                                         => XmlTags.goodsDepartureDateTime
+  }
 
   private def parseGoodsItemInfo(goodsItemXml: Node): GoodsItemInfo =
     GoodsItemInfo(totalPackages = (goodsItemXml \ XmlTags.totalPackages).map { totalPackagesNode =>

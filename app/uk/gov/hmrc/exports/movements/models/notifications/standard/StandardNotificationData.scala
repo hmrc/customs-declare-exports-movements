@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.exports.movements.models.notifications.standard
 
+import java.time.Instant
+
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.exports.movements.models.notifications.{NotificationData, NotificationType}
 
@@ -24,7 +26,7 @@ final case class StandardNotificationData(
   crcCode: Option[String] = None,
   declarationCount: Option[Int] = None,
   entries: Seq[Entry] = Seq.empty,
-  goodsArrivalDateTime: Option[String] = None,
+  goodsArrivalDateTime: Option[Instant] = None,
   goodsLocation: Option[String] = None,
   masterRoe: Option[String] = None,
   masterSoe: Option[String] = None,

@@ -25,16 +25,22 @@ import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.Helpers._
 import reactivemongo.api.commands.WriteResult
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
+import uk.gov.hmrc.exports.movements.misc.IleQueryTimeoutCalculator
 import uk.gov.hmrc.exports.movements.models.movements.IleQueryRequest
+import uk.gov.hmrc.exports.movements.models.notifications.exchange.IleQueryResponseExchange
+import uk.gov.hmrc.exports.movements.models.notifications.exchange.IleQueryResponseExchangeData.SuccessfulResponseExchangeData
+import uk.gov.hmrc.exports.movements.models.notifications.queries.IleQueryResponseData
 import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
 import uk.gov.hmrc.exports.movements.models.submissions.{ActionType, Submission}
 import uk.gov.hmrc.exports.movements.models.{CustomsInventoryLinkingResponse, UserIdentification}
-import uk.gov.hmrc.exports.movements.repositories.SubmissionRepository
+import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, SearchParameters, SubmissionRepository}
 import uk.gov.hmrc.exports.movements.services.{ILEMapper, IleQueryService}
 import uk.gov.hmrc.http.HeaderCarrier
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder.dummyWriteResultSuccess
 import utils.testdata.CommonTestData._
 import utils.testdata.IleQueryTestData.ileQueryXml
+import utils.testdata.MovementsTestData.exampleSubmission
+import utils.testdata.notifications.NotificationTestData.notificationIleQueryResponse_1
 
 import scala.concurrent.ExecutionContext.global
 import scala.concurrent.Future
@@ -46,22 +52,29 @@ class IleQueryServiceSpec extends WordSpec with MockitoSugar with MustMatchers w
 
   private val ileMapper = mock[ILEMapper]
   private val submissionRepository = mock[SubmissionRepository]
+  private val notificationRepository = mock[NotificationRepository]
   private val ileConnector = mock[CustomsInventoryLinkingExportsConnector]
+  private val ileQueryTimeoutCalculator = mock[IleQueryTimeoutCalculator]
 
-  private val ileQueryService = new IleQueryService(ileMapper, submissionRepository, ileConnector)(global)
+  private val ileQueryService =
+    new IleQueryService(ileMapper, submissionRepository, notificationRepository, ileConnector, ileQueryTimeoutCalculator)(global)
 
   override protected def beforeEach(): Unit = {
     super.beforeEach()
 
-    reset(ileMapper, submissionRepository, ileConnector)
+    reset(ileMapper, submissionRepository, ileConnector, notificationRepository, ileQueryTimeoutCalculator)
+
     when(ileMapper.generateIleQuery(any[UcrBlock])).thenReturn(ileQueryXml(UcrBlock(ucr = ucr, ucrType = "D")))
     when(ileConnector.submit(any[UserIdentification], any[NodeSeq])(any()))
       .thenReturn(Future.successful(CustomsInventoryLinkingResponse(ACCEPTED, Some(""))))
     when(submissionRepository.insert(any[Submission])(any())).thenReturn(Future.successful(dummyWriteResultSuccess))
+    when(submissionRepository.findBy(any[SearchParameters])).thenReturn(Future.successful(Seq.empty))
+    when(notificationRepository.findByConversationIds(any[Seq[String]])).thenReturn(Future.successful(Seq.empty))
+    when(ileQueryTimeoutCalculator.hasQueryTimedOut(any[Submission])).thenReturn(false)
   }
 
   override protected def afterEach(): Unit = {
-    reset(ileMapper, submissionRepository, ileConnector)
+    reset(ileMapper, submissionRepository, ileConnector, notificationRepository, ileQueryTimeoutCalculator)
 
     super.afterEach()
   }
@@ -209,6 +222,150 @@ class IleQueryServiceSpec extends WordSpec with MockitoSugar with MustMatchers w
 
         val exc = ileQueryService.submit(ileQueryRequest).failed.futureValue
         exc.getMessage must include(exceptionMsg)
+      }
+    }
+  }
+
+  "IleQueryService on fetchResponses" when {
+
+    val searchParameters = SearchParameters(eori = Some(validEori), providerId = Some(validProviderId), conversationId = Some(conversationId))
+
+    "everything works correctly" should {
+
+      "call SubmissionRepository, IleQueryTimeoutCalculator and NotificationRepository in this order" in {
+
+        when(submissionRepository.findBy(any[SearchParameters]))
+          .thenReturn(Future.successful(Seq(exampleSubmission(providerId = Some(validProviderId)))))
+        when(ileQueryTimeoutCalculator.hasQueryTimedOut(any[Submission])).thenReturn(false)
+        when(notificationRepository.findByConversationIds(any[Seq[String]])).thenReturn(Future.successful(Seq(notificationIleQueryResponse_1)))
+
+        ileQueryService.fetchResponses(searchParameters).futureValue
+
+        val inOrder: InOrder = Mockito.inOrder(submissionRepository, notificationRepository)
+        inOrder.verify(submissionRepository, times(1)).findBy(any())
+        inOrder.verify(notificationRepository, times(1)).findByConversationIds(any())
+      }
+
+      "call SubmissionRepository, passing SearchParameters provided" in {
+
+        when(submissionRepository.findBy(any[SearchParameters]))
+          .thenReturn(Future.successful(Seq(exampleSubmission(providerId = Some(validProviderId)))))
+        when(ileQueryTimeoutCalculator.hasQueryTimedOut(any[Submission])).thenReturn(false)
+        when(notificationRepository.findByConversationIds(any[Seq[String]])).thenReturn(Future.successful(Seq(notificationIleQueryResponse_1)))
+
+        ileQueryService.fetchResponses(searchParameters).futureValue
+
+        verify(submissionRepository, times(1)).findBy(searchParameters)
+      }
+
+      "call IleQueryTimeoutCalculator, passing Submission returned by SubmissionRepository" in {
+
+        val submission = exampleSubmission(providerId = Some(validProviderId))
+        when(submissionRepository.findBy(any[SearchParameters])).thenReturn(Future.successful(Seq(submission)))
+        when(ileQueryTimeoutCalculator.hasQueryTimedOut(any[Submission])).thenReturn(false)
+        when(notificationRepository.findByConversationIds(any[Seq[String]])).thenReturn(Future.successful(Seq(notificationIleQueryResponse_1)))
+
+        ileQueryService.fetchResponses(searchParameters).futureValue
+
+        verify(ileQueryTimeoutCalculator, times(1)).hasQueryTimedOut(submission)
+      }
+
+      "call NotificationRepository, passing Conversation ID provided" in {
+
+        when(submissionRepository.findBy(any[SearchParameters]))
+          .thenReturn(Future.successful(Seq(exampleSubmission(providerId = Some(validProviderId)))))
+        when(ileQueryTimeoutCalculator.hasQueryTimedOut(any[Submission])).thenReturn(false)
+        when(notificationRepository.findByConversationIds(any[Seq[String]])).thenReturn(Future.successful(Seq(notificationIleQueryResponse_1)))
+
+        ileQueryService.fetchResponses(searchParameters).futureValue
+
+        verify(notificationRepository, times(1)).findByConversationIds(Seq(conversationId))
+      }
+
+      "return converted IleQueryResponses returned by NotificationRepository" in {
+
+        when(submissionRepository.findBy(any[SearchParameters]))
+          .thenReturn(Future.successful(Seq(exampleSubmission(providerId = Some(validProviderId)))))
+        when(ileQueryTimeoutCalculator.hasQueryTimedOut(any[Submission])).thenReturn(false)
+        when(notificationRepository.findByConversationIds(any[Seq[String]])).thenReturn(Future.successful(Seq(notificationIleQueryResponse_1)))
+
+        val result = ileQueryService.fetchResponses(searchParameters).futureValue
+
+        result.isRight mustBe true
+        result.right.get.size mustBe 1
+
+        val ileQueryResponseExchange: IleQueryResponseExchange = result.right.get.head
+        val expectedIleQueryResponseExchange = IleQueryResponseExchange(
+          timestampReceived = notificationIleQueryResponse_1.timestampReceived,
+          conversationId = notificationIleQueryResponse_1.conversationId,
+          responseType = notificationIleQueryResponse_1.responseType,
+          data = SuccessfulResponseExchangeData(IleQueryResponseData())
+        )
+
+        ileQueryResponseExchange mustBe expectedIleQueryResponseExchange
+      }
+    }
+
+    "there is no Submission with given User Identification and Conversation ID" should {
+
+      "return empty Sequence" in {
+
+        when(submissionRepository.findBy(any[SearchParameters])).thenReturn(Future.successful(Seq.empty))
+
+        val result = ileQueryService.fetchResponses(searchParameters).futureValue
+
+        result.isRight mustBe true
+        result.right.get.isEmpty mustBe true
+      }
+
+      "not call TimeComparator, nor NotificationRepository" in {
+
+        when(submissionRepository.findBy(any[SearchParameters])).thenReturn(Future.successful(Seq.empty))
+
+        ileQueryService.fetchResponses(searchParameters).futureValue
+
+        verifyZeroInteractions(ileQueryTimeoutCalculator)
+        verifyZeroInteractions(notificationRepository)
+      }
+    }
+
+    "IleQueryTimeoutCalculator on hasQueryTimedOut returns true" should {
+
+      "return successful Future with Either.left" in {
+
+        when(submissionRepository.findBy(any[SearchParameters]))
+          .thenReturn(Future.successful(Seq(exampleSubmission(providerId = Some(validProviderId)))))
+        when(ileQueryTimeoutCalculator.hasQueryTimedOut(any[Submission])).thenReturn(true)
+
+        val result = ileQueryService.fetchResponses(searchParameters).futureValue
+
+        result.isLeft mustBe true
+      }
+
+      "not call NotificationRepository" in {
+
+        when(submissionRepository.findBy(any[SearchParameters]))
+          .thenReturn(Future.successful(Seq(exampleSubmission(providerId = Some(validProviderId)))))
+        when(ileQueryTimeoutCalculator.hasQueryTimedOut(any[Submission])).thenReturn(true)
+
+        ileQueryService.fetchResponses(searchParameters).futureValue
+
+        verifyZeroInteractions(notificationRepository)
+      }
+    }
+
+    "there is no Notification with given Conversation ID" should {
+      "return empty Sequence" in {
+
+        when(submissionRepository.findBy(any[SearchParameters]))
+          .thenReturn(Future.successful(Seq(exampleSubmission(providerId = Some(validProviderId)))))
+        when(ileQueryTimeoutCalculator.hasQueryTimedOut(any[Submission])).thenReturn(false)
+        when(notificationRepository.findByConversationIds(any[Seq[String]])).thenReturn(Future.successful(Seq.empty))
+
+        val result = ileQueryService.fetchResponses(searchParameters).futureValue
+
+        result.isRight mustBe true
+        result.right.get.isEmpty mustBe true
       }
     }
   }

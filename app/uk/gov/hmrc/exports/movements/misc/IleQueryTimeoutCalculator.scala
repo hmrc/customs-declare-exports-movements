@@ -14,21 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.exports.movements.models.notifications.queries
+package uk.gov.hmrc.exports.movements.misc
 
-import java.time.Instant
+import uk.gov.hmrc.exports.movements.models.submissions.Submission
 
-import play.api.libs.json.Json
-import uk.gov.hmrc.exports.movements.models.movements.Transport
+class IleQueryTimeoutCalculator {
 
-case class MovementInfo(
-  messageCode: String,
-  goodsLocation: String,
-  movementDateTime: Option[Instant] = None,
-  movementReference: Option[String] = None,
-  transportDetails: Option[Transport] = None
-)
-
-object MovementInfo {
-  implicit val format = Json.format[MovementInfo]
+  // TODO: Implement this logic with the next opportunity
+  def hasQueryTimedOut(submission: Submission): Boolean = false
 }

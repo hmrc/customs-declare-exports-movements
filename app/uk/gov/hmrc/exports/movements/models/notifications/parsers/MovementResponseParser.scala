@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.exports.movements.models.notifications.parsers
 
+import java.time.Instant
+
 import javax.inject.Inject
 import uk.gov.hmrc.exports.movements.models.XmlTags
 import uk.gov.hmrc.exports.movements.models.notifications.standard.{Entry, StandardNotificationData}
@@ -29,7 +31,7 @@ class MovementResponseParser @Inject()(commonTypesParser: CommonTypesParser) ext
       messageCode = StringOption((responseXml \ XmlTags.messageCode).text),
       crcCode = StringOption((responseXml \ XmlTags.crc).text),
       entries = buildEntries(responseXml),
-      goodsArrivalDateTime = StringOption((responseXml \ XmlTags.goodsArrivalDateTime).text),
+      goodsArrivalDateTime = StringOption((responseXml \ XmlTags.goodsArrivalDateTime).text).map(Instant.parse),
       goodsLocation = StringOption((responseXml \ XmlTags.goodsLocation).text),
       movementReference = StringOption((responseXml \ XmlTags.movementReference).text)
     )

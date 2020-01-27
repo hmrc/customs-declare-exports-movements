@@ -17,18 +17,23 @@
 package unit.uk.gov.hmrc.exports.movements.controllers
 
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{reset, when}
+import org.mockito.Mockito._
 import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.time.{Millis, Seconds, Span}
 import org.scalatest.{BeforeAndAfterEach, MustMatchers, WordSpec}
 import org.scalatestplus.mockito.MockitoSugar
-import play.api.test.FakeRequest
+import play.api.libs.json.Json
 import play.api.test.Helpers._
 import uk.gov.hmrc.exports.movements.controllers.IleQueryController
+import uk.gov.hmrc.exports.movements.errors.TimeoutError
 import uk.gov.hmrc.exports.movements.models.movements.IleQueryRequest
+import uk.gov.hmrc.exports.movements.models.notifications.exchange.IleQueryResponseExchange
 import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
+import uk.gov.hmrc.exports.movements.repositories.SearchParameters
 import uk.gov.hmrc.exports.movements.services.IleQueryService
-import utils.FakeRequestCSRFSupport._
-import utils.testdata.CommonTestData.JsonContentTypeHeader
+import unit.uk.gov.hmrc.exports.movements.controllers.FakeRequestFactory.{getRequest, postRequestWithBody}
+import utils.testdata.CommonTestData._
+import utils.testdata.notifications.NotificationTestData.{notificationIleQueryResponse_1, notificationIleQueryResponse_2}
 
 import scala.concurrent.ExecutionContext.global
 import scala.concurrent.Future
@@ -36,8 +41,9 @@ import scala.concurrent.Future
 class IleQueryControllerSpec extends WordSpec with MustMatchers with MockitoSugar with ScalaFutures with BeforeAndAfterEach {
 
   private val ileQueryService = mock[IleQueryService]
-
   private val controller = new IleQueryController(ileQueryService, stubControllerComponents())(global)
+
+  private implicit val defaultPatience: PatienceConfig = PatienceConfig(timeout = Span(5, Seconds), interval = Span(10, Millis))
 
   override protected def beforeEach(): Unit = {
     super.beforeEach()
@@ -51,25 +57,85 @@ class IleQueryControllerSpec extends WordSpec with MustMatchers with MockitoSuga
     super.afterEach()
   }
 
-  "Ile Query Controller" should {
+  "Ile Query Controller on submitIleQuery" should {
 
     "return ACCEPTED" when {
 
       "query is successfully processed" in {
 
         when(ileQueryService.submit(any())(any())).thenReturn(Future.successful("conversationId"))
-
         val ileQueryRequest = IleQueryRequest("GB12345678912345", Some("12345"), UcrBlock("9GB025115188654-IAZ1", "D"))
+        val request = postRequestWithBody(ileQueryRequest).withHeaders(JsonContentTypeHeader)
 
-        val postRequest = FakeRequest(POST, "")
-          .withHeaders(JsonContentTypeHeader)
-          .withBody(ileQueryRequest)
-          .withCSRFToken
-
-        val result = controller.submitIleQuery()(postRequest)
+        val result = controller.submitIleQuery()(request)
 
         status(result) mustBe ACCEPTED
       }
     }
   }
+
+  "Ile Query Controller on submitIleQuery" when {
+
+    "everything works correctly" should {
+
+      "call IleQueryService, passing SearchParameters" in {
+
+        val ileQueryResponseExchanges =
+          Seq(
+            IleQueryResponseExchange(notificationIleQueryResponse_1),
+            IleQueryResponseExchange(notificationIleQueryResponse_2.copy(conversationId = conversationId))
+          )
+        when(ileQueryService.fetchResponses(any[SearchParameters])).thenReturn(Future.successful(Right(ileQueryResponseExchanges)))
+
+        controller
+          .getIleQueryResponses(eori = Some(validEori), providerId = Some(validProviderId), conversationId = conversationId)(getRequest())
+          .futureValue
+
+        verify(ileQueryService, times(1))
+          .fetchResponses(SearchParameters(eori = Some(validEori), providerId = Some(validProviderId), conversationId = Some(conversationId)))
+      }
+
+      "return Ok status with Sequence containing IleQueryResponseExchange returned by IleQueryService" in {
+
+        val ileQueryResponseExchanges =
+          Seq(
+            IleQueryResponseExchange(notificationIleQueryResponse_1),
+            IleQueryResponseExchange(notificationIleQueryResponse_2.copy(conversationId = conversationId))
+          )
+        when(ileQueryService.fetchResponses(any[SearchParameters])).thenReturn(Future.successful(Right(ileQueryResponseExchanges)))
+
+        val result = controller
+          .getIleQueryResponses(eori = Some(validEori), providerId = Some(validProviderId), conversationId = conversationId)(getRequest())
+
+        status(result) mustBe OK
+        contentAsJson(result) mustBe Json.toJson(ileQueryResponseExchanges)
+      }
+    }
+
+    "IleQueryService returns empty Sequence" should {
+      "return Ok status with empty Sequence" in {
+
+        when(ileQueryService.fetchResponses(any[SearchParameters])).thenReturn(Future.successful(Right(Seq.empty)))
+
+        val result = controller
+          .getIleQueryResponses(eori = Some(validEori), providerId = Some(validProviderId), conversationId = conversationId)(getRequest())
+
+        status(result) mustBe OK
+        contentAsJson(result) mustBe Json.toJson(Seq.empty[IleQueryResponseExchange])
+      }
+    }
+
+    "IleQueryService returns Either.Left" should {
+      "return GatewayTimeout status" in {
+
+        when(ileQueryService.fetchResponses(any[SearchParameters])).thenReturn(Future.successful(Left(TimeoutError("TIMEOUT"))))
+
+        val result = controller
+          .getIleQueryResponses(eori = Some(validEori), providerId = Some(validProviderId), conversationId = conversationId)(getRequest())
+
+        status(result) mustBe GATEWAY_TIMEOUT
+      }
+    }
+  }
+
 }
