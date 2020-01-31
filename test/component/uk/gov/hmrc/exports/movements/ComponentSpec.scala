@@ -31,8 +31,8 @@ import reactivemongo.api.{Cursor, ReadPreference}
 import reactivemongo.play.json.ImplicitBSONHandlers._
 import reactivemongo.play.json.collection.JSONCollection
 import uk.gov.hmrc.exports.movements.models.notifications.Notification
-import uk.gov.hmrc.exports.movements.models.submissions.Submission
-import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, SubmissionRepository}
+import uk.gov.hmrc.exports.movements.models.submissions.{IleQuerySubmission, Submission}
+import uk.gov.hmrc.exports.movements.repositories.{IleQuerySubmissionRepository, NotificationRepository, SubmissionRepository}
 import utils.connector.{AuditWiremockTestServer, IleApiWiremockTestServer}
 import utils.{FixedTime, TestMongoDB}
 
@@ -53,6 +53,7 @@ abstract class ComponentSpec
    */
   private lazy val notificationRepository: JSONCollection = app.injector.instanceOf[NotificationRepository].collection
   private lazy val submissionRepository: JSONCollection = app.injector.instanceOf[SubmissionRepository].collection
+  private lazy val ileQuerySubmissionRepository: JSONCollection = app.injector.instanceOf[IleQuerySubmissionRepository].collection
 
   override lazy val port = 14681
   override def fakeApplication(): Application =
@@ -68,10 +69,14 @@ abstract class ComponentSpec
     super.beforeEach()
     await(notificationRepository.drop(failIfNotFound = false))
     await(submissionRepository.drop(failIfNotFound = false))
+    await(ileQuerySubmissionRepository.drop(failIfNotFound = false))
   }
 
   protected def givenAnExisting(submission: Submission): Unit = await(submissionRepository.insert(Submission.format.writes(submission)))
+  protected def givenAnExisting(ileQuerySubmission: IleQuerySubmission): Unit =
+    await(ileQuerySubmissionRepository.insert(IleQuerySubmission.format.writes(ileQuerySubmission)))
   protected def givenAnExisting(notification: Notification): Unit = await(notificationRepository.insert(Notification.format.writes(notification)))
+
   protected def theSubmissionsFor(eori: String): Seq[Submission] =
     await(
       submissionRepository
@@ -85,6 +90,13 @@ abstract class ComponentSpec
         .find(Json.obj("conversationId" -> conversationId))
         .cursor[Notification](ReadPreference.primaryPreferred)
         .collect(maxDocs = -1, Cursor.FailOnError[Seq[Notification]]())
+    )
+  protected def theIleQuerySubmissionsFor(eori: String): Seq[IleQuerySubmission] =
+    await(
+      ileQuerySubmissionRepository
+        .find(Json.obj("eori" -> eori))
+        .cursor[IleQuerySubmission](ReadPreference.primaryPreferred)
+        .collect(maxDocs = -1, Cursor.FailOnError[Seq[IleQuerySubmission]]())
     )
 
   protected def get(call: Call, headers: (String, String)*): Future[Result] =
