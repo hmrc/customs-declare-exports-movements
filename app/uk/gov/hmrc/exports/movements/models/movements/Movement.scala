@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.exports.movements.models.movements
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Format, Json}
 import uk.gov.hmrc.exports.movements.controllers.util.JSONResponses
 import uk.gov.hmrc.exports.movements.models.UserIdentification
 
@@ -27,10 +27,9 @@ case class Movement(
   consignmentReference: ConsignmentReference,
   movementDetails: Option[MovementDetails] = None,
   location: Option[Location] = None,
-  arrivalReference: Option[ArrivalReference] = None,
   transport: Option[Transport] = None
 ) extends UserIdentification
 
 object Movement extends JSONResponses {
-  implicit val format = Json.format[Movement]
+  implicit val format: Format[Movement] = Json.format[Movement]
 }

@@ -16,6 +16,7 @@
 
 package component.uk.gov.hmrc.exports.movements
 
+import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.verify
 import play.api.libs.json.Json
 import play.api.test.Helpers._
@@ -43,7 +44,6 @@ class ArrivalSpec extends ComponentSpec {
           "consignmentReference" -> Json.obj("reference" -> "M", "referenceValue" -> "UCR"),
           "location" -> Json.obj("code" -> "abc"),
           "movementDetails" -> Json.obj("dateTime" -> "2020-01-01T00:00:00Z"),
-          "arrivalReference" -> Json.obj("reference" -> "xyz"),
           "transport" -> Json.obj("modeOfTransport" -> "mode", "nationality" -> "nationality", "transportId" -> "transportId")
         )
       )
@@ -59,7 +59,7 @@ class ArrivalSpec extends ComponentSpec {
 
       verify(
         postRequestedToILE()
-          .withRequestBody(equalToXml(<inventoryLinkingMovementRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
+          .withRequestBody(WireMock.equalToXml("""<inventoryLinkingMovementRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
             <messageCode>EAL</messageCode>
             <ucrBlock>
               <ucr>UCR</ucr>
@@ -67,13 +67,13 @@ class ArrivalSpec extends ComponentSpec {
             </ucrBlock>
             <goodsLocation>abc</goodsLocation>
             <goodsArrivalDateTime>2020-01-01T00:00:00Z</goodsArrivalDateTime>
-            <movementReference>xyz</movementReference>
+            <movementReference>${xmlunit.ignore}</movementReference>
             <transportDetails>
               <transportID>transportId</transportID>
               <transportMode>mode</transportMode>
               <transportNationality>nationality</transportNationality>
             </transportDetails>
-          </inventoryLinkingMovementRequest>))
+          </inventoryLinkingMovementRequest>""", true))
       )
     }
   }

@@ -43,7 +43,6 @@ class DepartureSpec extends ComponentSpec {
           "consignmentReference" -> Json.obj("reference" -> "M", "referenceValue" -> "UCR"),
           "location" -> Json.obj("code" -> "abc"),
           "movementDetails" -> Json.obj("dateTime" -> "2020-01-01T00:00:00Z"),
-          "arrivalReference" -> Json.obj("reference" -> "xyz"),
           "transport" -> Json.obj("modeOfTransport" -> "mode", "nationality" -> "nationality", "transportId" -> "transportId")
         )
       )
@@ -67,7 +66,6 @@ class DepartureSpec extends ComponentSpec {
               </ucrBlock>
               <goodsLocation>abc</goodsLocation>
               <goodsDepartureDateTime>2020-01-01T00:00:00Z</goodsDepartureDateTime>
-              <movementReference>xyz</movementReference>
               <transportDetails>
                 <transportID>transportId</transportID>
                 <transportMode>mode</transportMode>

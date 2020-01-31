@@ -47,7 +47,7 @@ class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar
         )
 
         val submission =
-          submissionFactory.buildMovementSubmission(validEori, Some(validProviderId), conversationId, exampleArrivalRequestXML, arrivalRequest)
+          submissionFactory.buildMovementSubmission(validEori, Some(validProviderId), conversationId, exampleArrivalRequestXML("123"), arrivalRequest)
 
         val expectedSubmission = Submission(
           eori = validEori,

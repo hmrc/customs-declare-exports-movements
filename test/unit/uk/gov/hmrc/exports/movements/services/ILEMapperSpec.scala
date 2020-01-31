@@ -36,18 +36,24 @@ class ILEMapperSpec extends UnitSpec {
     "create correct XML for Arrival" in {
 
       val input = exampleArrivalRequest
-      val expectedXml = exampleArrivalRequestXML
 
-      ileMapper.generateInventoryLinkingMovementRequestXml(input) shouldBe expectedXml
+      val xml = ileMapper.generateInventoryLinkingMovementRequestXml(input)
+      val reference = (xml \ "movementReference").text
+
+      val expectedXml = exampleArrivalRequestXML(reference)
+
+      xml shouldBe expectedXml
     }
 
     "create correct XML for Retrospective Arrival" which {
       "contains added goodsArrivalDateTime in correct format" in {
 
         val input = exampleRetrospectiveArrivalRequest
-        val expectedXml = exampleRetrospectiveArrivalRequestXML
 
         val xml = ileMapper.generateInventoryLinkingMovementRequestXml(input)
+        val reference = (xml \ "movementReference").text
+
+        val expectedXml = exampleRetrospectiveArrivalRequestXML(reference)
 
         xml shouldBe expectedXml
       }

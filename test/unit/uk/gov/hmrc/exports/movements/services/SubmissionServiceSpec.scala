@@ -67,7 +67,7 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
           actionType = ActionType.Arrival
         )
 
-      when(wcoMapperMock.generateInventoryLinkingMovementRequestXml(any())).thenReturn(exampleArrivalRequestXML)
+      when(wcoMapperMock.generateInventoryLinkingMovementRequestXml(any())).thenReturn(exampleArrivalRequestXML("123"))
       when(customsInventoryLinkingExportsConnectorMock.submit(any(), any())(any()))
         .thenReturn(Future.successful(CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId))))
       when(submissionFactoryMock.buildMovementSubmission(any(), any(), any(), any(), any()))
@@ -78,19 +78,19 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
 
       verify(wcoMapperMock).generateInventoryLinkingMovementRequestXml(meq(exampleArrivalRequest))
       verify(customsInventoryLinkingExportsConnectorMock)
-        .submit(meq(exampleArrivalRequest), meq(exampleArrivalRequestXML))(any())
+        .submit(meq(exampleArrivalRequest), meq(exampleArrivalRequestXML("123")))(any())
       verify(submissionFactoryMock).buildMovementSubmission(
         meq(validEori),
         meq(Some(validProviderId)),
         meq(conversationId),
-        meq(exampleArrivalRequestXML),
+        meq(exampleArrivalRequestXML("123")),
         meq(exampleArrivalRequest)
       )
       verify(submissionRepositoryMock).insert(meq(arrivalSubmission))(any())
     }
 
     "return exception when submission failed" in new Test {
-      when(wcoMapperMock.generateInventoryLinkingMovementRequestXml(any())).thenReturn(exampleArrivalRequestXML)
+      when(wcoMapperMock.generateInventoryLinkingMovementRequestXml(any())).thenReturn(exampleArrivalRequestXML("123"))
       when(customsInventoryLinkingExportsConnectorMock.submit(any(), any())(any()))
         .thenReturn(Future.successful(CustomsInventoryLinkingResponse(BAD_REQUEST, None)))
 
