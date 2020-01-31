@@ -20,6 +20,7 @@ import javax.inject.{Inject, Singleton}
 import play.api.Logger
 import uk.gov.hmrc.exports.movements.models.notifications.NotificationFactory
 import uk.gov.hmrc.exports.movements.models.notifications.exchange.NotificationFrontendModel
+import uk.gov.hmrc.exports.movements.models.notifications.standard.StandardNotificationData
 import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, SearchParameters, SubmissionRepository}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -53,6 +54,8 @@ class NotificationService @Inject()(
     }
 
   private def getNotifications(conversationIds: Seq[String]): Future[Seq[NotificationFrontendModel]] =
-    notificationRepository.findByConversationIds(conversationIds).map(_.map(NotificationFrontendModel(_)))
+    notificationRepository
+      .findByConversationIds(conversationIds)
+      .map(_.filter(notification => notification.data.isInstanceOf[StandardNotificationData]).map(NotificationFrontendModel(_)))
 
 }
