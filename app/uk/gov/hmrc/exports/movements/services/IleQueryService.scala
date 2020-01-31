@@ -26,9 +26,8 @@ import uk.gov.hmrc.exports.movements.misc.IleQueryTimeoutCalculator
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
 import uk.gov.hmrc.exports.movements.models.movements.IleQueryRequest
 import uk.gov.hmrc.exports.movements.models.notifications.exchange.IleQueryResponseExchange
-import uk.gov.hmrc.exports.movements.models.submissions.ActionType.IleQuery
-import uk.gov.hmrc.exports.movements.models.submissions.Submission
-import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, SearchParameters, SubmissionRepository}
+import uk.gov.hmrc.exports.movements.models.submissions.IleQuerySubmission
+import uk.gov.hmrc.exports.movements.repositories.{IleQuerySubmissionRepository, NotificationRepository, SearchParameters}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -36,7 +35,7 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class IleQueryService @Inject()(
   ileMapper: ILEMapper,
-  submissionRepository: SubmissionRepository,
+  ileQuerySubmissionRepository: IleQuerySubmissionRepository,
   notificationRepository: NotificationRepository,
   ileConnector: CustomsInventoryLinkingExportsConnector,
   ileQueryTimeoutCalculator: IleQueryTimeoutCalculator
@@ -50,15 +49,14 @@ class IleQueryService @Inject()(
     ileConnector.submit(ileQueryRequest, requestXml).flatMap {
 
       case CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId)) =>
-        val submission = Submission(
+        val submission = IleQuerySubmission(
           eori = ileQueryRequest.eori,
           providerId = ileQueryRequest.providerId,
           conversationId = conversationId,
-          ucrBlocks = Seq(ileQueryRequest.ucrBlock),
-          actionType = IleQuery
+          ucrBlock = ileQueryRequest.ucrBlock
         )
 
-        submissionRepository.insert(submission).map(_ => conversationId)
+        ileQuerySubmissionRepository.insert(submission).map(_ => conversationId)
 
       case CustomsInventoryLinkingResponse(status, conversationId) =>
         logger.warn(s"ILE Query failed with conversation-id=[$conversationId] and status [$status]")
@@ -69,7 +67,7 @@ class IleQueryService @Inject()(
   }
 
   def fetchResponses(searchParameters: SearchParameters): Future[Either[TimeoutError, Seq[IleQueryResponseExchange]]] =
-    submissionRepository.findBy(searchParameters).flatMap {
+    ileQuerySubmissionRepository.findBy(searchParameters).flatMap {
       case Nil => Future.successful(Right(Seq.empty))
 
       case submission :: Nil =>
