@@ -29,6 +29,7 @@ import uk.gov.hmrc.exports.movements.models.notifications.standard
 import uk.gov.hmrc.wco.dec.inventorylinking.common.{TransportDetails, UcrBlock}
 import uk.gov.hmrc.wco.dec.inventorylinking.movement.request.InventoryLinkingMovementRequest
 
+import scala.util.Random
 import scala.xml.{Node, NodeSeq}
 
 @Singleton
@@ -52,6 +53,11 @@ class ILEMapper @Inject()(clock: Clock) {
       case _                    => None
     }
 
+    val movementReference: Option[String] = request.choice match {
+      case Arrival | RetrospectiveArrival => Some(generateRandomReference)
+      case _                              => None
+    }
+
     InventoryLinkingMovementRequest(
       messageCode = request.choice.value,
       agentDetails = None,
@@ -60,7 +66,7 @@ class ILEMapper @Inject()(clock: Clock) {
       goodsArrivalDateTime = arrivalDetails,
       goodsDepartureDateTime = departureDetails,
       transportDetails = mapTransportDetails(request.transport),
-      movementReference = request.arrivalReference.flatMap(_.reference)
+      movementReference = movementReference
     )
   }
 
@@ -72,6 +78,8 @@ class ILEMapper @Inject()(clock: Clock) {
     transport.map(
       data => TransportDetails(transportID = data.transportId, transportMode = data.modeOfTransport, transportNationality = data.nationality)
     )
+
+  private def generateRandomReference: String = Random.alphanumeric.take(25).toList.mkString("")
 
   def generateConsolidationXml(consolidation: Consolidation): Node =
     scala.xml.Utility.trim {

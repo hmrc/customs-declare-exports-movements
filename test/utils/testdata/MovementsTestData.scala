@@ -32,7 +32,7 @@ object MovementsTestData {
   val now: DateTime = DateTime.now.withZone(DateTimeZone.UTC)
   val dateTimeString: String = "2019-07-12T13:14:54Z"
 
-  val exampleArrivalRequestXML: Node =
+  def exampleArrivalRequestXML(reference: String): Node =
     scala.xml.Utility.trim {
       <inventoryLinkingMovementRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
         <messageCode>{MessageCodes.EAL}</messageCode>
@@ -42,7 +42,7 @@ object MovementsTestData {
         </ucrBlock>
         <goodsLocation>GBAUlocation</goodsLocation>
         <goodsArrivalDateTime>{dateTimeString}</goodsArrivalDateTime>
-        <movementReference>{movementReference}</movementReference>
+        <movementReference>{reference}</movementReference>
       </inventoryLinkingMovementRequest>
     }
 
@@ -53,13 +53,12 @@ object MovementsTestData {
     consignmentReference = ConsignmentReference("D", ucr),
     movementDetails = Some(MovementDetails(dateTimeString)),
     location = Some(Location("GBAUlocation")),
-    arrivalReference = Some(ArrivalReference(Some(movementReference))),
     transport = None
   )
 
   val exampleArrivalRequestJson: JsValue = Json.toJson(exampleArrivalRequest)
 
-  val exampleRetrospectiveArrivalRequestXML: Node =
+  def exampleRetrospectiveArrivalRequestXML(reference: String): Node =
     scala.xml.Utility.trim {
       <inventoryLinkingMovementRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
         <messageCode>{MessageCodes.RET}</messageCode>
@@ -69,6 +68,7 @@ object MovementsTestData {
         </ucrBlock>
         <goodsLocation>GBAUlocation</goodsLocation>
         <goodsArrivalDateTime>{dateTimeString}</goodsArrivalDateTime>
+        <movementReference>{reference}</movementReference>
       </inventoryLinkingMovementRequest>
     }
 
@@ -79,7 +79,6 @@ object MovementsTestData {
     consignmentReference = ConsignmentReference("D", ucr),
     movementDetails = None,
     location = Some(Location("GBAUlocation")),
-    arrivalReference = None,
     transport = None
   )
 
