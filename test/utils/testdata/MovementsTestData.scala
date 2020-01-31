@@ -20,10 +20,10 @@ import org.joda.time.{DateTime, DateTimeZone}
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.exports.movements.models.movements.{Movement, _}
 import uk.gov.hmrc.exports.movements.models.notifications.standard.{UcrBlock => UcrBlockModel}
-import uk.gov.hmrc.exports.movements.models.submissions.{ActionType, Submission}
+import uk.gov.hmrc.exports.movements.models.submissions.{ActionType, IleQuerySubmission, Submission}
 import uk.gov.hmrc.wco.dec.inventorylinking.common.{AgentDetails, TransportDetails, UcrBlock}
 import uk.gov.hmrc.wco.dec.inventorylinking.movement.request.InventoryLinkingMovementRequest
-import utils.testdata.CommonTestData._
+import utils.testdata.CommonTestData.{conversationId, _}
 
 import scala.xml.Node
 
@@ -133,7 +133,7 @@ object MovementsTestData {
   def emptySubmission: Submission =
     Submission(uuid = "", eori = "", providerId = None, conversationId = "", ucrBlocks = Seq.empty, actionType = ActionType.Arrival)
 
-  def validInventoryLinkingExportRequest = InventoryLinkingMovementRequest(
+  def validInventoryLinkingMovementRequest = InventoryLinkingMovementRequest(
     messageCode = "11",
     agentDetails = Some(AgentDetails(eori = Some(validEori), agentLocation = Some("location"))),
     ucrBlock = UcrBlock(ucr = declarantUcrValue, ucrType = "type"),
@@ -142,5 +142,14 @@ object MovementsTestData {
     goodsDepartureDateTime = Some(now.toString),
     transportDetails = Some(TransportDetails(transportID = Some("transportId"), transportMode = Some("mode")))
   )
+
+  def exampleIleQuerySubmission(
+    eori: String = validEori,
+    providerId: Option[String] = None,
+    conversationId: String = conversationId,
+    ucr: String = ucr,
+    ucrType: String = "D"
+  ): IleQuerySubmission =
+    IleQuerySubmission(eori = eori, providerId = providerId, conversationId = conversationId, ucrBlock = UcrBlockModel(ucr = ucr, ucrType = ucrType))
 
 }
