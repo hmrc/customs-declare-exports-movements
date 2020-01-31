@@ -272,7 +272,7 @@ class IleQueryServiceSpec extends WordSpec with MockitoSugar with MustMatchers w
       "call NotificationRepository, passing Conversation ID provided" in {
 
         when(ileQuerySubmissionRepository.findBy(any[SearchParameters]))
-          .thenReturn(Future.successful(Seq(exampleIleQuerySubmission( providerId = Some(validProviderId)))))
+          .thenReturn(Future.successful(Seq(exampleIleQuerySubmission(providerId = Some(validProviderId)))))
         when(ileQueryTimeoutCalculator.hasQueryTimedOut(any[IleQuerySubmission])).thenReturn(false)
         when(notificationRepository.findByConversationIds(any[Seq[String]])).thenReturn(Future.successful(Seq(notificationIleQueryResponse_1)))
 
