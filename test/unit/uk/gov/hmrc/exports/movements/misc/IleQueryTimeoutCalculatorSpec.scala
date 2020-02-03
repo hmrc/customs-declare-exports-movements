@@ -25,7 +25,7 @@ import org.scalatest.{BeforeAndAfterEach, MustMatchers, WordSpec}
 import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.exports.movements.config.AppConfig
 import uk.gov.hmrc.exports.movements.misc.IleQueryTimeoutCalculator
-import utils.testdata.MovementsTestData.{dateTimeString, exampleSubmission}
+import utils.testdata.MovementsTestData.{dateTimeString, exampleIleQuerySubmission}
 
 class IleQueryTimeoutCalculatorSpec extends WordSpec with MustMatchers with MockitoSugar with BeforeAndAfterEach {
 
@@ -54,7 +54,7 @@ class IleQueryTimeoutCalculatorSpec extends WordSpec with MustMatchers with Mock
 
         val timeout = Duration.of(30, ChronoUnit.SECONDS)
         when(appConfig.ileQueryResponseTimeout).thenReturn(timeout)
-        val submission = exampleSubmission().copy(requestTimestamp = Instant.now(clock).minusSeconds(31))
+        val submission = exampleIleQuerySubmission().copy(requestTimestamp = Instant.now(clock).minusSeconds(31))
 
         ileQueryTimeoutCalculator.hasQueryTimedOut(submission) mustBe true
       }
@@ -63,7 +63,7 @@ class IleQueryTimeoutCalculatorSpec extends WordSpec with MustMatchers with Mock
 
         val timeout = Duration.of(2, ChronoUnit.MINUTES)
         when(appConfig.ileQueryResponseTimeout).thenReturn(timeout)
-        val submission = exampleSubmission().copy(requestTimestamp = Instant.now(clock).minusSeconds(TimeUnit.MINUTES.toSeconds(2) + 1))
+        val submission = exampleIleQuerySubmission().copy(requestTimestamp = Instant.now(clock).minusSeconds(TimeUnit.MINUTES.toSeconds(2) + 1))
 
         ileQueryTimeoutCalculator.hasQueryTimedOut(submission) mustBe true
       }
@@ -75,7 +75,7 @@ class IleQueryTimeoutCalculatorSpec extends WordSpec with MustMatchers with Mock
 
         val timeout = Duration.of(30, ChronoUnit.SECONDS)
         when(appConfig.ileQueryResponseTimeout).thenReturn(timeout)
-        val submission = exampleSubmission().copy(requestTimestamp = Instant.now(clock).minusSeconds(25))
+        val submission = exampleIleQuerySubmission().copy(requestTimestamp = Instant.now(clock).minusSeconds(25))
 
         ileQueryTimeoutCalculator.hasQueryTimedOut(submission) mustBe false
       }
@@ -84,7 +84,7 @@ class IleQueryTimeoutCalculatorSpec extends WordSpec with MustMatchers with Mock
 
         val timeout = Duration.of(2, ChronoUnit.MINUTES)
         when(appConfig.ileQueryResponseTimeout).thenReturn(timeout)
-        val submission = exampleSubmission().copy(requestTimestamp = Instant.now(clock).minusSeconds(TimeUnit.MINUTES.toSeconds(2) - 5))
+        val submission = exampleIleQuerySubmission().copy(requestTimestamp = Instant.now(clock).minusSeconds(TimeUnit.MINUTES.toSeconds(2) - 5))
 
         ileQueryTimeoutCalculator.hasQueryTimedOut(submission) mustBe false
       }
@@ -94,7 +94,7 @@ class IleQueryTimeoutCalculatorSpec extends WordSpec with MustMatchers with Mock
 
       val timeout = Duration.of(30, ChronoUnit.SECONDS)
       when(appConfig.ileQueryResponseTimeout).thenReturn(timeout)
-      val submission = exampleSubmission().copy(requestTimestamp = Instant.now(clock).minusSeconds(5))
+      val submission = exampleIleQuerySubmission().copy(requestTimestamp = Instant.now(clock).minusSeconds(5))
 
       ileQueryTimeoutCalculator.hasQueryTimedOut(submission)
 

@@ -20,12 +20,12 @@ import java.time.{Clock, Instant}
 
 import javax.inject.Inject
 import uk.gov.hmrc.exports.movements.config.AppConfig
-import uk.gov.hmrc.exports.movements.models.submissions.Submission
+import uk.gov.hmrc.exports.movements.models.submissions.IleQuerySubmission
 
 class IleQueryTimeoutCalculator @Inject()(appConfig: AppConfig, clock: Clock) {
 
-  def hasQueryTimedOut(submission: Submission): Boolean = {
-    val submissionTime = submission.requestTimestamp
+  def hasQueryTimedOut(ileQuerySubmission: IleQuerySubmission): Boolean = {
+    val submissionTime = ileQuerySubmission.requestTimestamp
     val queryDeadline = submissionTime.plus(appConfig.ileQueryResponseTimeout)
 
     val currentTime = Instant.now(clock)
