@@ -94,9 +94,6 @@ class CustomsInventoryLinkingExportsConnectorSpec extends ConnectorSpec {
     }
   }
 
-  private def identification(userEori: String, userProviderId: Option[String]): UserIdentification = new UserIdentification {
-    override val eori: String = userEori
-    override val providerId: Option[String] = userProviderId
-  }
-
+  private def identification(userEori: String, userProviderId: Option[String]): UserIdentification =
+    UserIdentification(eori = userEori, providerId = userProviderId)
 }

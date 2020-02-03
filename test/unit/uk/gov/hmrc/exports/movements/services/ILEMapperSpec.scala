@@ -18,6 +18,7 @@ package unit.uk.gov.hmrc.exports.movements.services
 
 import java.time.{Clock, Instant, ZoneOffset}
 
+import uk.gov.hmrc.exports.movements.models.UserIdentification
 import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation.AssociateDucrRequest
 import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
 import uk.gov.hmrc.exports.movements.services.ILEMapper
@@ -69,7 +70,7 @@ class ILEMapperSpec extends UnitSpec {
 
     "create correct XML based on the consolidation" in {
 
-      val consolidation = AssociateDucrRequest(eori = validEori, mucr = ucr_2, ucr = ucr)
+      val consolidation = AssociateDucrRequest(userIdentification = UserIdentification(eori = validEori), mucr = ucr_2, ucr = ucr)
       val expectedXml = scala.xml.Utility.trim(exampleAssociateDucrConsolidationRequestXML)
 
       ileMapper.generateConsolidationXml(consolidation) shouldBe expectedXml

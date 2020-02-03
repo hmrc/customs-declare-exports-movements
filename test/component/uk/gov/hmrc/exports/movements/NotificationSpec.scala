@@ -21,6 +21,7 @@ import java.time.Instant
 import play.api.libs.json.Json
 import play.api.test.Helpers._
 import uk.gov.hmrc.exports.movements.controllers.routes
+import uk.gov.hmrc.exports.movements.models.UserIdentification
 import uk.gov.hmrc.exports.movements.models.movements.Transport
 import uk.gov.hmrc.exports.movements.models.notifications.Notification
 import uk.gov.hmrc.exports.movements.models.notifications.queries.{DucrInfo, GoodsItemInfo, IleQueryResponseData, MovementInfo}
@@ -34,7 +35,12 @@ import uk.gov.hmrc.exports.movements.models.submissions.{ActionType, Submission}
 class NotificationSpec extends ComponentSpec {
 
   private val submission =
-    Submission(eori = "eori", providerId = Some("pid"), conversationId = "conversation-id", ucrBlocks = Seq.empty, actionType = ActionType.Arrival)
+    Submission(
+      userIdentification = UserIdentification(eori = "eori", providerId = Some("pid")),
+      conversationId = "conversation-id",
+      ucrBlocks = Seq.empty,
+      actionType = ActionType.Arrival
+    )
   private val notification = Notification(
     conversationId = "conversation-id",
     responseType = "response-type",

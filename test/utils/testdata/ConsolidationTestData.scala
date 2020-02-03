@@ -19,7 +19,6 @@ package utils.testdata
 import play.api.http.{ContentTypes, HeaderNames}
 import play.api.libs.json.{JsObject, JsString, JsValue}
 import play.api.mvc.Codec
-import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames
 import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation._
 import utils.testdata.CommonTestData._
 
@@ -27,9 +26,9 @@ import scala.xml.{Elem, Node}
 
 object ConsolidationTestData {
 
-  val associateDucrRequest = AssociateDucrRequest(eori = validEori, providerId = Some(validProviderId), mucr = ucr, ucr = ucr_2)
-  val disassiociateDucrRequest = DisassociateDucrRequest(eori = validEori, providerId = Some(validProviderId), ucr = ucr_2)
-  val shutMucrRequest = ShutMucrRequest(eori = validEori, providerId = Some(validProviderId), mucr = ucr)
+  val associateDucrRequest = AssociateDucrRequest(userIdentification = validUserIdentification, mucr = ucr, ucr = ucr_2)
+  val disassiociateDucrRequest = DisassociateDucrRequest(userIdentification = validUserIdentification, ucr = ucr_2)
+  val shutMucrRequest = ShutMucrRequest(userIdentification = validUserIdentification, mucr = ucr)
 
   val exampleShutMucrConsolidationRequestXML: Node =
     <inventoryLinkingConsolidationRequest>

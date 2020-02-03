@@ -23,6 +23,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.verify
 import play.api.libs.json.Json
 import play.api.test.Helpers._
 import uk.gov.hmrc.exports.movements.controllers.routes
+import uk.gov.hmrc.exports.movements.models.UserIdentification
 import uk.gov.hmrc.exports.movements.models.movements.Transport
 import uk.gov.hmrc.exports.movements.models.notifications.Notification
 import uk.gov.hmrc.exports.movements.models.notifications.queries._
@@ -36,8 +37,7 @@ import uk.gov.hmrc.exports.movements.models.submissions.IleQuerySubmission
 class IleQuerySpec extends ComponentSpec {
 
   private val ileQuerySubmission = IleQuerySubmission(
-    eori = "eori",
-    providerId = Some("provider-id"),
+    userIdentification = UserIdentification(eori = "eori", providerId = Some("provider-id")),
     conversationId = "conversation-id",
     ucrBlock = UcrBlock(ucr = "UCR-123", ucrType = "D")
   )
@@ -97,7 +97,6 @@ class IleQuerySpec extends ComponentSpec {
         "parentMucr" -> "parent-mucr",
         "declarationId" -> "declaration-id",
         "entryStatus" -> Json.obj("ics" -> "3", "roe" -> "6", "soe" -> "14"),
-
         "movements" -> Json.arr(
           Json.obj(
             "messageCode" -> "message-code",
@@ -147,7 +146,8 @@ class IleQuerySpec extends ComponentSpec {
 
       val submissions: Seq[IleQuerySubmission] = theIleQuerySubmissionsFor("eori")
       submissions.size mustBe 1
-      submissions.head.providerId mustBe Some("provider-id")
+      submissions.head.userIdentification.eori mustBe Some("eori")
+      submissions.head.userIdentification.providerId mustBe Some("provider-id")
       submissions.head.conversationId mustBe "conversation-id"
       submissions.head.ucrBlock mustBe UcrBlock("UCR-123", "D")
 

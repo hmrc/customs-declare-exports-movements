@@ -16,7 +16,10 @@
 
 package uk.gov.hmrc.exports.movements.models
 
-trait UserIdentification {
-  val eori: String
-  val providerId: Option[String]
+import play.api.libs.json.Json
+
+case class UserIdentification(eori: String, providerId: Option[String] = None)
+
+object UserIdentification {
+  implicit val format = Json.format[UserIdentification]
 }

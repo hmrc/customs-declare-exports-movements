@@ -24,6 +24,7 @@ import play.api.mvc.Request
 import play.api.test.Helpers._
 import play.api.test._
 import uk.gov.hmrc.exports.movements.controllers.ConsolidationController
+import uk.gov.hmrc.exports.movements.models.UserIdentification
 import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation
 import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation._
 import uk.gov.hmrc.exports.movements.services.SubmissionService
@@ -40,7 +41,7 @@ class ConsolidationControllerSpec extends WordSpec with BeforeAndAfterEach with 
 
   private val mucr = ucr
   private val ducr = ucr_2
-  private val correctRequest = AssociateDucrRequest(eori = validEori, mucr = mucr, ucr = ducr)
+  private val correctRequest = AssociateDucrRequest(userIdentification = UserIdentification(eori = validEori), mucr = mucr, ucr = ducr)
 
   override protected def beforeEach(): Unit =
     super.beforeEach()

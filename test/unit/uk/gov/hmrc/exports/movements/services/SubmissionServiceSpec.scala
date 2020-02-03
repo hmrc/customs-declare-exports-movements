@@ -60,8 +60,7 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
     "successfully submit movement" in new Test {
       val arrivalSubmission =
         Submission(
-          eori = validEori,
-          providerId = Some(validProviderId),
+          userIdentification = validUserIdentification,
           conversationId = conversationId,
           ucrBlocks = Seq(UcrBlock(ucr, "D")),
           actionType = ActionType.Arrival
@@ -70,7 +69,7 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
       when(wcoMapperMock.generateInventoryLinkingMovementRequestXml(any())).thenReturn(exampleArrivalRequestXML("123"))
       when(customsInventoryLinkingExportsConnectorMock.submit(any(), any())(any()))
         .thenReturn(Future.successful(CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId))))
-      when(submissionFactoryMock.buildMovementSubmission(any(), any(), any(), any(), any()))
+      when(submissionFactoryMock.buildMovementSubmission(any(), any(), any(), any()))
         .thenReturn(arrivalSubmission)
       when(submissionRepositoryMock.insert(any())(any())).thenReturn(Future.successful(dummyWriteResultSuccess))
 
@@ -78,10 +77,9 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
 
       verify(wcoMapperMock).generateInventoryLinkingMovementRequestXml(meq(exampleArrivalRequest))
       verify(customsInventoryLinkingExportsConnectorMock)
-        .submit(meq(exampleArrivalRequest), meq(exampleArrivalRequestXML("123")))(any())
+        .submit(meq(exampleArrivalRequest.userIdentification), meq(exampleArrivalRequestXML("123")))(any())
       verify(submissionFactoryMock).buildMovementSubmission(
-        meq(validEori),
-        meq(Some(validProviderId)),
+        meq(validUserIdentification),
         meq(conversationId),
         meq(exampleArrivalRequestXML("123")),
         meq(exampleArrivalRequest)
@@ -106,8 +104,7 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
 
       val shutMucrSubmission =
         Submission(
-          eori = validEori,
-          providerId = Some(validProviderId),
+          userIdentification = validUserIdentification,
           conversationId = conversationId,
           ucrBlocks = Seq.empty,
           actionType = ActionType.ShutMucr
@@ -116,7 +113,7 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
       when(wcoMapperMock.generateConsolidationXml(any())).thenReturn(exampleShutMucrConsolidationRequestXML)
       when(customsInventoryLinkingExportsConnectorMock.submit(any(), any())(any()))
         .thenReturn(Future.successful(CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId))))
-      when(submissionFactoryMock.buildConsolidationSubmission(any(), any(), any(), any(), any()))
+      when(submissionFactoryMock.buildConsolidationSubmission(any(), any(), any(), any()))
         .thenReturn(shutMucrSubmission)
       when(submissionRepositoryMock.insert(any())(any())).thenReturn(Future.successful(dummyWriteResultSuccess))
 
@@ -124,10 +121,9 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
 
       verify(wcoMapperMock).generateConsolidationXml(meq(shutMucrRequest))
       verify(customsInventoryLinkingExportsConnectorMock)
-        .submit(meq(shutMucrRequest), meq(exampleShutMucrConsolidationRequestXML))(any())
+        .submit(meq(shutMucrRequest.userIdentification), meq(exampleShutMucrConsolidationRequestXML))(any())
       verify(submissionFactoryMock).buildConsolidationSubmission(
-        meq(validEori),
-        meq(Some(validProviderId)),
+        meq(validUserIdentification),
         meq(conversationId),
         meq(exampleShutMucrConsolidationRequestXML),
         meq(SHUT_MUCR)

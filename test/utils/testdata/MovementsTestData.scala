@@ -18,6 +18,7 @@ package utils.testdata
 
 import org.joda.time.{DateTime, DateTimeZone}
 import play.api.libs.json.{JsValue, Json}
+import uk.gov.hmrc.exports.movements.models.UserIdentification
 import uk.gov.hmrc.exports.movements.models.movements.{Movement, _}
 import uk.gov.hmrc.exports.movements.models.notifications.standard.{UcrBlock => UcrBlockModel}
 import uk.gov.hmrc.exports.movements.models.submissions.{ActionType, IleQuerySubmission, Submission}
@@ -47,8 +48,7 @@ object MovementsTestData {
     }
 
   val exampleArrivalRequest = Movement(
-    eori = validEori,
-    providerId = Some(validProviderId),
+    userIdentification = validUserIdentification,
     choice = MovementType.Arrival,
     consignmentReference = ConsignmentReference("D", ucr),
     movementDetails = Some(MovementDetails(dateTimeString)),
@@ -73,8 +73,7 @@ object MovementsTestData {
     }
 
   val exampleRetrospectiveArrivalRequest = Movement(
-    eori = validEori,
-    providerId = Some(validProviderId),
+    userIdentification = validUserIdentification,
     choice = MovementType.RetrospectiveArrival,
     consignmentReference = ConsignmentReference("D", ucr),
     movementDetails = None,
@@ -103,8 +102,7 @@ object MovementsTestData {
     }
 
   val exampleDepartureRequest: Movement = Movement(
-    eori = validEori,
-    providerId = Some(validProviderId),
+    userIdentification = validUserIdentification,
     choice = MovementType.Departure,
     consignmentReference = ConsignmentReference("D", "7GB123456789000-123ABC456DEFQWERT"),
     movementDetails = Some(MovementDetails(dateTimeString)),
@@ -123,15 +121,20 @@ object MovementsTestData {
     actionType: ActionType = ActionType.Arrival
   ): Submission =
     Submission(
-      eori = eori,
-      providerId = providerId,
+      userIdentification = UserIdentification(eori = eori, providerId = providerId),
       conversationId = conversationId,
       ucrBlocks = Seq(UcrBlockModel(ucr = ucr, ucrType = ucrType)),
       actionType = actionType
     )
 
   def emptySubmission: Submission =
-    Submission(uuid = "", eori = "", providerId = None, conversationId = "", ucrBlocks = Seq.empty, actionType = ActionType.Arrival)
+    Submission(
+      uuid = "",
+      userIdentification = UserIdentification(eori = "", providerId = None),
+      conversationId = "",
+      ucrBlocks = Seq.empty,
+      actionType = ActionType.Arrival
+    )
 
   def validInventoryLinkingMovementRequest = InventoryLinkingMovementRequest(
     messageCode = "11",
@@ -150,6 +153,10 @@ object MovementsTestData {
     ucr: String = ucr,
     ucrType: String = "D"
   ): IleQuerySubmission =
-    IleQuerySubmission(eori = eori, providerId = providerId, conversationId = conversationId, ucrBlock = UcrBlockModel(ucr = ucr, ucrType = ucrType))
+    IleQuerySubmission(
+      userIdentification = UserIdentification(eori = eori, providerId = providerId),
+      conversationId = conversationId,
+      ucrBlock = UcrBlockModel(ucr = ucr, ucrType = ucrType)
+    )
 
 }

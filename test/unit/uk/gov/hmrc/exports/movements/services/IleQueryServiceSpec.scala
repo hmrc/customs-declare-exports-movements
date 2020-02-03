@@ -81,7 +81,7 @@ class IleQueryServiceSpec extends WordSpec with MockitoSugar with MustMatchers w
 
   "IleQueryService on submit" when {
 
-    val ileQueryRequest = IleQueryRequest(validEori, Some(validProviderId), UcrBlock(ucr = ucr, ucrType = "D"))
+    val ileQueryRequest = IleQueryRequest(validUserIdentification, UcrBlock(ucr = ucr, ucrType = "D"))
 
     "everything works correctly" should {
 
@@ -109,7 +109,7 @@ class IleQueryServiceSpec extends WordSpec with MockitoSugar with MustMatchers w
 
         ileQueryService.submit(ileQueryRequest).futureValue
 
-        verify(ileConnector, times(1)).submit(meq(ileQueryRequest), meq(queryXml))(any())
+        verify(ileConnector, times(1)).submit(meq(ileQueryRequest.userIdentification), meq(queryXml))(any())
       }
 
       "call IleQueryRepository once, passing constructed IleQuerySubmission with Conversation ID returned from IleConnector" in {
@@ -123,9 +123,9 @@ class IleQueryServiceSpec extends WordSpec with MockitoSugar with MustMatchers w
         verify(ileQuerySubmissionRepository, times(1)).insert(ileQuerySubmissionCaptor.capture())(any())
         val actualIleQuerySubmission = ileQuerySubmissionCaptor.getValue
 
-        actualIleQuerySubmission.eori mustBe validEori
-        actualIleQuerySubmission.providerId mustBe defined
-        actualIleQuerySubmission.providerId.get mustBe validProviderId
+        actualIleQuerySubmission.userIdentification.eori mustBe validEori
+        actualIleQuerySubmission.userIdentification.providerId mustBe defined
+        actualIleQuerySubmission.userIdentification.providerId.get mustBe validProviderId
         actualIleQuerySubmission.conversationId mustBe conversationId
         actualIleQuerySubmission.ucrBlock mustBe UcrBlock(ucr = ucr, ucrType = "D")
       }
@@ -272,7 +272,7 @@ class IleQueryServiceSpec extends WordSpec with MockitoSugar with MustMatchers w
       "call NotificationRepository, passing Conversation ID provided" in {
 
         when(ileQuerySubmissionRepository.findBy(any[SearchParameters]))
-          .thenReturn(Future.successful(Seq(exampleIleQuerySubmission( providerId = Some(validProviderId)))))
+          .thenReturn(Future.successful(Seq(exampleIleQuerySubmission(providerId = Some(validProviderId)))))
         when(ileQueryTimeoutCalculator.hasQueryTimedOut(any[IleQuerySubmission])).thenReturn(false)
         when(notificationRepository.findByConversationIds(any[Seq[String]])).thenReturn(Future.successful(Seq(notificationIleQueryResponse_1)))
 

@@ -46,12 +46,11 @@ class IleQueryService @Inject()(
   def submit(ileQueryRequest: IleQueryRequest)(implicit hc: HeaderCarrier): Future[String] = {
     val requestXml = ileMapper.generateIleQuery(ileQueryRequest.ucrBlock)
 
-    ileConnector.submit(ileQueryRequest, requestXml).flatMap {
+    ileConnector.submit(ileQueryRequest.userIdentification, requestXml).flatMap {
 
       case CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId)) =>
         val submission = IleQuerySubmission(
-          eori = ileQueryRequest.eori,
-          providerId = ileQueryRequest.providerId,
+          userIdentification = ileQueryRequest.userIdentification,
           conversationId = conversationId,
           ucrBlock = ileQueryRequest.ucrBlock
         )

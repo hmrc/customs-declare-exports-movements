@@ -24,6 +24,7 @@ import play.api.mvc.Request
 import play.api.test.Helpers._
 import play.api.test._
 import uk.gov.hmrc.exports.movements.controllers.MovementsController
+import uk.gov.hmrc.exports.movements.models.UserIdentification
 import uk.gov.hmrc.exports.movements.models.movements.{ConsignmentReference, Movement, MovementDetails, MovementType}
 import uk.gov.hmrc.exports.movements.services.SubmissionService
 import unit.uk.gov.hmrc.exports.movements.base.UnitSpec
@@ -41,7 +42,7 @@ class MovementsControllerSpec extends UnitSpec with MockitoSugar with BeforeAndA
     new MovementsController(submissionServiceMock, stubControllerComponents())(global)
 
   private val correctJson = Movement(
-    eori = validEori,
+    userIdentification = UserIdentification(eori = validEori),
     choice = MovementType.Arrival,
     consignmentReference = ConsignmentReference("reference", "value"),
     movementDetails = Some(MovementDetails("dateTime"))

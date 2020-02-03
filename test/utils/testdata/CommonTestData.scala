@@ -20,6 +20,7 @@ import play.api.http.HeaderNames.CONTENT_TYPE
 import play.api.http.{ContentTypes, HeaderNames}
 import play.api.mvc.Codec
 import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames._
+import uk.gov.hmrc.exports.movements.models.UserIdentification
 import utils.testdata.TestDataHelper.randomAlphanumericString
 
 object CommonTestData {
@@ -39,6 +40,9 @@ object CommonTestData {
   val validEori_2: String = "GB089393635248512"
   val validProviderId: String = "PROVIDERID123"
   val validProviderId_2: String = "PROVIDERID456"
+  val validUserIdentification = UserIdentification(validEori, Some(validProviderId))
+  val validUserIdentification_2 = UserIdentification(validEori_2, Some(validProviderId_2))
+
   val conversationId: String = "b1c09f1b-7c94-4e90-b754-7c5c71c44e11"
   val conversationId_2: String = "b1c09f1b-7c94-4e90-b754-7c5c71c44e22"
   val conversationId_3: String = "b1c09f1b-7c94-4e90-b754-7c5c71c44e33"

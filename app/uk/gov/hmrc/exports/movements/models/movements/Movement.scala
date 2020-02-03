@@ -21,14 +21,13 @@ import uk.gov.hmrc.exports.movements.controllers.util.JSONResponses
 import uk.gov.hmrc.exports.movements.models.UserIdentification
 
 case class Movement(
-  override val eori: String,
-  override val providerId: Option[String] = None,
+  userIdentification: UserIdentification,
   choice: MovementType,
   consignmentReference: ConsignmentReference,
   movementDetails: Option[MovementDetails] = None,
   location: Option[Location] = None,
   transport: Option[Transport] = None
-) extends UserIdentification
+)
 
 object Movement extends JSONResponses {
   implicit val format: Format[Movement] = Json.format[Movement]

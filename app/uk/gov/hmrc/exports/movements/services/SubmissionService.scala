@@ -43,11 +43,11 @@ class SubmissionService @Inject()(
   def submit(movement: Movement)(implicit hc: HeaderCarrier): Future[Unit] = {
     val requestXml = ileMapper.generateInventoryLinkingMovementRequestXml(movement)
 
-    customsInventoryLinkingExportsConnector.submit(movement, requestXml).flatMap {
+    customsInventoryLinkingExportsConnector.submit(movement.userIdentification, requestXml).flatMap {
       case CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId)) =>
         logger.info(s"Movement Submission Accepted with conversation-id=[$conversationId]")
         val newSubmission =
-          submissionFactory.buildMovementSubmission(movement.eori, movement.providerId, conversationId, requestXml, movement)
+          submissionFactory.buildMovementSubmission(movement.userIdentification, conversationId, requestXml, movement)
 
         submissionRepository.insert(newSubmission).map(_ => (): Unit)
 
@@ -62,12 +62,12 @@ class SubmissionService @Inject()(
   def submit(consolidation: Consolidation)(implicit hc: HeaderCarrier): Future[Unit] = {
     val requestXml = ileMapper.generateConsolidationXml(consolidation)
 
-    customsInventoryLinkingExportsConnector.submit(consolidation, requestXml).flatMap {
+    customsInventoryLinkingExportsConnector.submit(consolidation.userIdentification, requestXml).flatMap {
       case CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId)) =>
         logger.info(s"Consolidation Submission Accepted with conversation-id=[$conversationId]")
         val newSubmission =
           submissionFactory
-            .buildConsolidationSubmission(consolidation.eori, consolidation.providerId, conversationId, requestXml, consolidation.consolidationType)
+            .buildConsolidationSubmission(consolidation.userIdentification, conversationId, requestXml, consolidation.consolidationType)
 
         submissionRepository
           .insert(newSubmission)

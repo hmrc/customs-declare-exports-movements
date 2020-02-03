@@ -19,6 +19,7 @@ package component.uk.gov.hmrc.exports.movements
 import play.api.libs.json.Json
 import play.api.test.Helpers._
 import uk.gov.hmrc.exports.movements.controllers.routes
+import uk.gov.hmrc.exports.movements.models.UserIdentification
 import uk.gov.hmrc.exports.movements.models.submissions.{ActionType, Submission}
 
 /*
@@ -30,8 +31,7 @@ class SubmissionSpec extends ComponentSpec {
   private val submission =
     Submission(
       uuid = "id",
-      eori = "eori",
-      providerId = Some("pid"),
+      userIdentification = UserIdentification(eori = "eori", providerId = Some("pid")),
       conversationId = "conversation-id",
       ucrBlocks = Seq.empty,
       actionType = ActionType.Arrival,
@@ -39,8 +39,7 @@ class SubmissionSpec extends ComponentSpec {
     )
   private val submissionJson = Json.obj(
     "uuid" -> "id",
-    "eori" -> "eori",
-    "providerId" -> "pid",
+    "userIdentification" -> Json.obj("eori" -> "eori", "providerId" -> "pid"),
     "conversationId" -> "conversation-id",
     "ucrBlocks" -> Json.arr(),
     "actionType" -> "Arrival",

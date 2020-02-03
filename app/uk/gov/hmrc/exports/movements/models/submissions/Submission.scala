@@ -25,13 +25,12 @@ import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
 
 case class Submission(
   uuid: String = UUID.randomUUID().toString,
-  override val eori: String,
-  override val providerId: Option[String],
+  userIdentification: UserIdentification,
   conversationId: String,
   ucrBlocks: Seq[UcrBlock],
   actionType: ActionType,
   requestTimestamp: Instant = Instant.now()
-) extends UserIdentification
+)
 
 object Submission {
   implicit val format: OFormat[Submission] = Json.format[Submission]
