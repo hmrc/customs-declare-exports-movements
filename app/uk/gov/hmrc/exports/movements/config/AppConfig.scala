@@ -34,6 +34,9 @@ class AppConfig @Inject()(runModeConfiguration: Configuration, servicesConfig: S
 
   lazy val customsInventoryLinkingExportsRootUrl: String = servicesConfig.baseUrl("customs-inventory-linking-exports")
 
+  lazy val customsDeclarationsApiVersion: String =
+    servicesConfig.getString("microservice.services.customs-inventory-linking-exports.api-version")
+
   lazy val sendArrivalUrlSuffix: String = servicesConfig.getConfString(
     "customs-inventory-linking-exports.sendArrival",
     throw new IllegalStateException("Missing configuration for Customs Inventory Linking send arrival URI")
