@@ -38,6 +38,7 @@ class AppConfigSpec extends UnitSpec with MockitoSugar {
         |microservice.services.auth.port=8500
         |microservice.services.customs-inventory-linking-exports.host=localhost.ile
         |microservice.services.customs-inventory-linking-exports.port=9823
+        |microservice.services.customs-inventory-linking-exports.api-version=1.0
         |microservice.services.customs-inventory-linking-exports.sendArrival=/
         |microservice.services.customs-inventory-linking-exports.client-id.some-user-agent=some-user-agent-client-id
         |microservice.services.customs-inventory-linking-exports.client-id.default=localhost-client-id

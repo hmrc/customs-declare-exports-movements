@@ -39,6 +39,7 @@ class CustomsInventoryLinkingExportsConnectorSpec extends ConnectorSpec {
   "Customs Inventory Linking Exports Connector" should {
     given(config.customsInventoryLinkingExportsRootUrl).willReturn(downstreamURL)
     given(config.sendArrivalUrlSuffix).willReturn("/path")
+    given(config.customsDeclarationsApiVersion).willReturn("1.0")
     given(config.clientIdInventory(ArgumentMatchers.any[HeaderCarrier]())).willReturn("client-id")
 
     "POST to ILE" when {

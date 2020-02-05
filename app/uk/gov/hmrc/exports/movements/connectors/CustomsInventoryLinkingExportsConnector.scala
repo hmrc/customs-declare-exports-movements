@@ -34,7 +34,10 @@ import scala.xml.NodeSeq
 class CustomsInventoryLinkingExportsConnector @Inject()(appConfig: AppConfig, httpClient: HttpClient)(implicit ec: ExecutionContext) {
 
   private val logger = Logger(this.getClass)
-  private val contentHeaders = Seq(HeaderNames.ACCEPT -> "application/vnd.hmrc.1.0+xml", HeaderNames.CONTENT_TYPE -> ContentTypes.XML(Codec.utf_8))
+  private val contentHeaders = Seq(
+    HeaderNames.ACCEPT -> s"application/vnd.hmrc.${appConfig.customsDeclarationsApiVersion}+xml",
+    HeaderNames.CONTENT_TYPE -> ContentTypes.XML(Codec.utf_8)
+  )
 
   def submit(identification: UserIdentification, body: NodeSeq)(implicit hc: HeaderCarrier): Future[CustomsInventoryLinkingResponse] =
     httpClient
