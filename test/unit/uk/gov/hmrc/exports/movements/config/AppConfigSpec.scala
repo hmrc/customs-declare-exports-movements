@@ -69,7 +69,7 @@ class AppConfigSpec extends UnitSpec with MockitoSugar {
       "user agent is missing" in {
         val serviceConfig: AppConfig = appConfig(validServicesConfiguration)
         val hc: HeaderCarrier = HeaderCarrier()
-        serviceConfig.clientIdInventory(hc) shouldEqual "localhost-client-id"
+        serviceConfig.clientIdInventory(hc) shouldEqual "some-user-agent-client-id"
       }
     }
 
