@@ -23,7 +23,7 @@ import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsCo
 import uk.gov.hmrc.exports.movements.exceptions.CustomsInventoryLinkingUpstreamException
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
 import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation
-import uk.gov.hmrc.exports.movements.models.movements.Movement
+import uk.gov.hmrc.exports.movements.models.movements.MovementsExchange
 import uk.gov.hmrc.exports.movements.models.submissions.{Submission, SubmissionFactory}
 import uk.gov.hmrc.exports.movements.repositories.{SearchParameters, SubmissionRepository}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -40,7 +40,7 @@ class SubmissionService @Inject()(
 
   private val logger = Logger(this.getClass)
 
-  def submit(movement: Movement)(implicit hc: HeaderCarrier): Future[Unit] = {
+  def submit(movement: MovementsExchange)(implicit hc: HeaderCarrier): Future[Unit] = {
     val requestXml = ileMapper.generateInventoryLinkingMovementRequestXml(movement)
 
     customsInventoryLinkingExportsConnector.submit(movement, requestXml).flatMap {

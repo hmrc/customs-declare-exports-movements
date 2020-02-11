@@ -22,7 +22,7 @@ import java.time.{Clock, Instant}
 
 import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation
-import uk.gov.hmrc.exports.movements.models.movements.{Movement, Transport}
+import uk.gov.hmrc.exports.movements.models.movements.{MovementsExchange, Transport}
 import uk.gov.hmrc.exports.movements.models.notifications.standard
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType.ConsolidationType
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType.ConsolidationType._
@@ -38,10 +38,10 @@ class ILEMapper @Inject()(clock: Clock) {
 
   private val dateTimeFormatter = DateTimeFormatter.ISO_INSTANT
 
-  def generateInventoryLinkingMovementRequestXml(request: Movement): Node =
+  def generateInventoryLinkingMovementRequestXml(request: MovementsExchange): Node =
     xml.XML.loadString(generateInventoryLinkingMovementRequest(request).toXml)
 
-  private def generateInventoryLinkingMovementRequest(request: Movement): InventoryLinkingMovementRequest = {
+  private def generateInventoryLinkingMovementRequest(request: MovementsExchange): InventoryLinkingMovementRequest = {
 
     val departureDetails: Option[String] = request.choice match {
       case Departure => request.movementDetails.map(movement => formatOutputDateTime(parseDateTime(movement.dateTime)))

@@ -18,7 +18,7 @@ package utils.testdata
 
 import org.joda.time.{DateTime, DateTimeZone}
 import play.api.libs.json.{JsValue, Json}
-import uk.gov.hmrc.exports.movements.models.movements.{Movement, _}
+import uk.gov.hmrc.exports.movements.models.movements.{MovementsExchange, _}
 import uk.gov.hmrc.exports.movements.models.notifications.standard.{UcrBlock => UcrBlockModel}
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType.MovementType
 import uk.gov.hmrc.exports.movements.models.submissions.{ActionType, IleQuerySubmission, Submission}
@@ -47,7 +47,7 @@ object MovementsTestData {
       </inventoryLinkingMovementRequest>
     }
 
-  val exampleArrivalRequest = Movement(
+  val exampleArrivalRequest = MovementsExchange(
     eori = validEori,
     providerId = Some(validProviderId),
     choice = MovementType.Arrival,
@@ -73,7 +73,7 @@ object MovementsTestData {
       </inventoryLinkingMovementRequest>
     }
 
-  val exampleRetrospectiveArrivalRequest = Movement(
+  val exampleRetrospectiveArrivalRequest = MovementsExchange(
     eori = validEori,
     providerId = Some(validProviderId),
     choice = MovementType.RetrospectiveArrival,
@@ -103,7 +103,7 @@ object MovementsTestData {
     </inventoryLinkingMovementRequest>
     }
 
-  val exampleDepartureRequest: Movement = Movement(
+  val exampleDepartureRequest: MovementsExchange = MovementsExchange(
     eori = validEori,
     providerId = Some(validProviderId),
     choice = MovementType.Departure,

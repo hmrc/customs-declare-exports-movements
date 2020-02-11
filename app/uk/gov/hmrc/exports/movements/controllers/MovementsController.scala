@@ -18,7 +18,7 @@ package uk.gov.hmrc.exports.movements.controllers
 
 import javax.inject.{Inject, Singleton}
 import play.api.mvc._
-import uk.gov.hmrc.exports.movements.models.movements.Movement
+import uk.gov.hmrc.exports.movements.models.movements.MovementsExchange
 import uk.gov.hmrc.exports.movements.services.SubmissionService
 import uk.gov.hmrc.play.bootstrap.controller.BackendController
 
@@ -29,7 +29,7 @@ class MovementsController @Inject()(submissionService: SubmissionService, overri
   implicit executionContext: ExecutionContext
 ) extends BackendController(controllerComponents) {
 
-  def createMovement(): Action[Movement] = Action.async(parse.json[Movement]) { implicit request =>
+  def createMovement(): Action[MovementsExchange] = Action.async(parse.json[MovementsExchange]) { implicit request =>
     submissionService.submit(request.body).map(_ => Accepted(request.body))
   }
 }
