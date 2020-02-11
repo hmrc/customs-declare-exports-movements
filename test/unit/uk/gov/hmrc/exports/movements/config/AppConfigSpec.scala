@@ -71,7 +71,7 @@ class AppConfigSpec extends UnitSpec with MockitoSugar {
         val serviceConfig: AppConfig = appConfig(validServicesConfiguration)
         val hc: HeaderCarrier = HeaderCarrier()
 
-        val exception = intercept[MissingClientIDException]{
+        val exception = intercept[MissingClientIDException] {
           serviceConfig.clientIdInventory(hc)
         }
 

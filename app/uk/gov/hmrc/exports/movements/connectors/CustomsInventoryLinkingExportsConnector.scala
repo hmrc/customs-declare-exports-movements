@@ -54,7 +54,8 @@ class CustomsInventoryLinkingExportsConnector @Inject()(appConfig: AppConfig, ht
       if (identification.providerId.isDefined)
         Seq(
           CustomsHeaderNames.BadgeIdentifier -> "ABC123",
-          CustomsHeaderNames.SubmitterIdentifier -> "ABC123"
+          CustomsHeaderNames.SubmitterIdentifier -> "ABC123",
+          CustomsHeaderNames.XClientIdName -> appConfig.clientIdInventory
         )
       else Seq(CustomsHeaderNames.XClientIdName -> appConfig.clientIdInventory)
 

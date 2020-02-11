@@ -62,7 +62,7 @@ class SubmissionServiceSpec
           "microservice.services.customs-inventory-linking-exports.host" -> Host,
           "microservice.services.customs-inventory-linking-exports.port" -> Port,
           "microservice.services.customs-inventory-linking-exports.sendArrival" -> CustomsMovementsAPIConfig.submitMovementServiceContext,
-          "microservice.services.customs-inventory-linking-exports.client-id.default" -> CustomsMovementsAPIConfig.clientId
+          "microservice.services.customs-inventory-linking-exports.client-id.customs-movements-frontend" -> CustomsMovementsAPIConfig.clientId
         )
       )
       .build()
@@ -70,7 +70,7 @@ class SubmissionServiceSpec
 
   private lazy val movementsService = app.injector.instanceOf[SubmissionService]
 
-  private implicit val hc: HeaderCarrier = HeaderCarrier()
+  private implicit val hc: HeaderCarrier = HeaderCarrier(extraHeaders = Seq("user-agent" -> "customs-movements-frontend"))
 
   def withMovementSubmissionPersisted(result: Boolean): Unit =
     when(submissionRepository.insert(any())(any())).thenReturn(if (result) {
