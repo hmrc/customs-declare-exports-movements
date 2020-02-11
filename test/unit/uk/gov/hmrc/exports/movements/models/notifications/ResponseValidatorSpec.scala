@@ -33,9 +33,11 @@ import scala.xml.{NodeSeq, SAXParseException}
 class ResponseValidatorSpec extends WordSpec with MustMatchers {
 
   private val DefaultConfiguration = Configuration(
-    ConfigFactory.parseString(
-      "microservice.services.customs-inventory-linking-exports.schema-file-path=conf/schemas/exports/inventoryLinkingResponseExternal.xsd".stripMargin
-    )
+    ConfigFactory
+      .parseString("""
+        |mongodb.uri="mongodb://localhost:27017/customs-declare-exports-movements"
+        |microservice.services.customs-inventory-linking-exports.schema-file-path=conf/schemas/exports/inventoryLinkingResponseExternal.xsd
+        |""".stripMargin)
   )
 
   private def appConfig(conf: Configuration = DefaultConfiguration): AppConfig =

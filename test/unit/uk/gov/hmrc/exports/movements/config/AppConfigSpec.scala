@@ -35,6 +35,7 @@ class AppConfigSpec extends UnitSpec with MockitoSugar {
       """
         |urls.login="http://localhost:9949/auth-login-stub/gg-sign-in"
         |microservice.services.auth.host=localhost.auth
+        |mongodb.uri="mongodb://localhost:27017/customs-declare-exports-movements"
         |microservice.services.auth.port=8500
         |microservice.services.customs-inventory-linking-exports.host=localhost.ile
         |microservice.services.customs-inventory-linking-exports.port=9823
@@ -47,9 +48,12 @@ class AppConfigSpec extends UnitSpec with MockitoSugar {
         |microservice.ileQueryResponseTimeout.unit=SECONDS
       """.stripMargin
     )
-  private val emptyAppConfig: Config = ConfigFactory.parseString("")
+  private val invalidAppConfig: Config = ConfigFactory.parseString("""
+      |mongodb.uri="mongodb://localhost:27017/customs-movements-frontend"
+      |""".stripMargin)
+
   private val validServicesConfiguration = Configuration(validAppConfig)
-  private val emptyServicesConfiguration = Configuration(emptyAppConfig)
+  private val invalidServicesConfiguration = Configuration(invalidAppConfig)
 
   private def runMode(conf: Configuration): RunMode = new RunMode(conf, Test)
   private def servicesConfig(conf: Configuration) = new ServicesConfig(conf, runMode(conf))
@@ -80,7 +84,7 @@ class AppConfigSpec extends UnitSpec with MockitoSugar {
     }
 
     "throw an exception when mandatory configuration is invalid" in {
-      val configService: AppConfig = appConfig(emptyServicesConfiguration)
+      val configService: AppConfig = appConfig(invalidServicesConfiguration)
 
       val caught: RuntimeException = intercept[RuntimeException](configService.authUrl)
       caught.getMessage shouldBe "Could not find config auth.host"
