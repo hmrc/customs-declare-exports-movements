@@ -22,7 +22,8 @@ import play.api.libs.json.Json
 import play.api.test.Helpers._
 import uk.gov.hmrc.exports.movements.controllers.routes
 import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
-import uk.gov.hmrc.exports.movements.models.submissions.{ActionType, Submission}
+import uk.gov.hmrc.exports.movements.models.submissions.ActionType.MovementType
+import uk.gov.hmrc.exports.movements.models.submissions.Submission
 
 /*
  * Component Tests are Intentionally Explicit with the JSON input, XML & DB output and DONT use TestData helpers.
@@ -40,7 +41,7 @@ class ArrivalSpec extends ComponentSpec {
         routes.MovementsController.createMovement(),
         Json.obj(
           "eori" -> "eori",
-          "choice" -> "EAL",
+          "choice" -> "Arrival",
           "consignmentReference" -> Json.obj("reference" -> "M", "referenceValue" -> "UCR"),
           "location" -> Json.obj("code" -> "abc"),
           "movementDetails" -> Json.obj("dateTime" -> "2020-01-01T00:00:00Z"),
@@ -55,7 +56,7 @@ class ArrivalSpec extends ComponentSpec {
       submissions.size mustBe 1
       submissions.head.conversationId mustBe "conversation-id"
       submissions.head.ucrBlocks mustBe Seq(UcrBlock("UCR", "M"))
-      submissions.head.actionType mustBe ActionType.Arrival
+      submissions.head.actionType mustBe MovementType.Arrival
 
       verify(
         postRequestedToILE()

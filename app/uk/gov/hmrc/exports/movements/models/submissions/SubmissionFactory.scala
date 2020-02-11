@@ -18,9 +18,8 @@ package uk.gov.hmrc.exports.movements.models.submissions
 
 import javax.inject.Singleton
 import uk.gov.hmrc.exports.movements.models.XmlTags
-import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationType.ConsolidationType
-import uk.gov.hmrc.exports.movements.models.movements.Movement
 import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
+import uk.gov.hmrc.exports.movements.models.submissions.ActionType.{ConsolidationType, MovementType}
 
 import scala.xml.{Node, NodeSeq}
 
@@ -32,14 +31,14 @@ class SubmissionFactory {
     providerId: Option[String] = None,
     conversationId: String,
     requestXml: Node,
-    movementRequest: Movement
+    movementType: MovementType
   ): Submission =
     Submission(
       eori = eori,
       providerId = providerId,
       conversationId = conversationId,
       ucrBlocks = extractUcrListFrom(requestXml),
-      actionType = ActionType(movementRequest)
+      actionType = movementType
     )
 
   def buildConsolidationSubmission(
@@ -54,7 +53,7 @@ class SubmissionFactory {
       providerId = providerId,
       conversationId = conversationId,
       ucrBlocks = extractUcrListFrom(requestXml),
-      actionType = ActionType(consolidationType)
+      actionType = consolidationType
     )
 
   private def extractUcrListFrom(request: NodeSeq): Seq[UcrBlock] = {

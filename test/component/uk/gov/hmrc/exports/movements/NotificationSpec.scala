@@ -25,7 +25,8 @@ import uk.gov.hmrc.exports.movements.models.movements.Transport
 import uk.gov.hmrc.exports.movements.models.notifications.Notification
 import uk.gov.hmrc.exports.movements.models.notifications.queries.{DucrInfo, GoodsItemInfo, IleQueryResponseData, MovementInfo}
 import uk.gov.hmrc.exports.movements.models.notifications.standard.{Entry, EntryStatus, StandardNotificationData, UcrBlock}
-import uk.gov.hmrc.exports.movements.models.submissions.{ActionType, Submission}
+import uk.gov.hmrc.exports.movements.models.submissions.ActionType.MovementType
+import uk.gov.hmrc.exports.movements.models.submissions.Submission
 
 /*
  * Component Tests are Intentionally Explicit with the JSON input, XML & DB output and DONT use TestData helpers.
@@ -34,7 +35,7 @@ import uk.gov.hmrc.exports.movements.models.submissions.{ActionType, Submission}
 class NotificationSpec extends ComponentSpec {
 
   private val submission =
-    Submission(eori = "eori", providerId = Some("pid"), conversationId = "conversation-id", ucrBlocks = Seq.empty, actionType = ActionType.Arrival)
+    Submission(eori = "eori", providerId = Some("pid"), conversationId = "conversation-id", ucrBlocks = Seq.empty, actionType = MovementType.Arrival)
   private val notification = Notification(
     conversationId = "conversation-id",
     responseType = "response-type",

@@ -47,7 +47,7 @@ class SubmissionService @Inject()(
       case CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId)) =>
         logger.info(s"Movement Submission Accepted with conversation-id=[$conversationId]")
         val newSubmission =
-          submissionFactory.buildMovementSubmission(movement.eori, movement.providerId, conversationId, requestXml, movement)
+          submissionFactory.buildMovementSubmission(movement.eori, movement.providerId, conversationId, requestXml, movement.choice)
 
         submissionRepository.insert(newSubmission).map(_ => (): Unit)
 

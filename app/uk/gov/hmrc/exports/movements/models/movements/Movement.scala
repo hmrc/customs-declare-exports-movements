@@ -19,6 +19,7 @@ package uk.gov.hmrc.exports.movements.models.movements
 import play.api.libs.json.{Format, Json}
 import uk.gov.hmrc.exports.movements.controllers.util.JSONResponses
 import uk.gov.hmrc.exports.movements.models.UserIdentification
+import uk.gov.hmrc.exports.movements.models.submissions.ActionType.MovementType
 
 case class Movement(
   override val eori: String,

@@ -18,8 +18,8 @@ package unit.uk.gov.hmrc.exports.movements.models.consolidation
 
 import play.api.libs.json.{JsObject, JsString, JsSuccess, JsValue}
 import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation._
-import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationType._
 import uk.gov.hmrc.exports.movements.models.consolidation._
+import uk.gov.hmrc.exports.movements.models.submissions.ActionType.ConsolidationType._
 import unit.uk.gov.hmrc.exports.movements.base.UnitSpec
 import utils.testdata.CommonTestData._
 
@@ -35,7 +35,7 @@ class ConsolidationSpec extends UnitSpec {
       val associateDucrJson: JsValue =
         JsObject(
           Map(
-            "consolidationType" -> JsString(ASSOCIATE_DUCR.toString),
+            "consolidationType" -> JsString(DucrAssociation.typeName),
             "eori" -> JsString(validEori),
             "mucr" -> JsString(mucr),
             "ucr" -> JsString(ducr)
@@ -52,7 +52,7 @@ class ConsolidationSpec extends UnitSpec {
       val associateMucrJson: JsValue =
         JsObject(
           Map(
-            "consolidationType" -> JsString(ASSOCIATE_MUCR.toString),
+            "consolidationType" -> JsString(MucrAssociation.typeName),
             "eori" -> JsString(validEori),
             "mucr" -> JsString(mucr),
             "ucr" -> JsString(mucr)
@@ -67,7 +67,7 @@ class ConsolidationSpec extends UnitSpec {
     "correct read Disassociate Ducr request" in {
 
       val disassociateDucrJson: JsValue =
-        JsObject(Map("consolidationType" -> JsString(DISASSOCIATE_DUCR.toString), "eori" -> JsString(validEori), "ucr" -> JsString(ducr)))
+        JsObject(Map("consolidationType" -> JsString(DucrDisassociation.typeName), "eori" -> JsString(validEori), "ucr" -> JsString(ducr)))
 
       val expectedResult = DisassociateDucrRequest(eori = validEori, ucr = ducr)
 
@@ -77,7 +77,7 @@ class ConsolidationSpec extends UnitSpec {
     "correct read Disassociate Mucr request" in {
 
       val disassociateMucrJson: JsValue =
-        JsObject(Map("consolidationType" -> JsString(DISASSOCIATE_MUCR.toString), "eori" -> JsString(validEori), "ucr" -> JsString(mucr)))
+        JsObject(Map("consolidationType" -> JsString(MucrDisassociation.typeName), "eori" -> JsString(validEori), "ucr" -> JsString(mucr)))
 
       val expectedResult = DisassociateMucrRequest(eori = validEori, ucr = mucr)
 
@@ -87,7 +87,7 @@ class ConsolidationSpec extends UnitSpec {
     "correct read Shut Mucr request" in {
 
       val shutMucrJson: JsValue =
-        JsObject(Map("consolidationType" -> JsString(SHUT_MUCR.toString), "eori" -> JsString(validEori), "mucr" -> JsString(mucr)))
+        JsObject(Map("consolidationType" -> JsString(ShutMucr.typeName), "eori" -> JsString(validEori), "mucr" -> JsString(mucr)))
 
       val expectedResult = ShutMucrRequest(eori = validEori, mucr = mucr)
 

@@ -20,8 +20,9 @@ import java.time.Instant
 
 import javax.inject.Inject
 import uk.gov.hmrc.exports.movements.models.XmlTags
-import uk.gov.hmrc.exports.movements.models.movements.{MovementType, Transport}
+import uk.gov.hmrc.exports.movements.models.movements.Transport
 import uk.gov.hmrc.exports.movements.models.notifications.queries._
+import uk.gov.hmrc.exports.movements.models.submissions.ActionType.MovementType._
 
 import scala.xml.{Node, NodeSeq}
 
@@ -73,8 +74,8 @@ class IleQueryResponseParser @Inject()(commonTypesParser: CommonTypesParser) ext
   )
 
   private def getMovementDateTimeXmlTag(movementXml: Node): String = (movementXml \ XmlTags.messageCode).text match {
-    case MovementType.Arrival.value | MovementType.RetrospectiveArrival.value => XmlTags.goodsArrivalDateTime
-    case MovementType.Departure.value                                         => XmlTags.goodsDepartureDateTime
+    case Arrival.ileCode | RetrospectiveArrival.ileCode => XmlTags.goodsArrivalDateTime
+    case Departure.ileCode                              => XmlTags.goodsDepartureDateTime
   }
 
   private def parseGoodsItemInfo(goodsItemXml: Node): GoodsItemInfo =

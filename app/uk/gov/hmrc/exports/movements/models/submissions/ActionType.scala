@@ -17,52 +17,75 @@
 package uk.gov.hmrc.exports.movements.models.submissions
 
 import play.api.libs.json._
-import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationType.{ConsolidationType, _}
-import uk.gov.hmrc.exports.movements.models.movements.{Movement, MovementType}
 
-sealed abstract class ActionType(val value: String)
+abstract class ActionType(val typeName: String)
 
 object ActionType {
-  case object Arrival extends ActionType("Arrival")
-  case object RetrospectiveArrival extends ActionType("RetrospectiveArrival")
-  case object Departure extends ActionType("Departure")
-  case object DucrAssociation extends ActionType("DucrAssociation")
-  case object DucrDisassociation extends ActionType("DucrDisassociation")
-  case object MucrAssociation extends ActionType("MucrAssociation")
-  case object MucrDisassociation extends ActionType("MucrDisassociation")
-  case object ShutMucr extends ActionType("ShutMucr")
+
   case object IleQuery extends ActionType("IleQuery")
 
-  implicit val format = new Format[ActionType] {
-    override def writes(actionType: ActionType): JsValue = JsString(actionType.value)
+  abstract class ConsolidationType(override val typeName: String, val ileCode: String) extends ActionType(typeName)
+  object ConsolidationType {
+    case object DucrAssociation extends ConsolidationType("DucrAssociation", "EAC")
+    case object MucrAssociation extends ConsolidationType("MucrAssociation", "EAC")
+    case object DucrDisassociation extends ConsolidationType("DucrDisassociation", "EAC")
+    case object MucrDisassociation extends ConsolidationType("MucrDisassociation", "EAC")
+    case object ShutMucr extends ConsolidationType("ShutMucr", "CST")
 
-    override def reads(json: JsValue): JsResult[ActionType] = json match {
-      case JsString("Arrival")              => JsSuccess(Arrival)
-      case JsString("RetrospectiveArrival") => JsSuccess(RetrospectiveArrival)
-      case JsString("Departure")            => JsSuccess(Departure)
-      case JsString("DucrAssociation")      => JsSuccess(DucrAssociation)
-      case JsString("DucrDisassociation")   => JsSuccess(DucrDisassociation)
-      case JsString("MucrAssociation")      => JsSuccess(MucrAssociation)
-      case JsString("MucrDisassociation")   => JsSuccess(MucrDisassociation)
-      case JsString("ShutMucr")             => JsSuccess(ShutMucr)
-      case JsString("IleQuery")             => JsSuccess(IleQuery)
-      case _                                => JsError("Unknown ActionType")
+    val allTypes: Set[ConsolidationType] = Set(DucrAssociation, MucrAssociation, DucrDisassociation, MucrDisassociation, ShutMucr)
+
+    def existsFor(typeName: String): Boolean = this.allTypes.map(_.typeName).contains(typeName)
+
+    implicit val format: Format[ConsolidationType] = new Format[ConsolidationType] {
+      override def writes(consolidationType: ConsolidationType): JsValue = JsString(consolidationType.typeName)
+
+      override def reads(json: JsValue): JsResult[ConsolidationType] = json match {
+        case JsString("DucrAssociation")    => JsSuccess(DucrAssociation)
+        case JsString("MucrAssociation")    => JsSuccess(MucrAssociation)
+        case JsString("DucrDisassociation") => JsSuccess(DucrDisassociation)
+        case JsString("MucrDisassociation") => JsSuccess(MucrDisassociation)
+        case JsString("ShutMucr")           => JsSuccess(ShutMucr)
+        case unknownType                    => JsError(s"Unknown ConsolidationType: [$unknownType]")
+      }
     }
   }
 
-  def apply(consolidationType: ConsolidationType): ActionType = consolidationType match {
-    case ASSOCIATE_DUCR    => DucrAssociation
-    case DISASSOCIATE_DUCR => DucrDisassociation
-    case ASSOCIATE_MUCR    => MucrAssociation
-    case DISASSOCIATE_MUCR => MucrDisassociation
-    case SHUT_MUCR         => ShutMucr
-    case _                 => throw new IllegalArgumentException("Incorrect consolidation type")
+  abstract class MovementType(override val typeName: String, val ileCode: String) extends ActionType(typeName)
+  object MovementType {
+    case object Arrival extends MovementType("Arrival", "EAL")
+    case object RetrospectiveArrival extends MovementType("RetrospectiveArrival", "RET")
+    case object Departure extends MovementType("Departure", "EDL")
+
+    val allTypes: Set[MovementType] = Set(Arrival, RetrospectiveArrival, Departure)
+
+    def existsFor(typeName: String): Boolean = this.allTypes.map(_.typeName).contains(typeName)
+
+    implicit val format: Format[MovementType] = new Format[MovementType] {
+      override def writes(movementType: MovementType): JsValue = JsString(movementType.typeName)
+
+      override def reads(json: JsValue): JsResult[MovementType] = json match {
+        case JsString("Arrival")              => JsSuccess(Arrival)
+        case JsString("RetrospectiveArrival") => JsSuccess(RetrospectiveArrival)
+        case JsString("Departure")            => JsSuccess(Departure)
+        case unknownType                      => JsError(s"Unknown MovementType: [$unknownType]")
+      }
+    }
   }
 
-  def apply(movementRequest: Movement): ActionType = movementRequest.choice match {
-    case MovementType.Arrival              => Arrival
-    case MovementType.RetrospectiveArrival => RetrospectiveArrival
-    case MovementType.Departure            => Departure
-    case _                                 => throw new IllegalArgumentException("Incorrect movement type")
+  implicit val format: Format[ActionType] = new Format[ActionType] {
+    override def writes(actionType: ActionType): JsValue = actionType match {
+      case movementType: MovementType           => MovementType.format.writes(movementType)
+      case consolidationType: ConsolidationType => ConsolidationType.format.writes(consolidationType)
+      case IleQuery                             => JsString(IleQuery.typeName)
+      case other                                => JsString(other.typeName)
+    }
+
+    override def reads(json: JsValue): JsResult[ActionType] = json match {
+      case JsString("IleQuery")                                  => JsSuccess(IleQuery)
+      case JsString(value) if MovementType.existsFor(value)      => MovementType.format.reads(JsString(value))
+      case JsString(value) if ConsolidationType.existsFor(value) => ConsolidationType.format.reads(JsString(value))
+      case unknownType                                           => JsError(s"Unknown ActionType: [$unknownType]")
+    }
   }
+
 }
