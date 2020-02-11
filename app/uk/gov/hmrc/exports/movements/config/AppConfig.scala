@@ -22,11 +22,19 @@ import java.time.temporal.ChronoUnit
 import com.google.inject.{Inject, Singleton}
 import play.api.{Configuration, Logger}
 import uk.gov.hmrc.exports.movements.exceptions.MissingClientIDException
+import uk.gov.hmrc.exports.movements.mongobee.MongobeeConfig
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 @Singleton
 class AppConfig @Inject()(runModeConfiguration: Configuration, servicesConfig: ServicesConfig) {
+
+  private def loadConfig(key: String): String =
+    runModeConfiguration
+      .getOptional[String](key)
+      .getOrElse(throw new Exception(s"Missing configuration key: $key"))
+
+  MongobeeConfig(loadConfig("mongodb.uri"))
 
   private val logger: Logger = Logger(classOf[AppConfig])
 

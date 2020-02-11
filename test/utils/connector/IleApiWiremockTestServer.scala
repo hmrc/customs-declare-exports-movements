@@ -32,6 +32,7 @@ trait IleApiWiremockTestServer extends WiremockTestServer {
   protected val ileApieConfiguration: Configuration =
     Configuration.from(
       Map(
+        "mongodb.uri" -> "mongodb://localhost:27017/customs-declare-exports-movements",
         "microservice.services.customs-inventory-linking-exports.port" -> wirePort,
         "microservice.services.customs-inventory-linking-exports.client-id.some-user-agent" -> clientId
       )

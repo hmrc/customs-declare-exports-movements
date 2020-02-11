@@ -36,7 +36,7 @@ import uk.gov.hmrc.exports.movements.services.SubmissionService
 import uk.gov.hmrc.http.HeaderCarrier
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder.{buildSubmissionRepositoryMock, dummyWriteResultSuccess}
 import utils.CustomsMovementsAPIConfig
-import utils.ExternalServicesConfig.{Host, Port}
+import utils.ExternalServicesConfig.{mongoDBUri, Host, Port}
 import utils.stubs.CustomsMovementsAPIService
 import utils.testdata.MovementsTestData._
 
@@ -58,6 +58,7 @@ class SubmissionServiceSpec
       .overrides(bind[Clock].to(clock))
       .configure(
         Map(
+          "mongodb.uri" -> mongoDBUri,
           "microservice.services.customs-inventory-linking-exports.host" -> Host,
           "microservice.services.customs-inventory-linking-exports.port" -> Port,
           "microservice.services.customs-inventory-linking-exports.sendArrival" -> CustomsMovementsAPIConfig.submitMovementServiceContext,

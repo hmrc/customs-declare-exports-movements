@@ -128,4 +128,5 @@ object ExternalServicesConfig {
   val MdgSuppDecServiceContext = "/mdgSuppDecService/submitdeclaration"
   val AuditContext = "/write/audit.*"
   val NrsServiceContext = "/submission"
+  val mongoDBUri = "mongodb://localhost:27017/customs-declare-exports-movements"
 }
