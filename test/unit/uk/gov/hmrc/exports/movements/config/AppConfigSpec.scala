@@ -21,6 +21,7 @@ import org.scalatestplus.mockito.MockitoSugar
 import play.api.Configuration
 import play.api.Mode.Test
 import uk.gov.hmrc.exports.movements.config.AppConfig
+import uk.gov.hmrc.exports.movements.exceptions.MissingClientIDException
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.config.{RunMode, ServicesConfig}
 import unit.uk.gov.hmrc.exports.movements.base.UnitSpec
@@ -69,7 +70,12 @@ class AppConfigSpec extends UnitSpec with MockitoSugar {
       "user agent is missing" in {
         val serviceConfig: AppConfig = appConfig(validServicesConfiguration)
         val hc: HeaderCarrier = HeaderCarrier()
-        serviceConfig.clientIdInventory(hc) shouldEqual "some-user-agent-client-id"
+
+        val exception = intercept[MissingClientIDException]{
+          serviceConfig.clientIdInventory(hc)
+        }
+
+        exception.getMessage shouldBe ("Missing Client ID for [User Agent]")
       }
     }
 
