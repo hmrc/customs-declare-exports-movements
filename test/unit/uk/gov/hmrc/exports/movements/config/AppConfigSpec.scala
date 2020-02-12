@@ -38,7 +38,6 @@ class AppConfigSpec extends UnitSpec with MockitoSugar {
         |microservice.services.customs-inventory-linking-exports.port=9823
         |microservice.services.customs-inventory-linking-exports.sendArrival=/
         |microservice.services.customs-inventory-linking-exports.client-id.some-user-agent=some-user-agent-client-id
-        |microservice.services.customs-inventory-linking-exports.client-id.default=localhost-client-id
         |microservice.services.customs-inventory-linking-exports.schema-file-path=conf/schemas/exports/inventoryLinkingResponseExternal.xsd
       """.stripMargin
     )
@@ -75,8 +74,19 @@ class AppConfigSpec extends UnitSpec with MockitoSugar {
           serviceConfig.clientIdInventory(hc)
         }
 
-        exception.getMessage shouldBe ("Missing Client ID for [User Agent]")
+        exception.getMessage shouldBe "Missing Client ID for [User Agent]"
       }
+    }
+
+    "user agent is valid but no config" in {
+      val serviceConfig: AppConfig = appConfig(validServicesConfiguration)
+      val hc: HeaderCarrier = HeaderCarrier().withExtraHeaders("User-Agent" -> "invalid")
+
+      val exception = intercept[MissingClientIDException] {
+        serviceConfig.clientIdInventoryConfig(hc)
+      }
+
+      exception.getMessage shouldBe "Missing Client ID for [invalid]"
     }
 
     "throw an exception when mandatory configuration is invalid" in {
