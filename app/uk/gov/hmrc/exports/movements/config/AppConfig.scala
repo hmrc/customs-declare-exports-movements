@@ -44,14 +44,6 @@ class AppConfig @Inject()(runModeConfiguration: Configuration, servicesConfig: S
     servicesConfig.getConfString(s"customs-inventory-linking-exports.client-id.$userAgent", throw MissingClientIDException(userAgent))
   }
 
-  def clientIdInventoryConfig(implicit hc: HeaderCarrier): String = {
-    val userAgent = hc.headers.find(_._1.toLowerCase() == "user-agent").map(_._2).getOrElse {
-      logger.warn("Request have missing User-Agent header")
-      throw new IllegalStateException("Request have missing User-Agent header")
-    }
-    servicesConfig.getConfString(s"customs-inventory-linking-exports.client-id.$userAgent", throw MissingClientIDException(userAgent))
-  }
-
   lazy val ileSchemasFilePath = servicesConfig.getConfString(
     "customs-inventory-linking-exports.schema-file-path",
     throw new IllegalStateException("Missing configuration for ILE schemas file path")

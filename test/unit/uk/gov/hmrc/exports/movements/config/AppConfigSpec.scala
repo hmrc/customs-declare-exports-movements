@@ -78,17 +78,6 @@ class AppConfigSpec extends UnitSpec with MockitoSugar {
       }
     }
 
-    "user agent is valid but no config" in {
-      val serviceConfig: AppConfig = appConfig(validServicesConfiguration)
-      val hc: HeaderCarrier = HeaderCarrier().withExtraHeaders("User-Agent" -> "invalid")
-
-      val exception = intercept[MissingClientIDException] {
-        serviceConfig.clientIdInventoryConfig(hc)
-      }
-
-      exception.getMessage shouldBe "Missing Client ID for [invalid]"
-    }
-
     "throw an exception when mandatory configuration is invalid" in {
       val configService: AppConfig = appConfig(emptyServicesConfiguration)
 
