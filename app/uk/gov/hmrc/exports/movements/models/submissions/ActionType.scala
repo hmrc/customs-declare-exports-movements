@@ -34,7 +34,7 @@ object ActionType {
 
     val allTypes: Set[ConsolidationType] = Set(DucrAssociation, MucrAssociation, DucrDisassociation, MucrDisassociation, ShutMucr)
 
-    def existsFor(typeName: String): Boolean = this.allTypes.map(_.typeName).contains(typeName)
+    def existsFor(typeName: String): Boolean = this.allTypes.exists(_.typeName == typeName)
 
     implicit val format: Format[ConsolidationType] = new Format[ConsolidationType] {
       override def writes(consolidationType: ConsolidationType): JsValue = JsString(consolidationType.typeName)
@@ -55,10 +55,11 @@ object ActionType {
     case object Arrival extends MovementType("Arrival", "EAL")
     case object RetrospectiveArrival extends MovementType("RetrospectiveArrival", "RET")
     case object Departure extends MovementType("Departure", "EDL")
+    case object CreateEmptyMucr extends MovementType("CreateEmptyMucr", "EAL")
 
-    val allTypes: Set[MovementType] = Set(Arrival, RetrospectiveArrival, Departure)
+    val allTypes: Set[MovementType] = Set(Arrival, RetrospectiveArrival, Departure, CreateEmptyMucr)
 
-    def existsFor(typeName: String): Boolean = this.allTypes.map(_.typeName).contains(typeName)
+    def existsFor(typeName: String): Boolean = this.allTypes.exists(_.typeName == typeName)
 
     implicit val format: Format[MovementType] = new Format[MovementType] {
       override def writes(movementType: MovementType): JsValue = JsString(movementType.typeName)
@@ -67,6 +68,7 @@ object ActionType {
         case JsString("Arrival")              => JsSuccess(Arrival)
         case JsString("RetrospectiveArrival") => JsSuccess(RetrospectiveArrival)
         case JsString("Departure")            => JsSuccess(Departure)
+        case JsString("CreateEmptyMucr")      => JsSuccess(CreateEmptyMucr)
         case unknownType                      => JsError(s"Unknown MovementType: [$unknownType]")
       }
     }
