@@ -29,7 +29,7 @@ import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType.{ConsolidationType, MovementType}
 import uk.gov.hmrc.exports.movements.models.submissions.{Submission, SubmissionFactory}
 import uk.gov.hmrc.exports.movements.repositories.SearchParameters
-import uk.gov.hmrc.exports.movements.services.{ILEMapper, SubmissionService}
+import uk.gov.hmrc.exports.movements.services.{IleMapper, SubmissionService}
 import uk.gov.hmrc.http.HeaderCarrier
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
 import utils.testdata.CommonTestData._
@@ -48,7 +48,7 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
     val customsInventoryLinkingExportsConnectorMock = buildCustomsInventoryLinkingExportsConnectorMock
     val submissionRepositoryMock = buildSubmissionRepositoryMock
     val submissionFactoryMock = mock[SubmissionFactory]
-    val wcoMapperMock = mock[ILEMapper]
+    val wcoMapperMock = mock[IleMapper]
     val submissionService =
       new SubmissionService(customsInventoryLinkingExportsConnectorMock, submissionRepositoryMock, submissionFactoryMock, wcoMapperMock)(
         ExecutionContext.global

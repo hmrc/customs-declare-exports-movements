@@ -34,7 +34,7 @@ import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
 import uk.gov.hmrc.exports.movements.models.submissions.IleQuerySubmission
 import uk.gov.hmrc.exports.movements.models.{CustomsInventoryLinkingResponse, UserIdentification}
 import uk.gov.hmrc.exports.movements.repositories.{IleQuerySubmissionRepository, NotificationRepository, SearchParameters}
-import uk.gov.hmrc.exports.movements.services.{ILEMapper, IleQueryService}
+import uk.gov.hmrc.exports.movements.services.{IleMapper, IleQueryService}
 import uk.gov.hmrc.http.HeaderCarrier
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder.dummyWriteResultSuccess
 import utils.testdata.CommonTestData._
@@ -50,7 +50,7 @@ class IleQueryServiceSpec extends WordSpec with MockitoSugar with MustMatchers w
 
   implicit private val hc = mock[HeaderCarrier]
 
-  private val ileMapper = mock[ILEMapper]
+  private val ileMapper = mock[IleMapper]
   private val ileQuerySubmissionRepository = mock[IleQuerySubmissionRepository]
   private val notificationRepository = mock[NotificationRepository]
   private val ileConnector = mock[CustomsInventoryLinkingExportsConnector]

@@ -34,7 +34,7 @@ import scala.util.Random
 import scala.xml.{Node, NodeSeq}
 
 @Singleton
-class ILEMapper @Inject()(clock: Clock) {
+class IleMapper @Inject()(clock: Clock) {
 
   private val dateTimeFormatter = DateTimeFormatter.ISO_INSTANT
 

@@ -20,16 +20,16 @@ import java.time.{Clock, Instant, ZoneOffset}
 
 import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation.AssociateDucrRequest
 import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
-import uk.gov.hmrc.exports.movements.services.ILEMapper
+import uk.gov.hmrc.exports.movements.services.IleMapper
 import unit.uk.gov.hmrc.exports.movements.base.UnitSpec
 import utils.testdata.CommonTestData._
 import utils.testdata.ConsolidationTestData._
 import utils.testdata.MovementsTestData._
 
-class ILEMapperSpec extends UnitSpec {
+class IleMapperSpec extends UnitSpec {
 
   private val clock = Clock.fixed(Instant.parse(dateTimeString), ZoneOffset.UTC)
-  private val ileMapper = new ILEMapper(clock)
+  private val ileMapper = new IleMapper(clock)
 
   "ILE Mapper" should {
 

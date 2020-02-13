@@ -34,7 +34,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class IleQueryService @Inject()(
-  ileMapper: ILEMapper,
+  ileMapper: IleMapper,
   ileQuerySubmissionRepository: IleQuerySubmissionRepository,
   notificationRepository: NotificationRepository,
   ileConnector: CustomsInventoryLinkingExportsConnector,
