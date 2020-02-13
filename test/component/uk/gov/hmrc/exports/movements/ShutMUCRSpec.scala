@@ -21,7 +21,8 @@ import play.api.libs.json.Json
 import play.api.test.Helpers._
 import uk.gov.hmrc.exports.movements.controllers.routes
 import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
-import uk.gov.hmrc.exports.movements.models.submissions.{ActionType, Submission}
+import uk.gov.hmrc.exports.movements.models.submissions.ActionType.ConsolidationType
+import uk.gov.hmrc.exports.movements.models.submissions.Submission
 
 /*
  * Component Tests are Intentionally Explicit with the JSON input, XML & DB output and DONT use TestData helpers.
@@ -37,7 +38,7 @@ class ShutMUCRSpec extends ComponentSpec {
       // When
       val response = post(
         routes.ConsolidationController.submitConsolidation(),
-        Json.obj("providerId" -> "pid", "eori" -> "eori", "consolidationType" -> "SHUT_MUCR", "mucr" -> "UCR")
+        Json.obj("providerId" -> "pid", "eori" -> "eori", "consolidationType" -> "ShutMucr", "mucr" -> "UCR")
       )
 
       // Then
@@ -47,7 +48,7 @@ class ShutMUCRSpec extends ComponentSpec {
       submissions.size mustBe 1
       submissions.head.conversationId mustBe "conversation-id"
       submissions.head.ucrBlocks mustBe Seq(UcrBlock("UCR", "M"))
-      submissions.head.actionType mustBe ActionType.ShutMucr
+      submissions.head.actionType mustBe ConsolidationType.ShutMucr
 
       verify(
         postRequestedToILE()

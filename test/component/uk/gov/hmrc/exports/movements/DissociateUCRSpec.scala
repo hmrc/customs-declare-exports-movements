@@ -21,7 +21,8 @@ import play.api.libs.json.Json
 import play.api.test.Helpers._
 import uk.gov.hmrc.exports.movements.controllers.routes
 import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
-import uk.gov.hmrc.exports.movements.models.submissions.{ActionType, Submission}
+import uk.gov.hmrc.exports.movements.models.submissions.ActionType.ConsolidationType
+import uk.gov.hmrc.exports.movements.models.submissions.Submission
 
 /*
  * Component Tests are Intentionally Explicit with the JSON input, XML & DB output and DONT use TestData helpers.
@@ -39,7 +40,7 @@ class DissociateUCRSpec extends ComponentSpec {
         // When
         val response = post(
           routes.ConsolidationController.submitConsolidation(),
-          Json.obj("providerId" -> "pid", "eori" -> "eori", "consolidationType" -> "DISASSOCIATE_DUCR", "ucr" -> "DUCR")
+          Json.obj("providerId" -> "pid", "eori" -> "eori", "consolidationType" -> "DucrDisassociation", "ucr" -> "DUCR")
         )
 
         // Then
@@ -49,7 +50,7 @@ class DissociateUCRSpec extends ComponentSpec {
         submissions.size mustBe 1
         submissions.head.conversationId mustBe "conversation-id"
         submissions.head.ucrBlocks mustBe Seq(UcrBlock("DUCR", "D"))
-        submissions.head.actionType mustBe ActionType.DucrDisassociation
+        submissions.head.actionType mustBe ConsolidationType.DucrDisassociation
 
         verify(
           postRequestedToILE()
@@ -70,7 +71,7 @@ class DissociateUCRSpec extends ComponentSpec {
         // When
         val response = post(
           routes.ConsolidationController.submitConsolidation(),
-          Json.obj("providerId" -> "pid", "eori" -> "eori", "consolidationType" -> "DISASSOCIATE_MUCR", "ucr" -> "MUCR")
+          Json.obj("providerId" -> "pid", "eori" -> "eori", "consolidationType" -> "MucrDisassociation", "ucr" -> "MUCR")
         )
 
         // Then
@@ -80,7 +81,7 @@ class DissociateUCRSpec extends ComponentSpec {
         submissions.size mustBe 1
         submissions.head.conversationId mustBe "conversation-id"
         submissions.head.ucrBlocks mustBe Seq(UcrBlock("MUCR", "M"))
-        submissions.head.actionType mustBe ActionType.MucrDisassociation
+        submissions.head.actionType mustBe ConsolidationType.MucrDisassociation
 
         verify(
           postRequestedToILE()

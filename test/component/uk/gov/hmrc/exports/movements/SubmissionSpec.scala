@@ -19,7 +19,8 @@ package component.uk.gov.hmrc.exports.movements
 import play.api.libs.json.Json
 import play.api.test.Helpers._
 import uk.gov.hmrc.exports.movements.controllers.routes
-import uk.gov.hmrc.exports.movements.models.submissions.{ActionType, Submission}
+import uk.gov.hmrc.exports.movements.models.submissions.ActionType.MovementType
+import uk.gov.hmrc.exports.movements.models.submissions.Submission
 
 /*
  * Component Tests are Intentionally Explicit with the JSON input, XML & DB output and DONT use TestData helpers.
@@ -34,7 +35,7 @@ class SubmissionSpec extends ComponentSpec {
       providerId = Some("pid"),
       conversationId = "conversation-id",
       ucrBlocks = Seq.empty,
-      actionType = ActionType.Arrival,
+      actionType = MovementType.Arrival,
       requestTimestamp = currentInstant
     )
   private val submissionJson = Json.obj(

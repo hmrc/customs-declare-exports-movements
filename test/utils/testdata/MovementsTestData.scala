@@ -18,8 +18,9 @@ package utils.testdata
 
 import org.joda.time.{DateTime, DateTimeZone}
 import play.api.libs.json.{JsValue, Json}
-import uk.gov.hmrc.exports.movements.models.movements.{Movement, _}
+import uk.gov.hmrc.exports.movements.models.movements.{MovementsExchange, _}
 import uk.gov.hmrc.exports.movements.models.notifications.standard.{UcrBlock => UcrBlockModel}
+import uk.gov.hmrc.exports.movements.models.submissions.ActionType.MovementType
 import uk.gov.hmrc.exports.movements.models.submissions.{ActionType, IleQuerySubmission, Submission}
 import uk.gov.hmrc.wco.dec.inventorylinking.common.{AgentDetails, TransportDetails, UcrBlock}
 import uk.gov.hmrc.wco.dec.inventorylinking.movement.request.InventoryLinkingMovementRequest
@@ -46,7 +47,7 @@ object MovementsTestData {
       </inventoryLinkingMovementRequest>
     }
 
-  val exampleArrivalRequest = Movement(
+  val exampleArrivalRequest = MovementsExchange(
     eori = validEori,
     providerId = Some(validProviderId),
     choice = MovementType.Arrival,
@@ -72,7 +73,7 @@ object MovementsTestData {
       </inventoryLinkingMovementRequest>
     }
 
-  val exampleRetrospectiveArrivalRequest = Movement(
+  val exampleRetrospectiveArrivalRequest = MovementsExchange(
     eori = validEori,
     providerId = Some(validProviderId),
     choice = MovementType.RetrospectiveArrival,
@@ -102,7 +103,7 @@ object MovementsTestData {
     </inventoryLinkingMovementRequest>
     }
 
-  val exampleDepartureRequest: Movement = Movement(
+  val exampleDepartureRequest: MovementsExchange = MovementsExchange(
     eori = validEori,
     providerId = Some(validProviderId),
     choice = MovementType.Departure,
@@ -120,7 +121,7 @@ object MovementsTestData {
     conversationId: String = conversationId,
     ucr: String = randomUcr,
     ucrType: String = "D",
-    actionType: ActionType = ActionType.Arrival
+    actionType: ActionType = MovementType.Arrival
   ): Submission =
     Submission(
       eori = eori,
@@ -131,7 +132,7 @@ object MovementsTestData {
     )
 
   def emptySubmission: Submission =
-    Submission(uuid = "", eori = "", providerId = None, conversationId = "", ucrBlocks = Seq.empty, actionType = ActionType.Arrival)
+    Submission(uuid = "", eori = "", providerId = None, conversationId = "", ucrBlocks = Seq.empty, actionType = MovementType.Arrival)
 
   def validInventoryLinkingMovementRequest = InventoryLinkingMovementRequest(
     messageCode = "11",

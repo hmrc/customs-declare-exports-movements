@@ -24,7 +24,8 @@ import play.api.mvc.Request
 import play.api.test.Helpers._
 import play.api.test._
 import uk.gov.hmrc.exports.movements.controllers.MovementsController
-import uk.gov.hmrc.exports.movements.models.movements.{ConsignmentReference, Movement, MovementDetails, MovementType}
+import uk.gov.hmrc.exports.movements.models.movements.{ConsignmentReference, MovementDetails, MovementsExchange}
+import uk.gov.hmrc.exports.movements.models.submissions.ActionType.MovementType
 import uk.gov.hmrc.exports.movements.services.SubmissionService
 import unit.uk.gov.hmrc.exports.movements.base.UnitSpec
 import utils.FakeRequestCSRFSupport._
@@ -40,7 +41,7 @@ class MovementsControllerSpec extends UnitSpec with MockitoSugar with BeforeAndA
   private val controller =
     new MovementsController(submissionServiceMock, stubControllerComponents())(global)
 
-  private val correctJson = Movement(
+  private val correctJson = MovementsExchange(
     eori = validEori,
     choice = MovementType.Arrival,
     consignmentReference = ConsignmentReference("reference", "value"),
@@ -56,7 +57,7 @@ class MovementsControllerSpec extends UnitSpec with MockitoSugar with BeforeAndA
     super.afterEach()
   }
 
-  protected def postRequest(body: Movement): Request[Movement] =
+  protected def postRequest(body: MovementsExchange): Request[MovementsExchange] =
     FakeRequest("POST", "")
       .withHeaders(JsonContentTypeHeader)
       .withBody(body)
@@ -68,7 +69,7 @@ class MovementsControllerSpec extends UnitSpec with MockitoSugar with BeforeAndA
 
       "consolidation submission ends with success" in {
 
-        when(submissionServiceMock.submit(any[Movement]())(any()))
+        when(submissionServiceMock.submit(any[MovementsExchange]())(any()))
           .thenReturn(Future.successful((): Unit))
 
         val result = controller.createMovement()(postRequest(correctJson))

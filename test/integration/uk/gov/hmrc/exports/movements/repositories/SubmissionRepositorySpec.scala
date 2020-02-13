@@ -27,7 +27,7 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.JsString
 import reactivemongo.core.errors.DatabaseException
-import uk.gov.hmrc.exports.movements.models.submissions.ActionType
+import uk.gov.hmrc.exports.movements.models.submissions.ActionType.{ConsolidationType, MovementType}
 import uk.gov.hmrc.exports.movements.repositories.{SearchParameters, SubmissionRepository}
 import utils.TestMongoDB
 import utils.testdata.CommonTestData.{conversationId, _}
@@ -75,8 +75,8 @@ class SubmissionRepositorySpec
     "trying to insert Submission with the same ConversationID twice" should {
 
       "throw DatabaseException" in {
-        val submission_1 = exampleSubmission(conversationId = conversationId, actionType = ActionType.Arrival)
-        val submission_2 = exampleSubmission(conversationId = conversationId, actionType = ActionType.ShutMucr)
+        val submission_1 = exampleSubmission(conversationId = conversationId, actionType = MovementType.Arrival)
+        val submission_2 = exampleSubmission(conversationId = conversationId, actionType = ConsolidationType.ShutMucr)
 
         repo.insert(submission_1).futureValue.ok must be(true)
         val exc = repo.insert(submission_2).failed.futureValue
@@ -88,8 +88,8 @@ class SubmissionRepositorySpec
       }
 
       "result in having only the first Submission persisted" in {
-        val submission_1 = exampleSubmission(conversationId = conversationId, actionType = ActionType.Arrival)
-        val submission_2 = exampleSubmission(conversationId = conversationId, actionType = ActionType.ShutMucr)
+        val submission_1 = exampleSubmission(conversationId = conversationId, actionType = MovementType.Arrival)
+        val submission_2 = exampleSubmission(conversationId = conversationId, actionType = ConsolidationType.ShutMucr)
 
         repo.insert(submission_1).futureValue.ok must be(true)
         repo.insert(submission_2).failed.futureValue
@@ -130,15 +130,15 @@ class SubmissionRepositorySpec
       "there are multiple Submissions with given EORI" should {
         "return all the Submissions" in {
           val submission =
-            exampleSubmission(eori = validEori, conversationId = conversationId, actionType = ActionType.Arrival)
+            exampleSubmission(eori = validEori, conversationId = conversationId, actionType = MovementType.Arrival)
           val submission_2 =
-            exampleSubmission(eori = validEori, conversationId = conversationId_2, actionType = ActionType.Departure)
+            exampleSubmission(eori = validEori, conversationId = conversationId_2, actionType = MovementType.Departure)
           val submission_3 =
-            exampleSubmission(eori = validEori, conversationId = conversationId_3, actionType = ActionType.ShutMucr)
+            exampleSubmission(eori = validEori, conversationId = conversationId_3, actionType = ConsolidationType.ShutMucr)
           val submission_4 =
-            exampleSubmission(eori = validEori, conversationId = conversationId_4, actionType = ActionType.DucrAssociation)
+            exampleSubmission(eori = validEori, conversationId = conversationId_4, actionType = ConsolidationType.DucrAssociation)
           val submission_5 =
-            exampleSubmission(eori = validEori, conversationId = conversationId_5, actionType = ActionType.DucrDisassociation)
+            exampleSubmission(eori = validEori, conversationId = conversationId_5, actionType = ConsolidationType.DucrDisassociation)
           repo.insert(submission).futureValue.ok must be(true)
           repo.insert(submission_2).futureValue.ok must be(true)
           repo.insert(submission_3).futureValue.ok must be(true)
@@ -186,15 +186,19 @@ class SubmissionRepositorySpec
       "there are multiple Submissions with given Provider ID" should {
         "return all the Submissions" in {
           val submission =
-            exampleSubmission(providerId = Some(validProviderId), conversationId = conversationId, actionType = ActionType.Arrival)
+            exampleSubmission(providerId = Some(validProviderId), conversationId = conversationId, actionType = MovementType.Arrival)
           val submission_2 =
-            exampleSubmission(providerId = Some(validProviderId), conversationId = conversationId_2, actionType = ActionType.Departure)
+            exampleSubmission(providerId = Some(validProviderId), conversationId = conversationId_2, actionType = MovementType.Departure)
           val submission_3 =
-            exampleSubmission(providerId = Some(validProviderId), conversationId = conversationId_3, actionType = ActionType.ShutMucr)
+            exampleSubmission(providerId = Some(validProviderId), conversationId = conversationId_3, actionType = ConsolidationType.ShutMucr)
           val submission_4 =
-            exampleSubmission(providerId = Some(validProviderId), conversationId = conversationId_4, actionType = ActionType.DucrAssociation)
+            exampleSubmission(providerId = Some(validProviderId), conversationId = conversationId_4, actionType = ConsolidationType.DucrAssociation)
           val submission_5 =
-            exampleSubmission(providerId = Some(validProviderId), conversationId = conversationId_5, actionType = ActionType.DucrDisassociation)
+            exampleSubmission(
+              providerId = Some(validProviderId),
+              conversationId = conversationId_5,
+              actionType = ConsolidationType.DucrDisassociation
+            )
           repo.insert(submission).futureValue.ok must be(true)
           repo.insert(submission_2).futureValue.ok must be(true)
           repo.insert(submission_3).futureValue.ok must be(true)

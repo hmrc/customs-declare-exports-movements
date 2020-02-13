@@ -21,7 +21,8 @@ import play.api.libs.json.Json
 import play.api.test.Helpers._
 import uk.gov.hmrc.exports.movements.controllers.routes
 import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
-import uk.gov.hmrc.exports.movements.models.submissions.{ActionType, Submission}
+import uk.gov.hmrc.exports.movements.models.submissions.ActionType.ConsolidationType
+import uk.gov.hmrc.exports.movements.models.submissions.Submission
 
 /*
  * Component Tests are Intentionally Explicit with the JSON input, XML & DB output and DONT use TestData helpers.
@@ -39,7 +40,7 @@ class AssociateUCRSpec extends ComponentSpec {
         // When
         val response = post(
           routes.ConsolidationController.submitConsolidation(),
-          Json.obj("providerId" -> "pid", "eori" -> "eori", "consolidationType" -> "ASSOCIATE_DUCR", "mucr" -> "MUCR", "ucr" -> "DUCR")
+          Json.obj("providerId" -> "pid", "eori" -> "eori", "consolidationType" -> "DucrAssociation", "mucr" -> "MUCR", "ucr" -> "DUCR")
         )
 
         // Then
@@ -49,7 +50,7 @@ class AssociateUCRSpec extends ComponentSpec {
         submissions.size mustBe 1
         submissions.head.conversationId mustBe "conversation-id"
         submissions.head.ucrBlocks mustBe Seq(UcrBlock("MUCR", "M"), UcrBlock("DUCR", "D"))
-        submissions.head.actionType mustBe ActionType.DucrAssociation
+        submissions.head.actionType mustBe ConsolidationType.DucrAssociation
 
         verify(
           postRequestedToILE()
@@ -71,7 +72,7 @@ class AssociateUCRSpec extends ComponentSpec {
         // When
         val response = post(
           routes.ConsolidationController.submitConsolidation(),
-          Json.obj("providerId" -> "pid", "eori" -> "eori", "consolidationType" -> "ASSOCIATE_MUCR", "mucr" -> "MUCR", "ucr" -> "MUCR_2")
+          Json.obj("providerId" -> "pid", "eori" -> "eori", "consolidationType" -> "MucrAssociation", "mucr" -> "MUCR", "ucr" -> "MUCR_2")
         )
 
         // Then
@@ -81,7 +82,7 @@ class AssociateUCRSpec extends ComponentSpec {
         submissions.size mustBe 1
         submissions.head.conversationId mustBe "conversation-id"
         submissions.head.ucrBlocks mustBe Seq(UcrBlock("MUCR", "M"), UcrBlock("MUCR_2", "M"))
-        submissions.head.actionType mustBe ActionType.MucrAssociation
+        submissions.head.actionType mustBe ConsolidationType.MucrAssociation
 
         verify(
           postRequestedToILE()

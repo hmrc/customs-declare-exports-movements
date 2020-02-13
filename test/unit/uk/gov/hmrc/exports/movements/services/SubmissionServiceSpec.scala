@@ -25,9 +25,9 @@ import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.Helpers._
 import uk.gov.hmrc.exports.movements.exceptions.CustomsInventoryLinkingUpstreamException
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
-import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationType.SHUT_MUCR
 import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
-import uk.gov.hmrc.exports.movements.models.submissions.{ActionType, Submission, SubmissionFactory}
+import uk.gov.hmrc.exports.movements.models.submissions.ActionType.{ConsolidationType, MovementType}
+import uk.gov.hmrc.exports.movements.models.submissions.{Submission, SubmissionFactory}
 import uk.gov.hmrc.exports.movements.repositories.SearchParameters
 import uk.gov.hmrc.exports.movements.services.{ILEMapper, SubmissionService}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -64,7 +64,7 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
           providerId = Some(validProviderId),
           conversationId = conversationId,
           ucrBlocks = Seq(UcrBlock(ucr, "D")),
-          actionType = ActionType.Arrival
+          actionType = MovementType.Arrival
         )
 
       when(wcoMapperMock.generateInventoryLinkingMovementRequestXml(any())).thenReturn(exampleArrivalRequestXML("123"))
@@ -84,7 +84,7 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
         meq(Some(validProviderId)),
         meq(conversationId),
         meq(exampleArrivalRequestXML("123")),
-        meq(exampleArrivalRequest)
+        meq(MovementType.Arrival)
       )
       verify(submissionRepositoryMock).insert(meq(arrivalSubmission))(any())
     }
@@ -110,7 +110,7 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
           providerId = Some(validProviderId),
           conversationId = conversationId,
           ucrBlocks = Seq.empty,
-          actionType = ActionType.ShutMucr
+          actionType = ConsolidationType.ShutMucr
         )
 
       when(wcoMapperMock.generateConsolidationXml(any())).thenReturn(exampleShutMucrConsolidationRequestXML)
@@ -130,7 +130,7 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
         meq(Some(validProviderId)),
         meq(conversationId),
         meq(exampleShutMucrConsolidationRequestXML),
-        meq(SHUT_MUCR)
+        meq(ConsolidationType.ShutMucr)
       )
     }
 

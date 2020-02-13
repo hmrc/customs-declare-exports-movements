@@ -22,10 +22,11 @@ import java.time.{Clock, Instant}
 
 import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation
-import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationType._
-import uk.gov.hmrc.exports.movements.models.movements.MovementType.{Arrival, Departure, RetrospectiveArrival}
-import uk.gov.hmrc.exports.movements.models.movements.{Movement, Transport}
+import uk.gov.hmrc.exports.movements.models.movements.{MovementsExchange, Transport}
 import uk.gov.hmrc.exports.movements.models.notifications.standard
+import uk.gov.hmrc.exports.movements.models.submissions.ActionType.ConsolidationType
+import uk.gov.hmrc.exports.movements.models.submissions.ActionType.ConsolidationType._
+import uk.gov.hmrc.exports.movements.models.submissions.ActionType.MovementType._
 import uk.gov.hmrc.wco.dec.inventorylinking.common.{TransportDetails, UcrBlock}
 import uk.gov.hmrc.wco.dec.inventorylinking.movement.request.InventoryLinkingMovementRequest
 
@@ -37,10 +38,10 @@ class ILEMapper @Inject()(clock: Clock) {
 
   private val dateTimeFormatter = DateTimeFormatter.ISO_INSTANT
 
-  def generateInventoryLinkingMovementRequestXml(request: Movement): Node =
+  def generateInventoryLinkingMovementRequestXml(request: MovementsExchange): Node =
     xml.XML.loadString(generateInventoryLinkingMovementRequest(request).toXml)
 
-  private def generateInventoryLinkingMovementRequest(request: Movement): InventoryLinkingMovementRequest = {
+  private def generateInventoryLinkingMovementRequest(request: MovementsExchange): InventoryLinkingMovementRequest = {
 
     val departureDetails: Option[String] = request.choice match {
       case Departure => request.movementDetails.map(movement => formatOutputDateTime(parseDateTime(movement.dateTime)))
@@ -59,7 +60,7 @@ class ILEMapper @Inject()(clock: Clock) {
     }
 
     InventoryLinkingMovementRequest(
-      messageCode = request.choice.value,
+      messageCode = request.choice.ileCode,
       agentDetails = None,
       ucrBlock = UcrBlock(ucr = request.consignmentReference.referenceValue, ucrType = request.consignmentReference.reference),
       goodsLocation = request.location.map(_.code).getOrElse(""),
@@ -90,10 +91,7 @@ class ILEMapper @Inject()(clock: Clock) {
       </inventoryLinkingConsolidationRequest>
     }
 
-  private def buildMessageCode(consolidationType: ConsolidationType): String = consolidationType match {
-    case ASSOCIATE_DUCR | DISASSOCIATE_DUCR | ASSOCIATE_MUCR | DISASSOCIATE_MUCR => "EAC"
-    case SHUT_MUCR                                                               => "CST"
-  }
+  private def buildMessageCode(consolidationType: ConsolidationType): String = consolidationType.ileCode
 
   private def buildMasterUcrNode(mucrOpt: Option[String]): NodeSeq =
     mucrOpt.map(mucr => <masterUCR>{mucr}</masterUCR>).getOrElse(NodeSeq.Empty)
@@ -107,8 +105,8 @@ class ILEMapper @Inject()(clock: Clock) {
     }.getOrElse(NodeSeq.Empty)
 
   private def ucrType(consolidationType: ConsolidationType): String = consolidationType match {
-    case ASSOCIATE_DUCR | DISASSOCIATE_DUCR => "D"
-    case ASSOCIATE_MUCR | DISASSOCIATE_MUCR => "M"
+    case DucrAssociation | DucrDisassociation => "D"
+    case MucrAssociation | MucrDisassociation => "M"
   }
 
   def generateIleQuery(ucrBlock: standard.UcrBlock): NodeSeq =
