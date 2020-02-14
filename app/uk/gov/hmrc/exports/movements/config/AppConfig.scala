@@ -34,7 +34,7 @@ class AppConfig @Inject()(runModeConfiguration: Configuration, servicesConfig: S
       .getOptional[String](key)
       .getOrElse(throw new Exception(s"Missing configuration key: $key"))
 
-  MongobeeConfig(loadConfig("mongodb.uri"))
+//  MongobeeConfig(loadConfig("mongodb.uri"))
 
   private val logger: Logger = Logger(classOf[AppConfig])
 
