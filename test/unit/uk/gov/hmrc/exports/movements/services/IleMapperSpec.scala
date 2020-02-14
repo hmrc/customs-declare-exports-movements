@@ -37,7 +37,7 @@ class IleMapperSpec extends UnitSpec {
 
       val input = exampleArrivalRequest
 
-      val xml = ileMapper.generateInventoryLinkingMovementRequestXml(input)
+      val xml = ileMapper.buildInventoryLinkingMovementRequestXml(input)
       val reference = (xml \ "movementReference").text
 
       val expectedXml = exampleArrivalRequestXML(reference)
@@ -50,7 +50,7 @@ class IleMapperSpec extends UnitSpec {
 
         val input = exampleRetrospectiveArrivalRequest
 
-        val xml = ileMapper.generateInventoryLinkingMovementRequestXml(input)
+        val xml = ileMapper.buildInventoryLinkingMovementRequestXml(input)
         val reference = (xml \ "movementReference").text
 
         val expectedXml = exampleRetrospectiveArrivalRequestXML(reference)
@@ -64,7 +64,19 @@ class IleMapperSpec extends UnitSpec {
       val input = exampleDepartureRequest
       val expectedXml = exampleDepartureRequestXML
 
-      ileMapper.generateInventoryLinkingMovementRequestXml(input) shouldBe expectedXml
+      ileMapper.buildInventoryLinkingMovementRequestXml(input) shouldBe expectedXml
+    }
+
+    "create correct XML for Create Empty MUCR" in {
+
+      val input = exampleCreateEmptyMucrRequest
+
+      val xml = ileMapper.buildInventoryLinkingMovementRequestXml(input)
+      val reference = (xml \ "movementReference").text
+
+      val expectedXml = exampleCreateEmptyMucrRequestXML(reference)
+
+      xml shouldBe expectedXml
     }
 
     "create correct XML based on the consolidation" in {
@@ -72,7 +84,7 @@ class IleMapperSpec extends UnitSpec {
       val consolidation = AssociateDucrRequest(eori = validEori, mucr = ucr_2, ucr = ucr)
       val expectedXml = scala.xml.Utility.trim(exampleAssociateDucrConsolidationRequestXML)
 
-      ileMapper.generateConsolidationXml(consolidation) shouldBe expectedXml
+      ileMapper.buildConsolidationXml(consolidation) shouldBe expectedXml
     }
 
     "create correct XML based on the ILE Query" in {
@@ -80,7 +92,7 @@ class IleMapperSpec extends UnitSpec {
       val ucrBlock = UcrBlock(ucr, "D")
       val expectedXml = scala.xml.Utility.trim(exampleIleQueryRequestXml)
 
-      ileMapper.generateIleQuery(ucrBlock) shouldBe expectedXml
+      ileMapper.buildIleQuery(ucrBlock) shouldBe expectedXml
     }
   }
 }

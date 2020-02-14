@@ -53,8 +53,7 @@ object MovementsTestData {
     choice = MovementType.Arrival,
     consignmentReference = ConsignmentReference("D", ucr),
     movementDetails = Some(MovementDetails(dateTimeString)),
-    location = Some(Location("GBAUlocation")),
-    transport = None
+    location = Some(Location("GBAUlocation"))
   )
 
   val exampleArrivalRequestJson: JsValue = Json.toJson(exampleArrivalRequest)
@@ -77,10 +76,8 @@ object MovementsTestData {
     eori = validEori,
     providerId = Some(validProviderId),
     choice = MovementType.RetrospectiveArrival,
-    consignmentReference = ConsignmentReference("D", ucr),
-    movementDetails = None,
-    location = Some(Location("GBAUlocation")),
-    transport = None
+    consignmentReference = ConsignmentReference(reference = "D", referenceValue = ucr),
+    location = Some(Location("GBAUlocation"))
   )
 
   val exampleRetrospectiveArrivalRequestJson: JsValue = Json.toJson(exampleRetrospectiveArrivalRequest)
@@ -107,13 +104,37 @@ object MovementsTestData {
     eori = validEori,
     providerId = Some(validProviderId),
     choice = MovementType.Departure,
-    consignmentReference = ConsignmentReference("D", "7GB123456789000-123ABC456DEFQWERT"),
+    consignmentReference = ConsignmentReference(reference = "D", referenceValue = ucr),
     movementDetails = Some(MovementDetails(dateTimeString)),
     location = Some(Location("GBAUlocation")),
     transport = Some(Transport(Some(transportMode), Some(transportNationality), Some(transportId)))
   )
 
   val exampleDepartureRequestJson: JsValue = Json.toJson(exampleDepartureRequest)
+
+  def exampleCreateEmptyMucrRequestXML(reference: String): Node =
+    scala.xml.Utility.trim {
+      <inventoryLinkingMovementRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
+        <messageCode>{MessageCodes.EAL}</messageCode>
+        <ucrBlock>
+          <ucr>{ucr}</ucr>
+          <ucrType>D</ucrType>
+        </ucrBlock>
+        <goodsLocation>GBAUlocation</goodsLocation>
+        <goodsArrivalDateTime>{dateTimeString}</goodsArrivalDateTime>
+        <movementReference>{reference}</movementReference>
+      </inventoryLinkingMovementRequest>
+    }
+
+  val exampleCreateEmptyMucrRequest: MovementsExchange = MovementsExchange(
+    eori = validEori,
+    providerId = Some(validProviderId),
+    choice = MovementType.CreateEmptyMucr,
+    consignmentReference = ConsignmentReference(reference = "D", referenceValue = ucr),
+    location = Some(Location("GBAUlocation"))
+  )
+
+  val exampleCreateEmptyMucrRequestJson: JsValue = Json.toJson(exampleDepartureRequest)
 
   def exampleSubmission(
     eori: String = validEori,

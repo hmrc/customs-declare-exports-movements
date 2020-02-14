@@ -42,7 +42,7 @@ class SubmissionService @Inject()(
   private val logger = Logger(this.getClass)
 
   def submit(movement: MovementsExchange)(implicit hc: HeaderCarrier): Future[Unit] = {
-    val requestXml: Node = ileMapper.generateInventoryLinkingMovementRequestXml(movement)
+    val requestXml: Node = ileMapper.buildInventoryLinkingMovementRequestXml(movement)
 
     customsInventoryLinkingExportsConnector.submit(movement, requestXml).flatMap {
       case CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId)) =>
@@ -61,7 +61,7 @@ class SubmissionService @Inject()(
   }
 
   def submit(consolidation: Consolidation)(implicit hc: HeaderCarrier): Future[Unit] = {
-    val requestXml = ileMapper.generateConsolidationXml(consolidation)
+    val requestXml = ileMapper.buildConsolidationXml(consolidation)
 
     customsInventoryLinkingExportsConnector.submit(consolidation, requestXml).flatMap {
       case CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId)) =>

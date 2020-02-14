@@ -44,7 +44,7 @@ class IleQueryService @Inject()(
   private val logger = Logger(this.getClass)
 
   def submit(ileQueryRequest: IleQueryRequest)(implicit hc: HeaderCarrier): Future[String] = {
-    val requestXml = ileMapper.generateIleQuery(ileQueryRequest.ucrBlock)
+    val requestXml = ileMapper.buildIleQuery(ileQueryRequest.ucrBlock)
 
     ileConnector.submit(ileQueryRequest, requestXml).flatMap {
 
