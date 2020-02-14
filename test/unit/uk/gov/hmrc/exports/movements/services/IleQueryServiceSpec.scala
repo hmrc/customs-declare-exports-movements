@@ -34,7 +34,7 @@ import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
 import uk.gov.hmrc.exports.movements.models.submissions.IleQuerySubmission
 import uk.gov.hmrc.exports.movements.models.{CustomsInventoryLinkingResponse, UserIdentification}
 import uk.gov.hmrc.exports.movements.repositories.{IleQuerySubmissionRepository, NotificationRepository, SearchParameters}
-import uk.gov.hmrc.exports.movements.services.{ILEMapper, IleQueryService}
+import uk.gov.hmrc.exports.movements.services.{IleMapper, IleQueryService}
 import uk.gov.hmrc.http.HeaderCarrier
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder.dummyWriteResultSuccess
 import utils.testdata.CommonTestData._
@@ -50,7 +50,7 @@ class IleQueryServiceSpec extends WordSpec with MockitoSugar with MustMatchers w
 
   implicit private val hc = mock[HeaderCarrier]
 
-  private val ileMapper = mock[ILEMapper]
+  private val ileMapper = mock[IleMapper]
   private val ileQuerySubmissionRepository = mock[IleQuerySubmissionRepository]
   private val notificationRepository = mock[NotificationRepository]
   private val ileConnector = mock[CustomsInventoryLinkingExportsConnector]
@@ -64,7 +64,7 @@ class IleQueryServiceSpec extends WordSpec with MockitoSugar with MustMatchers w
 
     reset(ileMapper, ileQuerySubmissionRepository, ileConnector, notificationRepository, ileQueryTimeoutCalculator)
 
-    when(ileMapper.generateIleQuery(any[UcrBlock])).thenReturn(ileQueryXml(UcrBlock(ucr = ucr, ucrType = "D")))
+    when(ileMapper.buildIleQuery(any[UcrBlock])).thenReturn(ileQueryXml(UcrBlock(ucr = ucr, ucrType = "D")))
     when(ileConnector.submit(any[UserIdentification], any[NodeSeq])(any()))
       .thenReturn(Future.successful(CustomsInventoryLinkingResponse(ACCEPTED, Some(""))))
     when(ileQuerySubmissionRepository.insert(any[IleQuerySubmission])(any())).thenReturn(Future.successful(dummyWriteResultSuccess))
@@ -90,7 +90,7 @@ class IleQueryServiceSpec extends WordSpec with MockitoSugar with MustMatchers w
         ileQueryService.submit(ileQueryRequest).futureValue
 
         val inOrder: InOrder = Mockito.inOrder(ileMapper, ileConnector, ileQuerySubmissionRepository)
-        inOrder.verify(ileMapper, times(1)).generateIleQuery(any())
+        inOrder.verify(ileMapper, times(1)).buildIleQuery(any())
         inOrder.verify(ileConnector, times(1)).submit(any(), any())(any())
         inOrder.verify(ileQuerySubmissionRepository, times(1)).insert(any())(any())
       }
@@ -99,13 +99,13 @@ class IleQueryServiceSpec extends WordSpec with MockitoSugar with MustMatchers w
 
         ileQueryService.submit(ileQueryRequest).futureValue
 
-        verify(ileMapper, times(1)).generateIleQuery(ileQueryRequest.ucrBlock)
+        verify(ileMapper, times(1)).buildIleQuery(ileQueryRequest.ucrBlock)
       }
 
       "call IleConnector once, passing IleQueryRequest and request xml returned from ILEMapper" in {
 
         val queryXml = ileQueryXml(UcrBlock(ucr = ucr, ucrType = "D"))
-        when(ileMapper.generateIleQuery(any[UcrBlock])).thenReturn(queryXml)
+        when(ileMapper.buildIleQuery(any[UcrBlock])).thenReturn(queryXml)
 
         ileQueryService.submit(ileQueryRequest).futureValue
 
@@ -144,7 +144,7 @@ class IleQueryServiceSpec extends WordSpec with MockitoSugar with MustMatchers w
       "return failed Future" in {
 
         val exceptionMsg = "Test Exception message"
-        when(ileMapper.generateIleQuery(any[UcrBlock]))
+        when(ileMapper.buildIleQuery(any[UcrBlock]))
           .thenThrow(new RuntimeException(exceptionMsg))
 
         the[Exception] thrownBy {
@@ -154,7 +154,7 @@ class IleQueryServiceSpec extends WordSpec with MockitoSugar with MustMatchers w
 
       "not call IleConnector nor IleQueryRepository" in {
 
-        when(ileMapper.generateIleQuery(any[UcrBlock])).thenThrow(new RuntimeException("Test Exception message"))
+        when(ileMapper.buildIleQuery(any[UcrBlock])).thenThrow(new RuntimeException("Test Exception message"))
 
         an[Exception] mustBe thrownBy {
           ileQueryService.submit(ileQueryRequest).futureValue

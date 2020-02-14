@@ -29,19 +29,20 @@ import uk.gov.hmrc.exports.movements.repositories.{SearchParameters, SubmissionR
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.xml.Node
 
 @Singleton
 class SubmissionService @Inject()(
   customsInventoryLinkingExportsConnector: CustomsInventoryLinkingExportsConnector,
   submissionRepository: SubmissionRepository,
   submissionFactory: SubmissionFactory,
-  ileMapper: ILEMapper
+  ileMapper: IleMapper
 )(implicit executionContext: ExecutionContext) {
 
   private val logger = Logger(this.getClass)
 
   def submit(movement: MovementsExchange)(implicit hc: HeaderCarrier): Future[Unit] = {
-    val requestXml = ileMapper.generateInventoryLinkingMovementRequestXml(movement)
+    val requestXml: Node = ileMapper.buildInventoryLinkingMovementRequestXml(movement)
 
     customsInventoryLinkingExportsConnector.submit(movement, requestXml).flatMap {
       case CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId)) =>
@@ -60,7 +61,7 @@ class SubmissionService @Inject()(
   }
 
   def submit(consolidation: Consolidation)(implicit hc: HeaderCarrier): Future[Unit] = {
-    val requestXml = ileMapper.generateConsolidationXml(consolidation)
+    val requestXml = ileMapper.buildConsolidationXml(consolidation)
 
     customsInventoryLinkingExportsConnector.submit(consolidation, requestXml).flatMap {
       case CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId)) =>

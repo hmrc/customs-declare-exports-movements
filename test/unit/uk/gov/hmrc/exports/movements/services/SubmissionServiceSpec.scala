@@ -29,7 +29,7 @@ import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType.{ConsolidationType, MovementType}
 import uk.gov.hmrc.exports.movements.models.submissions.{Submission, SubmissionFactory}
 import uk.gov.hmrc.exports.movements.repositories.SearchParameters
-import uk.gov.hmrc.exports.movements.services.{ILEMapper, SubmissionService}
+import uk.gov.hmrc.exports.movements.services.{IleMapper, SubmissionService}
 import uk.gov.hmrc.http.HeaderCarrier
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
 import utils.testdata.CommonTestData._
@@ -48,7 +48,7 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
     val customsInventoryLinkingExportsConnectorMock = buildCustomsInventoryLinkingExportsConnectorMock
     val submissionRepositoryMock = buildSubmissionRepositoryMock
     val submissionFactoryMock = mock[SubmissionFactory]
-    val wcoMapperMock = mock[ILEMapper]
+    val wcoMapperMock = mock[IleMapper]
     val submissionService =
       new SubmissionService(customsInventoryLinkingExportsConnectorMock, submissionRepositoryMock, submissionFactoryMock, wcoMapperMock)(
         ExecutionContext.global
@@ -67,7 +67,7 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
           actionType = MovementType.Arrival
         )
 
-      when(wcoMapperMock.generateInventoryLinkingMovementRequestXml(any())).thenReturn(exampleArrivalRequestXML("123"))
+      when(wcoMapperMock.buildInventoryLinkingMovementRequestXml(any())).thenReturn(exampleArrivalRequestXML("123"))
       when(customsInventoryLinkingExportsConnectorMock.submit(any(), any())(any()))
         .thenReturn(Future.successful(CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId))))
       when(submissionFactoryMock.buildMovementSubmission(any(), any(), any(), any(), any()))
@@ -76,7 +76,7 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
 
       submissionService.submit(exampleArrivalRequest).futureValue
 
-      verify(wcoMapperMock).generateInventoryLinkingMovementRequestXml(meq(exampleArrivalRequest))
+      verify(wcoMapperMock).buildInventoryLinkingMovementRequestXml(meq(exampleArrivalRequest))
       verify(customsInventoryLinkingExportsConnectorMock)
         .submit(meq(exampleArrivalRequest), meq(exampleArrivalRequestXML("123")))(any())
       verify(submissionFactoryMock).buildMovementSubmission(
@@ -90,7 +90,7 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
     }
 
     "return exception when submission failed" in new Test {
-      when(wcoMapperMock.generateInventoryLinkingMovementRequestXml(any())).thenReturn(exampleArrivalRequestXML("123"))
+      when(wcoMapperMock.buildInventoryLinkingMovementRequestXml(any())).thenReturn(exampleArrivalRequestXML("123"))
       when(customsInventoryLinkingExportsConnectorMock.submit(any(), any())(any()))
         .thenReturn(Future.successful(CustomsInventoryLinkingResponse(BAD_REQUEST, None)))
 
@@ -113,7 +113,7 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
           actionType = ConsolidationType.ShutMucr
         )
 
-      when(wcoMapperMock.generateConsolidationXml(any())).thenReturn(exampleShutMucrConsolidationRequestXML)
+      when(wcoMapperMock.buildConsolidationXml(any())).thenReturn(exampleShutMucrConsolidationRequestXML)
       when(customsInventoryLinkingExportsConnectorMock.submit(any(), any())(any()))
         .thenReturn(Future.successful(CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId))))
       when(submissionFactoryMock.buildConsolidationSubmission(any(), any(), any(), any(), any()))
@@ -122,7 +122,7 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
 
       submissionService.submit(shutMucrRequest).futureValue
 
-      verify(wcoMapperMock).generateConsolidationXml(meq(shutMucrRequest))
+      verify(wcoMapperMock).buildConsolidationXml(meq(shutMucrRequest))
       verify(customsInventoryLinkingExportsConnectorMock)
         .submit(meq(shutMucrRequest), meq(exampleShutMucrConsolidationRequestXML))(any())
       verify(submissionFactoryMock).buildConsolidationSubmission(
@@ -135,7 +135,7 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
     }
 
     "return exception when submission failed" in new Test {
-      when(wcoMapperMock.generateConsolidationXml(any())).thenReturn(exampleShutMucrConsolidationRequestXML)
+      when(wcoMapperMock.buildConsolidationXml(any())).thenReturn(exampleShutMucrConsolidationRequestXML)
       when(customsInventoryLinkingExportsConnectorMock.submit(any(), any())(any()))
         .thenReturn(Future.successful(CustomsInventoryLinkingResponse(BAD_REQUEST, None)))
 

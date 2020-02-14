@@ -35,9 +35,23 @@ class ActionTypeSpec extends WordSpec with MustMatchers {
         json must equal(expectedJson)
       }
 
+      "it is Retrospective Arrival" in {
+        val json = ActionType.format.writes(RetrospectiveArrival)
+        val expectedJson = JsString("RetrospectiveArrival")
+
+        json must equal(expectedJson)
+      }
+
       "it is Departure" in {
         val json = ActionType.format.writes(Departure)
         val expectedJson = JsString("Departure")
+
+        json must equal(expectedJson)
+      }
+
+      "it is Create Empty Mucr" in {
+        val json = ActionType.format.writes(CreateEmptyMucr)
+        val expectedJson = JsString("CreateEmptyMucr")
 
         json must equal(expectedJson)
       }
@@ -87,9 +101,23 @@ class ActionTypeSpec extends WordSpec with MustMatchers {
         actionType must equal(expectedActionType)
       }
 
+      "it is Retrospective Arrival" in {
+        val actionType = ActionType.format.reads(JsString("RetrospectiveArrival")).get
+        val expectedActionType = RetrospectiveArrival
+
+        actionType must equal(expectedActionType)
+      }
+
       "it is Departure" in {
         val actionType = ActionType.format.reads(JsString("Departure")).get
         val expectedActionType = Departure
+
+        actionType must equal(expectedActionType)
+      }
+
+      "it is Create Empty Mucr" in {
+        val actionType = ActionType.format.reads(JsString("CreateEmptyMucr")).get
+        val expectedActionType = CreateEmptyMucr
 
         actionType must equal(expectedActionType)
       }

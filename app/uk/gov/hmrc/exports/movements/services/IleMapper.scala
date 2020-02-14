@@ -34,11 +34,11 @@ import scala.util.Random
 import scala.xml.{Node, NodeSeq}
 
 @Singleton
-class ILEMapper @Inject()(clock: Clock) {
+class IleMapper @Inject()(clock: Clock) {
 
   private val dateTimeFormatter = DateTimeFormatter.ISO_INSTANT
 
-  def generateInventoryLinkingMovementRequestXml(request: MovementsExchange): Node =
+  def buildInventoryLinkingMovementRequestXml(request: MovementsExchange): Node =
     xml.XML.loadString(generateInventoryLinkingMovementRequest(request).toXml)
 
   private def generateInventoryLinkingMovementRequest(request: MovementsExchange): InventoryLinkingMovementRequest = {
@@ -49,14 +49,14 @@ class ILEMapper @Inject()(clock: Clock) {
     }
 
     val arrivalDetails: Option[String] = request.choice match {
-      case Arrival              => request.movementDetails.map(movement => formatOutputDateTime(parseDateTime(movement.dateTime)))
-      case RetrospectiveArrival => Some(formatOutputDateTime(Instant.now(clock)))
-      case _                    => None
+      case Arrival                                => request.movementDetails.map(movement => formatOutputDateTime(parseDateTime(movement.dateTime)))
+      case RetrospectiveArrival | CreateEmptyMucr => Some(formatOutputDateTime(Instant.now(clock)))
+      case _                                      => None
     }
 
     val movementReference: Option[String] = request.choice match {
-      case Arrival | RetrospectiveArrival => Some(generateRandomReference)
-      case _                              => None
+      case Arrival | RetrospectiveArrival | CreateEmptyMucr => Some(generateRandomReference)
+      case _                                                => None
     }
 
     InventoryLinkingMovementRequest(
@@ -82,7 +82,7 @@ class ILEMapper @Inject()(clock: Clock) {
 
   private def generateRandomReference: String = Random.alphanumeric.take(25).toList.mkString("")
 
-  def generateConsolidationXml(consolidation: Consolidation): Node =
+  def buildConsolidationXml(consolidation: Consolidation): Node =
     scala.xml.Utility.trim {
       <inventoryLinkingConsolidationRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
         <messageCode>{buildMessageCode(consolidation.consolidationType)}</messageCode>
@@ -109,7 +109,7 @@ class ILEMapper @Inject()(clock: Clock) {
     case MucrAssociation | MucrDisassociation => "M"
   }
 
-  def generateIleQuery(ucrBlock: standard.UcrBlock): NodeSeq =
+  def buildIleQuery(ucrBlock: standard.UcrBlock): NodeSeq =
     scala.xml.Utility.trim {
       <inventoryLinkingQueryRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
         <queryUCR>

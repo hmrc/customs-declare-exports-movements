@@ -34,7 +34,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class IleQueryService @Inject()(
-  ileMapper: ILEMapper,
+  ileMapper: IleMapper,
   ileQuerySubmissionRepository: IleQuerySubmissionRepository,
   notificationRepository: NotificationRepository,
   ileConnector: CustomsInventoryLinkingExportsConnector,
@@ -44,7 +44,7 @@ class IleQueryService @Inject()(
   private val logger = Logger(this.getClass)
 
   def submit(ileQueryRequest: IleQueryRequest)(implicit hc: HeaderCarrier): Future[String] = {
-    val requestXml = ileMapper.generateIleQuery(ileQueryRequest.ucrBlock)
+    val requestXml = ileMapper.buildIleQuery(ileQueryRequest.ucrBlock)
 
     ileConnector.submit(ileQueryRequest, requestXml).flatMap {
 
