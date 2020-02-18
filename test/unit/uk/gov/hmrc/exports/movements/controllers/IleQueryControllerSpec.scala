@@ -126,14 +126,15 @@ class IleQueryControllerSpec extends WordSpec with MustMatchers with MockitoSuga
     }
 
     "IleQueryService returns Either.Left" should {
-      "return GatewayTimeout status" in {
+      "return FailedDependency (424) status with TimeoutError message from IleQueryService" in {
 
         when(ileQueryService.fetchResponses(any[SearchParameters])).thenReturn(Future.successful(Left(TimeoutError("TIMEOUT"))))
 
         val result = controller
           .getIleQueryResponses(eori = Some(validEori), providerId = Some(validProviderId), conversationId = conversationId)(getRequest())
 
-        status(result) mustBe GATEWAY_TIMEOUT
+        status(result) mustBe FAILED_DEPENDENCY
+        contentAsString(result) mustBe "TIMEOUT"
       }
     }
   }
