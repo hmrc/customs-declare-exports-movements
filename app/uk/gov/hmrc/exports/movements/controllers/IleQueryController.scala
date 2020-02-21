@@ -37,10 +37,9 @@ class IleQueryController @Inject()(ileQueryService: IleQueryService, cc: Control
   def getIleQueryResponses(eori: Option[String], providerId: Option[String], conversationId: String): Action[AnyContent] = Action.async {
     implicit request =>
       val searchParameters = SearchParameters(eori = eori, providerId = providerId, conversationId = Some(conversationId))
-
       ileQueryService.fetchResponses(searchParameters).map {
         case Right(ileQueryResponses) => Ok(Json.toJson(ileQueryResponses))
-        case Left(_)                  => GatewayTimeout
+        case Left(timeoutError)       => FailedDependency(timeoutError.message)
       }
   }
 }
