@@ -8,15 +8,16 @@ object AppDependencies {
   private val testScope = "test,it"
 
   val compile = Seq(
-    "uk.gov.hmrc"           %% "simple-reactivemongo"       % "7.22.0-play-26",
+    "uk.gov.hmrc"                     %% "simple-reactivemongo"       % "7.22.0-play-26",
     ws,
-    "uk.gov.hmrc"           %% "bootstrap-play-26"          % "1.3.0",
-    "uk.gov.hmrc"           %% "wco-dec"                    % "0.33.0",
-    "uk.gov.hmrc"           %% "logback-json-logger"        % "4.6.0",
-    "com.typesafe.play"     %% "play-json-joda"             % "2.6.13",
-    "com.github.tototoshi"  %% "scala-csv"                  % "1.3.6",
-    "uk.gov.hmrc"           %% "play-json-union-formatter"  % "1.7.0",
-    "com.github.mongobee"   %  "mongobee"                   % "0.13"
+    "uk.gov.hmrc"                     %% "bootstrap-play-26"          % "1.3.0",
+    "uk.gov.hmrc"                     %% "wco-dec"                    % "0.33.0",
+    "uk.gov.hmrc"                     %% "logback-json-logger"        % "4.6.0",
+    "com.typesafe.play"               %% "play-json-joda"             % "2.6.13",
+    "com.github.tototoshi"            %% "scala-csv"                  % "1.3.6",
+    "uk.gov.hmrc"                     %% "play-json-union-formatter"  % "1.7.0",
+    "com.github.cloudyrock.mongock"   %  "mongock-core"               % "2.0.2",
+    "org.mongodb"                     %  "mongo-java-driver"          % "3.12.2"
   )
 
   def test(scope: String = "test") = Seq(

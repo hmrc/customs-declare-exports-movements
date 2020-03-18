@@ -36,6 +36,7 @@ lazy val microservice = Project(appName, file("."))
   .settings(
     libraryDependencies ++= (AppDependencies.compile ++ AppDependencies.test()).map(_.withSources),
     dependencyOverrides ++= AppDependencies.jettyOverrides,
+    dependencyOverrides += "org.mongodb" % "mongo-java-driver" % "3.12.2",
     evictionWarningOptions in update := EvictionWarningOptions.default.withWarnScalaVersionEviction(false),
     majorVersion := 0,
     scalaVersion := "2.12.8"
