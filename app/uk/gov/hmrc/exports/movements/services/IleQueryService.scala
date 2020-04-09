@@ -76,7 +76,7 @@ class IleQueryService @Inject()(
             .info(
               s"Timeout occurred while waiting for ILE Query Response notification with Conversation ID = [${searchParameters.conversationId.getOrElse("")}]"
             )
-          Future.successful(Left(TimeoutError("This ILE Query is too old to get information about it")))
+          Future.successful(Left(TimeoutError("Timeout occurred while waiting for ILE Query Response notification")))
         } else {
           getNotificationsConverted(Seq(submission.conversationId))
         }
