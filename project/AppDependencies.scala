@@ -20,11 +20,11 @@ object AppDependencies {
     "org.mongodb"                     %  "mongo-java-driver"          % "3.12.2"
   )
 
-  def test(scope: String = "test") = Seq(
-    "org.scalatest"           %% "scalatest"          % "3.0.8"             % scope,
+  val test = Seq(
+    "org.scalatest"           %% "scalatest"          % "3.0.8"             % "test",
     "org.scalatestplus.play"  %% "scalatestplus-play" % "3.1.2"             % "test",
-    "org.pegdown"             %  "pegdown"            % "1.6.0"             % scope,
-    "com.typesafe.play"       %% "play-test"          % PlayVersion.current % scope,
+    "org.pegdown"             %  "pegdown"            % "1.6.0"             % "test",
+    "com.typesafe.play"       %% "play-test"          % PlayVersion.current % "test",
     "com.github.tomakehurst"  %  "wiremock"           % wireMockVersion     % testScope,
     "org.mockito"             %  "mockito-core"       % "3.0.0"             % "test"
   )
