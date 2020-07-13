@@ -1,7 +1,6 @@
 import sbt.Tests.{Group, SubProcess}
 import sbt._
 import uk.gov.hmrc.DefaultBuildSettings._
-import uk.gov.hmrc.gitstamp.GitStampPlugin._
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin.publishingSettings
 import uk.gov.hmrc.versioning.SbtGitVersioning
 import uk.gov.hmrc.{SbtArtifactory, SbtAutoBuildPlugin}
@@ -34,7 +33,7 @@ lazy val allTest = Seq(testAll := (test in ComponentTest)
 lazy val microservice = Project(appName, file("."))
   .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory)
   .settings(
-    libraryDependencies ++= (AppDependencies.compile ++ AppDependencies.test()).map(_.withSources),
+    libraryDependencies ++= (AppDependencies.compile ++ AppDependencies.test).map(_.withSources),
     dependencyOverrides ++= AppDependencies.jettyOverrides,
     dependencyOverrides += "org.mongodb" % "mongo-java-driver" % "3.12.2",
     evictionWarningOptions in update := EvictionWarningOptions.default.withWarnScalaVersionEviction(false),
@@ -91,6 +90,4 @@ lazy val scoverageSettings: Seq[Setting[_]] = Seq(
 )
 
 lazy val commonSettings: Seq[Setting[_]] = scalaSettings ++
-  publishingSettings ++
-  defaultSettings() ++
-  gitStampSettings
+  publishingSettings ++ defaultSettings()
