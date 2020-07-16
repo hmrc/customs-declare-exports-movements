@@ -22,8 +22,6 @@ import uk.gov.hmrc.exports.movements.models.movements.{MovementsExchange, _}
 import uk.gov.hmrc.exports.movements.models.notifications.standard.{UcrBlock => UcrBlockModel}
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType.MovementType
 import uk.gov.hmrc.exports.movements.models.submissions.{ActionType, IleQuerySubmission, Submission}
-import uk.gov.hmrc.wco.dec.inventorylinking.common.{AgentDetails, TransportDetails, UcrBlock}
-import uk.gov.hmrc.wco.dec.inventorylinking.movement.request.InventoryLinkingMovementRequest
 import utils.testdata.CommonTestData.{conversationId, _}
 
 import scala.xml.Node
@@ -154,16 +152,6 @@ object MovementsTestData {
 
   def emptySubmission: Submission =
     Submission(uuid = "", eori = "", providerId = None, conversationId = "", ucrBlocks = Seq.empty, actionType = MovementType.Arrival)
-
-  def validInventoryLinkingMovementRequest = InventoryLinkingMovementRequest(
-    messageCode = "11",
-    agentDetails = Some(AgentDetails(eori = Some(validEori), agentLocation = Some("location"))),
-    ucrBlock = UcrBlock(ucr = declarantUcrValue, ucrType = "type"),
-    goodsLocation = "goodsLocation",
-    goodsArrivalDateTime = Some(now.toString),
-    goodsDepartureDateTime = Some(now.toString),
-    transportDetails = Some(TransportDetails(transportID = Some("transportId"), transportMode = Some("mode")))
-  )
 
   def exampleIleQuerySubmission(
     eori: String = validEori,

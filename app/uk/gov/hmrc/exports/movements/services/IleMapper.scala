@@ -62,7 +62,7 @@ class IleMapper @Inject()(clock: Clock) {
     InventoryLinkingMovementRequest(
       messageCode = request.choice.ileCode,
       agentDetails = None,
-      ucrBlock = UcrBlock(ucr = request.consignmentReference.referenceValue, ucrType = request.consignmentReference.reference),
+      ucrBlock = UcrBlock(ucr = request.consignmentReference.referenceValue, ucrPartNo = None, ucrType = request.consignmentReference.reference),
       goodsLocation = request.location.map(_.code).getOrElse(""),
       goodsArrivalDateTime = arrivalDetails,
       goodsDepartureDateTime = departureDetails,
