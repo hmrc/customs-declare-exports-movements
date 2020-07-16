@@ -26,6 +26,7 @@ import play.api.libs.json.Json
 import play.api.test.Helpers._
 import uk.gov.hmrc.exports.movements.controllers.IleQueryController
 import uk.gov.hmrc.exports.movements.errors.TimeoutError
+import uk.gov.hmrc.exports.movements.models.common.UcrType.Ducr
 import uk.gov.hmrc.exports.movements.models.movements.IleQueryRequest
 import uk.gov.hmrc.exports.movements.models.notifications.exchange.IleQueryResponseExchange
 import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
@@ -64,7 +65,7 @@ class IleQueryControllerSpec extends WordSpec with MustMatchers with MockitoSuga
       "query is successfully processed" in {
 
         when(ileQueryService.submit(any())(any())).thenReturn(Future.successful("conversationId"))
-        val ileQueryRequest = IleQueryRequest("GB12345678912345", Some("12345"), UcrBlock("9GB025115188654-IAZ1", "D"))
+        val ileQueryRequest = IleQueryRequest("GB12345678912345", Some("12345"), UcrBlock(ucr = "9GB025115188654-IAZ1", ucrType = Ducr.codeValue))
         val request = postRequestWithBody(ileQueryRequest).withHeaders(JsonContentTypeHeader)
 
         val result = controller.submitIleQuery()(request)

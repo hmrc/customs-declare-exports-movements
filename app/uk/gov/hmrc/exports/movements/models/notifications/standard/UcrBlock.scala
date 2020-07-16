@@ -17,8 +17,12 @@
 package uk.gov.hmrc.exports.movements.models.notifications.standard
 
 import play.api.libs.json.Json
+import uk.gov.hmrc.wco.dec.inventorylinking.common.{UcrBlock => WcoUcrBlock}
 
-final case class UcrBlock(ucr: String, ucrType: String)
+final case class UcrBlock(ucr: String, ucrPartNo: Option[String] = None, ucrType: String) {
+
+  def toWcoUcrBlock: WcoUcrBlock = WcoUcrBlock(ucr = ucr, ucrPartNo = ucrPartNo, ucrType = ucrType)
+}
 
 object UcrBlock {
   implicit val format = Json.format[UcrBlock]

@@ -31,7 +31,7 @@ class CommonTypesParserSpec extends WordSpec with MustMatchers {
       "return empty UcrBlock" in {
 
         val inputXml = <ucrBlock></ucrBlock>
-        val expectedResult = UcrBlock("", "")
+        val expectedResult = UcrBlock(ucr = "", ucrType = "")
 
         val result = parser.parseUcrBlock(inputXml)
 

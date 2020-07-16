@@ -18,24 +18,60 @@ package unit.uk.gov.hmrc.exports.movements.services
 
 import java.time.{Clock, Instant, ZoneOffset}
 
-import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation.AssociateDucrRequest
+import org.mockito.ArgumentMatchers.{any, anyString}
+import org.mockito.Mockito._
+import org.scalatest.BeforeAndAfterEach
+import org.scalatestplus.mockito.MockitoSugar
+import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation._
+import uk.gov.hmrc.exports.movements.models.movements.ConsignmentReference
+import uk.gov.hmrc.exports.movements.models.notifications.standard
 import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
-import uk.gov.hmrc.exports.movements.services.IleMapper
+import uk.gov.hmrc.exports.movements.models.submissions.ActionType.ConsolidationType
+import uk.gov.hmrc.exports.movements.services.{IleMapper, UcrBlockBuilder}
 import unit.uk.gov.hmrc.exports.movements.base.UnitSpec
 import utils.testdata.CommonTestData._
 import utils.testdata.ConsolidationTestData._
 import utils.testdata.MovementsTestData._
 
-class IleMapperSpec extends UnitSpec {
+import scala.xml.NodeSeq
+
+class IleMapperSpec extends UnitSpec with MockitoSugar with BeforeAndAfterEach {
 
   private val clock = Clock.fixed(Instant.parse(dateTimeString), ZoneOffset.UTC)
-  private val ileMapper = new IleMapper(clock)
+  private val ucrBlockBuilder = mock[UcrBlockBuilder]
+  private val ileMapper = new IleMapper(clock, ucrBlockBuilder)
 
-  "ILE Mapper" should {
+  override protected def beforeEach(): Unit = {
+    super.beforeEach()
+
+    reset(ucrBlockBuilder)
+    when(ucrBlockBuilder.buildUcrBlockNode(any[ConsolidationType], anyString())).thenReturn(NodeSeq.Empty)
+    when(ucrBlockBuilder.buildUcrBlock(any[ConsignmentReference])).thenReturn(UcrBlock(ucr = "", ucrType = ""))
+  }
+
+  override protected def afterEach(): Unit = {
+    reset(ucrBlockBuilder)
+
+    super.afterEach()
+  }
+
+  "ILE Mapper on buildInventoryLinkingMovementRequestXml" should {
+
+    "call UcrBlockBuilder" in {
+
+      val input = exampleDepartureRequest
+      ileMapper.buildInventoryLinkingMovementRequestXml(input)
+
+      verify(ucrBlockBuilder).buildUcrBlock(any[ConsignmentReference])
+    }
 
     "create correct XML for Arrival" in {
 
       val input = exampleArrivalRequest
+      val testUcr = input.consignmentReference.referenceValue
+      val testUcrType = input.consignmentReference.reference
+      when(ucrBlockBuilder.buildUcrBlock(any[ConsignmentReference]))
+        .thenReturn(UcrBlock(ucr = testUcr, ucrType = testUcrType))
 
       val xml = ileMapper.buildInventoryLinkingMovementRequestXml(input)
       val reference = (xml \ "movementReference").text
@@ -49,6 +85,10 @@ class IleMapperSpec extends UnitSpec {
       "contains added goodsArrivalDateTime in correct format" in {
 
         val input = exampleRetrospectiveArrivalRequest
+        val testUcr = input.consignmentReference.referenceValue
+        val testUcrType = input.consignmentReference.reference
+        when(ucrBlockBuilder.buildUcrBlock(any[ConsignmentReference]))
+          .thenReturn(UcrBlock(ucr = testUcr, ucrType = testUcrType))
 
         val xml = ileMapper.buildInventoryLinkingMovementRequestXml(input)
         val reference = (xml \ "movementReference").text
@@ -62,6 +102,11 @@ class IleMapperSpec extends UnitSpec {
     "create correct XML for Departure" in {
 
       val input = exampleDepartureRequest
+      val testUcr = input.consignmentReference.referenceValue
+      val testUcrType = input.consignmentReference.reference
+      when(ucrBlockBuilder.buildUcrBlock(any[ConsignmentReference]))
+        .thenReturn(UcrBlock(ucr = testUcr, ucrType = testUcrType))
+
       val expectedXml = exampleDepartureRequestXML
 
       ileMapper.buildInventoryLinkingMovementRequestXml(input) shouldBe expectedXml
@@ -70,6 +115,10 @@ class IleMapperSpec extends UnitSpec {
     "create correct XML for Create Empty MUCR" in {
 
       val input = exampleCreateEmptyMucrRequest
+      val testUcr = input.consignmentReference.referenceValue
+      val testUcrType = input.consignmentReference.reference
+      when(ucrBlockBuilder.buildUcrBlock(any[ConsignmentReference]))
+        .thenReturn(UcrBlock(ucr = testUcr, ucrType = testUcrType))
 
       val xml = ileMapper.buildInventoryLinkingMovementRequestXml(input)
       val reference = (xml \ "movementReference").text
@@ -78,18 +127,89 @@ class IleMapperSpec extends UnitSpec {
 
       xml shouldBe expectedXml
     }
+  }
 
-    "create correct XML based on the consolidation" in {
+  "ILE Mapper on buildConsolidationXml" should {
 
-      val consolidation = AssociateDucrRequest(eori = validEori, mucr = ucr_2, ucr = ucr)
-      val expectedXml = scala.xml.Utility.trim(exampleAssociateDucrConsolidationRequestXML)
+    "create correct XML based on the consolidation" when {
 
-      ileMapper.buildConsolidationXml(consolidation) shouldBe expectedXml
+      "it is DUCR Association" in {
+
+        when(ucrBlockBuilder.buildUcrBlockNode(any[ConsolidationType], anyString())).thenReturn(buildUcrBlockNode(ucr = ucr, ucrType = "D"))
+
+        val consolidation = AssociateDucrRequest(eori = validEori, mucr = ucr_2, ucr = ucr)
+        val expectedXml = scala.xml.Utility.trim(exampleAssociateDucrConsolidationRequestXML)
+
+        ileMapper.buildConsolidationXml(consolidation) shouldBe expectedXml
+      }
+
+      "it is MUCR Association" in {
+
+        when(ucrBlockBuilder.buildUcrBlockNode(any[ConsolidationType], anyString())).thenReturn(buildUcrBlockNode(ucr = ucr, ucrType = "M"))
+
+        val consolidation = AssociateMucrRequest(eori = validEori, mucr = ucr_2, ucr = ucr)
+        val expectedXml = scala.xml.Utility.trim(exampleAssociateMucrConsolidationRequestXML)
+
+        ileMapper.buildConsolidationXml(consolidation) shouldBe expectedXml
+      }
+
+      "it is DUCR Part Association" in {
+
+        when(ucrBlockBuilder.buildUcrBlockNode(any[ConsolidationType], anyString()))
+          .thenReturn(buildUcrBlockNode(ucr = ucr, ucrType = "D", ucrPartNo = validUcrPartId))
+
+        val consolidation = AssociateDucrPartRequest(eori = validEori, mucr = ucr_2, ucr = validWholeDucrPart)
+        val expectedXml = scala.xml.Utility.trim(exampleAssociateDucrPartConsolidationRequestXML)
+
+        ileMapper.buildConsolidationXml(consolidation) shouldBe expectedXml
+      }
+
+      "it is DUCR Dissociation" in {
+
+        when(ucrBlockBuilder.buildUcrBlockNode(any[ConsolidationType], anyString())).thenReturn(buildUcrBlockNode(ucr = ucr, ucrType = "D"))
+
+        val consolidation = DisassociateDucrRequest(eori = validEori, ucr = ucr)
+        val expectedXml = scala.xml.Utility.trim(exampleDisassociateDucrConsolidationRequestXML)
+
+        ileMapper.buildConsolidationXml(consolidation) shouldBe expectedXml
+      }
+
+      "it is MUCR Dissociation" in {
+
+        when(ucrBlockBuilder.buildUcrBlockNode(any[ConsolidationType], anyString())).thenReturn(buildUcrBlockNode(ucr = ucr, ucrType = "M"))
+
+        val consolidation = DisassociateMucrRequest(eori = validEori, ucr = ucr)
+        val expectedXml = scala.xml.Utility.trim(exampleDisassociateMucrConsolidationRequestXML)
+
+        ileMapper.buildConsolidationXml(consolidation) shouldBe expectedXml
+      }
+
+      "it is DUCR Part Dissociation" in {
+
+        when(ucrBlockBuilder.buildUcrBlockNode(any[ConsolidationType], anyString()))
+          .thenReturn(buildUcrBlockNode(ucr = ucr, ucrType = "D", ucrPartNo = validUcrPartId))
+
+        val consolidation = DisassociateDucrPartRequest(eori = validEori, ucr = validWholeDucrPart)
+        val expectedXml = scala.xml.Utility.trim(exampleDisassociateDucrPartConsolidationRequestXML)
+
+        ileMapper.buildConsolidationXml(consolidation) shouldBe expectedXml
+      }
+
+      "it is Shut MUCR" in {
+
+        val consolidation = ShutMucrRequest(eori = validEori, mucr = ucr_2)
+        val expectedXml = scala.xml.Utility.trim(exampleShutMucrConsolidationRequestXML)
+
+        ileMapper.buildConsolidationXml(consolidation) shouldBe expectedXml
+      }
     }
+  }
+
+  "ILE Mapper on buildIleQuery" should {
 
     "create correct XML based on the ILE Query" in {
 
-      val ucrBlock = UcrBlock(ucr, "D")
+      val ucrBlock = standard.UcrBlock(ucr = ucr, ucrType = "D")
       val expectedXml = scala.xml.Utility.trim(exampleIleQueryRequestXml)
 
       ileMapper.buildIleQuery(ucrBlock) shouldBe expectedXml

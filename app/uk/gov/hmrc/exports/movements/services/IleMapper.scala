@@ -25,16 +25,15 @@ import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation
 import uk.gov.hmrc.exports.movements.models.movements.{MovementsExchange, Transport}
 import uk.gov.hmrc.exports.movements.models.notifications.standard
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType.ConsolidationType
-import uk.gov.hmrc.exports.movements.models.submissions.ActionType.ConsolidationType._
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType.MovementType._
-import uk.gov.hmrc.wco.dec.inventorylinking.common.{TransportDetails, UcrBlock}
+import uk.gov.hmrc.wco.dec.inventorylinking.common.TransportDetails
 import uk.gov.hmrc.wco.dec.inventorylinking.movement.request.InventoryLinkingMovementRequest
 
 import scala.util.Random
 import scala.xml.{Node, NodeSeq}
 
 @Singleton
-class IleMapper @Inject()(clock: Clock) {
+class IleMapper @Inject()(clock: Clock, ucrBlockBuilder: UcrBlockBuilder) {
 
   private val dateTimeFormatter = DateTimeFormatter.ISO_INSTANT
 
@@ -62,7 +61,7 @@ class IleMapper @Inject()(clock: Clock) {
     InventoryLinkingMovementRequest(
       messageCode = request.choice.ileCode,
       agentDetails = None,
-      ucrBlock = UcrBlock(ucr = request.consignmentReference.referenceValue, ucrPartNo = None, ucrType = request.consignmentReference.reference),
+      ucrBlock = ucrBlockBuilder.buildUcrBlock(request.consignmentReference).toWcoUcrBlock,
       goodsLocation = request.location.map(_.code).getOrElse(""),
       goodsArrivalDateTime = arrivalDetails,
       goodsDepartureDateTime = departureDetails,
@@ -87,7 +86,7 @@ class IleMapper @Inject()(clock: Clock) {
       <inventoryLinkingConsolidationRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
         <messageCode>{buildMessageCode(consolidation.consolidationType)}</messageCode>
         {buildMasterUcrNode(consolidation.mucrOpt)}
-        {buildUcrBlockNode(consolidation.consolidationType, consolidation.ucrOpt)}
+        {consolidation.ucrOpt.map(ucr => ucrBlockBuilder.buildUcrBlockNode(consolidation.consolidationType, ucr)).getOrElse(NodeSeq.Empty)}
       </inventoryLinkingConsolidationRequest>
     }
 
@@ -95,19 +94,6 @@ class IleMapper @Inject()(clock: Clock) {
 
   private def buildMasterUcrNode(mucrOpt: Option[String]): NodeSeq =
     mucrOpt.map(mucr => <masterUCR>{mucr}</masterUCR>).getOrElse(NodeSeq.Empty)
-
-  private def buildUcrBlockNode(consolidationType: ConsolidationType, ucrOpt: Option[String]): NodeSeq =
-    ucrOpt.map { ucr =>
-      <ucrBlock>
-        <ucr>{ucr}</ucr>
-        <ucrType>{ucrType(consolidationType)}</ucrType>
-      </ucrBlock>
-    }.getOrElse(NodeSeq.Empty)
-
-  private def ucrType(consolidationType: ConsolidationType): String = consolidationType match {
-    case DucrAssociation | DucrDisassociation => "D"
-    case MucrAssociation | MucrDisassociation => "M"
-  }
 
   def buildIleQuery(ucrBlock: standard.UcrBlock): NodeSeq =
     scala.xml.Utility.trim {

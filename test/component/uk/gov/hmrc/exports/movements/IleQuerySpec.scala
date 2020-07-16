@@ -23,6 +23,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.verify
 import play.api.libs.json.Json
 import play.api.test.Helpers._
 import uk.gov.hmrc.exports.movements.controllers.routes
+import uk.gov.hmrc.exports.movements.models.common.UcrType.Ducr
 import uk.gov.hmrc.exports.movements.models.movements.Transport
 import uk.gov.hmrc.exports.movements.models.notifications.Notification
 import uk.gov.hmrc.exports.movements.models.notifications.queries._
@@ -148,7 +149,7 @@ class IleQuerySpec extends ComponentSpec {
       submissions.size mustBe 1
       submissions.head.providerId mustBe Some("provider-id")
       submissions.head.conversationId mustBe "conversation-id"
-      submissions.head.ucrBlock mustBe UcrBlock("UCR-123", "D")
+      submissions.head.ucrBlock mustBe UcrBlock(ucr = "UCR-123", ucrType = Ducr.codeValue)
 
       verify(
         postRequestedToILE()
