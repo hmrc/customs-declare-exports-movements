@@ -31,6 +31,7 @@ object XmlTags {
   val ucrBlock = "ucrBlock"
   val ucr = "ucr"
   val ucrType = "ucrType"
+  val ucrPartNo = "ucrPartNo"
 
   val goodsItem = "goodsItem"
   val commodityCode = "commodityCode"

@@ -156,7 +156,7 @@ class IleMapperSpec extends UnitSpec with MockitoSugar with BeforeAndAfterEach {
       "it is DUCR Part Association" in {
 
         when(ucrBlockBuilder.buildUcrBlockNode(any[ConsolidationType], anyString()))
-          .thenReturn(buildUcrBlockNode(ucr = ucr, ucrType = "D", ucrPartNo = validUcrPartId))
+          .thenReturn(buildUcrBlockNode(ucr = ucr, ucrType = "D", ucrPartNo = validUcrPartNo))
 
         val consolidation = AssociateDucrPartRequest(eori = validEori, mucr = ucr_2, ucr = validWholeDucrPart)
         val expectedXml = scala.xml.Utility.trim(exampleAssociateDucrPartConsolidationRequestXML)
@@ -187,7 +187,7 @@ class IleMapperSpec extends UnitSpec with MockitoSugar with BeforeAndAfterEach {
       "it is DUCR Part Dissociation" in {
 
         when(ucrBlockBuilder.buildUcrBlockNode(any[ConsolidationType], anyString()))
-          .thenReturn(buildUcrBlockNode(ucr = ucr, ucrType = "D", ucrPartNo = validUcrPartId))
+          .thenReturn(buildUcrBlockNode(ucr = ucr, ucrType = "D", ucrPartNo = validUcrPartNo))
 
         val consolidation = DisassociateDucrPartRequest(eori = validEori, ucr = validWholeDucrPart)
         val expectedXml = scala.xml.Utility.trim(exampleDisassociateDucrPartConsolidationRequestXML)

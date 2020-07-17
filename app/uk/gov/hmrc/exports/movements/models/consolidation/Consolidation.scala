@@ -60,10 +60,10 @@ object Consolidation extends JSONResponses {
       extends Consolidation(MucrDisassociation, eori, providerId, None, Some(ucr))
 
   case class AssociateDucrPartRequest(override val eori: String, override val providerId: Option[String] = None, mucr: String, ucr: String)
-    extends Consolidation(DucrPartAssociation, eori, providerId, Some(mucr), Some(ucr))
+      extends Consolidation(DucrPartAssociation, eori, providerId, Some(mucr), Some(ucr))
 
   case class DisassociateDucrPartRequest(override val eori: String, override val providerId: Option[String] = None, ucr: String)
-    extends Consolidation(DucrPartDisassociation, eori, providerId, None, Some(ucr))
+      extends Consolidation(DucrPartDisassociation, eori, providerId, None, Some(ucr))
 
   case class ShutMucrRequest(override val eori: String, override val providerId: Option[String] = None, mucr: String)
       extends Consolidation(ShutMucr, eori, providerId, Some(mucr), None)

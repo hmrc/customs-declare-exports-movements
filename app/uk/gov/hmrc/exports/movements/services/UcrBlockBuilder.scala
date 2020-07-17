@@ -16,8 +16,10 @@
 
 package uk.gov.hmrc.exports.movements.services
 
+import uk.gov.hmrc.exports.movements.models.XmlTags
 import uk.gov.hmrc.exports.movements.models.common.UcrType.{Ducr, DucrPart, Mucr}
 import uk.gov.hmrc.exports.movements.models.movements.ConsignmentReference
+import uk.gov.hmrc.exports.movements.models.notifications.parsers.StringOption
 import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType.ConsolidationType
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType.ConsolidationType._
@@ -77,6 +79,19 @@ class UcrBlockBuilder {
   private def ucrType(consolidationType: ConsolidationType): String = consolidationType match {
     case DucrAssociation | DucrDisassociation | DucrPartAssociation | DucrPartDisassociation => "D"
     case MucrAssociation | MucrDisassociation                                                => "M"
+  }
+
+  def extractUcrBlocksFrom(nodeSeq: NodeSeq): Seq[UcrBlock] = {
+    val ucrBlocks = (nodeSeq \ XmlTags.ucrBlock).map { node =>
+      val ucr = (node \ XmlTags.ucr).text
+      val ucrType = (node \ XmlTags.ucrType).text
+      val ucrPartNo = StringOption((node \ XmlTags.ucrPartNo).text)
+      UcrBlock(ucr = ucr, ucrType = ucrType, ucrPartNo = ucrPartNo)
+    }
+
+    val masterUcr = (nodeSeq \ XmlTags.masterUCR).map(node => UcrBlock(ucr = node.text, ucrType = "M"))
+
+    masterUcr ++ ucrBlocks
   }
 
 }

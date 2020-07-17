@@ -16,12 +16,14 @@
 
 package unit.uk.gov.hmrc.exports.movements.services
 
-import uk.gov.hmrc.exports.movements.models.common.UcrType.{Ducr, DucrPart, Mucr}
+import uk.gov.hmrc.exports.movements.models.common.UcrType._
 import uk.gov.hmrc.exports.movements.models.movements.ConsignmentReference
 import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType.ConsolidationType._
 import uk.gov.hmrc.exports.movements.services.UcrBlockBuilder
 import unit.uk.gov.hmrc.exports.movements.base.UnitSpec
+import unit.uk.gov.hmrc.exports.movements.services.UcrBlockBuilderSpec._
+import utils.testdata.CommonTestData._
 import utils.testdata.{CommonTestData, ConsolidationTestData}
 
 import scala.xml.NodeSeq
@@ -30,9 +32,8 @@ class UcrBlockBuilderSpec extends UnitSpec {
 
   private val ucrBlockBuilder = new UcrBlockBuilder()
 
-  private def assertEqual(actual: NodeSeq, expected: NodeSeq): Unit =
+  private def assertNodeSequencesEqual(actual: NodeSeq, expected: NodeSeq): Unit =
     xml.Utility.trim(actual.head) shouldBe xml.Utility.trim(expected.head)
-
 
   "UcrBlockBuilder on buildWcoUcrBlock" should {
 
@@ -40,11 +41,11 @@ class UcrBlockBuilderSpec extends UnitSpec {
 
       "provided with ConsignmentReferences for DUCR" in {
 
-        val consignmentReference = ConsignmentReference(reference = Ducr.codeValue, referenceValue = CommonTestData.ucr)
+        val consignmentReference = ConsignmentReference(reference = Ducr.codeValue, referenceValue = ucr)
 
         val result = ucrBlockBuilder.buildUcrBlock(consignmentReference)
 
-        val expectedResult = UcrBlock(ucr = CommonTestData.ucr, ucrType = Ducr.codeValue)
+        val expectedResult = UcrBlock(ucr = ucr, ucrType = Ducr.codeValue)
         result shouldBe expectedResult
       }
 
@@ -64,7 +65,7 @@ class UcrBlockBuilderSpec extends UnitSpec {
 
         val result = ucrBlockBuilder.buildUcrBlock(consignmentReference)
 
-        val expectedResult = UcrBlock(ucr = CommonTestData.ucr, ucrPartNo = Some(CommonTestData.validUcrPartId), ucrType = Ducr.codeValue)
+        val expectedResult = UcrBlock(ucr = ucr, ucrPartNo = Some(CommonTestData.validUcrPartNo), ucrType = Ducr.codeValue)
         result shouldBe expectedResult
       }
     }
@@ -73,7 +74,7 @@ class UcrBlockBuilderSpec extends UnitSpec {
 
       "provided with ConsignmentReferences for unknown type" in {
 
-        val consignmentReference = ConsignmentReference(reference = "UNKNOWN", referenceValue = CommonTestData.ucr)
+        val consignmentReference = ConsignmentReference(reference = "UNKNOWN", referenceValue = ucr)
 
         intercept[IllegalArgumentException](ucrBlockBuilder.buildUcrBlock(consignmentReference))
 
@@ -81,7 +82,7 @@ class UcrBlockBuilderSpec extends UnitSpec {
 
       "provided with ConsignmentReferences for DUCR Part, without ucrPartId part" in {
 
-        val consignmentReference = ConsignmentReference(reference = DucrPart.codeValue, referenceValue = s"${CommonTestData.ucr}-")
+        val consignmentReference = ConsignmentReference(reference = DucrPart.codeValue, referenceValue = s"${ucr}-")
 
         intercept[IllegalArgumentException](ucrBlockBuilder.buildUcrBlock(consignmentReference))
       }
@@ -95,11 +96,11 @@ class UcrBlockBuilderSpec extends UnitSpec {
       "provided with ConsolidationType DucrAssociation" in {
 
         val consolidationType = DucrAssociation
-        val testUcr = CommonTestData.ucr
+        val testUcr = ucr
 
         val result = ucrBlockBuilder.buildUcrBlockNode(consolidationType, testUcr)
 
-        assertEqual(result, ConsolidationTestData.buildUcrBlockNode(ucr = testUcr, ucrType = Ducr.codeValue))
+        assertNodeSequencesEqual(result, ConsolidationTestData.buildUcrBlockNode(ucr = testUcr, ucrType = Ducr.codeValue))
       }
 
       "provided with ConsolidationType MucrAssociation" in {
@@ -109,28 +110,28 @@ class UcrBlockBuilderSpec extends UnitSpec {
 
         val result = ucrBlockBuilder.buildUcrBlockNode(consolidationType, testUcr)
 
-        assertEqual(result, ConsolidationTestData.buildUcrBlockNode(ucr = testUcr, ucrType = Mucr.codeValue))
+        assertNodeSequencesEqual(result, ConsolidationTestData.buildUcrBlockNode(ucr = testUcr, ucrType = Mucr.codeValue))
       }
 
       "provided with ConsolidationType DucrPartAssociation" in {
 
         val consolidationType = DucrPartAssociation
-        val testUcr = CommonTestData.ucr
-        val testDucrPartNo = CommonTestData.validUcrPartId
+        val testUcr = ucr
+        val testDucrPartNo = CommonTestData.validUcrPartNo
 
         val result = ucrBlockBuilder.buildUcrBlockNode(consolidationType, CommonTestData.validWholeDucrPart)
 
-        assertEqual(result, ConsolidationTestData.buildUcrBlockNode(ucr = testUcr, ucrType = Ducr.codeValue, ucrPartNo = testDucrPartNo))
+        assertNodeSequencesEqual(result, ConsolidationTestData.buildUcrBlockNode(ucr = testUcr, ucrType = Ducr.codeValue, ucrPartNo = testDucrPartNo))
       }
 
       "provided with ConsolidationType DucrDisassociation" in {
 
         val consolidationType = DucrDisassociation
-        val testUcr = CommonTestData.ucr
+        val testUcr = ucr
 
         val result = ucrBlockBuilder.buildUcrBlockNode(consolidationType, testUcr)
 
-        assertEqual(result, ConsolidationTestData.buildUcrBlockNode(ucr = testUcr, ucrType = Ducr.codeValue))
+        assertNodeSequencesEqual(result, ConsolidationTestData.buildUcrBlockNode(ucr = testUcr, ucrType = Ducr.codeValue))
       }
 
       "provided with ConsolidationType MucrDisassociation" in {
@@ -140,18 +141,18 @@ class UcrBlockBuilderSpec extends UnitSpec {
 
         val result = ucrBlockBuilder.buildUcrBlockNode(consolidationType, testUcr)
 
-        assertEqual(result, ConsolidationTestData.buildUcrBlockNode(ucr = testUcr, ucrType = Mucr.codeValue))
+        assertNodeSequencesEqual(result, ConsolidationTestData.buildUcrBlockNode(ucr = testUcr, ucrType = Mucr.codeValue))
       }
 
       "provided with ConsolidationType DucrPartDisassociation" in {
 
         val consolidationType = DucrPartDisassociation
-        val testUcr = CommonTestData.ucr
-        val testDucrPartNo = CommonTestData.validUcrPartId
+        val testUcr = ucr
+        val testDucrPartNo = CommonTestData.validUcrPartNo
 
         val result = ucrBlockBuilder.buildUcrBlockNode(consolidationType, CommonTestData.validWholeDucrPart)
 
-        assertEqual(result, ConsolidationTestData.buildUcrBlockNode(ucr = testUcr, ucrType = Ducr.codeValue, ucrPartNo = testDucrPartNo))
+        assertNodeSequencesEqual(result, ConsolidationTestData.buildUcrBlockNode(ucr = testUcr, ucrType = Ducr.codeValue, ucrPartNo = testDucrPartNo))
       }
     }
 
@@ -165,7 +166,120 @@ class UcrBlockBuilderSpec extends UnitSpec {
         intercept[IllegalArgumentException](ucrBlockBuilder.buildUcrBlockNode(consolidationType, testUcr))
       }
     }
-
   }
+
+  "UcrBlockBuilder on extractUcrBlocksFrom" should {
+
+    "build empty List" when {
+
+      "provided with XML" which {
+
+        "contains no UcrBlock" in {
+
+          val input = EmptyUcrBlockXml
+          val expectedResult = Seq.empty[UcrBlock]
+
+          ucrBlockBuilder.extractUcrBlocksFrom(input) shouldBe expectedResult
+        }
+      }
+    }
+
+    "build correct List of UcrBlocks" when {
+
+      "provided with XML" which {
+
+        "contains single UcrBlock" in {
+
+          val input = singleUcrBlockXml
+          val expectedResult = Seq(UcrBlock(ucr = ucr, ucrType = Ducr.codeValue))
+
+          ucrBlockBuilder.extractUcrBlocksFrom(input) shouldBe expectedResult
+        }
+
+        "contains single UcrBlock with UcrPartNo element" in {
+
+          val input = singleUcrBlockWithUcrPartNoXml
+          val expectedResult = Seq(UcrBlock(ucr = ucr, ucrPartNo = Some(validUcrPartNo), ucrType = Ducr.codeValue))
+
+          ucrBlockBuilder.extractUcrBlocksFrom(input) shouldBe expectedResult
+        }
+
+        "contains multiple UcrBlocks" in {
+
+          val input = doubleUcrBlocksXml
+          val expectedResult = Seq(UcrBlock(ucr = ucr, ucrType = Ducr.codeValue), UcrBlock(ucr = ucr_2, ucrType = Ducr.codeValue))
+
+          ucrBlockBuilder.extractUcrBlocksFrom(input) shouldBe expectedResult
+        }
+
+        "contains masterUcr element" in {
+
+          val input = masterUcrOnlyXml
+          val expectedResult = Seq(UcrBlock(ucr = mucr, ucrType = Mucr.codeValue))
+
+          ucrBlockBuilder.extractUcrBlocksFrom(input) shouldBe expectedResult
+        }
+
+        "contains masterUcr element and UcrBlock" in {
+
+          val input = singleUcrBlockWithMasterUcrXml
+          val expectedResult = Seq(UcrBlock(ucr = mucr, ucrType = Mucr.codeValue), UcrBlock(ucr = ucr, ucrType = Ducr.codeValue))
+
+          ucrBlockBuilder.extractUcrBlocksFrom(input) shouldBe expectedResult
+        }
+      }
+    }
+  }
+
+}
+
+object UcrBlockBuilderSpec {
+
+  private val EmptyUcrBlockXml =
+    <inventoryLinkingMovementRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
+    </inventoryLinkingMovementRequest>
+
+  private val singleUcrBlockXml =
+    <inventoryLinkingMovementRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
+      <ucrBlock>
+        <ucr>{ucr}</ucr>
+        <ucrType>{Ducr.codeValue}</ucrType>
+      </ucrBlock>
+    </inventoryLinkingMovementRequest>
+
+  private val singleUcrBlockWithUcrPartNoXml =
+    <inventoryLinkingMovementRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
+      <ucrBlock>
+        <ucr>{ucr}</ucr>
+        <ucrPartNo>{validUcrPartNo}</ucrPartNo>
+        <ucrType>{Ducr.codeValue}</ucrType>
+      </ucrBlock>
+    </inventoryLinkingMovementRequest>
+
+  private val singleUcrBlockWithMasterUcrXml =
+    <inventoryLinkingMovementRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
+      <ucrBlock>
+        <ucr>{ucr}</ucr>
+        <ucrType>{Ducr.codeValue}</ucrType>
+      </ucrBlock>
+      <masterUCR>{mucr}</masterUCR>
+    </inventoryLinkingMovementRequest>
+
+  private val doubleUcrBlocksXml =
+    <inventoryLinkingMovementRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
+      <ucrBlock>
+        <ucr>{ucr}</ucr>
+        <ucrType>{Ducr.codeValue}</ucrType>
+      </ucrBlock>
+      <ucrBlock>
+        <ucr>{ucr_2}</ucr>
+        <ucrType>{Ducr.codeValue}</ucrType>
+      </ucrBlock>
+    </inventoryLinkingMovementRequest>
+
+  private val masterUcrOnlyXml =
+    <inventoryLinkingMovementRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
+      <masterUCR>{mucr}</masterUCR>
+    </inventoryLinkingMovementRequest>
 
 }

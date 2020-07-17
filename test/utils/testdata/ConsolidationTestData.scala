@@ -75,7 +75,7 @@ object ConsolidationTestData {
       <masterUCR>{ucr_2}</masterUCR>
       <ucrBlock>
         <ucr>{ucr}</ucr>
-        <ucrPartNo>{validUcrPartId}</ucrPartNo>
+        <ucrPartNo>{validUcrPartNo}</ucrPartNo>
         <ucrType>D</ucrType>
       </ucrBlock>
     </inventoryLinkingConsolidationRequest>
@@ -103,7 +103,7 @@ object ConsolidationTestData {
       <messageCode>{MessageCodes.EAC}</messageCode>
       <ucrBlock>
         <ucr>{ucr}</ucr>
-        <ucrPartNo>{validUcrPartId}</ucrPartNo>
+        <ucrPartNo>{validUcrPartNo}</ucrPartNo>
         <ucrType>D</ucrType>
       </ucrBlock>
     </inventoryLinkingConsolidationRequest>
