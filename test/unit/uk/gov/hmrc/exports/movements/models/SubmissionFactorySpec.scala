@@ -18,7 +18,6 @@ package unit.uk.gov.hmrc.exports.movements.models
 
 import org.scalatest.{MustMatchers, WordSpec}
 import org.scalatestplus.mockito.MockitoSugar
-import uk.gov.hmrc.exports.movements.models.movements.{ConsignmentReference, MovementsExchange}
 import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType.{ConsolidationType, MovementType}
 import uk.gov.hmrc.exports.movements.models.submissions.{Submission, SubmissionFactory}
@@ -38,21 +37,13 @@ class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar
 
       "provided with Arrival request" in new Test {
 
-        val arrivalRequest = MovementsExchange(
-          eori = validEori,
-          providerId = Some(validProviderId),
-          choice = MovementType.Arrival,
-          consignmentReference = ConsignmentReference("", ""),
-          movementDetails = None
-        )
-
         val submission =
           submissionFactory.buildMovementSubmission(
             validEori,
             Some(validProviderId),
             conversationId,
             exampleArrivalRequestXML("123"),
-            arrivalRequest.choice
+            MovementType.Arrival
           )
 
         val expectedSubmission = Submission(
@@ -66,15 +57,29 @@ class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar
         compareSubmissions(submission, expectedSubmission)
       }
 
-      "provided with Departure request" in new Test {
+      "provided with Retrospective Arrival request" in new Test {
 
-        val departureRequest = MovementsExchange(
+        val submission =
+          submissionFactory.buildMovementSubmission(
+            validEori,
+            Some(validProviderId),
+            conversationId,
+            exampleArrivalRequestXML("123"),
+            MovementType.RetrospectiveArrival
+          )
+
+        val expectedSubmission = Submission(
           eori = validEori,
           providerId = Some(validProviderId),
-          choice = MovementType.Departure,
-          consignmentReference = ConsignmentReference("", ""),
-          movementDetails = None
+          conversationId = conversationId,
+          actionType = MovementType.RetrospectiveArrival,
+          ucrBlocks = Seq(UcrBlock(ucr = ucr, ucrType = "D"))
         )
+
+        compareSubmissions(submission, expectedSubmission)
+      }
+
+      "provided with Departure request" in new Test {
 
         val submission =
           submissionFactory.buildMovementSubmission(
@@ -82,7 +87,7 @@ class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar
             Some(validProviderId),
             conversationId,
             exampleDepartureRequestXML,
-            departureRequest.choice
+            MovementType.Departure
           )
 
         val expectedSubmission = Submission(
@@ -95,6 +100,12 @@ class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar
 
         compareSubmissions(submission, expectedSubmission)
       }
+    }
+  }
+
+  "SubmissionFactory on buildConsolidationSubmission" should {
+
+    "return Submission with provided data" when {
 
       "provided with Association Ducr request" in new Test {
 
