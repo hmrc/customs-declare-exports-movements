@@ -32,14 +32,14 @@ class SubmissionController @Inject()(submissionService: SubmissionService, cc: C
   def getAllSubmissions(eori: Option[String], providerId: Option[String]): Action[AnyContent] = Action.async(parse.default) { implicit request =>
     submissionService
       .getSubmissions(SearchParameters(eori = eori, providerId = providerId))
-      .map(movements => Ok(Json.toJson(movements)))
+      .map(movementSubmissions => Ok(Json.toJson(movementSubmissions)))
   }
 
   def getSubmission(eori: Option[String], providerId: Option[String], conversationId: String): Action[AnyContent] = Action.async(parse.default) {
     implicit request =>
       submissionService
         .getSingleSubmission(SearchParameters(eori = eori, providerId = providerId, conversationId = Some(conversationId)))
-        .map(submissions => Ok(Json.toJson(submissions)))
+        .map(movementSubmission => Ok(Json.toJson(movementSubmission)))
   }
 
 }

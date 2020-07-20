@@ -20,6 +20,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.verify
 import play.api.libs.json.Json
 import play.api.test.Helpers._
 import uk.gov.hmrc.exports.movements.controllers.routes
+import uk.gov.hmrc.exports.movements.models.common.UcrType.Mucr
 import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType.ConsolidationType
 import uk.gov.hmrc.exports.movements.models.submissions.Submission
@@ -47,7 +48,7 @@ class ShutMUCRSpec extends ComponentSpec {
       val submissions: Seq[Submission] = theSubmissionsFor("eori")
       submissions.size mustBe 1
       submissions.head.conversationId mustBe "conversation-id"
-      submissions.head.ucrBlocks mustBe Seq(UcrBlock("UCR", "M"))
+      submissions.head.ucrBlocks mustBe Seq(UcrBlock(ucr = "UCR", ucrType = Mucr.codeValue))
       submissions.head.actionType mustBe ConsolidationType.ShutMucr
 
       verify(

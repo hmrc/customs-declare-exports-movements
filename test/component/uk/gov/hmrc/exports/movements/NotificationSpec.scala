@@ -21,6 +21,7 @@ import java.time.Instant
 import play.api.libs.json.Json
 import play.api.test.Helpers._
 import uk.gov.hmrc.exports.movements.controllers.routes
+import uk.gov.hmrc.exports.movements.models.common.UcrType.Mucr
 import uk.gov.hmrc.exports.movements.models.movements.Transport
 import uk.gov.hmrc.exports.movements.models.notifications.Notification
 import uk.gov.hmrc.exports.movements.models.notifications.queries.{DucrInfo, GoodsItemInfo, IleQueryResponseData, MovementInfo}
@@ -44,7 +45,7 @@ class NotificationSpec extends ComponentSpec {
       messageCode = Some("message-code"),
       crcCode = Some("crc-code"),
       declarationCount = Some(1),
-      entries = Seq(Entry(Some(UcrBlock("UCR", "M")))),
+      entries = Seq(Entry(Some(UcrBlock(ucr = "UCR", ucrType = Mucr.codeValue)))),
       goodsArrivalDateTime = Some(Instant.parse("2020-03-01T12:45:00.000Z")),
       goodsLocation = Some("location"),
       masterRoe = Some("master-roe"),
@@ -110,7 +111,7 @@ class NotificationSpec extends ComponentSpec {
         notifications.head.responseType mustBe "inventoryLinkingControlResponse"
         notifications.head.data mustBe StandardNotificationData(
           messageCode = Some("CST"),
-          entries = Seq(Entry(ucrBlock = Some(UcrBlock("UCR", "M")))),
+          entries = Seq(Entry(ucrBlock = Some(UcrBlock(ucr = "UCR", ucrType = Mucr.codeValue)))),
           movementReference = Some("Reference"),
           actionCode = Some("3"),
           errorCodes = Seq("22")

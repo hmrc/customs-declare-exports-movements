@@ -19,17 +19,29 @@ package utils.testdata
 import play.api.http.{ContentTypes, HeaderNames}
 import play.api.libs.json.{JsObject, JsString, JsValue}
 import play.api.mvc.Codec
-import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames
 import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation._
-import utils.testdata.CommonTestData._
+import utils.testdata.CommonTestData.{ucr, _}
 
-import scala.xml.{Elem, Node}
+import scala.xml.{Elem, Node, NodeSeq}
 
 object ConsolidationTestData {
 
   val associateDucrRequest = AssociateDucrRequest(eori = validEori, providerId = Some(validProviderId), mucr = ucr, ucr = ucr_2)
   val disassiociateDucrRequest = DisassociateDucrRequest(eori = validEori, providerId = Some(validProviderId), ucr = ucr_2)
   val shutMucrRequest = ShutMucrRequest(eori = validEori, providerId = Some(validProviderId), mucr = ucr)
+
+  def buildUcrBlockNode(ucr: String, ucrType: String): NodeSeq =
+    <ucrBlock>
+      <ucr>{ucr}</ucr>
+      <ucrType>{ucrType}</ucrType>
+    </ucrBlock>
+
+  def buildUcrBlockNode(ucr: String, ucrType: String, ucrPartNo: String): NodeSeq =
+    <ucrBlock>
+      <ucr>{ucr}</ucr>
+      <ucrPartNo>{ucrPartNo}</ucrPartNo>
+      <ucrType>{ucrType}</ucrType>
+    </ucrBlock>
 
   val exampleShutMucrConsolidationRequestXML: Node =
     <inventoryLinkingConsolidationRequest>
@@ -57,6 +69,17 @@ object ConsolidationTestData {
       </ucrBlock>
     </inventoryLinkingConsolidationRequest>
 
+  val exampleAssociateDucrPartConsolidationRequestXML: Elem =
+    <inventoryLinkingConsolidationRequest>
+      <messageCode>{MessageCodes.EAC}</messageCode>
+      <masterUCR>{ucr_2}</masterUCR>
+      <ucrBlock>
+        <ucr>{ucr}</ucr>
+        <ucrPartNo>{validUcrPartNo}</ucrPartNo>
+        <ucrType>D</ucrType>
+      </ucrBlock>
+    </inventoryLinkingConsolidationRequest>
+
   val exampleDisassociateDucrConsolidationRequestXML: Elem =
     <inventoryLinkingConsolidationRequest>
       <messageCode>{MessageCodes.EAC}</messageCode>
@@ -72,6 +95,16 @@ object ConsolidationTestData {
       <ucrBlock>
         <ucr>{ucr}</ucr>
         <ucrType>M</ucrType>
+      </ucrBlock>
+    </inventoryLinkingConsolidationRequest>
+
+  val exampleDisassociateDucrPartConsolidationRequestXML: Elem =
+    <inventoryLinkingConsolidationRequest>
+      <messageCode>{MessageCodes.EAC}</messageCode>
+      <ucrBlock>
+        <ucr>{ucr}</ucr>
+        <ucrPartNo>{validUcrPartNo}</ucrPartNo>
+        <ucrType>D</ucrType>
       </ucrBlock>
     </inventoryLinkingConsolidationRequest>
 

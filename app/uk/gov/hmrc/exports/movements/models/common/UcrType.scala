@@ -14,16 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.exports.movements.models.movements
+package uk.gov.hmrc.exports.movements.models.common
 
-import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.exports.movements.models.common.UcrType
+sealed abstract class UcrType(val codeValue: String)
 
-case class ConsignmentReference(reference: String, referenceValue: String) {
-
-  def is(ucrType: UcrType): Boolean = this.reference.equals(ucrType.codeValue)
-}
-
-object ConsignmentReference {
-  implicit val format: OFormat[ConsignmentReference] = Json.format[ConsignmentReference]
+object UcrType {
+  case object Mucr extends UcrType("M")
+  case object Ducr extends UcrType("D")
+  case object DucrPart extends UcrType("DP")
 }

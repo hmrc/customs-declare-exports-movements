@@ -11,7 +11,7 @@ object AppDependencies {
     "uk.gov.hmrc"                     %% "simple-reactivemongo"       % "7.30.0-play-26",
     ws,
     "uk.gov.hmrc"                     %% "bootstrap-play-26"          % "1.13.0",
-    "uk.gov.hmrc"                     %% "wco-dec"                    % "0.34.0",
+    "uk.gov.hmrc"                     %% "wco-dec"                    % "0.35.0",
     "uk.gov.hmrc"                     %% "logback-json-logger"        % "4.8.0",
     "com.typesafe.play"               %% "play-json-joda"             % "2.6.13",
     "com.github.tototoshi"            %% "scala-csv"                  % "1.3.6",

@@ -16,35 +16,68 @@
 
 package unit.uk.gov.hmrc.exports.movements.models
 
-import org.scalatest.{MustMatchers, WordSpec}
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito._
+import org.scalatest.{BeforeAndAfterEach, MustMatchers, WordSpec}
 import org.scalatestplus.mockito.MockitoSugar
-import uk.gov.hmrc.exports.movements.models.movements.{ConsignmentReference, MovementsExchange}
+import uk.gov.hmrc.exports.movements.models.common.UcrType.{Ducr, Mucr}
 import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType.{ConsolidationType, MovementType}
 import uk.gov.hmrc.exports.movements.models.submissions.{Submission, SubmissionFactory}
+import uk.gov.hmrc.exports.movements.services.UcrBlockBuilder
 import utils.testdata.CommonTestData.{conversationId, _}
 import utils.testdata.ConsolidationTestData._
 import utils.testdata.MovementsTestData.{exampleArrivalRequestXML, exampleDepartureRequestXML}
 
-class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar {
+import scala.xml.NodeSeq
 
-  private trait Test {
-    val submissionFactory = new SubmissionFactory
+class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar with BeforeAndAfterEach {
+
+  private val ucrBlockBuilder = mock[UcrBlockBuilder]
+  private def submissionFactory = new SubmissionFactory(ucrBlockBuilder)
+
+  override protected def beforeEach(): Unit = {
+    super.beforeEach()
+
+    reset(ucrBlockBuilder)
+    when(ucrBlockBuilder.extractUcrBlocksFrom(any[NodeSeq])).thenReturn(Seq.empty)
+  }
+
+  override protected def afterEach(): Unit = {
+    reset(ucrBlockBuilder)
+
+    super.afterEach()
   }
 
   "SubmissionFactory on buildMovementSubmission" should {
 
+    "call UcrBlockBuilder" in {
+
+      submissionFactory.buildMovementSubmission(
+        validEori,
+        Some(validProviderId),
+        conversationId,
+        exampleArrivalRequestXML("123"),
+        MovementType.Arrival
+      )
+
+      verify(ucrBlockBuilder).extractUcrBlocksFrom(any[NodeSeq])
+    }
+
+    "return Submission with ucrBlocks returned from UcrBlockBuilder" in {
+
+      val testUcrBlocks = Seq(UcrBlock(ucr = ucr_2, ucrType = Mucr.codeValue), UcrBlock(ucr = ucr, ucrType = Ducr.codeValue))
+      when(ucrBlockBuilder.extractUcrBlocksFrom(any[NodeSeq])).thenReturn(testUcrBlocks)
+
+      val submission =
+        submissionFactory.buildMovementSubmission(validEori, None, conversationId, exampleArrivalRequestXML("123"), MovementType.Arrival)
+
+      submission.ucrBlocks mustBe testUcrBlocks
+    }
+
     "return Submission with provided data" when {
 
-      "provided with Arrival request" in new Test {
-
-        val arrivalRequest = MovementsExchange(
-          eori = validEori,
-          providerId = Some(validProviderId),
-          choice = MovementType.Arrival,
-          consignmentReference = ConsignmentReference("", ""),
-          movementDetails = None
-        )
+      "provided with Arrival request" in {
 
         val submission =
           submissionFactory.buildMovementSubmission(
@@ -52,7 +85,7 @@ class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar
             Some(validProviderId),
             conversationId,
             exampleArrivalRequestXML("123"),
-            arrivalRequest.choice
+            MovementType.Arrival
           )
 
         val expectedSubmission = Submission(
@@ -60,21 +93,35 @@ class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar
           providerId = Some(validProviderId),
           conversationId = conversationId,
           actionType = MovementType.Arrival,
-          ucrBlocks = Seq(UcrBlock(ucr = ucr, ucrType = "D"))
+          ucrBlocks = Seq.empty
         )
 
         compareSubmissions(submission, expectedSubmission)
       }
 
-      "provided with Departure request" in new Test {
+      "provided with Retrospective Arrival request" in {
 
-        val departureRequest = MovementsExchange(
+        val submission =
+          submissionFactory.buildMovementSubmission(
+            validEori,
+            Some(validProviderId),
+            conversationId,
+            exampleArrivalRequestXML("123"),
+            MovementType.RetrospectiveArrival
+          )
+
+        val expectedSubmission = Submission(
           eori = validEori,
           providerId = Some(validProviderId),
-          choice = MovementType.Departure,
-          consignmentReference = ConsignmentReference("", ""),
-          movementDetails = None
+          conversationId = conversationId,
+          actionType = MovementType.RetrospectiveArrival,
+          ucrBlocks = Seq.empty
         )
+
+        compareSubmissions(submission, expectedSubmission)
+      }
+
+      "provided with Departure request" in {
 
         val submission =
           submissionFactory.buildMovementSubmission(
@@ -82,7 +129,7 @@ class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar
             Some(validProviderId),
             conversationId,
             exampleDepartureRequestXML,
-            departureRequest.choice
+            MovementType.Departure
           )
 
         val expectedSubmission = Submission(
@@ -90,13 +137,49 @@ class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar
           providerId = Some(validProviderId),
           conversationId = conversationId,
           actionType = MovementType.Departure,
-          ucrBlocks = Seq(UcrBlock(ucr = ucr, ucrType = "D"))
+          ucrBlocks = Seq.empty
         )
 
         compareSubmissions(submission, expectedSubmission)
       }
+    }
+  }
 
-      "provided with Association Ducr request" in new Test {
+  "SubmissionFactory on buildConsolidationSubmission" should {
+
+    "call UcrBlockBuilder" in {
+
+      submissionFactory.buildConsolidationSubmission(
+        validEori,
+        Some(validProviderId),
+        conversationId,
+        exampleAssociateDucrConsolidationRequestXML,
+        ConsolidationType.DucrAssociation
+      )
+
+      verify(ucrBlockBuilder).extractUcrBlocksFrom(any[NodeSeq])
+    }
+
+    "return Submission with ucrBlocks returned from UcrBlockBuilder" in {
+
+      val testUcrBlocks = Seq(UcrBlock(ucr = ucr_2, ucrType = Mucr.codeValue), UcrBlock(ucr = ucr, ucrType = Ducr.codeValue))
+      when(ucrBlockBuilder.extractUcrBlocksFrom(any[NodeSeq])).thenReturn(testUcrBlocks)
+
+      val submission =
+        submissionFactory.buildConsolidationSubmission(
+          validEori,
+          None,
+          conversationId,
+          exampleAssociateDucrConsolidationRequestXML,
+          ConsolidationType.DucrAssociation
+        )
+
+      submission.ucrBlocks mustBe testUcrBlocks
+    }
+
+    "return Submission with provided data" when {
+
+      "provided with Association Ducr request" in {
 
         val submission =
           submissionFactory.buildConsolidationSubmission(
@@ -112,13 +195,13 @@ class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar
           providerId = Some(validProviderId),
           conversationId = conversationId,
           actionType = ConsolidationType.DucrAssociation,
-          ucrBlocks = Seq(UcrBlock(ucr = ucr_2, ucrType = "M"), UcrBlock(ucr = ucr, ucrType = "D"))
+          ucrBlocks = Seq.empty
         )
 
         compareSubmissions(submission, expectedSubmission)
       }
 
-      "provided with Association Mucr request" in new Test {
+      "provided with Association Mucr request" in {
 
         val submission =
           submissionFactory.buildConsolidationSubmission(
@@ -134,13 +217,13 @@ class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar
           providerId = Some(validProviderId),
           conversationId = conversationId,
           actionType = ConsolidationType.MucrAssociation,
-          ucrBlocks = Seq(UcrBlock(ucr = ucr_2, ucrType = "M"), UcrBlock(ucr = ucr, ucrType = "M"))
+          ucrBlocks = Seq.empty
         )
 
         compareSubmissions(submission, expectedSubmission)
       }
 
-      "provided with Disassociation Ducr request" in new Test {
+      "provided with Disassociation Ducr request" in {
 
         val submission =
           submissionFactory.buildConsolidationSubmission(
@@ -156,13 +239,13 @@ class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar
           providerId = Some(validProviderId),
           conversationId = conversationId,
           actionType = ConsolidationType.DucrDisassociation,
-          ucrBlocks = Seq(UcrBlock(ucr = ucr, ucrType = "D"))
+          ucrBlocks = Seq.empty
         )
 
         compareSubmissions(submission, expectedSubmission)
       }
 
-      "provided with Disassociation Mucr request" in new Test {
+      "provided with Disassociation Mucr request" in {
 
         val submission =
           submissionFactory.buildConsolidationSubmission(
@@ -178,13 +261,13 @@ class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar
           providerId = Some(validProviderId),
           conversationId = conversationId,
           actionType = ConsolidationType.MucrDisassociation,
-          ucrBlocks = Seq(UcrBlock(ucr = ucr, ucrType = "M"))
+          ucrBlocks = Seq.empty
         )
 
         compareSubmissions(submission, expectedSubmission)
       }
 
-      "provided with Shut MUCR request" in new Test {
+      "provided with Shut MUCR request" in {
 
         val submission = submissionFactory.buildConsolidationSubmission(
           validEori,
@@ -199,7 +282,7 @@ class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar
           providerId = Some(validProviderId),
           conversationId = conversationId,
           actionType = ConsolidationType.ShutMucr,
-          ucrBlocks = Seq(UcrBlock(ucr = ucr_2, ucrType = "M"))
+          ucrBlocks = Seq.empty
         )
 
         compareSubmissions(submission, expectedSubmission)

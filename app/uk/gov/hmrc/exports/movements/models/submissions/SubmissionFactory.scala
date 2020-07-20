@@ -16,15 +16,14 @@
 
 package uk.gov.hmrc.exports.movements.models.submissions
 
-import javax.inject.Singleton
-import uk.gov.hmrc.exports.movements.models.XmlTags
-import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
+import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType.{ConsolidationType, MovementType}
+import uk.gov.hmrc.exports.movements.services.UcrBlockBuilder
 
-import scala.xml.{Node, NodeSeq}
+import scala.xml.Node
 
 @Singleton
-class SubmissionFactory {
+class SubmissionFactory @Inject()(ucrBlockBuilder: UcrBlockBuilder) {
 
   def buildMovementSubmission(
     eori: String,
@@ -37,7 +36,7 @@ class SubmissionFactory {
       eori = eori,
       providerId = providerId,
       conversationId = conversationId,
-      ucrBlocks = extractUcrListFrom(requestXml),
+      ucrBlocks = ucrBlockBuilder.extractUcrBlocksFrom(requestXml),
       actionType = movementType
     )
 
@@ -52,19 +51,7 @@ class SubmissionFactory {
       eori = eori,
       providerId = providerId,
       conversationId = conversationId,
-      ucrBlocks = extractUcrListFrom(requestXml),
+      ucrBlocks = ucrBlockBuilder.extractUcrBlocksFrom(requestXml),
       actionType = consolidationType
     )
-
-  private def extractUcrListFrom(request: NodeSeq): Seq[UcrBlock] = {
-    val ucrBlocks = (request \ XmlTags.ucrBlock).map { node =>
-      val ucr = (node \ XmlTags.ucr).text
-      val ucrType = (node \ XmlTags.ucrType).text
-      UcrBlock(ucr = ucr, ucrType = ucrType)
-    }
-
-    val masterUcr = (request \ XmlTags.masterUCR).map(node => UcrBlock(ucr = node.text, ucrType = "M"))
-
-    masterUcr ++ ucrBlocks
-  }
 }

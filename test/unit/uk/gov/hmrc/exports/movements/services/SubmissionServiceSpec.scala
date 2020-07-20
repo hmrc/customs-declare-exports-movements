@@ -25,6 +25,7 @@ import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.Helpers._
 import uk.gov.hmrc.exports.movements.exceptions.CustomsInventoryLinkingUpstreamException
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
+import uk.gov.hmrc.exports.movements.models.common.UcrType.Ducr
 import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType.{ConsolidationType, MovementType}
 import uk.gov.hmrc.exports.movements.models.submissions.{Submission, SubmissionFactory}
@@ -63,7 +64,7 @@ class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures
           eori = validEori,
           providerId = Some(validProviderId),
           conversationId = conversationId,
-          ucrBlocks = Seq(UcrBlock(ucr, "D")),
+          ucrBlocks = Seq(UcrBlock(ucr = ucr, ucrType = Ducr.codeValue)),
           actionType = MovementType.Arrival
         )
 

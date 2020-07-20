@@ -20,6 +20,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.verify
 import play.api.libs.json.Json
 import play.api.test.Helpers._
 import uk.gov.hmrc.exports.movements.controllers.routes
+import uk.gov.hmrc.exports.movements.models.common.UcrType.{Ducr, Mucr}
 import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType.ConsolidationType
 import uk.gov.hmrc.exports.movements.models.submissions.Submission
@@ -49,7 +50,7 @@ class DissociateUCRSpec extends ComponentSpec {
         val submissions: Seq[Submission] = theSubmissionsFor("eori")
         submissions.size mustBe 1
         submissions.head.conversationId mustBe "conversation-id"
-        submissions.head.ucrBlocks mustBe Seq(UcrBlock("DUCR", "D"))
+        submissions.head.ucrBlocks mustBe Seq(UcrBlock(ucr = "DUCR", ucrType = Ducr.codeValue))
         submissions.head.actionType mustBe ConsolidationType.DucrDisassociation
 
         verify(
@@ -80,7 +81,7 @@ class DissociateUCRSpec extends ComponentSpec {
         val submissions: Seq[Submission] = theSubmissionsFor("eori")
         submissions.size mustBe 1
         submissions.head.conversationId mustBe "conversation-id"
-        submissions.head.ucrBlocks mustBe Seq(UcrBlock("MUCR", "M"))
+        submissions.head.ucrBlocks mustBe Seq(UcrBlock(ucr = "MUCR", ucrType = Mucr.codeValue))
         submissions.head.actionType mustBe ConsolidationType.MucrDisassociation
 
         verify(

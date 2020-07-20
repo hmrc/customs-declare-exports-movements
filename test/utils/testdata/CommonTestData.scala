@@ -49,6 +49,8 @@ object CommonTestData {
   val mucr = "GB/123-12345"
   val mucr_2 = "GB/1234-12345ABCDE"
   val randomUcr: String = randomAlphanumericString(16)
+  val validUcrPartNo = "123"
+  val validWholeDucrPart = s"${ucr}-${validUcrPartNo}"
 
   val location = "LOCATION"
   val agentRole = "ARL"
