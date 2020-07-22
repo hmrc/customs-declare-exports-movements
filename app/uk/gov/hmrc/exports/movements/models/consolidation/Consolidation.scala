@@ -36,6 +36,8 @@ object Consolidation extends JSONResponses {
   implicit val disassociateDucrFormat = Json.format[DisassociateDucrRequest]
   implicit val associateMucrFormat = Json.format[AssociateMucrRequest]
   implicit val disassociateMucrFormat = Json.format[DisassociateMucrRequest]
+  implicit val associateDucrPartFormat = Json.format[AssociateDucrPartRequest]
+  implicit val disassociateDucrPartRequest = Json.format[DisassociateDucrPartRequest]
   implicit val shutMucrFormat = Json.format[ShutMucrRequest]
 
   implicit val format = Union
@@ -44,6 +46,8 @@ object Consolidation extends JSONResponses {
     .and[DisassociateDucrRequest](typeTag = DucrDisassociation.typeName)
     .and[AssociateMucrRequest](typeTag = MucrAssociation.typeName)
     .and[DisassociateMucrRequest](typeTag = MucrDisassociation.typeName)
+    .and[AssociateDucrPartRequest](typeTag = DucrPartAssociation.typeName)
+    .and[DisassociateDucrPartRequest](typeTag = DucrPartDisassociation.typeName)
     .and[ShutMucrRequest](typeTag = ShutMucr.typeName)
     .format
 
