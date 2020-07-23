@@ -81,11 +81,11 @@ class UcrBlockBuilder {
     case MucrAssociation | MucrDisassociation                                                => "M"
   }
 
-  def extractUcrBlocksFrom(nodeSeq: NodeSeq): Seq[UcrBlock] = {
+  def extractUcrBlocksForSubmissionFrom(nodeSeq: NodeSeq): Seq[UcrBlock] = {
     val ucrBlocks = (nodeSeq \ XmlTags.ucrBlock).map { node =>
       val ucr = (node \ XmlTags.ucr).text
-      val ucrType = (node \ XmlTags.ucrType).text
       val ucrPartNo = StringOption((node \ XmlTags.ucrPartNo).text)
+      val ucrType = if (ucrPartNo.exists(_.nonEmpty)) DucrPart.codeValue else (node \ XmlTags.ucrType).text
       UcrBlock(ucr = ucr, ucrType = ucrType, ucrPartNo = ucrPartNo)
     }
 

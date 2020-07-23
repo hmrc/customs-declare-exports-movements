@@ -25,16 +25,25 @@ object ActionType {
   case object IleQuery extends ActionType("IleQuery")
 
   abstract class ConsolidationType(override val typeName: String, val ileCode: String) extends ActionType(typeName)
+
   object ConsolidationType {
+
     case object DucrAssociation extends ConsolidationType("DucrAssociation", "EAC")
+
     case object MucrAssociation extends ConsolidationType("MucrAssociation", "EAC")
+
     case object DucrPartAssociation extends ConsolidationType("DucrPartAssociation", "EAC")
+
     case object DucrDisassociation extends ConsolidationType("DucrDisassociation", "EAC")
+
     case object MucrDisassociation extends ConsolidationType("MucrDisassociation", "EAC")
+
     case object DucrPartDisassociation extends ConsolidationType("DucrPartDisassociation", "EAC")
+
     case object ShutMucr extends ConsolidationType("ShutMucr", "CST")
 
-    val allTypes: Set[ConsolidationType] = Set(DucrAssociation, MucrAssociation, DucrDisassociation, MucrDisassociation, ShutMucr)
+    val allTypes: Set[ConsolidationType] =
+      Set(DucrAssociation, MucrAssociation, DucrPartAssociation, DucrDisassociation, MucrDisassociation, DucrPartDisassociation, ShutMucr)
 
     def existsFor(typeName: String): Boolean = this.allTypes.exists(_.typeName == typeName)
 
@@ -55,10 +64,15 @@ object ActionType {
   }
 
   abstract class MovementType(override val typeName: String, val ileCode: String) extends ActionType(typeName)
+
   object MovementType {
+
     case object Arrival extends MovementType("Arrival", "EAL")
+
     case object RetrospectiveArrival extends MovementType("RetrospectiveArrival", "RET")
+
     case object Departure extends MovementType("Departure", "EDL")
+
     case object CreateEmptyMucr extends MovementType("CreateEmptyMucr", "EAL")
 
     val allTypes: Set[MovementType] = Set(Arrival, RetrospectiveArrival, Departure, CreateEmptyMucr)
