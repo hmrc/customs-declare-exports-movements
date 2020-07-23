@@ -179,7 +179,7 @@ class UcrBlockBuilderSpec extends UnitSpec {
           val input = EmptyUcrBlockXml
           val expectedResult = Seq.empty[UcrBlock]
 
-          ucrBlockBuilder.extractUcrBlocksFrom(input) shouldBe expectedResult
+          ucrBlockBuilder.extractUcrBlocksForSubmissionFrom(input) shouldBe expectedResult
         }
       }
     }
@@ -193,15 +193,15 @@ class UcrBlockBuilderSpec extends UnitSpec {
           val input = singleUcrBlockXml
           val expectedResult = Seq(UcrBlock(ucr = ucr, ucrType = Ducr.codeValue))
 
-          ucrBlockBuilder.extractUcrBlocksFrom(input) shouldBe expectedResult
+          ucrBlockBuilder.extractUcrBlocksForSubmissionFrom(input) shouldBe expectedResult
         }
 
         "contains single UcrBlock with UcrPartNo element" in {
 
           val input = singleUcrBlockWithUcrPartNoXml
-          val expectedResult = Seq(UcrBlock(ucr = ucr, ucrPartNo = Some(validUcrPartNo), ucrType = Ducr.codeValue))
+          val expectedResult = Seq(UcrBlock(ucr = ucr, ucrPartNo = Some(validUcrPartNo), ucrType = DucrPart.codeValue))
 
-          ucrBlockBuilder.extractUcrBlocksFrom(input) shouldBe expectedResult
+          ucrBlockBuilder.extractUcrBlocksForSubmissionFrom(input) shouldBe expectedResult
         }
 
         "contains multiple UcrBlocks" in {
@@ -209,7 +209,7 @@ class UcrBlockBuilderSpec extends UnitSpec {
           val input = doubleUcrBlocksXml
           val expectedResult = Seq(UcrBlock(ucr = ucr, ucrType = Ducr.codeValue), UcrBlock(ucr = ucr_2, ucrType = Ducr.codeValue))
 
-          ucrBlockBuilder.extractUcrBlocksFrom(input) shouldBe expectedResult
+          ucrBlockBuilder.extractUcrBlocksForSubmissionFrom(input) shouldBe expectedResult
         }
 
         "contains masterUcr element" in {
@@ -217,7 +217,7 @@ class UcrBlockBuilderSpec extends UnitSpec {
           val input = masterUcrOnlyXml
           val expectedResult = Seq(UcrBlock(ucr = mucr, ucrType = Mucr.codeValue))
 
-          ucrBlockBuilder.extractUcrBlocksFrom(input) shouldBe expectedResult
+          ucrBlockBuilder.extractUcrBlocksForSubmissionFrom(input) shouldBe expectedResult
         }
 
         "contains masterUcr element and UcrBlock" in {
@@ -225,7 +225,7 @@ class UcrBlockBuilderSpec extends UnitSpec {
           val input = singleUcrBlockWithMasterUcrXml
           val expectedResult = Seq(UcrBlock(ucr = mucr, ucrType = Mucr.codeValue), UcrBlock(ucr = ucr, ucrType = Ducr.codeValue))
 
-          ucrBlockBuilder.extractUcrBlocksFrom(input) shouldBe expectedResult
+          ucrBlockBuilder.extractUcrBlocksForSubmissionFrom(input) shouldBe expectedResult
         }
       }
     }

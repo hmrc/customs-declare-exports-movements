@@ -40,7 +40,7 @@ class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar
     super.beforeEach()
 
     reset(ucrBlockBuilder)
-    when(ucrBlockBuilder.extractUcrBlocksFrom(any[NodeSeq])).thenReturn(Seq.empty)
+    when(ucrBlockBuilder.extractUcrBlocksForSubmissionFrom(any[NodeSeq])).thenReturn(Seq.empty)
   }
 
   override protected def afterEach(): Unit = {
@@ -61,13 +61,13 @@ class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar
         MovementType.Arrival
       )
 
-      verify(ucrBlockBuilder).extractUcrBlocksFrom(any[NodeSeq])
+      verify(ucrBlockBuilder).extractUcrBlocksForSubmissionFrom(any[NodeSeq])
     }
 
     "return Submission with ucrBlocks returned from UcrBlockBuilder" in {
 
       val testUcrBlocks = Seq(UcrBlock(ucr = ucr_2, ucrType = Mucr.codeValue), UcrBlock(ucr = ucr, ucrType = Ducr.codeValue))
-      when(ucrBlockBuilder.extractUcrBlocksFrom(any[NodeSeq])).thenReturn(testUcrBlocks)
+      when(ucrBlockBuilder.extractUcrBlocksForSubmissionFrom(any[NodeSeq])).thenReturn(testUcrBlocks)
 
       val submission =
         submissionFactory.buildMovementSubmission(validEori, None, conversationId, exampleArrivalRequestXML("123"), MovementType.Arrival)
@@ -157,13 +157,13 @@ class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar
         ConsolidationType.DucrAssociation
       )
 
-      verify(ucrBlockBuilder).extractUcrBlocksFrom(any[NodeSeq])
+      verify(ucrBlockBuilder).extractUcrBlocksForSubmissionFrom(any[NodeSeq])
     }
 
     "return Submission with ucrBlocks returned from UcrBlockBuilder" in {
 
       val testUcrBlocks = Seq(UcrBlock(ucr = ucr_2, ucrType = Mucr.codeValue), UcrBlock(ucr = ucr, ucrType = Ducr.codeValue))
-      when(ucrBlockBuilder.extractUcrBlocksFrom(any[NodeSeq])).thenReturn(testUcrBlocks)
+      when(ucrBlockBuilder.extractUcrBlocksForSubmissionFrom(any[NodeSeq])).thenReturn(testUcrBlocks)
 
       val submission =
         submissionFactory.buildConsolidationSubmission(

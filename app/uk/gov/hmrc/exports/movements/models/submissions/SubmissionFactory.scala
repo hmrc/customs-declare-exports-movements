@@ -36,7 +36,7 @@ class SubmissionFactory @Inject()(ucrBlockBuilder: UcrBlockBuilder) {
       eori = eori,
       providerId = providerId,
       conversationId = conversationId,
-      ucrBlocks = ucrBlockBuilder.extractUcrBlocksFrom(requestXml),
+      ucrBlocks = ucrBlockBuilder.extractUcrBlocksForSubmissionFrom(requestXml),
       actionType = movementType
     )
 
@@ -51,7 +51,7 @@ class SubmissionFactory @Inject()(ucrBlockBuilder: UcrBlockBuilder) {
       eori = eori,
       providerId = providerId,
       conversationId = conversationId,
-      ucrBlocks = ucrBlockBuilder.extractUcrBlocksFrom(requestXml),
+      ucrBlocks = ucrBlockBuilder.extractUcrBlocksForSubmissionFrom(requestXml),
       actionType = consolidationType
     )
 }
