@@ -30,6 +30,8 @@ class MovementsController @Inject()(submissionService: SubmissionService, overri
 ) extends BackendController(controllerComponents) {
 
   def createMovement(): Action[MovementsExchange] = Action.async(parse.json[MovementsExchange]) { implicit request =>
-    submissionService.submit(request.body).map(_ => Accepted(request.body))
+    submissionService.submit(request.body).map(_ => Accepted(request.body)) recover {
+      case _: Throwable => InternalServerError
+    }
   }
 }
