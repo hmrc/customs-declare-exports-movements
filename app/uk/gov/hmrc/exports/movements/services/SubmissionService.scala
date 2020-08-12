@@ -77,8 +77,10 @@ class SubmissionService @Inject()(
           .map(_ => (): Unit)
       case CustomsInventoryLinkingResponse(status, conversationId) =>
         logger.warn(s"Consolidation Submission failed with conversation-id=[$conversationId] and status [$status]")
-        Future.failed(
-          new CustomsInventoryLinkingUpstreamException(status, conversationId, "Non Accepted status returned by Customs Inventory Linking Exports")
+        throw new CustomsInventoryLinkingUpstreamException(
+          status,
+          conversationId,
+          "Non Accepted status returned by Customs Inventory Linking Exports"
         )
     }
   }

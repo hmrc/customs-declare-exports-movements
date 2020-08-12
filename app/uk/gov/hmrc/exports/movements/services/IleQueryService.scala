@@ -60,8 +60,10 @@ class IleQueryService @Inject()(
 
       case CustomsInventoryLinkingResponse(status, conversationId) =>
         logger.warn(s"ILE Query failed with conversation-id=[$conversationId] and status [$status]")
-        Future.failed(
-          new CustomsInventoryLinkingUpstreamException(status, conversationId, "Non Accepted status returned by Customs Inventory Linking Exports")
+        throw new CustomsInventoryLinkingUpstreamException(
+          status,
+          conversationId,
+          "Non Accepted status returned by Customs Inventory Linking Exports"
         )
     }
   }
