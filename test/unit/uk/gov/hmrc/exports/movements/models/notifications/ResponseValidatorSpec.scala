@@ -19,10 +19,9 @@ package unit.uk.gov.hmrc.exports.movements.models.notifications
 import com.typesafe.config.ConfigFactory
 import org.scalatest.{MustMatchers, WordSpec}
 import play.api.Configuration
-import play.api.Mode.Test
 import uk.gov.hmrc.exports.movements.config.AppConfig
 import uk.gov.hmrc.exports.movements.models.notifications.ResponseValidator
-import uk.gov.hmrc.play.bootstrap.config.{RunMode, ServicesConfig}
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import utils.testdata.CommonTestData.MessageCodes
 import utils.testdata.notifications.NotificationTestData._
 import utils.testdata.notifications._
@@ -41,7 +40,7 @@ class ResponseValidatorSpec extends WordSpec with MustMatchers {
   )
 
   private def appConfig(conf: Configuration = DefaultConfiguration): AppConfig =
-    new AppConfig(conf, new ServicesConfig(conf, new RunMode(conf, Test)))
+    new AppConfig(conf, new ServicesConfig(conf))
 
   "ResponseValidator on validate" should {
 

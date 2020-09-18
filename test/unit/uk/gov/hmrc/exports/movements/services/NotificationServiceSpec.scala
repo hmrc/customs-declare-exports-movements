@@ -132,7 +132,7 @@ class NotificationServiceSpec extends WordSpec with MockitoSugar with ScalaFutur
 
         notificationService.save(conversationId, requestBody).futureValue
 
-        verifyZeroInteractions(notificationRepository)
+        verifyNoMoreInteractions(notificationRepository)
       }
     }
 

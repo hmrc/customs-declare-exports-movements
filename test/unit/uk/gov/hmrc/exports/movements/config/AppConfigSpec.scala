@@ -22,11 +22,10 @@ import java.time.temporal.ChronoUnit
 import com.typesafe.config.{Config, ConfigFactory}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.Configuration
-import play.api.Mode.Test
 import uk.gov.hmrc.exports.movements.config.AppConfig
 import uk.gov.hmrc.exports.movements.exceptions.MissingClientIDException
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.bootstrap.config.{RunMode, ServicesConfig}
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import unit.uk.gov.hmrc.exports.movements.base.UnitSpec
 
 class AppConfigSpec extends UnitSpec with MockitoSugar {
@@ -55,8 +54,7 @@ class AppConfigSpec extends UnitSpec with MockitoSugar {
   private val validServicesConfiguration = Configuration(validAppConfig)
   private val invalidServicesConfiguration = Configuration(invalidAppConfig)
 
-  private def runMode(conf: Configuration): RunMode = new RunMode(conf, Test)
-  private def servicesConfig(conf: Configuration) = new ServicesConfig(conf, runMode(conf))
+  private def servicesConfig(conf: Configuration) = new ServicesConfig(conf)
   private def appConfig(conf: Configuration) = new AppConfig(conf, servicesConfig(conf))
 
   "AppConfig" should {
@@ -92,10 +90,10 @@ class AppConfigSpec extends UnitSpec with MockitoSugar {
       val configService: AppConfig = appConfig(invalidServicesConfiguration)
 
       val caught: RuntimeException = intercept[RuntimeException](configService.authUrl)
-      caught.getMessage shouldBe "Could not find config auth.host"
+      caught.getMessage shouldBe "Could not find config key 'auth.host'"
 
       val caught2: Exception = intercept[Exception](configService.customsInventoryLinkingExportsRootUrl)
-      caught2.getMessage shouldBe "Could not find config customs-inventory-linking-exports.host"
+      caught2.getMessage shouldBe "Could not find config key 'customs-inventory-linking-exports.host'"
 
       val caught3: Exception = intercept[Exception](configService.sendArrivalUrlSuffix)
       caught3.getMessage shouldBe "Missing configuration for Customs Inventory Linking send arrival URI"

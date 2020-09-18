@@ -28,6 +28,7 @@ import play.api.mvc.{Call, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import reactivemongo.api.{Cursor, ReadPreference}
+import reactivemongo.play.json.ImplicitBSONHandlers
 import reactivemongo.play.json.ImplicitBSONHandlers._
 import reactivemongo.play.json.collection.JSONCollection
 import uk.gov.hmrc.exports.movements.models.notifications.Notification
@@ -72,29 +73,34 @@ abstract class ComponentSpec
     await(ileQuerySubmissionRepository.drop(failIfNotFound = false))
   }
 
-  protected def givenAnExisting(submission: Submission): Unit = await(submissionRepository.insert(Submission.format.writes(submission)))
+  protected def givenAnExisting(submission: Submission): Unit =
+    await(submissionRepository.insert(ordered = false).one(Submission.format.writes(submission)))
   protected def givenAnExisting(ileQuerySubmission: IleQuerySubmission): Unit =
-    await(ileQuerySubmissionRepository.insert(IleQuerySubmission.format.writes(ileQuerySubmission)))
-  protected def givenAnExisting(notification: Notification): Unit = await(notificationRepository.insert(Notification.format.writes(notification)))
+    await(ileQuerySubmissionRepository.insert(ordered = false).one(IleQuerySubmission.format.writes(ileQuerySubmission)))
+  protected def givenAnExisting(notification: Notification): Unit =
+    await(notificationRepository.insert(ordered = false).one(Notification.format.writes(notification)))
 
   protected def theSubmissionsFor(eori: String): Seq[Submission] =
     await(
       submissionRepository
-        .find(Json.obj("eori" -> eori))
+        .find(Json.obj("eori" -> eori), projection = None)(ImplicitBSONHandlers.JsObjectDocumentWriter, ImplicitBSONHandlers.JsObjectDocumentWriter)
         .cursor[Submission](ReadPreference.primaryPreferred)
         .collect(maxDocs = -1, Cursor.FailOnError[Seq[Submission]]())
     )
   protected def theNotificationsFor(conversationId: String): Seq[Notification] =
     await(
       notificationRepository
-        .find(Json.obj("conversationId" -> conversationId))
+        .find(Json.obj("conversationId" -> conversationId), projection = None)(
+          ImplicitBSONHandlers.JsObjectDocumentWriter,
+          ImplicitBSONHandlers.JsObjectDocumentWriter
+        )
         .cursor[Notification](ReadPreference.primaryPreferred)
         .collect(maxDocs = -1, Cursor.FailOnError[Seq[Notification]]())
     )
   protected def theIleQuerySubmissionsFor(eori: String): Seq[IleQuerySubmission] =
     await(
       ileQuerySubmissionRepository
-        .find(Json.obj("eori" -> eori))
+        .find(Json.obj("eori" -> eori), projection = None)(ImplicitBSONHandlers.JsObjectDocumentWriter, ImplicitBSONHandlers.JsObjectDocumentWriter)
         .cursor[IleQuerySubmission](ReadPreference.primaryPreferred)
         .collect(maxDocs = -1, Cursor.FailOnError[Seq[IleQuerySubmission]]())
     )
