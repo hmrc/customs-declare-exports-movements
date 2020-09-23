@@ -16,7 +16,6 @@
 
 package unit.uk.gov.hmrc.exports.movements.controllers
 
-import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, anyString}
@@ -49,7 +48,6 @@ class NotificationControllerSpec extends WordSpec with MustMatchers with Mockito
   private val movementsMetrics = buildMovementsMetricsMock
 
   private val controllerComponents: ControllerComponents = instanceOf[ControllerComponents]
-  implicit private val actorSystem: ActorSystem = FakeRequestFactory.actorSystem
   implicit private val materializer: ActorMaterializer = FakeRequestFactory.materializer
 
   private val controller =

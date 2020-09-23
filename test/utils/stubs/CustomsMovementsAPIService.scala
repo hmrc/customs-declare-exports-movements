@@ -24,7 +24,6 @@ import com.github.tomakehurst.wiremock.matching.UrlPattern
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import integration.uk.gov.hmrc.exports.movements.base.WireMockRunner
 import play.api.http.ContentTypes
-import play.api.libs.json.JsValue
 import play.api.mvc.Codec
 import play.api.test.Helpers.{ACCEPTED, CONTENT_TYPE}
 import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames

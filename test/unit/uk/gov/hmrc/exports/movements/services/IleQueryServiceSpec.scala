@@ -160,8 +160,8 @@ class IleQueryServiceSpec extends WordSpec with MockitoSugar with MustMatchers w
           ileQueryService.submit(ileQueryRequest).futureValue
         }
 
-        verifyZeroInteractions(ileConnector)
-        verifyZeroInteractions(ileQuerySubmissionRepository)
+        verifyNoMoreInteractions(ileConnector)
+        verifyNoMoreInteractions(ileQuerySubmissionRepository)
       }
     }
 
@@ -184,7 +184,7 @@ class IleQueryServiceSpec extends WordSpec with MockitoSugar with MustMatchers w
 
         ileQueryService.submit(ileQueryRequest).failed.futureValue
 
-        verifyZeroInteractions(ileQuerySubmissionRepository)
+        verifyNoMoreInteractions(ileQuerySubmissionRepository)
       }
     }
 
@@ -207,7 +207,7 @@ class IleQueryServiceSpec extends WordSpec with MockitoSugar with MustMatchers w
 
         ileQueryService.submit(ileQueryRequest).failed.futureValue
 
-        verifyZeroInteractions(ileQuerySubmissionRepository)
+        verifyNoMoreInteractions(ileQuerySubmissionRepository)
       }
     }
 
@@ -323,8 +323,8 @@ class IleQueryServiceSpec extends WordSpec with MockitoSugar with MustMatchers w
 
         ileQueryService.fetchResponses(searchParameters).futureValue
 
-        verifyZeroInteractions(ileQueryTimeoutCalculator)
-        verifyZeroInteractions(notificationRepository)
+        verifyNoMoreInteractions(ileQueryTimeoutCalculator)
+        verifyNoMoreInteractions(notificationRepository)
       }
     }
 
@@ -349,7 +349,7 @@ class IleQueryServiceSpec extends WordSpec with MockitoSugar with MustMatchers w
 
         ileQueryService.fetchResponses(searchParameters).futureValue
 
-        verifyZeroInteractions(notificationRepository)
+        verifyNoMoreInteractions(notificationRepository)
       }
     }
 

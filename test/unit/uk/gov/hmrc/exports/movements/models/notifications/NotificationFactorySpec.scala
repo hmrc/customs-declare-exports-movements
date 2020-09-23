@@ -110,20 +110,23 @@ class NotificationFactorySpec extends WordSpec with MustMatchers with MockitoSug
 
     "provided with empty Conversation ID" should {
       "create Notification with empty conversationId field" in new Test {
-        val responseXml = ExampleInventoryLinkingControlResponse.Correct.Rejected.asXml
+        val testNotificationData = ExampleInventoryLinkingControlResponse.Correct.Rejected
+        when(responseParserMock.parse(any())).thenReturn(testNotificationData.asDomainModel)
+        val responseXml = testNotificationData.asXml
         val expectedNotification = Notification(
           conversationId = "",
-          responseType = "inventoryLinkingControlResponse",
-          payload = Utility.trim(ExampleInventoryLinkingControlResponse.Correct.Rejected.asXml).toString(),
-          data = ExampleInventoryLinkingControlResponse.Correct.Rejected.asDomainModel
+          responseType = "ResponseType",
+          payload = Utility.trim(testNotificationData.asXml).toString(),
+          data = testNotificationData.asDomainModel
         )
 
         val resultNotification = notificationFactory.buildMovementNotification("", responseXml)
 
-        resultNotification.conversationId must equal("")
-        resultNotification.responseType mustNot be(empty)
-        resultNotification.payload mustNot be(empty)
-        resultNotification.data must equal(StandardNotificationData())
+        resultNotification.conversationId must equal(expectedNotification.conversationId)
+        resultNotification.responseType must equal(expectedNotification.responseType)
+        resultNotification.payload must equal(expectedNotification.payload)
+        resultNotification.data must equal(expectedNotification.data)
+        StandardNotificationData()
       }
     }
 

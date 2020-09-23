@@ -20,7 +20,7 @@ import javax.inject.{Inject, Singleton}
 import play.api.mvc._
 import uk.gov.hmrc.exports.movements.models.movements.MovementsExchange
 import uk.gov.hmrc.exports.movements.services.SubmissionService
-import uk.gov.hmrc.play.bootstrap.controller.BackendController
+import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import scala.concurrent.ExecutionContext
 

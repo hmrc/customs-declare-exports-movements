@@ -19,8 +19,6 @@ package uk.gov.hmrc.exports.movements.models
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
 import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolments}
 
-import scala.xml.Elem
-
 case class SignedInUser(
   credentials: Credentials,
   name: Name,

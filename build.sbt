@@ -20,25 +20,22 @@ lazy val CdsIntegrationTest = config("it") extend Test
 val testConfig = Seq(ComponentTest, CdsIntegrationTest, Test)
 
 def forkedJvmPerTestConfig(tests: Seq[TestDefinition], packages: String*): Seq[Group] =
-  tests.groupBy(_.name.takeWhile(_ != '.')).filter(packageAndTests => packages contains packageAndTests._1) map {
-    case (packg, theTests) =>
-      Group(packg, theTests, SubProcess(ForkOptions()))
-  } toSeq
+  tests.groupBy(_.name.takeWhile(_ != '.')).filter(packageAndTests => packages.contains(packageAndTests._1)).map {
+    case (packg, theTests) => Group(packg, theTests, SubProcess(ForkOptions()))
+  }.toSeq
 
 lazy val testAll = TaskKey[Unit]("test-all")
 lazy val allTest = Seq(testAll := (test in ComponentTest)
   .dependsOn((test in CdsIntegrationTest).dependsOn(test in Test)).value)
 
-
 lazy val microservice = Project(appName, file("."))
   .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory)
   .settings(
-    libraryDependencies ++= (AppDependencies.compile ++ AppDependencies.test).map(_.withSources),
+    libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test,
     dependencyOverrides ++= AppDependencies.jettyOverrides,
-    dependencyOverrides += "org.mongodb" % "mongo-java-driver" % "3.12.2",
     evictionWarningOptions in update := EvictionWarningOptions.default.withWarnScalaVersionEviction(false),
     majorVersion := 0,
-    scalaVersion := "2.12.8"
+    scalaVersion := "2.12.12"
   )
   .settings(publishingSettings: _*)
   .configs(testConfig: _*)
@@ -89,5 +86,4 @@ lazy val scoverageSettings: Seq[Setting[_]] = Seq(
   parallelExecution in Test := false
 )
 
-lazy val commonSettings: Seq[Setting[_]] = scalaSettings ++
-  publishingSettings ++ defaultSettings()
+lazy val commonSettings: Seq[Setting[_]] = publishingSettings ++ defaultSettings()

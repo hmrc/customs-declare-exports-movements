@@ -19,7 +19,7 @@ package integration.uk.gov.hmrc.exports.movements.connector
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.{MappingBuilder, WireMock}
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
-import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, WordSpec}
+import org.scalatest.{BeforeAndAfterEach, WordSpec}
 
 trait WiremockTestServer extends WordSpec with BeforeAndAfterEach {
 
