@@ -29,9 +29,9 @@ import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType.ConsolidationType
 import uk.gov.hmrc.exports.movements.services.{IleMapper, UcrBlockBuilder}
 import unit.uk.gov.hmrc.exports.movements.base.UnitSpec
-import utils.testdata.CommonTestData._
-import utils.testdata.ConsolidationTestData._
-import utils.testdata.MovementsTestData._
+import testdata.CommonTestData._
+import testdata.ConsolidationTestData._
+import testdata.MovementsTestData._
 
 import scala.xml.NodeSeq
 

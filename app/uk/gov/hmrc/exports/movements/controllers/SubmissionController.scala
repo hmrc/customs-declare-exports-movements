@@ -29,17 +29,16 @@ import scala.concurrent.ExecutionContext
 class SubmissionController @Inject()(submissionService: SubmissionService, cc: ControllerComponents)(implicit executionContext: ExecutionContext)
     extends BackendController(cc) {
 
-  def getAllSubmissions(eori: Option[String], providerId: Option[String]): Action[AnyContent] = Action.async(parse.default) { implicit request =>
+  def getAllSubmissions(eori: Option[String], providerId: Option[String]): Action[AnyContent] = Action.async(parse.default) { _ =>
     submissionService
       .getSubmissions(SearchParameters(eori = eori, providerId = providerId))
       .map(movementSubmissions => Ok(Json.toJson(movementSubmissions)))
   }
 
-  def getSubmission(eori: Option[String], providerId: Option[String], conversationId: String): Action[AnyContent] = Action.async(parse.default) {
-    implicit request =>
-      submissionService
-        .getSingleSubmission(SearchParameters(eori = eori, providerId = providerId, conversationId = Some(conversationId)))
-        .map(movementSubmission => Ok(Json.toJson(movementSubmission)))
+  def getSubmission(eori: Option[String], providerId: Option[String], conversationId: String): Action[AnyContent] = Action.async(parse.default) { _ =>
+    submissionService
+      .getSingleSubmission(SearchParameters(eori = eori, providerId = providerId, conversationId = Some(conversationId)))
+      .map(movementSubmission => Ok(Json.toJson(movementSubmission)))
   }
 
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package integration.uk.gov.hmrc.exports.movements.connector
+package uk.gov.hmrc.exports.movements.connector
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import org.mockito.ArgumentMatchers

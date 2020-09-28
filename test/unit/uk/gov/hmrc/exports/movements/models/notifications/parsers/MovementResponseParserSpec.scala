@@ -20,8 +20,8 @@ import org.scalatest.{MustMatchers, WordSpec}
 import uk.gov.hmrc.exports.movements.models.notifications.NotificationData
 import uk.gov.hmrc.exports.movements.models.notifications.parsers.{CommonTypesParser, MovementResponseParser}
 import uk.gov.hmrc.exports.movements.models.notifications.standard.StandardNotificationData
-import utils.testdata.CommonTestData.MessageCodes
-import utils.testdata.notifications.ExampleInventoryLinkingMovementResponse
+import testdata.CommonTestData.MessageCodes
+import testdata.notifications.ExampleInventoryLinkingMovementResponse
 
 class MovementResponseParserSpec extends WordSpec with MustMatchers {
 

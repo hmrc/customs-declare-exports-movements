@@ -23,8 +23,8 @@ import uk.gov.hmrc.exports.movements.models.submissions.ActionType.Consolidation
 import uk.gov.hmrc.exports.movements.services.UcrBlockBuilder
 import unit.uk.gov.hmrc.exports.movements.base.UnitSpec
 import unit.uk.gov.hmrc.exports.movements.services.UcrBlockBuilderSpec._
-import utils.testdata.CommonTestData._
-import utils.testdata.{CommonTestData, ConsolidationTestData}
+import testdata.CommonTestData._
+import testdata.{CommonTestData, ConsolidationTestData}
 
 import scala.xml.NodeSeq
 

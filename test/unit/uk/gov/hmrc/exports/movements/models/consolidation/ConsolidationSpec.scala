@@ -21,7 +21,7 @@ import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation._
 import uk.gov.hmrc.exports.movements.models.consolidation._
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType.ConsolidationType._
 import unit.uk.gov.hmrc.exports.movements.base.UnitSpec
-import utils.testdata.CommonTestData._
+import testdata.CommonTestData._
 
 class ConsolidationSpec extends UnitSpec {
 

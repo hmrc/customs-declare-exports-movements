@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package utils.testdata.notifications
+package testdata.notifications
+
 import java.time.Instant
 
+import testdata.CommonTestData._
+import testdata.notifications.ExampleXmlAndDomainModelPair.ExampleStandardResponse
+import testdata.notifications.NotificationTestData._
 import uk.gov.hmrc.exports.movements.models.notifications.standard._
-import utils.testdata.CommonTestData._
-import utils.testdata.notifications.ExampleXmlAndDomainModelPair.ExampleStandardResponse
-import utils.testdata.notifications.NotificationTestData._
 
 object ExampleInventoryLinkingMovementResponse {
 

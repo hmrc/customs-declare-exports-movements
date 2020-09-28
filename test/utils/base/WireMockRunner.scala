@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package integration.uk.gov.hmrc.exports.movements.base
+package base
 
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
-import com.github.tomakehurst.wiremock.core.WireMockConfiguration._
-import utils.ExternalServicesConfig._
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig
+import stubs.ExternalServicesConfig.{Host, Port}
 
 trait WireMockRunner {
 

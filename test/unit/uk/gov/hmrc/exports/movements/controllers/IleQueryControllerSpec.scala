@@ -33,8 +33,8 @@ import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
 import uk.gov.hmrc.exports.movements.repositories.SearchParameters
 import uk.gov.hmrc.exports.movements.services.IleQueryService
 import unit.uk.gov.hmrc.exports.movements.controllers.FakeRequestFactory.{getRequest, postRequestWithBody}
-import utils.testdata.CommonTestData._
-import utils.testdata.notifications.NotificationTestData.{notificationIleQueryResponse_1, notificationIleQueryResponse_2}
+import testdata.CommonTestData._
+import testdata.notifications.NotificationTestData.{notificationIleQueryResponse_1, notificationIleQueryResponse_2}
 
 import scala.concurrent.ExecutionContext.global
 import scala.concurrent.Future

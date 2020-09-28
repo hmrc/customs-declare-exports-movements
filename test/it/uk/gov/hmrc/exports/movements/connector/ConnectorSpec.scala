@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package integration.uk.gov.hmrc.exports.movements.connector
+package uk.gov.hmrc.exports.movements.connector
 
 import java.time.{Clock, Instant, ZoneOffset}
 
 import com.codahale.metrics.SharedMetricRegistries
+import connector.WiremockTestServer
 import org.scalatest.{BeforeAndAfterEach, MustMatchers, WordSpec}
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -27,7 +28,7 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
-import utils.testdata.MovementsTestData.dateTimeString
+import testdata.MovementsTestData.dateTimeString
 
 import scala.concurrent.ExecutionContext
 

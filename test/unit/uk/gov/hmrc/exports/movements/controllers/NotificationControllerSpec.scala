@@ -34,9 +34,9 @@ import uk.gov.hmrc.exports.movements.services.NotificationService
 import unit.uk.gov.hmrc.exports.movements.base.Injector
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
 import unit.uk.gov.hmrc.exports.movements.controllers.FakeRequestFactory._
-import utils.testdata.CommonTestData._
-import utils.testdata.notifications.NotificationTestData._
-import utils.testdata.notifications.{ExampleInventoryLinkingControlResponse, ExampleInventoryLinkingMovementTotalsResponse}
+import testdata.CommonTestData._
+import testdata.notifications.NotificationTestData._
+import testdata.notifications.{ExampleInventoryLinkingControlResponse, ExampleInventoryLinkingMovementTotalsResponse}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.xml.{Elem, NodeSeq, Utility}

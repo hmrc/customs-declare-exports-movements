@@ -28,9 +28,9 @@ import play.api.test.Helpers.{GET, OK, contentAsJson, status, stubControllerComp
 import uk.gov.hmrc.exports.movements.controllers.SubmissionController
 import uk.gov.hmrc.exports.movements.repositories.SearchParameters
 import uk.gov.hmrc.exports.movements.services.SubmissionService
-import utils.testdata.CommonTestData._
-import utils.testdata.MovementsTestData.exampleSubmission
-import utils.testdata.notifications.NotificationTestData.validHeaders
+import testdata.CommonTestData._
+import testdata.MovementsTestData.exampleSubmission
+import testdata.notifications.NotificationTestData.validHeaders
 
 import scala.concurrent.{ExecutionContext, Future}
 

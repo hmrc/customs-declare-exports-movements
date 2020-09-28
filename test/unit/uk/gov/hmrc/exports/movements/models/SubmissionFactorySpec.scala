@@ -25,9 +25,9 @@ import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType.{ConsolidationType, MovementType}
 import uk.gov.hmrc.exports.movements.models.submissions.{Submission, SubmissionFactory}
 import uk.gov.hmrc.exports.movements.services.UcrBlockBuilder
-import utils.testdata.CommonTestData.{conversationId, _}
-import utils.testdata.ConsolidationTestData._
-import utils.testdata.MovementsTestData.{exampleArrivalRequestXML, exampleDepartureRequestXML}
+import testdata.CommonTestData.{conversationId, _}
+import testdata.ConsolidationTestData._
+import testdata.MovementsTestData.{exampleArrivalRequestXML, exampleDepartureRequestXML}
 
 import scala.xml.NodeSeq
 

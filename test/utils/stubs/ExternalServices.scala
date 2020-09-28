@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package utils
+package stubs
 
+import base.WireMockRunner
 import com.github.tomakehurst.wiremock.client.WireMock._
-import integration.uk.gov.hmrc.exports.movements.base.WireMockRunner
 import play.api.http.Status
 import play.api.libs.json.{JsArray, Json}
 import play.api.test.Helpers.{AUTHORIZATION, OK}
@@ -25,7 +25,7 @@ import play.mvc.Http.Status._
 import uk.gov.hmrc.auth.core.Enrolment
 import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.exports.movements.models.Eori
-import utils.testdata.CommonTestData.{authToken, validEori}
+import testdata.CommonTestData.{authToken, validEori}
 
 trait AuthService extends WireMockRunner {
   val authUrl = "/auth/authorise"

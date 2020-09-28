@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package integration.uk.gov.hmrc.exports.movements.repositories
+package uk.gov.hmrc.exports.movements.repositories
 
 import java.time.{Clock, Instant, ZoneOffset}
 
@@ -25,11 +25,10 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.exports.movements.repositories.NotificationRepository
-import utils.TestMongoDB
-import utils.testdata.CommonTestData.{conversationId, conversationId_2}
-import utils.testdata.MovementsTestData.dateTimeString
-import utils.testdata.notifications.NotificationTestData._
+import stubs.TestMongoDB
+import testdata.CommonTestData.{conversationId, conversationId_2}
+import testdata.MovementsTestData.dateTimeString
+import testdata.notifications.NotificationTestData._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 

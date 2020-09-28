@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package utils
+package stubs
 
-import play.api.Configuration
+import play.api.mvc.Request
+import play.api.test.{CSRFTokenHelper, FakeRequest}
 
-trait TestMongoDB {
+object FakeRequestCSRFSupport {
 
-  protected val mongoConfiguration: Configuration =
-    Configuration.from(Map("mongodb.uri" -> "mongodb://localhost:27017/test-customs-declare-exports-movements"))
-
+  implicit class CSRFFakeRequest[A](request: FakeRequest[A]) {
+    def withCSRFToken: Request[A] = CSRFTokenHelper.addCSRFToken(request)
+  }
 }

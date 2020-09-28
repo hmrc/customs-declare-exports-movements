@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package utils.testdata.notifications
+package testdata.notifications
 
 import play.api.http.{ContentTypes, HeaderNames}
 import play.api.mvc.Codec
+import testdata.CommonTestData._
+import testdata.TestDataHelper
 import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames
 import uk.gov.hmrc.exports.movements.models.notifications._
 import uk.gov.hmrc.exports.movements.models.notifications.queries.IleQueryResponseData
 import uk.gov.hmrc.exports.movements.models.notifications.standard.StandardNotificationData
-import utils.testdata.CommonTestData._
-import utils.testdata.TestDataHelper
 
 import scala.xml.{Elem, Node, TopScope}
 

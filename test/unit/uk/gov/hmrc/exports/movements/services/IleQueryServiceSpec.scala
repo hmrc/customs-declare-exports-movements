@@ -37,10 +37,10 @@ import uk.gov.hmrc.exports.movements.repositories.{IleQuerySubmissionRepository,
 import uk.gov.hmrc.exports.movements.services.{IleMapper, IleQueryService}
 import uk.gov.hmrc.http.HeaderCarrier
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder.dummyWriteResultSuccess
-import utils.testdata.CommonTestData._
-import utils.testdata.IleQueryTestData.ileQueryXml
-import utils.testdata.MovementsTestData.exampleIleQuerySubmission
-import utils.testdata.notifications.NotificationTestData.notificationIleQueryResponse_1
+import testdata.CommonTestData._
+import testdata.IleQueryTestData.ileQueryXml
+import testdata.MovementsTestData.exampleIleQuerySubmission
+import testdata.notifications.NotificationTestData.notificationIleQueryResponse_1
 
 import scala.concurrent.ExecutionContext.global
 import scala.concurrent.Future

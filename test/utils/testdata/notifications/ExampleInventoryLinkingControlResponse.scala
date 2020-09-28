@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package utils.testdata.notifications
+package testdata.notifications
 
+import testdata.CommonTestData._
+import testdata.notifications.ExampleXmlAndDomainModelPair.ExampleStandardResponse
+import testdata.notifications.NotificationTestData._
 import uk.gov.hmrc.exports.movements.models.notifications.standard.{Entry, StandardNotificationData, UcrBlock}
-import utils.testdata.CommonTestData._
-import utils.testdata.notifications.ExampleXmlAndDomainModelPair.ExampleStandardResponse
-import utils.testdata.notifications.NotificationTestData._
 
 object ExampleInventoryLinkingControlResponse {
 

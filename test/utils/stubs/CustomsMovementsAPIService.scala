@@ -14,20 +14,19 @@
  * limitations under the License.
  */
 
-package utils.stubs
+package stubs
 
 import java.util.UUID
 
+import base.WireMockRunner
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.http.Fault
 import com.github.tomakehurst.wiremock.matching.UrlPattern
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
-import integration.uk.gov.hmrc.exports.movements.base.WireMockRunner
 import play.api.http.ContentTypes
 import play.api.mvc.Codec
 import play.api.test.Helpers.{ACCEPTED, CONTENT_TYPE}
 import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames
-import utils.CustomsMovementsAPIConfig
 
 trait CustomsMovementsAPIService extends WireMockRunner {
 
