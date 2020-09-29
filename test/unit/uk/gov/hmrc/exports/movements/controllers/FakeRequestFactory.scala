@@ -22,7 +22,7 @@ import play.api.libs.json.Writes
 import play.api.mvc.{AnyContent, AnyContentAsJson, AnyContentAsXml}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, POST}
-import utils.testdata.notifications.NotificationTestData.validHeaders
+import testdata.notifications.NotificationTestData.validHeaders
 
 import scala.xml.Elem
 

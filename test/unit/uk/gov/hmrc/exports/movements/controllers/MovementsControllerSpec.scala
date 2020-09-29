@@ -28,8 +28,8 @@ import uk.gov.hmrc.exports.movements.models.movements.{ConsignmentReference, Mov
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType.MovementType
 import uk.gov.hmrc.exports.movements.services.SubmissionService
 import unit.uk.gov.hmrc.exports.movements.base.UnitSpec
-import utils.FakeRequestCSRFSupport._
-import utils.testdata.CommonTestData._
+import stubs.FakeRequestCSRFSupport._
+import testdata.CommonTestData._
 
 import scala.concurrent.ExecutionContext.global
 import scala.concurrent.Future

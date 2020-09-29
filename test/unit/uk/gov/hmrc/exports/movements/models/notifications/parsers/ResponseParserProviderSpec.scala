@@ -18,8 +18,8 @@ package unit.uk.gov.hmrc.exports.movements.models.notifications.parsers
 
 import org.scalatest.{MustMatchers, WordSpec}
 import uk.gov.hmrc.exports.movements.models.notifications.parsers._
-import utils.testdata.notifications.NotificationTestData._
-import utils.testdata.notifications._
+import testdata.notifications.NotificationTestData._
+import testdata.notifications._
 
 class ResponseParserProviderSpec extends WordSpec with MustMatchers {
 

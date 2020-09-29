@@ -19,7 +19,7 @@ package unit.uk.gov.hmrc.exports.movements.models.notifications.parsers
 import org.scalatest.{MustMatchers, WordSpec}
 import uk.gov.hmrc.exports.movements.models.notifications.parsers.CommonTypesParser
 import uk.gov.hmrc.exports.movements.models.notifications.standard.{EntryStatus, GoodsItem, UcrBlock}
-import utils.testdata.notifications.ExampleResponseCommonTypes
+import testdata.notifications.ExampleResponseCommonTypes
 
 class CommonTypesParserSpec extends WordSpec with MustMatchers {
 

@@ -19,9 +19,9 @@ package unit.uk.gov.hmrc.exports.movements.models.notifications.parsers
 import org.scalatest.{MustMatchers, WordSpec}
 import uk.gov.hmrc.exports.movements.models.notifications.parsers.{CommonTypesParser, MovementTotalsResponseParser}
 import uk.gov.hmrc.exports.movements.models.notifications.standard.StandardNotificationData
-import utils.testdata.CommonTestData.MessageCodes
-import utils.testdata.notifications.ExampleInventoryLinkingMovementTotalsResponse
-import utils.testdata.notifications.NotificationTestData.goodsLocation
+import testdata.CommonTestData.MessageCodes
+import testdata.notifications.ExampleInventoryLinkingMovementTotalsResponse
+import testdata.notifications.NotificationTestData.goodsLocation
 
 class MovementTotalsResponseParserSpec extends WordSpec with MustMatchers {
 

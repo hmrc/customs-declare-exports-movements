@@ -22,9 +22,9 @@ import play.api.Configuration
 import uk.gov.hmrc.exports.movements.config.AppConfig
 import uk.gov.hmrc.exports.movements.models.notifications.ResponseValidator
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import utils.testdata.CommonTestData.MessageCodes
-import utils.testdata.notifications.NotificationTestData._
-import utils.testdata.notifications._
+import testdata.CommonTestData.MessageCodes
+import testdata.notifications.NotificationTestData._
+import testdata.notifications._
 
 import scala.util.Success
 import scala.xml.{NodeSeq, SAXParseException}

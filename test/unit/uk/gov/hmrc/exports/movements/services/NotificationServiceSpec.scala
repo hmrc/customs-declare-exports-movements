@@ -28,10 +28,10 @@ import uk.gov.hmrc.exports.movements.models.notifications.{Notification, Notific
 import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, SearchParameters, SubmissionRepository}
 import uk.gov.hmrc.exports.movements.services.NotificationService
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
-import utils.testdata.CommonTestData._
-import utils.testdata.MovementsTestData.exampleSubmission
-import utils.testdata.notifications.NotificationTestData._
-import utils.testdata.notifications.{ExampleInventoryLinkingControlResponse, NotificationTestData}
+import testdata.CommonTestData._
+import testdata.MovementsTestData.exampleSubmission
+import testdata.notifications.NotificationTestData._
+import testdata.notifications.{ExampleInventoryLinkingControlResponse, NotificationTestData}
 
 import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.util.control.NoStackTrace

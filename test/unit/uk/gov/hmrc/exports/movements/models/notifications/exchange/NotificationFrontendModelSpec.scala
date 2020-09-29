@@ -19,8 +19,8 @@ package unit.uk.gov.hmrc.exports.movements.models.notifications.exchange
 import org.scalatest.{MustMatchers, WordSpec}
 import uk.gov.hmrc.exports.movements.models.notifications.exchange.NotificationFrontendModel
 import uk.gov.hmrc.exports.movements.models.notifications.standard.{Entry, UcrBlock}
-import utils.testdata.CommonTestData.ucr
-import utils.testdata.notifications.NotificationTestData._
+import testdata.CommonTestData.ucr
+import testdata.notifications.NotificationTestData._
 
 class NotificationFrontendModelSpec extends WordSpec with MustMatchers {
 

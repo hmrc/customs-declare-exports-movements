@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package integration.uk.gov.hmrc.exports.movements.base
+package uk.gov.hmrc.exports.movements.base
 
+import base.WireMockRunner
 import com.codahale.metrics.SharedMetricRegistries
 import com.google.inject.AbstractModule
 import org.scalatest._

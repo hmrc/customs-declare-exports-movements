@@ -69,7 +69,7 @@ class NotificationController @Inject()(
     searchNotifications(eori, providerId, None)
 
   private def searchNotifications(eori: Option[String], providerId: Option[String], conversationId: Option[String]): Action[AnyContent] =
-    Action.async { implicit request =>
+    Action.async { _ =>
       notificationService
         .getAllNotifications(SearchParameters(eori = eori, providerId = providerId, conversationId = conversationId))
         .map(notifications => Ok(Json.toJson(notifications)))

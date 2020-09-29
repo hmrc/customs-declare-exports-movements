@@ -18,8 +18,8 @@ package unit.uk.gov.hmrc.exports.movements.models.notifications.parsers
 
 import org.scalatest.{MustMatchers, WordSpec}
 import uk.gov.hmrc.exports.movements.models.notifications.parsers.{CommonTypesParser, IleQueryResponseParser}
-import utils.testdata.notifications.ExampleInventoryLinkingQueryResponse
-import utils.testdata.notifications.ExampleXmlAndDomainModelPair.ExampleQueryResponse
+import testdata.notifications.ExampleInventoryLinkingQueryResponse
+import testdata.notifications.ExampleXmlAndDomainModelPair.ExampleQueryResponse
 
 class IleQueryResponseParserSpec extends WordSpec with MustMatchers {
 

@@ -31,11 +31,11 @@ import reactivemongo.api.{Cursor, ReadPreference}
 import reactivemongo.play.json.ImplicitBSONHandlers
 import reactivemongo.play.json.ImplicitBSONHandlers._
 import reactivemongo.play.json.collection.JSONCollection
+import stubs.{FixedTime, TestMongoDB}
 import uk.gov.hmrc.exports.movements.models.notifications.Notification
 import uk.gov.hmrc.exports.movements.models.submissions.{IleQuerySubmission, Submission}
 import uk.gov.hmrc.exports.movements.repositories.{IleQuerySubmissionRepository, NotificationRepository, SubmissionRepository}
-import utils.connector.{AuditWiremockTestServer, IleApiWiremockTestServer}
-import utils.{FixedTime, TestMongoDB}
+import connector.{AuditWiremockTestServer, IleApiWiremockTestServer}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future

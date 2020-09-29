@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package integration.uk.gov.hmrc.exports.movements.repositories
+package uk.gov.hmrc.exports.movements.repositories
 
 import java.time.{Clock, Instant, ZoneOffset}
 
@@ -25,15 +25,16 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.libs.json.JsString
 import reactivemongo.core.errors.DatabaseException
-import uk.gov.hmrc.exports.movements.repositories.{IleQuerySubmissionRepository, SearchParameters}
-import utils.TestMongoDB
-import utils.testdata.CommonTestData._
-import utils.testdata.MovementsTestData.{dateTimeString, exampleIleQuerySubmission}
+import stubs.TestMongoDB
+import testdata.CommonTestData.{conversationId, _}
+import testdata.MovementsTestData._
+import uk.gov.hmrc.exports.movements.models.submissions.ActionType.{ConsolidationType, MovementType}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class IleQuerySubmissionRepositorySpec
+class SubmissionRepositorySpec
     extends WordSpec with GuiceOneAppPerSuite with BeforeAndAfterEach with ScalaFutures with MustMatchers with IntegrationPatience with TestMongoDB {
 
   private val clock = Clock.fixed(Instant.parse(dateTimeString), ZoneOffset.UTC)
@@ -45,7 +46,7 @@ class IleQuerySubmissionRepositorySpec
       .configure(mongoConfiguration)
       .build()
   }
-  private val repo = app.injector.instanceOf[IleQuerySubmissionRepository]
+  private val repo = app.injector.instanceOf[SubmissionRepository]
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -57,49 +58,49 @@ class IleQuerySubmissionRepositorySpec
     super.afterEach()
   }
 
-  "IleQuerySubmissionRepository on insert" when {
+  "SubmissionRepository on insert" when {
 
     "the operation was successful" should {
       "result in a success" in {
-        val submission = exampleIleQuerySubmission(eori = validEori)
-        repo.insert(submission).futureValue.ok mustBe true
+        val submission = exampleSubmission(eori = validEori)
+        repo.insert(submission).futureValue.ok must be(true)
 
-        val submissionFromDB = repo.findAll().futureValue
+        val submissionFromDB = repo.find("eori" -> JsString(validEori)).futureValue
         submissionFromDB.length must equal(1)
         submissionFromDB.head must equal(submission)
       }
     }
 
-    "trying to insert IleQuerySubmission with the same Conversation ID twice" should {
+    "trying to insert Submission with the same ConversationID twice" should {
 
       "throw DatabaseException" in {
-        val submission_1 = exampleIleQuerySubmission(conversationId = conversationId)
-        val submission_2 = exampleIleQuerySubmission(conversationId = conversationId)
+        val submission_1 = exampleSubmission(conversationId = conversationId, actionType = MovementType.Arrival)
+        val submission_2 = exampleSubmission(conversationId = conversationId, actionType = ConsolidationType.ShutMucr)
 
         repo.insert(submission_1).futureValue.ok must be(true)
         val exc = repo.insert(submission_2).failed.futureValue
 
         exc mustBe an[DatabaseException]
         exc.getMessage must include(
-          "E11000 duplicate key error collection: test-customs-declare-exports-movements.ileQuerySubmissions index: conversationIdIdx dup key"
+          "E11000 duplicate key error collection: test-customs-declare-exports-movements.movementSubmissions index: conversationIdIdx dup key"
         )
       }
 
-      "result in having only the first IleQuerySubmission persisted" in {
-        val submission_1 = exampleIleQuerySubmission(conversationId = conversationId)
-        val submission_2 = exampleIleQuerySubmission(conversationId = conversationId)
+      "result in having only the first Submission persisted" in {
+        val submission_1 = exampleSubmission(conversationId = conversationId, actionType = MovementType.Arrival)
+        val submission_2 = exampleSubmission(conversationId = conversationId, actionType = ConsolidationType.ShutMucr)
 
         repo.insert(submission_1).futureValue.ok must be(true)
         repo.insert(submission_2).failed.futureValue
 
-        val submissionFromDB = repo.findAll().futureValue
+        val submissionFromDB = repo.find("eori" -> JsString(validEori)).futureValue
         submissionFromDB.length must equal(1)
         submissionFromDB.head must equal(submission_1)
       }
     }
   }
 
-  "IleQuerySubmissionRepository on findBy" when {
+  "SubmissionRepository on findBy" when {
 
     "querying by EORI only" when {
 
@@ -113,7 +114,7 @@ class IleQuerySubmissionRepositorySpec
 
       "there is single Submission with given EORI" should {
         "return this Submission only" in {
-          val submission = exampleIleQuerySubmission(eori = validEori)
+          val submission = exampleSubmission(eori = validEori)
           repo.insert(submission).futureValue.ok must be(true)
 
           val query = SearchParameters(eori = Some(validEori))
@@ -127,11 +128,16 @@ class IleQuerySubmissionRepositorySpec
 
       "there are multiple Submissions with given EORI" should {
         "return all the Submissions" in {
-          val submission = exampleIleQuerySubmission(eori = validEori, conversationId = conversationId)
-          val submission_2 = exampleIleQuerySubmission(eori = validEori, conversationId = conversationId_2)
-          val submission_3 = exampleIleQuerySubmission(eori = validEori, conversationId = conversationId_3)
-          val submission_4 = exampleIleQuerySubmission(eori = validEori, conversationId = conversationId_4)
-          val submission_5 = exampleIleQuerySubmission(eori = validEori, conversationId = conversationId_5)
+          val submission =
+            exampleSubmission(eori = validEori, conversationId = conversationId, actionType = MovementType.Arrival)
+          val submission_2 =
+            exampleSubmission(eori = validEori, conversationId = conversationId_2, actionType = MovementType.Departure)
+          val submission_3 =
+            exampleSubmission(eori = validEori, conversationId = conversationId_3, actionType = ConsolidationType.ShutMucr)
+          val submission_4 =
+            exampleSubmission(eori = validEori, conversationId = conversationId_4, actionType = ConsolidationType.DucrAssociation)
+          val submission_5 =
+            exampleSubmission(eori = validEori, conversationId = conversationId_5, actionType = ConsolidationType.DucrDisassociation)
           repo.insert(submission).futureValue.ok must be(true)
           repo.insert(submission_2).futureValue.ok must be(true)
           repo.insert(submission_3).futureValue.ok must be(true)
@@ -164,7 +170,7 @@ class IleQuerySubmissionRepositorySpec
 
       "there is single Submission with given Provider ID" should {
         "return this Submission only" in {
-          val submission = exampleIleQuerySubmission(providerId = Some(validProviderId))
+          val submission = exampleSubmission(providerId = Some(validProviderId))
           repo.insert(submission).futureValue.ok must be(true)
 
           val query = SearchParameters(providerId = Some(validProviderId))
@@ -178,11 +184,20 @@ class IleQuerySubmissionRepositorySpec
 
       "there are multiple Submissions with given Provider ID" should {
         "return all the Submissions" in {
-          val submission = exampleIleQuerySubmission(providerId = Some(validProviderId), conversationId = conversationId)
-          val submission_2 = exampleIleQuerySubmission(providerId = Some(validProviderId), conversationId = conversationId_2)
-          val submission_3 = exampleIleQuerySubmission(providerId = Some(validProviderId), conversationId = conversationId_3)
-          val submission_4 = exampleIleQuerySubmission(providerId = Some(validProviderId), conversationId = conversationId_4)
-          val submission_5 = exampleIleQuerySubmission(providerId = Some(validProviderId), conversationId = conversationId_5)
+          val submission =
+            exampleSubmission(providerId = Some(validProviderId), conversationId = conversationId, actionType = MovementType.Arrival)
+          val submission_2 =
+            exampleSubmission(providerId = Some(validProviderId), conversationId = conversationId_2, actionType = MovementType.Departure)
+          val submission_3 =
+            exampleSubmission(providerId = Some(validProviderId), conversationId = conversationId_3, actionType = ConsolidationType.ShutMucr)
+          val submission_4 =
+            exampleSubmission(providerId = Some(validProviderId), conversationId = conversationId_4, actionType = ConsolidationType.DucrAssociation)
+          val submission_5 =
+            exampleSubmission(
+              providerId = Some(validProviderId),
+              conversationId = conversationId_5,
+              actionType = ConsolidationType.DucrDisassociation
+            )
           repo.insert(submission).futureValue.ok must be(true)
           repo.insert(submission_2).futureValue.ok must be(true)
           repo.insert(submission_3).futureValue.ok must be(true)
@@ -215,7 +230,7 @@ class IleQuerySubmissionRepositorySpec
 
       "there is single Submission with given Conversation ID" should {
         "return this Submission" in {
-          val submission = exampleIleQuerySubmission(conversationId = conversationId)
+          val submission = exampleSubmission(conversationId = conversationId)
           repo.insert(submission).futureValue.ok must be(true)
 
           val query = SearchParameters(conversationId = Some(conversationId))
@@ -239,7 +254,7 @@ class IleQuerySubmissionRepositorySpec
         }
 
         "there is Submission with given EORI but not Conversation ID" in {
-          val submission = exampleIleQuerySubmission(eori = validEori, conversationId = conversationId_2)
+          val submission = exampleSubmission(eori = validEori, conversationId = conversationId_2)
           repo.insert(submission).futureValue.ok must be(true)
 
           val query = SearchParameters(eori = Some(validEori), conversationId = Some(conversationId))
@@ -248,7 +263,7 @@ class IleQuerySubmissionRepositorySpec
         }
 
         "there is Submission with given Conversation ID but not EORI" in {
-          val submission = exampleIleQuerySubmission(eori = validEori_2, conversationId = conversationId)
+          val submission = exampleSubmission(eori = validEori_2, conversationId = conversationId)
           repo.insert(submission).futureValue.ok must be(true)
 
           val query = SearchParameters(eori = Some(validEori), conversationId = Some(conversationId))
@@ -260,7 +275,7 @@ class IleQuerySubmissionRepositorySpec
       "return single-element list with Submission" when {
 
         "there is single Submission with given EORI and Conversation ID" in {
-          val submission = exampleIleQuerySubmission(eori = validEori, conversationId = conversationId)
+          val submission = exampleSubmission(eori = validEori, conversationId = conversationId)
           repo.insert(submission).futureValue.ok must be(true)
 
           val query = SearchParameters(eori = Some(validEori), conversationId = Some(conversationId))
@@ -284,7 +299,7 @@ class IleQuerySubmissionRepositorySpec
         }
 
         "there is Submission with given Provider ID but not Conversation ID" in {
-          val submission = exampleIleQuerySubmission(providerId = Some(validProviderId), conversationId = conversationId_2)
+          val submission = exampleSubmission(providerId = Some(validProviderId), conversationId = conversationId_2)
           repo.insert(submission).futureValue.ok must be(true)
 
           val query = SearchParameters(providerId = Some(validProviderId), conversationId = Some(conversationId))
@@ -293,7 +308,7 @@ class IleQuerySubmissionRepositorySpec
         }
 
         "there is Submission with given Conversation ID but not Provider ID" in {
-          val submission = exampleIleQuerySubmission(providerId = Some(validProviderId_2), conversationId = conversationId)
+          val submission = exampleSubmission(providerId = Some(validProviderId_2), conversationId = conversationId)
           repo.insert(submission).futureValue.ok must be(true)
 
           val query = SearchParameters(providerId = Some(validProviderId), conversationId = Some(conversationId))
@@ -305,7 +320,7 @@ class IleQuerySubmissionRepositorySpec
       "return single-element list with Submission" when {
 
         "there is single Submission with given Provider ID and Conversation ID" in {
-          val submission = exampleIleQuerySubmission(providerId = Some(validProviderId), conversationId = conversationId)
+          val submission = exampleSubmission(providerId = Some(validProviderId), conversationId = conversationId)
           repo.insert(submission).futureValue.ok must be(true)
 
           val query = SearchParameters(providerId = Some(validProviderId), conversationId = Some(conversationId))
@@ -321,7 +336,7 @@ class IleQuerySubmissionRepositorySpec
     "querying with empty SearchParameters" should {
 
       "return empty list" in {
-        val submission = exampleIleQuerySubmission(providerId = Some(validProviderId), conversationId = conversationId)
+        val submission = exampleSubmission(providerId = Some(validProviderId), conversationId = conversationId)
         repo.insert(submission).futureValue.ok must be(true)
 
         val query = SearchParameters(None, None, None)

@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package utils.connector
+package connector
 
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, post, postRequestedFor, urlEqualTo}
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder
-import integration.uk.gov.hmrc.exports.movements.connector.WiremockTestServer
 import org.scalatest.BeforeAndAfterEach
 import play.api.Configuration
 import play.api.http.Status

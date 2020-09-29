@@ -24,9 +24,9 @@ import uk.gov.hmrc.exports.movements.models.notifications.parsers.{ResponseParse
 import uk.gov.hmrc.exports.movements.models.notifications.standard.StandardNotificationData
 import uk.gov.hmrc.exports.movements.models.notifications.{Notification, NotificationData, NotificationFactory}
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder
-import utils.testdata.CommonTestData.conversationId
-import utils.testdata.notifications.NotificationTestData._
-import utils.testdata.notifications._
+import testdata.CommonTestData.conversationId
+import testdata.notifications.NotificationTestData._
+import testdata.notifications._
 
 import scala.util.Try
 import scala.xml.{Node, NodeSeq, Utility, XML}

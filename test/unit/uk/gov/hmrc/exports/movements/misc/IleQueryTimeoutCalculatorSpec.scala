@@ -25,7 +25,7 @@ import org.scalatest.{BeforeAndAfterEach, MustMatchers, WordSpec}
 import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.exports.movements.config.AppConfig
 import uk.gov.hmrc.exports.movements.misc.IleQueryTimeoutCalculator
-import utils.testdata.MovementsTestData.{dateTimeString, exampleIleQuerySubmission}
+import testdata.MovementsTestData.{dateTimeString, exampleIleQuerySubmission}
 
 class IleQueryTimeoutCalculatorSpec extends WordSpec with MustMatchers with MockitoSugar with BeforeAndAfterEach {
 

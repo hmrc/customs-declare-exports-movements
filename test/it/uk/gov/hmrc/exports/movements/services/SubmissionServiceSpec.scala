@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package integration.uk.gov.hmrc.exports.movements.services
+package uk.gov.hmrc.exports.movements.services
 
 import java.time.{Clock, Instant, ZoneOffset}
 
 import com.codahale.metrics.SharedMetricRegistries
-import integration.uk.gov.hmrc.exports.movements.base.IntegrationTestSpec
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
@@ -30,15 +29,14 @@ import play.api.inject.bind
 import play.api.inject.guice.{GuiceApplicationBuilder, GuiceableModule}
 import play.api.test.Helpers._
 import reactivemongo.core.errors.GenericDatabaseException
+import stubs.ExternalServicesConfig.{mongoDBUri, Host, Port}
+import stubs.{CustomsMovementsAPIConfig, CustomsMovementsAPIService}
+import testdata.MovementsTestData._
+import uk.gov.hmrc.exports.movements.base.IntegrationTestSpec
 import uk.gov.hmrc.exports.movements.exceptions.CustomsInventoryLinkingUpstreamException
 import uk.gov.hmrc.exports.movements.repositories.SubmissionRepository
-import uk.gov.hmrc.exports.movements.services.SubmissionService
 import uk.gov.hmrc.http.HeaderCarrier
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder.{buildSubmissionRepositoryMock, dummyWriteResultSuccess}
-import utils.CustomsMovementsAPIConfig
-import utils.ExternalServicesConfig.{mongoDBUri, Host, Port}
-import utils.stubs.CustomsMovementsAPIService
-import utils.testdata.MovementsTestData._
 
 import scala.concurrent.{Await, Future}
 
