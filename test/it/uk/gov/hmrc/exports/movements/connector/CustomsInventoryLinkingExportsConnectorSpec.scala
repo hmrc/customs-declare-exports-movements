@@ -41,6 +41,7 @@ class CustomsInventoryLinkingExportsConnectorSpec extends ConnectorSpec {
     given(config.sendArrivalUrlSuffix).willReturn("/path")
     given(config.customsDeclarationsApiVersion).willReturn("1.0")
     given(config.clientIdInventory(ArgumentMatchers.any[HeaderCarrier]())).willReturn("client-id")
+    given(config.internalUserEori).willReturn("ABC123")
 
     "POST to ILE" when {
       "EORI only request" in {

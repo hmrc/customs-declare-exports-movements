@@ -65,4 +65,9 @@ class AppConfig @Inject()(runModeConfiguration: Configuration, servicesConfig: S
     val unit = servicesConfig.getString("microservice.ileQueryResponseTimeout.unit")
     Duration.of(value, ChronoUnit.valueOf(unit.toUpperCase))
   }
+
+  lazy val internalUserEori: String = servicesConfig.getConfString(
+    "customs-inventory-linking-exports.internal-user-eori",
+    throw new IllegalStateException("Missing configuration for internal user EORI value")
+  )
 }

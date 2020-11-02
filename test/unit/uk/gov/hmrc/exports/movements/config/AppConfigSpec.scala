@@ -43,6 +43,7 @@ class AppConfigSpec extends UnitSpec with MockitoSugar {
         |microservice.services.customs-inventory-linking-exports.sendArrival=/
         |microservice.services.customs-inventory-linking-exports.client-id.some-user-agent=some-user-agent-client-id
         |microservice.services.customs-inventory-linking-exports.schema-file-path=conf/schemas/exports/inventoryLinkingResponseExternal.xsd
+        |microservice.services.customs-inventory-linking-exports.internal-user-eori=ABC123
         |microservice.ileQueryResponseTimeout.value=30
         |microservice.ileQueryResponseTimeout.unit=SECONDS
       """.stripMargin
@@ -97,6 +98,9 @@ class AppConfigSpec extends UnitSpec with MockitoSugar {
 
       val caught3: Exception = intercept[Exception](configService.sendArrivalUrlSuffix)
       caught3.getMessage shouldBe "Missing configuration for Customs Inventory Linking send arrival URI"
+
+      val caught4: Exception = intercept[Exception](configService.internalUserEori)
+      caught4.getMessage shouldBe "Missing configuration for internal user EORI value"
     }
 
     "contain correct Inventory Linking url" in {
