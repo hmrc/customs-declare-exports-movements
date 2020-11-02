@@ -121,5 +121,11 @@ class AppConfigSpec extends UnitSpec with MockitoSugar {
       val duration = serviceConfig.ileQueryResponseTimeout
       duration shouldBe Duration.of(30, ChronoUnit.SECONDS)
     }
+
+    "contain correct value for the internal user EORI" in {
+      val serviceConfig: AppConfig = appConfig(validServicesConfiguration)
+
+      serviceConfig.internalUserEori shouldEqual "ABC123"
+    }
   }
 }
