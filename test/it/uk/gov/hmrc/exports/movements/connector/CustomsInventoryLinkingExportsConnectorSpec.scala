@@ -89,7 +89,6 @@ class CustomsInventoryLinkingExportsConnectorSpec extends ConnectorSpec {
             .withHeader("Accept", equalTo("application/vnd.hmrc.1.0+xml"))
             .withHeader("Content-Type", equalTo("application/xml; charset=utf-8"))
             .withHeader("X-Client-ID", equalTo("client-id"))
-            .withHeader("X-Badge-Identifier", equalTo("ABC123"))
             .withHeader("X-Submitter-Identifier", equalTo("ABC123"))
         )
       }
