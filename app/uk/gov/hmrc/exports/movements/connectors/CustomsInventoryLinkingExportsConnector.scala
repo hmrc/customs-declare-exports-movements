@@ -54,11 +54,7 @@ class CustomsInventoryLinkingExportsConnector @Inject()(appConfig: AppConfig, ht
   private def headers(identification: UserIdentification)(implicit hc: HeaderCarrier): Seq[(String, String)] = {
     val authHeaders =
       if (identification.providerId.isDefined)
-        Seq(
-          CustomsHeaderNames.BadgeIdentifier -> appConfig.internalUserEori,
-          CustomsHeaderNames.SubmitterIdentifier -> appConfig.internalUserEori,
-          CustomsHeaderNames.XClientIdName -> appConfig.clientIdInventory
-        )
+        Seq(CustomsHeaderNames.SubmitterIdentifier -> appConfig.internalUserEori, CustomsHeaderNames.XClientIdName -> appConfig.clientIdInventory)
       else Seq(CustomsHeaderNames.XClientIdName -> appConfig.clientIdInventory)
 
     contentHeaders ++ authHeaders
