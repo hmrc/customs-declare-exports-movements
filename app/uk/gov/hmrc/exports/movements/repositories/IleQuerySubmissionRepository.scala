@@ -24,6 +24,7 @@ import reactivemongo.api.ReadPreference
 import reactivemongo.api.indexes.{Index, IndexType}
 import reactivemongo.bson.BSONObjectID
 import reactivemongo.play.json.ImplicitBSONHandlers
+import reactivemongo.play.json.collection.JSONCollection
 import uk.gov.hmrc.exports.movements.models.submissions.IleQuerySubmission
 import uk.gov.hmrc.mongo.ReactiveRepository
 
@@ -32,6 +33,9 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class IleQuerySubmissionRepository @Inject()(implicit mc: ReactiveMongoComponent, ec: ExecutionContext)
     extends ReactiveRepository[IleQuerySubmission, BSONObjectID]("ileQuerySubmissions", mc.mongoConnector.db, IleQuerySubmission.format) {
+
+  override lazy val collection: JSONCollection =
+    mongo().collection[JSONCollection](collectionName, failoverStrategy = RepositorySettings.failoverStrategy)
 
   override def indexes: Seq[Index] = Seq(
     Index(Seq("eori" -> IndexType.Ascending), name = Some("eoriIdx")),
