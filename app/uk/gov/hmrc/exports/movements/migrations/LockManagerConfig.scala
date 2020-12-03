@@ -14,20 +14,13 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.exports.movements.mongock
+package uk.gov.hmrc.exports.movements.migrations
 
-import com.github.cloudyrock.mongock.MongockBuilder
-import com.google.inject.Singleton
-import com.mongodb.{MongoClient, MongoClientURI}
+import uk.gov.hmrc.exports.movements.migrations.LockManager._
 
-@Singleton
-case class MongockConfig(mongoURI: String) {
-  val uri = new MongoClientURI(mongoURI.replaceAllLiterally("sslEnabled", "ssl"))
-  val changeLogScanPackage = "uk.gov.hmrc.exports.movements.mongock.changesets"
-
-  val client = new MongoClient(uri)
-  val runner = new MongockBuilder(client, uri.getDatabase, changeLogScanPackage).build();
-
-  runner.execute()
-  runner.close()
-}
+case class LockManagerConfig(
+  lockMaxTries: Int = 1,
+  lockMaxWaitMillis: Long = MinLockAcquiredForMillis + 60L * 1000L,
+  lockAcquiredForMillis: Long = MinLockAcquiredForMillis,
+  minimumSleepThreadMillis: Long = MinimumSleepThreadMillisDefault
+)
