@@ -22,16 +22,13 @@ import java.time.temporal.ChronoUnit
 import com.google.inject.{Inject, Singleton}
 import play.api.{Configuration, Logger}
 import uk.gov.hmrc.exports.movements.exceptions.MissingClientIDException
-import uk.gov.hmrc.exports.movements.mongock.MongockConfig
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 @Singleton
 class AppConfig @Inject()(runModeConfiguration: Configuration, servicesConfig: ServicesConfig) {
 
-  runModeConfiguration
-    .getOptional[String]("mongodb.uri")
-    .map(MongockConfig)
+  lazy val mongodbUri: String = runModeConfiguration.get[String]("mongodb.uri")
 
   private val logger: Logger = Logger(classOf[AppConfig])
 

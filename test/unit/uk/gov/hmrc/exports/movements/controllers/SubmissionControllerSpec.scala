@@ -24,13 +24,13 @@ import org.scalatest.{MustMatchers, WordSpec}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{GET, OK, contentAsJson, status, stubControllerComponents, _}
-import uk.gov.hmrc.exports.movements.controllers.SubmissionController
-import uk.gov.hmrc.exports.movements.repositories.SearchParameters
-import uk.gov.hmrc.exports.movements.services.SubmissionService
+import play.api.test.Helpers._
 import testdata.CommonTestData._
 import testdata.MovementsTestData.exampleSubmission
 import testdata.notifications.NotificationTestData.validHeaders
+import uk.gov.hmrc.exports.movements.controllers.SubmissionController
+import uk.gov.hmrc.exports.movements.repositories.SearchParameters
+import uk.gov.hmrc.exports.movements.services.SubmissionService
 
 import scala.concurrent.{ExecutionContext, Future}
 
