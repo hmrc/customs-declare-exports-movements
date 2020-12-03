@@ -24,6 +24,8 @@ import scala.xml.NodeSeq
 
 class ControlResponseParser @Inject()(errorValidator: ErrorValidator) extends ResponseParser[StandardNotificationData] {
 
+  override val responseTypeIle: String = "inventoryLinkingControlResponse"
+
   override def parse(responseXml: NodeSeq): StandardNotificationData = StandardNotificationData(
     messageCode = StringOption((responseXml \ XmlTags.messageCode).text),
     actionCode = StringOption((responseXml \ XmlTags.actionCode).text),

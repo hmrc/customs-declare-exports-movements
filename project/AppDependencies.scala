@@ -17,7 +17,7 @@ object AppDependencies {
     "com.github.tototoshi"            %% "scala-csv"                  % "1.3.6",
     "uk.gov.hmrc"                     %% "play-json-union-formatter"  % "1.10.0-play-26",
     "com.github.cloudyrock.mongock"   %  "mongock-core"               % "2.0.2",
-    "org.mongodb.scala"               %% "mongo-scala-driver"         % "2.9.0"
+    "org.mongodb.scala"               %%  "mongo-scala-driver"        % "2.9.0"
   )
 
   val test = Seq(

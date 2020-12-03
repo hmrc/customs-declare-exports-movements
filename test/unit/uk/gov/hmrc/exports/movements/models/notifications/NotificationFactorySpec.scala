@@ -20,13 +20,13 @@ import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito.{verify, when}
 import org.scalatest.{MustMatchers, WordSpec}
 import org.scalatestplus.mockito.MockitoSugar
-import uk.gov.hmrc.exports.movements.models.notifications.parsers.{ResponseParser, ResponseParserContext}
-import uk.gov.hmrc.exports.movements.models.notifications.standard.StandardNotificationData
-import uk.gov.hmrc.exports.movements.models.notifications.{Notification, NotificationData, NotificationFactory}
-import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder
 import testdata.CommonTestData.conversationId
 import testdata.notifications.NotificationTestData._
 import testdata.notifications._
+import uk.gov.hmrc.exports.movements.models.notifications.parsers.ResponseParser
+import uk.gov.hmrc.exports.movements.models.notifications.standard.StandardNotificationData
+import uk.gov.hmrc.exports.movements.models.notifications.{Notification, NotificationData, NotificationFactory}
+import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder
 
 import scala.util.Try
 import scala.xml.{Node, NodeSeq, Utility, XML}
@@ -40,8 +40,6 @@ class NotificationFactorySpec extends WordSpec with MustMatchers with MockitoSug
     when(responseValidatorMock.validate(any[NodeSeq])).thenReturn(Try((): Unit))
     val responseParserMock: ResponseParser[NotificationData] = UnitTestMockBuilder.buildResponseParserMock(StandardNotificationData())
     when(responseParserFactoryMock.provideResponseParser(any())).thenReturn(responseParserMock)
-    val exampleResponseParserContext = ResponseParserContext("ResponseType", responseParserMock)
-    when(responseParserFactoryMock.provideResponseParserContext(any())).thenReturn(exampleResponseParserContext)
 
     val notificationFactory = new NotificationFactory(responseValidatorMock, responseParserFactoryMock)
   }
@@ -54,7 +52,7 @@ class NotificationFactorySpec extends WordSpec with MustMatchers with MockitoSug
         val responseXml = ExampleInventoryLinkingControlResponse.Correct.Rejected.asXml
         notificationFactory.buildMovementNotification(conversationId, responseXml)
 
-        verify(responseParserFactoryMock).provideResponseParserContext(meq(responseXml))
+        verify(responseParserFactoryMock).provideResponseParser(meq(responseXml))
       }
 
       "call ResponseValidator, passing response XML provided" in new Test {
@@ -80,11 +78,12 @@ class NotificationFactorySpec extends WordSpec with MustMatchers with MockitoSug
 
       "return Notification containing responseType from context" in new Test {
         val responseXml = ExampleInventoryLinkingControlResponse.Correct.Rejected.asXml
-        val expectedResponseType = exampleResponseParserContext.responseType
+        val responseTypeTest = "ResponseType"
+        when(responseParserMock.responseTypeIle).thenReturn(responseTypeTest)
 
         val resultNotification = notificationFactory.buildMovementNotification(conversationId, responseXml)
 
-        resultNotification.responseType must equal(expectedResponseType)
+        resultNotification.responseType must equal(responseTypeTest)
       }
 
       "return Notification containing notificationData from ResponseParser" in new Test {
@@ -109,13 +108,16 @@ class NotificationFactorySpec extends WordSpec with MustMatchers with MockitoSug
     }
 
     "provided with empty Conversation ID" should {
+
       "create Notification with empty conversationId field" in new Test {
+        val responseTypeTest = "ResponseType"
+        when(responseParserMock.responseTypeIle).thenReturn(responseTypeTest)
         val testNotificationData = ExampleInventoryLinkingControlResponse.Correct.Rejected
         when(responseParserMock.parse(any())).thenReturn(testNotificationData.asDomainModel)
         val responseXml = testNotificationData.asXml
         val expectedNotification = Notification(
           conversationId = "",
-          responseType = "ResponseType",
+          responseType = responseTypeTest,
           payload = Utility.trim(testNotificationData.asXml).toString(),
           data = testNotificationData.asDomainModel
         )
@@ -148,7 +150,7 @@ class NotificationFactorySpec extends WordSpec with MustMatchers with MockitoSug
 
       "return Notification containing responseType from context" in new Test {
         val response = ExampleInventoryLinkingControlResponse.Incorrect.DoubleUcrBlock.asXml
-        val expectedResponseType: String = exampleResponseParserContext.responseType
+        val expectedResponseType: String = responseParserMock.responseTypeIle
 
         val resultNotification = notificationFactory.buildMovementNotification(conversationId, response)
 

@@ -30,13 +30,13 @@ class NotificationFactory @Inject()(responseValidator: ResponseValidator, respon
   private val logger = Logger(this.getClass)
 
   def buildMovementNotification(conversationId: String, xml: NodeSeq): Notification = {
-    val context = responseParserFactory.provideResponseParserContext(xml)
+    val parser = responseParserFactory.provideResponseParser(xml)
     checkResponseCompliance(conversationId, xml)
 
-    val notificationData = context.parser.parse(xml)
+    val notificationData = parser.parse(xml)
     notifications.Notification(
       conversationId = conversationId,
-      responseType = context.responseType,
+      responseType = parser.responseTypeIle,
       data = notificationData,
       payload = Utility.trim(xml.head).toString
     )
@@ -46,8 +46,7 @@ class NotificationFactory @Inject()(responseValidator: ResponseValidator, respon
     responseValidator.validate(xml).recover {
       case exc: SAXParseException =>
         MDC.put("conversationId", conversationId)
-        logger
-          .warn(s"Received Notification for Conversation ID: [$conversationId] does not match the schema: ${exc.getMessage}")
+        logger.warn(s"Received Notification for Conversation ID: [$conversationId] does not match the schema: ${exc.getMessage}")
         MDC.remove("conversationId")
     }
 
