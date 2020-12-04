@@ -17,11 +17,11 @@
 package unit.uk.gov.hmrc.exports.movements.models.notifications.parsers
 
 import org.scalatest.{MustMatchers, WordSpec}
-import uk.gov.hmrc.exports.movements.models.notifications.parsers.{ControlResponseParser, ErrorValidator}
-import uk.gov.hmrc.exports.movements.models.notifications.standard.StandardNotificationData
 import testdata.CommonTestData.MessageCodes
 import testdata.notifications.ExampleInventoryLinkingControlResponse
 import testdata.notifications.NotificationTestData._
+import uk.gov.hmrc.exports.movements.models.notifications.parsers.{ControlResponseParser, ErrorValidator}
+import uk.gov.hmrc.exports.movements.models.notifications.standard.StandardNotificationData
 
 class ControlResponseParserSpec extends WordSpec with MustMatchers {
 
@@ -66,7 +66,8 @@ class ControlResponseParserSpec extends WordSpec with MustMatchers {
           </inventoryLinkingControlResponse>
 
         val expectedNotificationData =
-          StandardNotificationData().copy(messageCode = Some(MessageCodes.ERS), actionCode = Some(actionCode_acknowledgedAndProcessed))
+          StandardNotificationData(responseType = "inventoryLinkingControlResponse")
+            .copy(messageCode = Some(MessageCodes.ERS), actionCode = Some(actionCode_acknowledgedAndProcessed))
 
         val resultNotificationData = parser.parse(xml)
 
@@ -77,7 +78,7 @@ class ControlResponseParserSpec extends WordSpec with MustMatchers {
     "provided with missing messageCode" should {
       "return NotificationData with empty messageCode field" in new Test {
         val xml = <inventoryLinkingControlResponse></inventoryLinkingControlResponse>
-        val expectedNotificationData = StandardNotificationData()
+        val expectedNotificationData = StandardNotificationData(responseType = "inventoryLinkingControlResponse")
 
         val resultNotificationData = parser.parse(xml)
 

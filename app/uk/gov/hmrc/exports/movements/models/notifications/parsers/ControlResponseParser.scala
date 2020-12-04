@@ -36,6 +36,7 @@ class ControlResponseParser @Inject()(errorValidator: ErrorValidator) extends Re
     errorCodes = (responseXml \ XmlTags.error \ XmlTags.errorCode)
       .map(_.text)
       .filter(errorValidator.hasErrorMessage)
-      .flatMap(errorValidator.retrieveCode)
+      .flatMap(errorValidator.retrieveCode),
+    responseType = responseTypeIle
   )
 }

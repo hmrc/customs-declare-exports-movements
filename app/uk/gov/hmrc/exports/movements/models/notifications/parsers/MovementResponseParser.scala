@@ -35,7 +35,8 @@ class MovementResponseParser @Inject()(commonTypesParser: CommonTypesParser) ext
       entries = buildEntries(responseXml),
       goodsArrivalDateTime = StringOption((responseXml \ XmlTags.goodsArrivalDateTime).text).map(Instant.parse),
       goodsLocation = StringOption((responseXml \ XmlTags.goodsLocation).text),
-      movementReference = StringOption((responseXml \ XmlTags.movementReference).text)
+      movementReference = StringOption((responseXml \ XmlTags.movementReference).text),
+      responseType = responseTypeIle
     )
 
   private def buildEntries(responseXml: NodeSeq): Seq[Entry] = {

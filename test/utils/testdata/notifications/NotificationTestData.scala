@@ -109,17 +109,17 @@ object NotificationTestData {
   val payload_1: String = TestDataHelper.randomAlphanumericString(payloadExemplaryLength)
   val payload_2: String = TestDataHelper.randomAlphanumericString(payloadExemplaryLength)
 
-  val standardNotificationDataArrival = StandardNotificationData(messageCode = Some(MessageCodes.EAL))
-  val standardNotificationDataDeparture = StandardNotificationData(messageCode = Some(MessageCodes.EDL))
+  val standardNotificationDataArrival = StandardNotificationData(messageCode = Some(MessageCodes.EAL), responseType = "TestResponse_1")
+  val standardNotificationDataDeparture = StandardNotificationData(messageCode = Some(MessageCodes.EDL), responseType = "TestResponse_2")
 
   val notification_1: Notification =
-    Notification(conversationId = conversationId, responseType = "TestResponse_1", payload = payload_1, data = standardNotificationDataArrival)
+    Notification(conversationId = conversationId, payload = payload_1, data = Some(standardNotificationDataArrival))
   val notification_2: Notification =
-    Notification(conversationId = conversationId_2, responseType = "TestResponse_2", payload = payload_2, data = standardNotificationDataDeparture)
+    Notification(conversationId = conversationId_2, payload = payload_2, data = Some(standardNotificationDataDeparture))
 
   val notificationIleQueryResponse_1: Notification =
-    Notification(conversationId = conversationId, responseType = "QueryTestResponse_1", payload = payload_1, data = IleQueryResponseData())
+    Notification(conversationId = conversationId, payload = payload_1, data = Some(IleQueryResponseData(responseType = "QueryTestResponse_1")))
   val notificationIleQueryResponse_2: Notification =
-    Notification(conversationId = conversationId_2, responseType = "QueryTestResponse_2", payload = payload_2, data = IleQueryResponseData())
+    Notification(conversationId = conversationId_2, payload = payload_2, data = Some(IleQueryResponseData(responseType = "QueryTestResponse_2")))
 
 }

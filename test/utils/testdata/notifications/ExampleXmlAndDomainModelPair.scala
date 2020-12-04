@@ -29,11 +29,15 @@ sealed trait ExampleXmlAndDomainModelPair[T] {
 
 object ExampleXmlAndDomainModelPair {
 
-  case class ExampleStandardResponse(asXml: Elem = <empty/>, asDomainModel: NotificationData = StandardNotificationData())
-      extends ExampleXmlAndDomainModelPair[NotificationData]
+  case class ExampleStandardResponse(
+    asXml: Elem = <empty/>,
+    asDomainModel: NotificationData = StandardNotificationData(responseType = "TestResponse")
+  ) extends ExampleXmlAndDomainModelPair[NotificationData]
 
-  case class ExampleQueryResponse(asXml: Elem = <empty/>, asDomainModel: IleQueryResponseData = IleQueryResponseData())
-      extends ExampleXmlAndDomainModelPair[IleQueryResponseData]
+  case class ExampleQueryResponse(
+    asXml: Elem = <empty/>,
+    asDomainModel: IleQueryResponseData = IleQueryResponseData(responseType = "QueryTestResponse")
+  ) extends ExampleXmlAndDomainModelPair[IleQueryResponseData]
 
   case class ExampleUcrBlockPair(asXml: Elem = <empty/>, asDomainModel: UcrBlock) extends ExampleXmlAndDomainModelPair[UcrBlock]
 

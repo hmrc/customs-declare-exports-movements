@@ -99,16 +99,16 @@ object UnitTestMockBuilder extends MockitoSugar {
   def buildResponseParserFactoryMock: ResponseParserProvider = {
     val responseParserFactoryMock = mock[ResponseParserProvider]
 
-    val responseParserMock: ResponseParser[NotificationData] = buildResponseParserMock(StandardNotificationData())
+    val responseParserMock: ResponseParser[NotificationData] = buildResponseParserMock(StandardNotificationData(responseType = "TestResponse"))
     when(responseParserFactoryMock.provideResponseParser(any())).thenReturn(responseParserMock)
 
     responseParserFactoryMock
   }
 
-  def buildResponseParserMock[T](returnValue: T): ResponseParser[T] = {
+  def buildResponseParserMock[T](returnValue: T, responseTypeIle: String = ""): ResponseParser[T] = {
     val responseParserMock = mock[ResponseParser[T]]
 
-    when(responseParserMock.responseTypeIle).thenReturn("")
+    when(responseParserMock.responseTypeIle).thenReturn(responseTypeIle)
     when(responseParserMock.parse(any())).thenReturn(returnValue)
 
     responseParserMock

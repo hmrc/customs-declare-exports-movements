@@ -23,6 +23,7 @@ import uk.gov.hmrc.play.json.Union
 
 trait NotificationData {
   val typ: NotificationType
+  val responseType: String
 }
 
 object NotificationData {

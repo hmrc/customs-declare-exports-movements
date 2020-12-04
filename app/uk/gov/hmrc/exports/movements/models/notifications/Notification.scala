@@ -19,18 +19,11 @@ package uk.gov.hmrc.exports.movements.models.notifications
 import java.time.Instant
 
 import play.api.libs.json.Json
-import uk.gov.hmrc.exports.movements.models.notifications.standard.StandardNotificationData
 
-final case class Notification(
-  timestampReceived: Instant = Instant.now(),
-  conversationId: String,
-  responseType: String,
-  payload: String,
-  data: NotificationData
-)
+final case class Notification(timestampReceived: Instant = Instant.now(), conversationId: String, payload: String, data: Option[NotificationData])
 
 object Notification {
   implicit val format = Json.format[Notification]
 
-  def empty = Notification(conversationId = "", responseType = "", payload = "", data = StandardNotificationData())
+  def empty = Notification(conversationId = "", payload = "", data = None)
 }

@@ -17,11 +17,11 @@
 package unit.uk.gov.hmrc.exports.movements.models.notifications.parsers
 
 import org.scalatest.{MustMatchers, WordSpec}
-import uk.gov.hmrc.exports.movements.models.notifications.parsers.{CommonTypesParser, MovementTotalsResponseParser}
-import uk.gov.hmrc.exports.movements.models.notifications.standard.StandardNotificationData
 import testdata.CommonTestData.MessageCodes
 import testdata.notifications.ExampleInventoryLinkingMovementTotalsResponse
 import testdata.notifications.NotificationTestData.goodsLocation
+import uk.gov.hmrc.exports.movements.models.notifications.parsers.{CommonTypesParser, MovementTotalsResponseParser}
+import uk.gov.hmrc.exports.movements.models.notifications.standard.StandardNotificationData
 
 class MovementTotalsResponseParserSpec extends WordSpec with MustMatchers {
 
@@ -52,7 +52,11 @@ class MovementTotalsResponseParserSpec extends WordSpec with MustMatchers {
             <goodsLocation>{goodsLocation}</goodsLocation>
           </inventoryLinkingMovementTotalsResponse>
         val expectedNotificationData =
-          StandardNotificationData(messageCode = Some(MessageCodes.ERS), goodsLocation = Some(goodsLocation))
+          StandardNotificationData(
+            messageCode = Some(MessageCodes.ERS),
+            responseType = "inventoryLinkingMovementTotalsResponse",
+            goodsLocation = Some(goodsLocation)
+          )
 
         val resultNotificationData = parser.parse(xml)
 
@@ -63,7 +67,7 @@ class MovementTotalsResponseParserSpec extends WordSpec with MustMatchers {
     "provided with missing mandatory fields" should {
       "return NotificationData with empty messageCode field" in new Test {
         val xml = <inventoryLinkingMovementTotalsResponse></inventoryLinkingMovementTotalsResponse>
-        val expectedNotificationData = StandardNotificationData()
+        val expectedNotificationData = StandardNotificationData(responseType = "inventoryLinkingMovementTotalsResponse")
 
         val resultNotificationData = parser.parse(xml)
 

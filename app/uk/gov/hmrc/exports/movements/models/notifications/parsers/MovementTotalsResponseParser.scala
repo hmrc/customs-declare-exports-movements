@@ -38,7 +38,8 @@ class MovementTotalsResponseParser @Inject()(commonTypesParser: CommonTypesParse
     masterRoe = StringOption((responseXml \ XmlTags.masterROE).text),
     masterSoe = StringOption((responseXml \ XmlTags.masterSOE).text),
     masterUcr = StringOption((responseXml \ XmlTags.masterUCR).text),
-    movementReference = StringOption((responseXml \ XmlTags.movementReference).text)
+    movementReference = StringOption((responseXml \ XmlTags.movementReference).text),
+    responseType = responseTypeIle
   )
 
   private def buildEntriesTotalsResponse(xml: NodeSeq): Seq[Entry] = (xml \ XmlTags.entry).map { entry =>

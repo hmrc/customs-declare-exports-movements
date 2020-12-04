@@ -34,12 +34,7 @@ class NotificationFactory @Inject()(responseValidator: ResponseValidator, respon
     checkResponseCompliance(conversationId, xml)
 
     val notificationData = parser.parse(xml)
-    notifications.Notification(
-      conversationId = conversationId,
-      responseType = parser.responseTypeIle,
-      data = notificationData,
-      payload = Utility.trim(xml.head).toString
-    )
+    notifications.Notification(conversationId = conversationId, data = Some(notificationData), payload = Utility.trim(xml.head).toString)
   }
 
   private def checkResponseCompliance(conversationId: String, xml: NodeSeq): Unit =

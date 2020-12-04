@@ -35,7 +35,8 @@ class IleQueryResponseParser @Inject()(commonTypesParser: CommonTypesParser) ext
     queriedMucr = buildQueriedMucr(responseXml \ XmlTags.queriedMucr),
     parentMucr = buildParentMucr(responseXml \ XmlTags.parentMucr),
     childDucrs = buildChildDucrs(responseXml \ XmlTags.childDucr),
-    childMucrs = buildChildMucrs(responseXml \ XmlTags.childMucr)
+    childMucrs = buildChildMucrs(responseXml \ XmlTags.childMucr),
+    responseType = responseTypeIle
   )
 
   private def buildQueriedDucr(queriedDucrXml: NodeSeq): Option[DucrInfo] = queriedDucrXml.map(parseDucrObject).headOption
