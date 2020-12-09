@@ -35,18 +35,12 @@ class NotificationService @Inject()(
 
   private val logger: Logger = Logger(this.getClass)
 
-  def save(conversationId: String, body: NodeSeq): Future[Unit] =
-    try {
-      val notification = notificationFactory.buildMovementNotification(conversationId, body)
-      logger.info(s"Notification created with conversation-id=[${notification.conversationId}] and payload=[${notification.payload}]")
+  def save(conversationId: String, body: NodeSeq): Future[Unit] = {
+    val notification = notificationFactory.buildMovementNotification(conversationId, body)
+    logger.info(s"Notification created with conversation-id=[${notification.conversationId}] and payload=[${notification.payload}]")
 
-      notificationRepository.insert(notification).map(_ => (): Unit)
-
-    } catch {
-      case exc: IllegalArgumentException =>
-        logger.warn(s"Failed to parse notification with conversation-id=[$conversationId]", exc)
-        Future.successful((): Unit)
-    }
+    notificationRepository.insert(notification).map(_ => (): Unit)
+  }
 
   def getAllNotifications(searchParameters: SearchParameters): Future[Seq[NotificationFrontendModel]] =
     submissionRepository.findBy(searchParameters).flatMap { submissions =>

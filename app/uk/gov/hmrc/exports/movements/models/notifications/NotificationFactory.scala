@@ -19,30 +19,30 @@ package uk.gov.hmrc.exports.movements.models.notifications
 import javax.inject.{Inject, Singleton}
 import org.slf4j.MDC
 import play.api.Logger
-import uk.gov.hmrc.exports.movements.models.notifications
 import uk.gov.hmrc.exports.movements.models.notifications.parsers.ResponseParserProvider
 
-import scala.xml.{NodeSeq, SAXParseException, Utility}
+import scala.util.{Failure, Success}
+import scala.xml.{NodeSeq, Utility}
 
 @Singleton
-class NotificationFactory @Inject()(responseValidator: ResponseValidator, responseParserFactory: ResponseParserProvider) {
+class NotificationFactory @Inject()(responseValidator: ResponseValidator, responseParserProvider: ResponseParserProvider) {
 
   private val logger = Logger(this.getClass)
 
-  def buildMovementNotification(conversationId: String, xml: NodeSeq): Notification = {
-    val parser = responseParserFactory.provideResponseParser(xml)
-    checkResponseCompliance(conversationId, xml)
+  def buildMovementNotification(conversationId: String, xml: NodeSeq): Notification =
+    responseValidator.validate(xml).map(_ => responseParserProvider.provideResponseParser(xml)) match {
+      case Success(parser) =>
+        val notificationData = parser.parse(xml)
 
-    val notificationData = parser.parse(xml)
-    notifications.Notification(conversationId = conversationId, data = Some(notificationData), payload = Utility.trim(xml.head).toString)
-  }
+        Notification(conversationId = conversationId, payload = Utility.trim(xml.head).toString, data = Some(notificationData))
 
-  private def checkResponseCompliance(conversationId: String, xml: NodeSeq): Unit =
-    responseValidator.validate(xml).recover {
-      case exc: SAXParseException =>
+      case Failure(exc) =>
         MDC.put("conversationId", conversationId)
-        logger.warn(s"Received Notification for Conversation ID: [$conversationId] does not match the schema: ${exc.getMessage}")
+        logger.warn(s"Received Notification for Conversation ID: [$conversationId] does not match the schema${exc.getMessage}")
+        logger.warn(s"There was a problem during parsing notification with conversationId=${conversationId}")
         MDC.remove("conversationId")
+
+        Notification(conversationId = conversationId, payload = Utility.trim(xml.head).toString, data = None)
     }
 
 }

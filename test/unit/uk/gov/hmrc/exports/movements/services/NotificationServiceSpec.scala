@@ -23,15 +23,15 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{BeforeAndAfterEach, MustMatchers, WordSpec}
 import org.scalatestplus.mockito.MockitoSugar
 import reactivemongo.api.commands.WriteResult
+import testdata.CommonTestData._
+import testdata.MovementsTestData.exampleSubmission
+import testdata.notifications.NotificationTestData._
+import testdata.notifications.{ExampleInventoryLinkingControlResponse, NotificationTestData}
 import uk.gov.hmrc.exports.movements.models.notifications.exchange.NotificationFrontendModel
 import uk.gov.hmrc.exports.movements.models.notifications.{Notification, NotificationFactory}
 import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, SearchParameters, SubmissionRepository}
 import uk.gov.hmrc.exports.movements.services.NotificationService
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
-import testdata.CommonTestData._
-import testdata.MovementsTestData.exampleSubmission
-import testdata.notifications.NotificationTestData._
-import testdata.notifications.{ExampleInventoryLinkingControlResponse, NotificationTestData}
 
 import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.util.control.NoStackTrace
@@ -113,15 +113,15 @@ class NotificationServiceSpec extends WordSpec with MockitoSugar with ScalaFutur
 
     "MovementNotificationFactory throws an Exception" should {
 
-      "return successful Future" in {
-        when(notificationFactory.buildMovementNotification(any(), any()))
-          .thenThrow(new IllegalArgumentException("Unknown Inventory Linking Response: UnknownLabel"))
+      "return failed Future with the same exception" in {
+        val exceptionMsg = "Unknown Inventory Linking Response: UnknownLabel"
+        when(notificationFactory.buildMovementNotification(any(), any())).thenThrow(new IllegalArgumentException(exceptionMsg))
 
         val requestBody = NotificationTestData.unknownFormatResponseXML
 
-        val result = notificationService.save(conversationId, requestBody).futureValue
-
-        result must equal((): Unit)
+        the[IllegalArgumentException] thrownBy {
+          Await.result(notificationService.save(conversationId, requestBody), patienceConfig.timeout)
+        } must have message exceptionMsg
       }
 
       "not call NotificationRepository" in {
@@ -130,7 +130,9 @@ class NotificationServiceSpec extends WordSpec with MockitoSugar with ScalaFutur
 
         val requestBody = NotificationTestData.unknownFormatResponseXML
 
-        notificationService.save(conversationId, requestBody).futureValue
+        the[IllegalArgumentException] thrownBy {
+          Await.result(notificationService.save(conversationId, requestBody), patienceConfig.timeout)
+        }
 
         verifyNoMoreInteractions(notificationRepository)
       }
