@@ -22,12 +22,17 @@ import play.api.Logger
 import uk.gov.hmrc.exports.movements.models.notifications.parsers.ResponseParserProvider
 
 import scala.util.{Failure, Success}
-import scala.xml.{NodeSeq, Utility}
+import scala.xml.{Elem, NodeSeq, Utility}
 
 @Singleton
 class NotificationFactory @Inject()(responseValidator: ResponseValidator, responseParserProvider: ResponseParserProvider) {
 
   private val logger = Logger(this.getClass)
+
+  def buildMovementNotification(conversationId: String, xml: String): Notification = {
+    val xmlElem = scala.xml.XML.loadString(xml)
+    buildMovementNotification(conversationId, xmlElem)
+  }
 
   def buildMovementNotification(conversationId: String, xml: NodeSeq): Notification =
     responseValidator.validate(xml).map(_ => responseParserProvider.provideResponseParser(xml)) match {

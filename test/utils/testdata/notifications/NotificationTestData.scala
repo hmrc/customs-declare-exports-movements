@@ -108,6 +108,7 @@ object NotificationTestData {
   private val payloadExemplaryLength = 10
   val payload_1: String = TestDataHelper.randomAlphanumericString(payloadExemplaryLength)
   val payload_2: String = TestDataHelper.randomAlphanumericString(payloadExemplaryLength)
+  val payload_3: String = TestDataHelper.randomAlphanumericString(payloadExemplaryLength)
 
   val standardNotificationDataArrival = StandardNotificationData(messageCode = Some(MessageCodes.EAL), responseType = "TestResponse_1")
   val standardNotificationDataDeparture = StandardNotificationData(messageCode = Some(MessageCodes.EDL), responseType = "TestResponse_2")
@@ -116,6 +117,8 @@ object NotificationTestData {
     Notification(conversationId = conversationId, payload = payload_1, data = Some(standardNotificationDataArrival))
   val notification_2: Notification =
     Notification(conversationId = conversationId_2, payload = payload_2, data = Some(standardNotificationDataDeparture))
+
+  val notificationUnparsed = Notification(conversationId = conversationId_3, payload = payload_3, data = None)
 
   val notificationIleQueryResponse_1: Notification =
     Notification(conversationId = conversationId, payload = payload_1, data = Some(IleQueryResponseData(responseType = "QueryTestResponse_1")))

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.exports.movements.migrations
+package uk.gov.hmrc.exports.movements.routines
 
 import akka.actor.ActorSystem
 import com.google.inject.Singleton
@@ -24,7 +24,7 @@ import play.api.Logger
 import play.api.inject.ApplicationLifecycle
 import uk.gov.hmrc.exports.movements.config.AppConfig
 import uk.gov.hmrc.exports.movements.migrations.changelogs.movementNotifications.MakeParsedDataOptional
-import uk.gov.hmrc.exports.movements.routines.{Routine, RoutinesExecutionContext}
+import uk.gov.hmrc.exports.movements.migrations.{ExportsMigrationTool, LockManagerConfig, MigrationsRegistry}
 
 import scala.concurrent.Future
 

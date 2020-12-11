@@ -16,27 +16,21 @@
 
 package uk.gov.hmrc.exports.movements.routines
 
-import akka.actor.{ActorSystem, Cancellable}
 import javax.inject.{Inject, Singleton}
-import play.api.inject.ApplicationLifecycle
+import play.api.Logger
+import uk.gov.hmrc.exports.movements.services.NotificationService
 
 import scala.concurrent.Future
-import scala.concurrent.duration._
 
 @Singleton
-class RoutineRunner @Inject()(
-  actorSystem: ActorSystem,
-  applicationLifecycle: ApplicationLifecycle,
-  migrationRoutine: MigrationRoutine,
-  notificationsParsingRoutine: NotificationsParsingRoutine
-)(implicit mec: RoutinesExecutionContext) {
+class NotificationsParsingRoutine @Inject()(sotificationService: NotificationService)(implicit rec: RoutinesExecutionContext) extends Routine {
 
-  val routines: Cancellable = actorSystem.scheduler.scheduleOnce(0.seconds) {
-    for {
-      _ <- migrationRoutine.execute()
-      _ <- notificationsParsingRoutine.execute()
-    } yield ()
+  private val logger = Logger(this.getClass)
+
+  override def execute(): Future[Unit] = {
+    logger.info("Starting NotificationsParsingRoutine")
+    sotificationService.parseUnparsedNotifications
+      .map(_ => logger.info("Finished NotificationsParsingRoutine"))
   }
 
-  applicationLifecycle.addStopHook(() => Future.successful(routines.cancel()))
 }

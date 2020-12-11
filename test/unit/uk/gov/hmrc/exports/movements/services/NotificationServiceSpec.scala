@@ -23,6 +23,7 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{BeforeAndAfterEach, MustMatchers, WordSpec}
 import org.scalatestplus.mockito.MockitoSugar
 import reactivemongo.api.commands.WriteResult
+import reactivemongo.bson.BSONObjectID
 import testdata.CommonTestData._
 import testdata.MovementsTestData.exampleSubmission
 import testdata.notifications.NotificationTestData._
@@ -55,9 +56,13 @@ class NotificationServiceSpec extends WordSpec with MockitoSugar with ScalaFutur
     super.beforeEach()
     reset(notificationFactory, notificationRepository, submissionRepository)
 
-    when(notificationFactory.buildMovementNotification(anyString, any[NodeSeq])).thenReturn(Notification.empty)
     when(notificationRepository.insert(any())(any())).thenReturn(Future.successful(dummyWriteResultSuccess))
     when(notificationRepository.findByConversationIds(any[Seq[String]])).thenReturn(Future.successful(Seq.empty))
+    when(notificationRepository.findUnparsedNotifications()).thenReturn(Future.successful(Seq.empty))
+    when(notificationRepository.update(any(), any())).thenReturn(Future.successful(None))
+
+    when(notificationFactory.buildMovementNotification(anyString(), any[NodeSeq])).thenReturn(Notification.empty)
+    when(notificationFactory.buildMovementNotification(anyString(), anyString())).thenReturn(Notification.empty)
     when(submissionRepository.findBy(any[SearchParameters])).thenReturn(Future.successful(Seq.empty))
   }
 
@@ -82,8 +87,8 @@ class NotificationServiceSpec extends WordSpec with MockitoSugar with ScalaFutur
         notificationService.save(conversationId, requestBody).futureValue
 
         val inOrder: InOrder = Mockito.inOrder(notificationFactory, notificationRepository)
-        inOrder.verify(notificationFactory, times(1)).buildMovementNotification(any(), any())
-        inOrder.verify(notificationRepository, times(1)).insert(any())(any())
+        inOrder.verify(notificationFactory).buildMovementNotification(any(), any[NodeSeq])
+        inOrder.verify(notificationRepository).insert(any())(any())
       }
 
       "call MovementNotificationFactory once, passing conversationId from headers and request body" in {
@@ -92,7 +97,7 @@ class NotificationServiceSpec extends WordSpec with MockitoSugar with ScalaFutur
 
         val conversationIdCaptor: ArgumentCaptor[String] = ArgumentCaptor.forClass(classOf[String])
         val requestBodyCaptor: ArgumentCaptor[Elem] = ArgumentCaptor.forClass(classOf[Elem])
-        verify(notificationFactory, times(1)).buildMovementNotification(conversationIdCaptor.capture(), requestBodyCaptor.capture())
+        verify(notificationFactory).buildMovementNotification(conversationIdCaptor.capture(), requestBodyCaptor.capture())
 
         conversationIdCaptor.getValue must equal(conversationId)
         Utility.trim(clearNamespaces(requestBodyCaptor.getValue)).toString must equal(
@@ -107,7 +112,7 @@ class NotificationServiceSpec extends WordSpec with MockitoSugar with ScalaFutur
 
         notificationService.save(conversationId, requestBody).futureValue
 
-        verify(notificationRepository, times(1)).insert(meq(notification_1))(any())
+        verify(notificationRepository).insert(meq(notification_1))(any())
       }
     }
 
@@ -115,7 +120,7 @@ class NotificationServiceSpec extends WordSpec with MockitoSugar with ScalaFutur
 
       "return failed Future with the same exception" in {
         val exceptionMsg = "Unknown Inventory Linking Response: UnknownLabel"
-        when(notificationFactory.buildMovementNotification(any(), any())).thenThrow(new IllegalArgumentException(exceptionMsg))
+        when(notificationFactory.buildMovementNotification(any(), any[NodeSeq])).thenThrow(new IllegalArgumentException(exceptionMsg))
 
         val requestBody = NotificationTestData.unknownFormatResponseXML
 
@@ -125,7 +130,7 @@ class NotificationServiceSpec extends WordSpec with MockitoSugar with ScalaFutur
       }
 
       "not call NotificationRepository" in {
-        when(notificationFactory.buildMovementNotification(any(), any()))
+        when(notificationFactory.buildMovementNotification(any(), any[NodeSeq]))
           .thenThrow(new IllegalArgumentException("Unknown Inventory Linking Response: UnknownLabel"))
 
         val requestBody = NotificationTestData.unknownFormatResponseXML
@@ -273,7 +278,7 @@ class NotificationServiceSpec extends WordSpec with MockitoSugar with ScalaFutur
 
         val returnedNotifications = notificationService.getAllNotifications(searchParameters).futureValue
 
-        returnedNotifications must be(empty)
+        returnedNotifications mustBe empty
       }
     }
 
@@ -290,6 +295,152 @@ class NotificationServiceSpec extends WordSpec with MockitoSugar with ScalaFutur
         returnedNotifications mustBe empty
       }
     }
-
   }
+
+  "NotificationService on parseUnparsedNotifications" when {
+
+    "there are no unparsed notifications" should {
+
+      "call NotificationRepository findUnparsedNotifications method" in {
+
+        when(notificationRepository.findUnparsedNotifications()).thenReturn(Future.successful(Seq.empty))
+
+        notificationService.parseUnparsedNotifications.futureValue
+
+        verify(notificationRepository).findUnparsedNotifications()
+      }
+
+      "not call NotificationFactory" in {
+
+        when(notificationRepository.findUnparsedNotifications()).thenReturn(Future.successful(Seq.empty))
+
+        notificationService.parseUnparsedNotifications.futureValue
+
+        verifyNoInteractions(notificationFactory)
+      }
+
+      "not call NotificationRepository update method" in {
+
+        when(notificationRepository.findUnparsedNotifications()).thenReturn(Future.successful(Seq.empty))
+
+        notificationService.parseUnparsedNotifications.futureValue
+
+        verify(notificationRepository, never()).update(any(), any())
+      }
+
+      "return Future with empty Sequence" in {
+
+        when(notificationRepository.findUnparsedNotifications()).thenReturn(Future.successful(Seq.empty))
+
+        val result = notificationService.parseUnparsedNotifications.futureValue
+
+        result mustBe empty
+      }
+    }
+
+    "there is unparsed notification" which {
+
+      val unparsedNotification = notification_1.copy(data = None)
+      val parsedNotification = notification_1
+
+      "cannot be parsed" should {
+
+        "call NotificationRepository findUnparsedNotifications method" in {
+
+          when(notificationRepository.findUnparsedNotifications()).thenReturn(Future.successful(Seq(unparsedNotification)))
+          when(notificationFactory.buildMovementNotification(anyString(), anyString())).thenReturn(unparsedNotification)
+
+          notificationService.parseUnparsedNotifications.futureValue
+
+          verify(notificationRepository).findUnparsedNotifications()
+        }
+
+        "call NotificationFactory" in {
+
+          when(notificationRepository.findUnparsedNotifications()).thenReturn(Future.successful(Seq(unparsedNotification)))
+          when(notificationFactory.buildMovementNotification(anyString(), anyString())).thenReturn(unparsedNotification)
+
+          notificationService.parseUnparsedNotifications.futureValue
+
+          val expectedConversationId = unparsedNotification.conversationId
+          val xmlCaptor: ArgumentCaptor[String] = ArgumentCaptor.forClass(classOf[String])
+          verify(notificationFactory).buildMovementNotification(meq(expectedConversationId), xmlCaptor.capture())
+          xmlCaptor.getValue mustBe unparsedNotification.payload
+        }
+
+        "not call NotificationRepository update method" in {
+
+          when(notificationRepository.findUnparsedNotifications()).thenReturn(Future.successful(Seq(unparsedNotification)))
+          when(notificationFactory.buildMovementNotification(anyString(), anyString())).thenReturn(unparsedNotification)
+
+          notificationService.parseUnparsedNotifications.futureValue
+
+          verify(notificationRepository, never()).update(any(), any())
+        }
+
+        "return Future with empty Sequence" in {
+
+          when(notificationRepository.findUnparsedNotifications()).thenReturn(Future.successful(Seq(unparsedNotification)))
+          when(notificationFactory.buildMovementNotification(anyString(), anyString())).thenReturn(unparsedNotification)
+
+          val result = notificationService.parseUnparsedNotifications.futureValue
+
+          result mustBe empty
+        }
+      }
+
+      "can be parsed" should {
+
+        "call NotificationRepository findUnparsedNotifications method" in {
+
+          when(notificationRepository.findUnparsedNotifications()).thenReturn(Future.successful(Seq(unparsedNotification)))
+          when(notificationFactory.buildMovementNotification(anyString(), anyString())).thenReturn(parsedNotification)
+          when(notificationRepository.update(any[BSONObjectID], any[Notification])).thenReturn(Future.successful(Some(parsedNotification)))
+
+          notificationService.parseUnparsedNotifications.futureValue
+
+          verify(notificationRepository).findUnparsedNotifications()
+        }
+
+        "call NotificationFactory" in {
+
+          when(notificationRepository.findUnparsedNotifications()).thenReturn(Future.successful(Seq(unparsedNotification)))
+          when(notificationFactory.buildMovementNotification(anyString(), anyString())).thenReturn(parsedNotification)
+          when(notificationRepository.update(any[BSONObjectID], any[Notification])).thenReturn(Future.successful(Some(parsedNotification)))
+
+          notificationService.parseUnparsedNotifications.futureValue
+
+          val expectedConversationId = unparsedNotification.conversationId
+          val xmlCaptor: ArgumentCaptor[String] = ArgumentCaptor.forClass(classOf[String])
+          verify(notificationFactory).buildMovementNotification(meq(expectedConversationId), xmlCaptor.capture())
+          xmlCaptor.getValue mustBe unparsedNotification.payload
+        }
+
+        "call NotificationRepository update method" in {
+
+          when(notificationRepository.findUnparsedNotifications()).thenReturn(Future.successful(Seq(unparsedNotification)))
+          when(notificationFactory.buildMovementNotification(anyString(), anyString())).thenReturn(parsedNotification)
+          when(notificationRepository.update(any[BSONObjectID], any[Notification])).thenReturn(Future.successful(Some(parsedNotification)))
+
+          notificationService.parseUnparsedNotifications.futureValue
+
+          val expectedId = parsedNotification._id
+          verify(notificationRepository).update(meq(expectedId), meq(parsedNotification))
+        }
+
+        "return Future with Sequence containing " in {
+
+          when(notificationRepository.findUnparsedNotifications()).thenReturn(Future.successful(Seq(unparsedNotification)))
+          when(notificationFactory.buildMovementNotification(anyString(), anyString())).thenReturn(parsedNotification)
+          when(notificationRepository.update(any[BSONObjectID], any[Notification])).thenReturn(Future.successful(Some(parsedNotification)))
+
+          val result = notificationService.parseUnparsedNotifications.futureValue
+
+          val expectedResult = Seq(Some(parsedNotification))
+          result mustBe expectedResult
+        }
+      }
+    }
+  }
+
 }
