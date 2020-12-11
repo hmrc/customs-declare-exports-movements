@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.exports.movements.migrations
 
-import akka.actor.{ActorSystem, Cancellable}
+import akka.actor.ActorSystem
 import com.google.inject.Singleton
 import com.mongodb.{MongoClient, MongoClientURI}
 import javax.inject.Inject
@@ -24,14 +24,14 @@ import play.api.Logger
 import play.api.inject.ApplicationLifecycle
 import uk.gov.hmrc.exports.movements.config.AppConfig
 import uk.gov.hmrc.exports.movements.migrations.changelogs.movementNotifications.MakeParsedDataOptional
+import uk.gov.hmrc.exports.movements.routines.{Routine, RoutinesExecutionContext}
 
 import scala.concurrent.Future
-import scala.concurrent.duration._
 
 @Singleton
-class MigrationRunner @Inject()(appConfig: AppConfig, actorSystem: ActorSystem, applicationLifecycle: ApplicationLifecycle)(
-  implicit mec: MigrationExecutionContext
-) {
+class MigrationRoutine @Inject()(appConfig: AppConfig, actorSystem: ActorSystem, applicationLifecycle: ApplicationLifecycle)(
+  implicit rec: RoutinesExecutionContext
+) extends Routine {
 
   private val logger = Logger(this.getClass)
 
@@ -39,11 +39,10 @@ class MigrationRunner @Inject()(appConfig: AppConfig, actorSystem: ActorSystem, 
   private val client = new MongoClient(uri)
   private val db = client.getDatabase(uri.getDatabase)
 
-  val migrationTask: Cancellable = actorSystem.scheduler.scheduleOnce(0.seconds) {
+  override def execute(): Future[Unit] = Future {
     logger.info("Starting migration with ExportsMigrationTool")
     migrateWithExportsMigrationTool()
   }
-  applicationLifecycle.addStopHook(() => Future.successful(migrationTask.cancel()))
 
   private def migrateWithExportsMigrationTool(): Unit = {
     val lockManagerConfig = LockManagerConfig(lockMaxTries = 10, lockMaxWaitMillis = minutesToMillis(5), lockAcquiredForMillis = minutesToMillis(3))
