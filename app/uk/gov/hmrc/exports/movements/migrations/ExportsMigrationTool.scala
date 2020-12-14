@@ -69,6 +69,9 @@ class ExportsMigrationTool(
           }
           logger.warn(lockEx.getMessage)
           logger.warn("ExportsMigrationTool did not acquire process lock. EXITING WITHOUT RUNNING DATA MIGRATION")
+
+        case exc: Throwable =>
+          logger.error("ExportsMigrationTool - error on executing migration", exc)
       } finally {
         lockManager.releaseLockDefault() //we do it anyway, it's idempotent
 
@@ -105,7 +108,7 @@ class ExportsMigrationTool(
       }
 
     } catch {
-      case exc: ExportsMigrationException => logger.error(exc.getMessage)
+      case exc: ExportsMigrationException => logger.error(s"Error while executing '${migrDefinition.migrationInformation}' ${exc.getMessage}")
     }
   }
 
