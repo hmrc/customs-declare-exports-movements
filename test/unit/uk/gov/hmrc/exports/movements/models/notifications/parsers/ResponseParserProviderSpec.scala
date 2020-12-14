@@ -17,9 +17,9 @@
 package unit.uk.gov.hmrc.exports.movements.models.notifications.parsers
 
 import org.scalatest.{MustMatchers, WordSpec}
-import uk.gov.hmrc.exports.movements.models.notifications.parsers._
 import testdata.notifications.NotificationTestData._
 import testdata.notifications._
+import uk.gov.hmrc.exports.movements.models.notifications.parsers._
 
 class ResponseParserProviderSpec extends WordSpec with MustMatchers {
 
@@ -86,66 +86,6 @@ class ResponseParserProviderSpec extends WordSpec with MustMatchers {
         exc.getMessage must include("Unknown Inventory Linking Response: UnknownFormat")
       }
     }
-
-  }
-
-  "ResponseParserFactory on buildResponseParserContext" when {
-
-    "provided with inventoryLinkingMovementResponse" should {
-      "return ResponseParserContext with MovementResponseParser" in new Test {
-        val responseXml = ExampleInventoryLinkingMovementResponse.Correct.AllElements.asXml
-
-        val parserContext = parserFactory.provideResponseParserContext(responseXml)
-
-        parserContext.responseType must equal("inventoryLinkingMovementResponse")
-        parserContext.parser mustBe a[MovementResponseParser]
-      }
-    }
-
-    "provided with inventoryLinkingMovementTotalsResponse" should {
-      "return ResponseParserContext with MovementTotalsResponseParser" in new Test {
-        val responseXml = ExampleInventoryLinkingMovementTotalsResponse.Correct.AllElements.asXml
-
-        val parserContext = parserFactory.provideResponseParserContext(responseXml)
-
-        parserContext.responseType must equal("inventoryLinkingMovementTotalsResponse")
-        parserContext.parser mustBe a[MovementTotalsResponseParser]
-      }
-    }
-
-    "provided with inventoryLinkingControlResponse" should {
-      "return ResponseParserContext with ControlResponseParser" in new Test {
-        val responseXml = ExampleInventoryLinkingControlResponse.Correct.Rejected.asXml
-
-        val parserContext = parserFactory.provideResponseParserContext(responseXml)
-
-        parserContext.responseType must equal("inventoryLinkingControlResponse")
-        parserContext.parser mustBe a[ControlResponseParser]
-      }
-    }
-
-    "provided with inventoryLinkingQueryResponse" should {
-      "return ResponseParserContext with IleQueryResponseParser" in new Test {
-        val responseXml = ExampleInventoryLinkingQueryResponse.Correct.QueriedDucr.asXml
-
-        val parserContext = parserFactory.provideResponseParserContext(responseXml)
-
-        parserContext.responseType must equal("inventoryLinkingQueryResponse")
-        parserContext.parser mustBe a[IleQueryResponseParser]
-      }
-    }
-
-    "provided with unknown XML format" should {
-      "throw an IllegalArgumentException" in new Test {
-        val responseXml = unknownFormatResponseXML
-        val exc = intercept[IllegalArgumentException] {
-          parserFactory.provideResponseParserContext(responseXml)
-        }
-
-        exc.getMessage must include("Unknown Inventory Linking Response: UnknownFormat")
-      }
-    }
-
   }
 
 }

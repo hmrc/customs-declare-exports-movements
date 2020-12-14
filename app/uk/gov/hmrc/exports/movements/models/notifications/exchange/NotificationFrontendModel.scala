@@ -37,13 +37,13 @@ object NotificationFrontendModel {
   implicit val format = Json.format[NotificationFrontendModel]
 
   def apply(notification: Notification): NotificationFrontendModel = notification.data match {
-    case standardNotificationData: StandardNotificationData =>
+    case Some(standardNotificationData: StandardNotificationData) =>
       val mucrEntry = buildMucrEntry(standardNotificationData)
 
       NotificationFrontendModel(
         timestampReceived = notification.timestampReceived,
         conversationId = notification.conversationId,
-        responseType = notification.responseType,
+        responseType = standardNotificationData.responseType,
         entries = mucrEntry.toSeq ++ standardNotificationData.entries,
         crcCode = standardNotificationData.crcCode,
         actionCode = standardNotificationData.actionCode,
@@ -51,7 +51,8 @@ object NotificationFrontendModel {
         messageCode = standardNotificationData.messageCode.getOrElse("")
       )
 
-    case other => throw new IllegalStateException(s"Cannot build NotificationFrontendModel from ${other.typ} type")
+    case Some(other) => throw new IllegalStateException(s"Cannot build NotificationFrontendModel from ${other.typ} type")
+    case other       => throw new IllegalStateException(s"Cannot build NotificationFrontendModel if [data] element is $other")
   }
 
   private def buildMucrEntry(standardNotificationData: StandardNotificationData): Option[Entry] =

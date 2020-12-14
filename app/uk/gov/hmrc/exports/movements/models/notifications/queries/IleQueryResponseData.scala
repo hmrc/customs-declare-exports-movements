@@ -24,7 +24,8 @@ final case class IleQueryResponseData(
   queriedMucr: Option[MucrInfo] = None,
   parentMucr: Option[MucrInfo] = None,
   childDucrs: Seq[DucrInfo] = Seq.empty,
-  childMucrs: Seq[MucrInfo] = Seq.empty
+  childMucrs: Seq[MucrInfo] = Seq.empty,
+  override val responseType: String
 ) extends NotificationData {
   override val typ: NotificationType = NotificationType.QueryResponse
 }

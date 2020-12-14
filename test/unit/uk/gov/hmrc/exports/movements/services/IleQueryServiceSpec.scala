@@ -24,6 +24,10 @@ import org.scalatest.{BeforeAndAfterEach, MustMatchers, WordSpec}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.Helpers._
 import reactivemongo.api.commands.WriteResult
+import testdata.CommonTestData._
+import testdata.IleQueryTestData.ileQueryXml
+import testdata.MovementsTestData.exampleIleQuerySubmission
+import testdata.notifications.NotificationTestData.notificationIleQueryResponse_1
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
 import uk.gov.hmrc.exports.movements.misc.IleQueryTimeoutCalculator
 import uk.gov.hmrc.exports.movements.models.movements.IleQueryRequest
@@ -37,10 +41,6 @@ import uk.gov.hmrc.exports.movements.repositories.{IleQuerySubmissionRepository,
 import uk.gov.hmrc.exports.movements.services.{IleMapper, IleQueryService}
 import uk.gov.hmrc.http.HeaderCarrier
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder.dummyWriteResultSuccess
-import testdata.CommonTestData._
-import testdata.IleQueryTestData.ileQueryXml
-import testdata.MovementsTestData.exampleIleQuerySubmission
-import testdata.notifications.NotificationTestData.notificationIleQueryResponse_1
 
 import scala.concurrent.ExecutionContext.global
 import scala.concurrent.Future
@@ -297,8 +297,8 @@ class IleQueryServiceSpec extends WordSpec with MockitoSugar with MustMatchers w
         val expectedIleQueryResponseExchange = IleQueryResponseExchange(
           timestampReceived = notificationIleQueryResponse_1.timestampReceived,
           conversationId = notificationIleQueryResponse_1.conversationId,
-          responseType = notificationIleQueryResponse_1.responseType,
-          data = SuccessfulResponseExchangeData(IleQueryResponseData())
+          responseType = notificationIleQueryResponse_1.data.get.responseType,
+          data = Some(SuccessfulResponseExchangeData(IleQueryResponseData(responseType = notificationIleQueryResponse_1.data.get.responseType)))
         )
 
         ileQueryResponseExchange mustBe expectedIleQueryResponseExchange

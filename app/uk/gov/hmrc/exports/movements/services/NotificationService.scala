@@ -56,6 +56,9 @@ class NotificationService @Inject()(
   private def getNotifications(conversationIds: Seq[String]): Future[Seq[NotificationFrontendModel]] =
     notificationRepository
       .findByConversationIds(conversationIds)
-      .map(_.filter(notification => notification.data.isInstanceOf[StandardNotificationData]).map(NotificationFrontendModel(_)))
+      .map(
+        _.filter(notification => notification.data.isDefined && notification.data.exists(_.isInstanceOf[StandardNotificationData]))
+          .map(NotificationFrontendModel(_))
+      )
 
 }

@@ -17,12 +17,13 @@
 package uk.gov.hmrc.exports.movements.migrations
 
 import akka.actor.{ActorSystem, Cancellable}
-import com.github.cloudyrock.mongock.{Mongock, MongockBuilder}
 import com.google.inject.Singleton
 import com.mongodb.{MongoClient, MongoClientURI}
 import javax.inject.Inject
+import play.api.Logger
 import play.api.inject.ApplicationLifecycle
 import uk.gov.hmrc.exports.movements.config.AppConfig
+import uk.gov.hmrc.exports.movements.migrations.changelogs.movementNotifications.MakeParsedDataOptional
 
 import scala.concurrent.Future
 import scala.concurrent.duration._
@@ -32,18 +33,21 @@ class MigrationRunner @Inject()(appConfig: AppConfig, actorSystem: ActorSystem, 
   implicit mec: MigrationExecutionContext
 ) {
 
+  private val logger = Logger(this.getClass)
+
   private val uri = new MongoClientURI(appConfig.mongodbUri.replaceAllLiterally("sslEnabled", "ssl"))
   private val client = new MongoClient(uri)
   private val db = client.getDatabase(uri.getDatabase)
 
   val migrationTask: Cancellable = actorSystem.scheduler.scheduleOnce(0.seconds) {
-    migrateWithMongock()
+    logger.info("Starting migration with ExportsMigrationTool")
+    migrateWithExportsMigrationTool()
   }
   applicationLifecycle.addStopHook(() => Future.successful(migrationTask.cancel()))
 
   private def migrateWithExportsMigrationTool(): Unit = {
     val lockManagerConfig = LockManagerConfig(lockMaxTries = 10, lockMaxWaitMillis = minutesToMillis(5), lockAcquiredForMillis = minutesToMillis(3))
-    val migrationsRegistry = MigrationsRegistry()
+    val migrationsRegistry = MigrationsRegistry().register(new MakeParsedDataOptional())
     val migrationTool = ExportsMigrationTool(db, migrationsRegistry, lockManagerConfig)
 
     migrationTool.execute()
@@ -51,18 +55,5 @@ class MigrationRunner @Inject()(appConfig: AppConfig, actorSystem: ActorSystem, 
   }
 
   private def minutesToMillis(minutes: Int): Long = minutes * 60L * 1000L
-
-  private def migrateWithMongock(): Unit = {
-    val lockAcquiredForMinutes = 3
-    val maxWaitingForLockMinutes = 5
-    val maxTries = 10
-
-    val runner: Mongock = new MongockBuilder(client, uri.getDatabase, "uk.gov.hmrc.exports.mongock.changesets")
-      .setLockConfig(lockAcquiredForMinutes, maxWaitingForLockMinutes, maxTries)
-      .build()
-
-    runner.execute()
-    runner.close()
-  }
 
 }

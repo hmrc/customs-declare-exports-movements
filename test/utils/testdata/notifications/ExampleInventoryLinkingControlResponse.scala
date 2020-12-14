@@ -63,6 +63,7 @@ object ExampleInventoryLinkingControlResponse {
           </error>
         </inventoryLinkingControlResponse>,
       asDomainModel = StandardNotificationData(
+        responseType = "inventoryLinkingControlResponse",
         messageCode = Some(MessageCodes.CST),
         actionCode = Some(actionCode_rejected),
         movementReference = Some(movementReference),
@@ -126,6 +127,7 @@ object ExampleInventoryLinkingControlResponse {
           </error>
         </inventoryLinkingControlResponse>,
       asDomainModel = StandardNotificationData(
+        responseType = "inventoryLinkingControlResponse",
         messageCode = Some(MessageCodes.CST),
         actionCode = Some(actionCode_rejected),
         movementReference = Some(movementReference),

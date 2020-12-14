@@ -64,6 +64,7 @@ object ExampleInventoryLinkingMovementTotalsResponse {
           </entry>
         </inventoryLinkingMovementTotalsResponse>,
       asDomainModel = StandardNotificationData(
+        responseType = "inventoryLinkingMovementTotalsResponse",
         messageCode = Some(MessageCodes.ERS),
         crcCode = Some(crcCode_success),
         declarationCount = Some(declarationCount),

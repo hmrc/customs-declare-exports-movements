@@ -26,6 +26,8 @@ import scala.xml.NodeSeq
 
 class MovementTotalsResponseParser @Inject()(commonTypesParser: CommonTypesParser) extends ResponseParser[StandardNotificationData] {
 
+  override val responseTypeIle: String = "inventoryLinkingMovementTotalsResponse"
+
   override def parse(responseXml: NodeSeq): StandardNotificationData = StandardNotificationData(
     messageCode = StringOption((responseXml \ XmlTags.messageCode).text),
     crcCode = StringOption((responseXml \ XmlTags.crc).text),
@@ -36,7 +38,8 @@ class MovementTotalsResponseParser @Inject()(commonTypesParser: CommonTypesParse
     masterRoe = StringOption((responseXml \ XmlTags.masterROE).text),
     masterSoe = StringOption((responseXml \ XmlTags.masterSOE).text),
     masterUcr = StringOption((responseXml \ XmlTags.masterUCR).text),
-    movementReference = StringOption((responseXml \ XmlTags.movementReference).text)
+    movementReference = StringOption((responseXml \ XmlTags.movementReference).text),
+    responseType = responseTypeIle
   )
 
   private def buildEntriesTotalsResponse(xml: NodeSeq): Seq[Entry] = (xml \ XmlTags.entry).map { entry =>

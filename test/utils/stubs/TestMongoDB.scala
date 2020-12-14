@@ -20,7 +20,10 @@ import play.api.Configuration
 
 trait TestMongoDB {
 
-  protected val mongoConfiguration: Configuration =
-    Configuration.from(Map("mongodb.uri" -> "mongodb://localhost:27017/test-customs-declare-exports-movements"))
+  val Port = 27017
+  val DatabaseName = "test-customs-declare-exports-movements"
 
+  val mongoConfiguration: Configuration = Configuration.from(Map("mongodb.uri" -> s"mongodb://localhost:$Port/$DatabaseName"))
 }
+
+object TestMongoDB extends TestMongoDB

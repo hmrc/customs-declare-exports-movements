@@ -58,6 +58,7 @@ object ExampleInventoryLinkingMovementResponse {
           </entryStatus>
         </inventoryLinkingMovementResponse>,
       asDomainModel = StandardNotificationData(
+        responseType = "inventoryLinkingMovementResponse",
         messageCode = Some(MessageCodes.EAL),
         crcCode = Some(crcCode_success),
         goodsArrivalDateTime = Some(Instant.parse("2019-07-12T13:14:54.000Z")),

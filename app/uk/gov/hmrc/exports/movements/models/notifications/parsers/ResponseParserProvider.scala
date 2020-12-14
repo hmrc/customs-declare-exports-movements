@@ -28,27 +28,15 @@ class ResponseParserProvider @Inject()(
   controlResponseParser: ControlResponseParser,
   ileQueryResponseParser: IleQueryResponseParser
 ) {
-
-  private val inventoryLinkingMovementResponseLabel = "inventoryLinkingMovementResponse"
-  private val inventoryLinkingMovementTotalsResponseLabel = "inventoryLinkingMovementTotalsResponse"
-  private val inventoryLinkingControlResponseLabel = "inventoryLinkingControlResponse"
-  private val inventoryLinkingQueryResponseLabel = "inventoryLinkingQueryResponse"
-
-  def provideResponseParserContext(responseXml: NodeSeq): ResponseParserContext[NotificationData] =
-    if (responseXml.nonEmpty)
-      ResponseParserContext(responseXml.head.label, provideResponseParser(responseXml))
-    else
-      throw new IllegalArgumentException(s"Cannot find root element in: $responseXml")
+  private val allParsers = Set(movementResponseParser, movementTotalsResponseParser, controlResponseParser, ileQueryResponseParser)
 
   def provideResponseParser(responseXml: NodeSeq): ResponseParser[NotificationData] =
     if (responseXml.nonEmpty) {
-      responseXml.head.label match {
-        case `inventoryLinkingMovementResponseLabel`       => movementResponseParser
-        case `inventoryLinkingMovementTotalsResponseLabel` => movementTotalsResponseParser
-        case `inventoryLinkingControlResponseLabel`        => controlResponseParser
-        case `inventoryLinkingQueryResponseLabel`          => ileQueryResponseParser
-        case unknownLabel                                  => throw new IllegalArgumentException(s"Unknown Inventory Linking Response: $unknownLabel")
-      }
+      val responseLabel = responseXml.head.label
+      allParsers
+        .find(_.responseTypeIle == responseLabel)
+        .getOrElse(throw new IllegalArgumentException(s"Unknown Inventory Linking Response: $responseLabel"))
+
     } else throw new IllegalArgumentException(s"Cannot find root element in: $responseXml")
 
 }

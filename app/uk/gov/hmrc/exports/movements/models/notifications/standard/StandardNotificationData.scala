@@ -33,7 +33,8 @@ final case class StandardNotificationData(
   masterUcr: Option[String] = None,
   movementReference: Option[String] = None,
   actionCode: Option[String] = None,
-  errorCodes: Seq[String] = Seq.empty
+  errorCodes: Seq[String] = Seq.empty,
+  override val responseType: String
 ) extends NotificationData {
   override val typ: NotificationType = NotificationType.StandardResponse
 }

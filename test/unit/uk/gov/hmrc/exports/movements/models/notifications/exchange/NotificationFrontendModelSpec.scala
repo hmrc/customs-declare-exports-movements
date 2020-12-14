@@ -17,10 +17,10 @@
 package unit.uk.gov.hmrc.exports.movements.models.notifications.exchange
 
 import org.scalatest.{MustMatchers, WordSpec}
-import uk.gov.hmrc.exports.movements.models.notifications.exchange.NotificationFrontendModel
-import uk.gov.hmrc.exports.movements.models.notifications.standard.{Entry, UcrBlock}
 import testdata.CommonTestData.ucr
 import testdata.notifications.NotificationTestData._
+import uk.gov.hmrc.exports.movements.models.notifications.exchange.NotificationFrontendModel
+import uk.gov.hmrc.exports.movements.models.notifications.standard.{Entry, UcrBlock}
 
 class NotificationFrontendModelSpec extends WordSpec with MustMatchers {
 
@@ -42,7 +42,7 @@ class NotificationFrontendModelSpec extends WordSpec with MustMatchers {
         "return NotificationFrontendModel with entry for this DUCR" in {
           val notification =
             notification_1.copy(
-              data = standardNotificationDataArrival.copy(entries = Seq(Entry(ucrBlock = Some(UcrBlock(ucr = ucr, ucrType = "D")))))
+              data = Some(standardNotificationDataArrival.copy(entries = Seq(Entry(ucrBlock = Some(UcrBlock(ucr = ucr, ucrType = "D"))))))
             )
 
           val result = NotificationFrontendModel(notification)
@@ -58,7 +58,9 @@ class NotificationFrontendModelSpec extends WordSpec with MustMatchers {
       "contains only MUCR" should {
         "return NotificationFrontendModel with entry for this MUCR" in {
           val notification =
-            notification_1.copy(data = standardNotificationDataArrival.copy(masterUcr = Some(ucr), masterRoe = Some("ROE"), masterSoe = Some("SOE")))
+            notification_1.copy(
+              data = Some(standardNotificationDataArrival.copy(masterUcr = Some(ucr), masterRoe = Some("ROE"), masterSoe = Some("SOE")))
+            )
 
           val result = NotificationFrontendModel(notification)
 
@@ -76,11 +78,13 @@ class NotificationFrontendModelSpec extends WordSpec with MustMatchers {
       "contains both MUCR and DUCR" should {
         "return NotificationFrontendModel with entries for them" in {
           val notification = notification_1.copy(
-            data = standardNotificationDataArrival.copy(
-              entries = Seq(Entry(ucrBlock = Some(UcrBlock(ucr = ucr, ucrType = "D")))),
-              masterUcr = Some(ucr),
-              masterRoe = Some("ROE"),
-              masterSoe = Some("SOE")
+            data = Some(
+              standardNotificationDataArrival.copy(
+                entries = Seq(Entry(ucrBlock = Some(UcrBlock(ucr = ucr, ucrType = "D")))),
+                masterUcr = Some(ucr),
+                masterRoe = Some("ROE"),
+                masterSoe = Some("SOE")
+              )
             )
           )
 

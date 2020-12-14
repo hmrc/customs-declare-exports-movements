@@ -26,7 +26,7 @@ import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsCo
 import uk.gov.hmrc.exports.movements.metrics.MovementsMetrics
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
 import uk.gov.hmrc.exports.movements.models.notifications._
-import uk.gov.hmrc.exports.movements.models.notifications.parsers.{ResponseParser, ResponseParserContext, ResponseParserProvider}
+import uk.gov.hmrc.exports.movements.models.notifications.parsers.{ResponseParser, ResponseParserProvider}
 import uk.gov.hmrc.exports.movements.models.notifications.standard.StandardNotificationData
 import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, SubmissionRepository}
 import uk.gov.hmrc.exports.movements.services.NotificationService
@@ -99,17 +99,16 @@ object UnitTestMockBuilder extends MockitoSugar {
   def buildResponseParserFactoryMock: ResponseParserProvider = {
     val responseParserFactoryMock = mock[ResponseParserProvider]
 
-    val responseParserMock: ResponseParser[NotificationData] = buildResponseParserMock(StandardNotificationData())
+    val responseParserMock: ResponseParser[NotificationData] = buildResponseParserMock(StandardNotificationData(responseType = "TestResponse"))
     when(responseParserFactoryMock.provideResponseParser(any())).thenReturn(responseParserMock)
-    val responseParserContext = ResponseParserContext("", responseParserMock)
-    when(responseParserFactoryMock.provideResponseParserContext(any())).thenReturn(responseParserContext)
 
     responseParserFactoryMock
   }
 
-  def buildResponseParserMock[T](returnValue: T): ResponseParser[T] = {
+  def buildResponseParserMock[T](returnValue: T, responseTypeIle: String = ""): ResponseParser[T] = {
     val responseParserMock = mock[ResponseParser[T]]
 
+    when(responseParserMock.responseTypeIle).thenReturn(responseTypeIle)
     when(responseParserMock.parse(any())).thenReturn(returnValue)
 
     responseParserMock

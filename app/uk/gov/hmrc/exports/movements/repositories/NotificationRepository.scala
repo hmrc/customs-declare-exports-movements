@@ -20,7 +20,7 @@ import javax.inject.{Inject, Singleton}
 import play.api.libs.json.{JsString, Json}
 import play.modules.reactivemongo.ReactiveMongoComponent
 import reactivemongo.api.indexes.{Index, IndexType}
-import reactivemongo.bson.BSONObjectID
+import reactivemongo.bson.{BSONDocument, BSONNull, BSONObjectID}
 import reactivemongo.play.json.collection.JSONCollection
 import uk.gov.hmrc.exports.movements.models.notifications.Notification
 import uk.gov.hmrc.mongo.ReactiveRepository
@@ -37,7 +37,8 @@ class NotificationRepository @Inject()(mc: ReactiveMongoComponent)(implicit ec: 
 
   override def indexes: Seq[Index] = Seq(
     Index(Seq("dateTimeReceived" -> IndexType.Ascending), name = Some("dateTimeReceivedIdx")),
-    Index(Seq("conversationId" -> IndexType.Ascending), name = Some("conversationIdIdx"))
+    Index(Seq("conversationId" -> IndexType.Ascending), name = Some("conversationIdIdx")),
+    Index(Seq("data" -> IndexType.Ascending), name = Some("dataMissingIdx"), partialFilter = Some(BSONDocument("data" -> BSONNull)))
   )
 
   def findByConversationIds(conversationIds: Seq[String]): Future[Seq[Notification]] =
