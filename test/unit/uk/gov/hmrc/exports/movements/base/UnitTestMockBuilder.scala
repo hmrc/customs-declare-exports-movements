@@ -96,7 +96,7 @@ object UnitTestMockBuilder extends MockitoSugar {
     movementsMetricsMock
   }
 
-  def buildResponseParserFactoryMock: ResponseParserProvider = {
+  def buildResponseParserProviderMock: ResponseParserProvider = {
     val responseParserFactoryMock = mock[ResponseParserProvider]
 
     val responseParserMock: ResponseParser[NotificationData] = buildResponseParserMock(StandardNotificationData(responseType = "TestResponse"))

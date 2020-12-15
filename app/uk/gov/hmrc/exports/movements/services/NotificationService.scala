@@ -18,9 +18,9 @@ package uk.gov.hmrc.exports.movements.services
 
 import javax.inject.{Inject, Singleton}
 import play.api.Logger
-import uk.gov.hmrc.exports.movements.models.notifications.NotificationFactory
 import uk.gov.hmrc.exports.movements.models.notifications.exchange.NotificationFrontendModel
 import uk.gov.hmrc.exports.movements.models.notifications.standard.StandardNotificationData
+import uk.gov.hmrc.exports.movements.models.notifications.{Notification, NotificationFactory}
 import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, SearchParameters, SubmissionRepository}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -35,18 +35,12 @@ class NotificationService @Inject()(
 
   private val logger: Logger = Logger(this.getClass)
 
-  def save(conversationId: String, body: NodeSeq): Future[Unit] =
-    try {
-      val notification = notificationFactory.buildMovementNotification(conversationId, body)
-      logger.info(s"Notification created with conversation-id=[${notification.conversationId}] and payload=[${notification.payload}]")
+  def save(conversationId: String, body: NodeSeq): Future[Unit] = {
+    val notification = notificationFactory.buildMovementNotification(conversationId, body)
+    logger.info(s"Notification created with conversation-id=[${notification.conversationId}] and payload=[${notification.payload}]")
 
-      notificationRepository.insert(notification).map(_ => (): Unit)
-
-    } catch {
-      case exc: IllegalArgumentException =>
-        logger.warn(s"Failed to parse notification with conversation-id=[$conversationId]", exc)
-        Future.successful((): Unit)
-    }
+    notificationRepository.insert(notification).map(_ => (): Unit)
+  }
 
   def getAllNotifications(searchParameters: SearchParameters): Future[Seq[NotificationFrontendModel]] =
     submissionRepository.findBy(searchParameters).flatMap { submissions =>
@@ -60,5 +54,20 @@ class NotificationService @Inject()(
         _.filter(notification => notification.data.isDefined && notification.data.exists(_.isInstanceOf[StandardNotificationData]))
           .map(NotificationFrontendModel(_))
       )
+
+  def parseUnparsedNotifications: Future[Seq[Option[Notification]]] =
+    notificationRepository
+      .findUnparsedNotifications()
+      .flatMap { unparsedNotifications =>
+        logger.info(s"Found ${unparsedNotifications.size} unparsed Notifications. Attempting to parse them.")
+        val parsedNotifications = unparsedNotifications.map { notification =>
+          notificationFactory.buildMovementNotification(notification.conversationId, notification.payload).copy(_id = notification._id)
+        }.filter(_.data.nonEmpty)
+
+        logger.info(s"Updating ${parsedNotifications.size} previously unparsed Notifications.")
+        Future.sequence(parsedNotifications.map { parsedNotification =>
+          notificationRepository.update(parsedNotification._id, parsedNotification)
+        })
+      }
 
 }

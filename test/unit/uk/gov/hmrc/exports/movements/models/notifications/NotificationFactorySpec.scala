@@ -17,8 +17,8 @@
 package unit.uk.gov.hmrc.exports.movements.models.notifications
 
 import org.mockito.ArgumentMatchers.{any, eq => meq}
-import org.mockito.Mockito.{verify, when}
-import org.scalatest.{MustMatchers, WordSpec}
+import org.mockito.Mockito._
+import org.scalatest.{BeforeAndAfterEach, MustMatchers, WordSpec}
 import org.scalatestplus.mockito.MockitoSugar
 import testdata.CommonTestData.conversationId
 import testdata.notifications.NotificationTestData._
@@ -28,62 +28,64 @@ import uk.gov.hmrc.exports.movements.models.notifications.standard.StandardNotif
 import uk.gov.hmrc.exports.movements.models.notifications.{Notification, NotificationData, NotificationFactory}
 import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder
 
-import scala.util.Try
+import scala.util.{Failure, Try}
 import scala.xml.{Node, NodeSeq, Utility, XML}
 
-class NotificationFactorySpec extends WordSpec with MustMatchers with MockitoSugar {
+class NotificationFactorySpec extends WordSpec with MustMatchers with MockitoSugar with BeforeAndAfterEach {
 
-  private val responseTypeTest = "TestResponse"
+  private val responseValidator = UnitTestMockBuilder.buildResponseValidatorMock
+  private val responseParserProvider = UnitTestMockBuilder.buildResponseParserProviderMock
+  private val responseParser: ResponseParser[NotificationData] = mock[ResponseParser[NotificationData]]
 
-  private trait Test {
-    val responseValidatorMock = UnitTestMockBuilder.buildResponseValidatorMock
-    val responseParserFactoryMock = UnitTestMockBuilder.buildResponseParserFactoryMock
+  private val notificationFactory = new NotificationFactory(responseValidator, responseParserProvider)
 
-    when(responseValidatorMock.validate(any[NodeSeq])).thenReturn(Try((): Unit))
-    val responseParserMock: ResponseParser[NotificationData] =
-      UnitTestMockBuilder.buildResponseParserMock(StandardNotificationData(responseType = responseTypeTest), responseTypeIle = responseTypeTest)
-    when(responseParserFactoryMock.provideResponseParser(any())).thenReturn(responseParserMock)
+  override protected def beforeEach(): Unit = {
+    super.beforeEach()
 
-    val notificationFactory = new NotificationFactory(responseValidatorMock, responseParserFactoryMock)
+    reset(responseValidator, responseParserProvider, responseParser)
+    when(responseValidator.validate(any[NodeSeq])).thenReturn(Try((): Unit))
+    when(responseParserProvider.provideResponseParser(any())).thenReturn(responseParser)
+  }
+
+  override protected def afterEach(): Unit = {
+    reset(responseValidator, responseParserProvider, responseParser)
+    super.afterEach()
   }
 
   "MovementNotificationFactory on buildMovementNotification" when {
 
     "everything works correctly" should {
 
-      "call ResponseParserFactory, passing response XML provided" in new Test {
-        val responseXml = ExampleInventoryLinkingControlResponse.Correct.Rejected.asXml
+      val responseXml = ExampleInventoryLinkingControlResponse.Correct.Rejected.asXml
+
+      "call ResponseParserFactory, passing response XML provided" in {
         notificationFactory.buildMovementNotification(conversationId, responseXml)
 
-        verify(responseParserFactoryMock).provideResponseParser(meq(responseXml))
+        verify(responseParserProvider).provideResponseParser(meq(responseXml))
       }
 
-      "call ResponseValidator, passing response XML provided" in new Test {
-        val responseXml = ExampleInventoryLinkingControlResponse.Correct.Rejected.asXml
+      "call ResponseValidator, passing response XML provided" in {
         notificationFactory.buildMovementNotification(conversationId, responseXml)
 
-        verify(responseValidatorMock).validate(meq(responseXml))
+        verify(responseValidator).validate(meq(responseXml))
       }
 
-      "call ResponseParser returned by the ResponseParserFactory, passing response XML provided" in new Test {
-        val responseXml = ExampleInventoryLinkingControlResponse.Correct.Rejected.asXml
+      "call ResponseParser returned by the ResponseParserFactory, passing response XML provided" in {
         notificationFactory.buildMovementNotification(conversationId, responseXml)
 
-        verify(responseParserMock).parse(meq(responseXml))
+        verify(responseParser).parse(meq(responseXml))
       }
 
-      "return Notification containing correct conversationId" in new Test {
-        val responseXml = ExampleInventoryLinkingControlResponse.Correct.Rejected.asXml
+      "return Notification containing correct conversationId" in {
         val resultNotification = notificationFactory.buildMovementNotification(conversationId, responseXml)
 
         resultNotification.conversationId must equal(conversationId)
       }
 
-      "return Notification containing notificationData from ResponseParser" in new Test {
-        val responseXml = ExampleInventoryLinkingControlResponse.Correct.Rejected.asXml
+      "return Notification containing notificationData from ResponseParser" in {
         val expectedNotificationData =
           StandardNotificationData(messageCode = Some("TestMessageCode"), responseType = "inventoryLinkingControlResponse")
-        when(responseParserMock.parse(any())).thenReturn(expectedNotificationData)
+        when(responseParser.parse(any())).thenReturn(expectedNotificationData)
 
         val resultNotification = notificationFactory.buildMovementNotification(conversationId, responseXml)
 
@@ -91,8 +93,7 @@ class NotificationFactorySpec extends WordSpec with MustMatchers with MockitoSug
         resultNotification.data.get must equal(expectedNotificationData)
       }
 
-      "return Notification containing correct payload" in new Test {
-        val responseXml = ExampleInventoryLinkingControlResponse.Correct.Rejected.asXml
+      "return Notification containing correct payload" in {
         val expectedPayload =
           clearNamespaces(Utility.trim(ExampleInventoryLinkingControlResponse.Correct.Rejected.asXml))
 
@@ -104,11 +105,11 @@ class NotificationFactorySpec extends WordSpec with MustMatchers with MockitoSug
 
     "provided with empty Conversation ID" should {
 
-      "create Notification with empty conversationId field" in new Test {
+      "create Notification with empty conversationId field" in {
         val responseTypeTest = "ResponseType"
-        when(responseParserMock.responseTypeIle).thenReturn(responseTypeTest)
+        when(responseParser.responseTypeIle).thenReturn(responseTypeTest)
         val testNotificationData = ExampleInventoryLinkingControlResponse.Correct.Rejected
-        when(responseParserMock.parse(any())).thenReturn(testNotificationData.asDomainModel)
+        when(responseParser.parse(any())).thenReturn(testNotificationData.asDomainModel)
         val responseXml = testNotificationData.asXml
         val expectedNotification =
           Notification(
@@ -125,41 +126,91 @@ class NotificationFactorySpec extends WordSpec with MustMatchers with MockitoSug
       }
     }
 
-    "provided with response not matching schema" should {
+    "provided with response not matching schema (ResponseValidator returns Failure)" should {
 
-      "not throw an Exception" in new Test {
-        val response = ExampleInventoryLinkingControlResponse.Incorrect.DoubleUcrBlock.asXml
+      val responseXml = ExampleInventoryLinkingControlResponse.Incorrect.DoubleUcrBlock.asXml
 
-        noException should be thrownBy notificationFactory.buildMovementNotification(conversationId, response)
+      "not throw an Exception" in {
+        when(responseValidator.validate(any[NodeSeq])).thenReturn(Failure(new Exception("")))
+
+        noException should be thrownBy notificationFactory.buildMovementNotification(conversationId, responseXml)
       }
 
-      "return Notification containing correct conversationId" in new Test {
-        val response = ExampleInventoryLinkingControlResponse.Incorrect.DoubleUcrBlock.asXml
+      "call ResponseValidator, passing response XML provided" in {
+        when(responseValidator.validate(any[NodeSeq])).thenReturn(Failure(new Exception("")))
 
-        val resultNotification = notificationFactory.buildMovementNotification(conversationId, response)
+        notificationFactory.buildMovementNotification(conversationId, responseXml)
+
+        verify(responseValidator).validate(meq(responseXml))
+      }
+
+      "not call ResponseParserProvider" in {
+        when(responseValidator.validate(any[NodeSeq])).thenReturn(Failure(new Exception("")))
+
+        notificationFactory.buildMovementNotification(conversationId, responseXml)
+
+        verifyNoInteractions(responseParserProvider)
+      }
+
+      "return Notification containing correct conversationId" in {
+        when(responseValidator.validate(any[NodeSeq])).thenReturn(Failure(new Exception("")))
+
+        val resultNotification = notificationFactory.buildMovementNotification(conversationId, responseXml)
 
         resultNotification.conversationId must equal(conversationId)
       }
 
-      "return Notification containing notificationData from ResponseParser" in new Test {
-        val response = ExampleInventoryLinkingControlResponse.Incorrect.DoubleUcrBlock.asXml
-        val expectedNotificationData =
-          StandardNotificationData(messageCode = Some("TestMessageCode"), responseType = "inventoryLinkingControlResponse")
-        when(responseParserMock.parse(any())).thenReturn(expectedNotificationData)
+      "return Notification containing correct payload" in {
+        when(responseValidator.validate(any[NodeSeq])).thenReturn(Failure(new Exception("")))
+        val expectedPayload: Node = clearNamespaces(Utility.trim(responseXml))
 
-        val resultNotification = notificationFactory.buildMovementNotification(conversationId, response)
-
-        resultNotification.data mustBe defined
-        resultNotification.data.get must equal(expectedNotificationData)
-      }
-
-      "return Notification containing correct payload" in new Test {
-        val response = ExampleInventoryLinkingControlResponse.Incorrect.DoubleUcrBlock.asXml
-        val expectedPayload: Node = clearNamespaces(Utility.trim(response))
-
-        val resultNotification = notificationFactory.buildMovementNotification(conversationId, response)
+        val resultNotification = notificationFactory.buildMovementNotification(conversationId, responseXml)
 
         clearNamespaces(XML.loadString(resultNotification.payload)) must equal(expectedPayload)
+      }
+
+      "return Notification containing empty notificationData" in {
+        when(responseValidator.validate(any[NodeSeq])).thenReturn(Failure(new Exception("")))
+
+        val resultNotification = notificationFactory.buildMovementNotification(conversationId, responseXml)
+
+        resultNotification.data mustBe empty
+      }
+    }
+
+    "ResponseParserProvider throws Exception" should {
+
+      val responseXml = ExampleInventoryLinkingControlResponse.Incorrect.DoubleUcrBlock.asXml
+
+      "not throw an Exception" in {
+        when(responseParserProvider.provideResponseParser(any())).thenThrow(new IllegalArgumentException("Test Exception"))
+
+        noException should be thrownBy notificationFactory.buildMovementNotification(conversationId, responseXml)
+      }
+
+      "return Notification containing correct conversationId" in {
+        when(responseParserProvider.provideResponseParser(any())).thenThrow(new IllegalArgumentException("Test Exception"))
+
+        val resultNotification = notificationFactory.buildMovementNotification(conversationId, responseXml)
+
+        resultNotification.conversationId must equal(conversationId)
+      }
+
+      "return Notification containing correct payload" in {
+        when(responseParserProvider.provideResponseParser(any())).thenThrow(new IllegalArgumentException("Test Exception"))
+        val expectedPayload: Node = clearNamespaces(Utility.trim(responseXml))
+
+        val resultNotification = notificationFactory.buildMovementNotification(conversationId, responseXml)
+
+        clearNamespaces(XML.loadString(resultNotification.payload)) must equal(expectedPayload)
+      }
+
+      "return Notification containing empty notificationData" in {
+        when(responseParserProvider.provideResponseParser(any())).thenThrow(new IllegalArgumentException("Test Exception"))
+
+        val resultNotification = notificationFactory.buildMovementNotification(conversationId, responseXml)
+
+        resultNotification.data mustBe empty
       }
     }
   }

@@ -17,7 +17,7 @@
 package uk.gov.hmrc.exports.movements.repositories
 
 import javax.inject.{Inject, Singleton}
-import play.api.libs.json.{JsString, Json}
+import play.api.libs.json.{JsNull, JsObject, JsString, Json}
 import play.modules.reactivemongo.ReactiveMongoComponent
 import reactivemongo.api.indexes.{Index, IndexType}
 import reactivemongo.bson.{BSONDocument, BSONNull, BSONObjectID}
@@ -47,4 +47,20 @@ class NotificationRepository @Inject()(mc: ReactiveMongoComponent)(implicit ec: 
       case _   => find("conversationId" -> Json.obj("$in" -> conversationIds.map(JsString)))
     }
 
+  def findUnparsedNotifications(): Future[Seq[Notification]] = find("data" -> JsNull)
+
+  def update(id: BSONObjectID, notification: Notification): Future[Option[Notification]] = {
+    val query = _id(id)
+    val update = Json.toJsObject(notification)
+
+    performUpdate(query, update)
+  }
+
+  private def performUpdate(query: JsObject, update: JsObject): Future[Option[Notification]] =
+    findAndUpdate(query, update, fetchNewObject = true).map { updateResult =>
+      if (updateResult.value.isEmpty) {
+        updateResult.lastError.foreach(_.err.foreach(errorMsg => logger.error(s"Problem during database update: $errorMsg")))
+      }
+      updateResult.result[Notification]
+    }
 }

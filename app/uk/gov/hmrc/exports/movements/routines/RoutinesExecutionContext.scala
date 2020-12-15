@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.exports.movements.migrations
+package uk.gov.hmrc.exports.movements.routines
 
-import play.api.inject._
+import akka.actor.ActorSystem
+import javax.inject.{Inject, Singleton}
+import play.api.libs.concurrent.CustomExecutionContext
 
-class ExportsMigrationModule extends SimpleModule(bind[MigrationRunner].toSelf.eagerly())
+@Singleton
+class RoutinesExecutionContext @Inject()(actorSystem: ActorSystem) extends CustomExecutionContext(actorSystem, "contexts.routines-dispatcher") {}

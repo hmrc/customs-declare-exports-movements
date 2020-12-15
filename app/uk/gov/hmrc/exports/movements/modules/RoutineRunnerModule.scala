@@ -14,25 +14,9 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.exports.movements.models.notifications
+package uk.gov.hmrc.exports.movements.modules
 
-import java.time.Instant
+import play.api.inject._
+import uk.gov.hmrc.exports.movements.routines.RoutineRunner
 
-import play.api.libs.json._
-import reactivemongo.bson.BSONObjectID
-import reactivemongo.play.json.BSONObjectIDFormat
-
-final case class Notification(
-  _id: BSONObjectID = BSONObjectID.generate(),
-  timestampReceived: Instant = Instant.now(),
-  conversationId: String,
-  payload: String,
-  data: Option[NotificationData]
-)
-
-object Notification {
-
-  implicit val format: OFormat[Notification] = Json.format[Notification]
-
-  def empty = Notification(conversationId = "", payload = "", data = None)
-}
+class RoutineRunnerModule extends SimpleModule(bind[RoutineRunner].toSelf.eagerly())
