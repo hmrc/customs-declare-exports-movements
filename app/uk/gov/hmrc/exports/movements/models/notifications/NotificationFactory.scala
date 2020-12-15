@@ -21,33 +21,37 @@ import org.slf4j.MDC
 import play.api.Logger
 import uk.gov.hmrc.exports.movements.models.notifications.parsers.ResponseParserProvider
 
-import scala.util.{Failure, Success}
-import scala.xml.{Elem, NodeSeq, Utility}
+import scala.util.{Failure, Success, Try}
+import scala.xml.{NodeSeq, Utility}
 
 @Singleton
 class NotificationFactory @Inject()(responseValidator: ResponseValidator, responseParserProvider: ResponseParserProvider) {
 
   private val logger = Logger(this.getClass)
 
-  def buildMovementNotification(conversationId: String, xml: String): Notification = {
-    val xmlElem = scala.xml.XML.loadString(xml)
-    buildMovementNotification(conversationId, xmlElem)
-  }
+  def buildMovementNotification(conversationId: String, xml: String): Notification =
+    Try(scala.xml.XML.loadString(xml)) match {
+      case Success(xmlElem) => buildMovementNotification(conversationId, xmlElem)
+      case Failure(exc) =>
+        logWarnings(conversationId, exc)
+        Notification(conversationId = conversationId, payload = xml, data = None)
+    }
 
   def buildMovementNotification(conversationId: String, xml: NodeSeq): Notification =
     responseValidator.validate(xml).map(_ => responseParserProvider.provideResponseParser(xml)) match {
       case Success(parser) =>
         val notificationData = parser.parse(xml)
-
         Notification(conversationId = conversationId, payload = Utility.trim(xml.head).toString, data = Some(notificationData))
 
       case Failure(exc) =>
-        MDC.put("conversationId", conversationId)
-        logger.warn(s"Received Notification for Conversation ID: [$conversationId] does not match the schema${exc.getMessage}")
-        logger.warn(s"There was a problem during parsing notification with conversationId=${conversationId}")
-        MDC.remove("conversationId")
-
+        logWarnings(conversationId, exc)
         Notification(conversationId = conversationId, payload = Utility.trim(xml.head).toString, data = None)
     }
+
+  private def logWarnings(conversationId: String, exc: Throwable): Unit = {
+    MDC.put("conversationId", conversationId)
+    logger.warn(s"There was a problem during parsing notification with conversationId=[$conversationId] : ${exc.getMessage}")
+    MDC.remove("conversationId")
+  }
 
 }
