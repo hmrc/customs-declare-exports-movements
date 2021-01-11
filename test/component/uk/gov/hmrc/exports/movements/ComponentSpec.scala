@@ -56,7 +56,6 @@ abstract class ComponentSpec
   private lazy val submissionRepository: JSONCollection = app.injector.instanceOf[SubmissionRepository].collection
   private lazy val ileQuerySubmissionRepository: JSONCollection = app.injector.instanceOf[IleQuerySubmissionRepository].collection
 
-  override lazy val port = 14681
   override def fakeApplication(): Application =
     new GuiceApplicationBuilder()
       .disable[com.kenshoo.play.metrics.PlayModule]

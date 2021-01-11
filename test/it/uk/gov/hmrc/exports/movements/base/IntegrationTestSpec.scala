@@ -25,7 +25,7 @@ import play.api.inject.guice.GuiceableModule
 import unit.uk.gov.hmrc.exports.movements.base.UnitSpec
 
 object IntegrationTestModule extends AbstractModule {
-  def configure(): Unit = ()
+  override def configure(): Unit = ()
 
   def asGuiceableModule: GuiceableModule = GuiceableModule.guiceable(this)
 }
