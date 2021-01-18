@@ -4,7 +4,7 @@ import sbt._
 
 object AppDependencies {
 
-  private val wireMockVersion = "2.24.1"
+  private val wireMockVersion = "2.27.2"
   private val testScope = "test,it"
 
   val compile = Seq(
