@@ -16,10 +16,11 @@
 
 package uk.gov.hmrc.exports.movements.migrations
 
-import org.scalatest.{MustMatchers, WordSpec}
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
 
-class TimeUtilsSpec extends WordSpec with MustMatchers with MockitoSugar {
+class TimeUtilsSpec extends AnyWordSpec with Matchers with MockitoSugar {
 
   private val timeUtils = new TimeUtils
 

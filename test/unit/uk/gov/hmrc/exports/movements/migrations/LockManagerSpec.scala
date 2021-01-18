@@ -21,13 +21,15 @@ import java.util.Date
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, anyString, eq => meq}
 import org.mockito.Mockito._
-import org.scalatest.{BeforeAndAfterEach, MustMatchers, WordSpec}
+import org.scalatest.BeforeAndAfterEach
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.exports.movements.migrations.LockManager.DefaultKey
 import uk.gov.hmrc.exports.movements.migrations.exceptions.{LockManagerException, LockPersistenceException}
 import uk.gov.hmrc.exports.movements.migrations.repositories.{LockEntry, LockRefreshChecker, LockRepository, LockStatus}
 
-class LockManagerSpec extends WordSpec with MockitoSugar with MustMatchers with BeforeAndAfterEach {
+class LockManagerSpec extends AnyWordSpec with MockitoSugar with Matchers with BeforeAndAfterEach {
 
   private val lockRepository = mock[LockRepository]
   private val lockRefreshChecker = mock[LockRefreshChecker]

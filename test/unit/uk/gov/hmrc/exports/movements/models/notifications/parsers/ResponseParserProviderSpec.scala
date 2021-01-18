@@ -16,12 +16,13 @@
 
 package unit.uk.gov.hmrc.exports.movements.models.notifications.parsers
 
-import org.scalatest.{MustMatchers, WordSpec}
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 import testdata.notifications.NotificationTestData._
 import testdata.notifications._
 import uk.gov.hmrc.exports.movements.models.notifications.parsers._
 
-class ResponseParserProviderSpec extends WordSpec with MustMatchers {
+class ResponseParserProviderSpec extends AnyWordSpec with Matchers {
 
   private trait Test {
     val errorValidator = new ErrorValidator

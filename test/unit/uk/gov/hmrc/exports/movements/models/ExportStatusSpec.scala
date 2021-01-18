@@ -16,12 +16,13 @@
 
 package unit.uk.gov.hmrc.exports.movements.models
 
-import org.scalatest.{MustMatchers, WordSpec}
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 import play.api.libs.json._
 import uk.gov.hmrc.exports.movements.models._
 import uk.gov.hmrc.wco.dec.{Response, ResponseStatus}
 
-class ExportStatusSpec extends WordSpec with MustMatchers {
+class ExportStatusSpec extends AnyWordSpec with Matchers {
 
   "Reads for status" should {
 

@@ -18,7 +18,9 @@ package unit.uk.gov.hmrc.exports.movements.models
 
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
-import org.scalatest.{BeforeAndAfterEach, MustMatchers, WordSpec}
+import org.scalatest.BeforeAndAfterEach
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.exports.movements.models.common.UcrType.{Ducr, Mucr}
 import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
@@ -31,7 +33,7 @@ import testdata.MovementsTestData.{exampleArrivalRequestXML, exampleDepartureReq
 
 import scala.xml.NodeSeq
 
-class SubmissionFactorySpec extends WordSpec with MustMatchers with MockitoSugar with BeforeAndAfterEach {
+class SubmissionFactorySpec extends AnyWordSpec with Matchers with MockitoSugar with BeforeAndAfterEach {
 
   private val ucrBlockBuilder = mock[UcrBlockBuilder]
   private def submissionFactory = new SubmissionFactory(ucrBlockBuilder)

@@ -20,7 +20,9 @@ import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito._
 import org.mockito.{ArgumentCaptor, InOrder, Mockito}
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
-import org.scalatest.{BeforeAndAfterEach, MustMatchers, WordSpec}
+import org.scalatest.BeforeAndAfterEach
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.Helpers._
 import reactivemongo.api.commands.WriteResult
@@ -46,7 +48,7 @@ import scala.concurrent.ExecutionContext.global
 import scala.concurrent.Future
 import scala.xml.NodeSeq
 
-class IleQueryServiceSpec extends WordSpec with MockitoSugar with MustMatchers with ScalaFutures with BeforeAndAfterEach with IntegrationPatience {
+class IleQueryServiceSpec extends AnyWordSpec with MockitoSugar with Matchers with ScalaFutures with BeforeAndAfterEach with IntegrationPatience {
 
   implicit private val hc = mock[HeaderCarrier]
 

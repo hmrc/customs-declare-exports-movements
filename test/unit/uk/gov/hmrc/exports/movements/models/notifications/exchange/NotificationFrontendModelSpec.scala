@@ -16,13 +16,14 @@
 
 package unit.uk.gov.hmrc.exports.movements.models.notifications.exchange
 
-import org.scalatest.{MustMatchers, WordSpec}
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 import testdata.CommonTestData.ucr
 import testdata.notifications.NotificationTestData._
 import uk.gov.hmrc.exports.movements.models.notifications.exchange.NotificationFrontendModel
 import uk.gov.hmrc.exports.movements.models.notifications.standard.{Entry, UcrBlock}
 
-class NotificationFrontendModelSpec extends WordSpec with MustMatchers {
+class NotificationFrontendModelSpec extends AnyWordSpec with Matchers {
 
   "NotificationFrontendModel on apply" when {
 

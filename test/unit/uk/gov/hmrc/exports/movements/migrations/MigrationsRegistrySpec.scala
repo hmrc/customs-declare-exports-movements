@@ -17,10 +17,11 @@
 package uk.gov.hmrc.exports.movements.migrations
 
 import com.mongodb.client.MongoDatabase
-import org.scalatest.{MustMatchers, WordSpec}
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.hmrc.exports.movements.migrations.changelogs.{MigrationDefinition, MigrationInformation}
 
-class MigrationsRegistrySpec extends WordSpec with MustMatchers {
+class MigrationsRegistrySpec extends AnyWordSpec with Matchers {
 
   private def buildMigrationDefinition(migrationInfo: MigrationInformation): MigrationDefinition = new MigrationDefinition {
     override val migrationInformation: MigrationInformation = migrationInfo

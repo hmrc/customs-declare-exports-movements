@@ -21,7 +21,9 @@ import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, anyString}
 import org.mockito.Mockito._
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{BeforeAndAfterEach, MustMatchers, WordSpec}
+import org.scalatest.BeforeAndAfterEach
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.Json
 import play.api.mvc.ControllerComponents
@@ -41,7 +43,7 @@ import testdata.notifications.{ExampleInventoryLinkingControlResponse, ExampleIn
 import scala.concurrent.{ExecutionContext, Future}
 import scala.xml.{Elem, NodeSeq, Utility}
 
-class NotificationControllerSpec extends WordSpec with MustMatchers with MockitoSugar with ScalaFutures with BeforeAndAfterEach with Injector {
+class NotificationControllerSpec extends AnyWordSpec with Matchers with MockitoSugar with ScalaFutures with BeforeAndAfterEach with Injector {
 
   private val headerValidator = mock[HeaderValidator]
   private val notificationService = mock[NotificationService]

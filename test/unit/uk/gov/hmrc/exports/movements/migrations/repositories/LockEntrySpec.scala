@@ -19,11 +19,12 @@ package uk.gov.hmrc.exports.movements.migrations.repositories
 import java.util.Date
 
 import org.bson.Document
-import org.scalatest.{MustMatchers, WordSpec}
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 
 import scala.collection.JavaConverters.mapAsJavaMap
 
-class LockEntrySpec extends WordSpec with MustMatchers {
+class LockEntrySpec extends AnyWordSpec with Matchers {
 
   "LockEntry on buildFullDBObject" should {
 

@@ -19,11 +19,12 @@ package uk.gov.hmrc.exports.movements.migrations.repositories
 import java.util.Date
 
 import org.bson.Document
-import org.scalatest.{MustMatchers, WordSpec}
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 
 import scala.collection.JavaConverters.mapAsJavaMap
 
-class ChangeEntrySpec extends WordSpec with MustMatchers {
+class ChangeEntrySpec extends AnyWordSpec with Matchers {
 
   "ChangeEntry on buildFullDBObject" should {
 

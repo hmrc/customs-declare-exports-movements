@@ -23,11 +23,13 @@ import com.mongodb.client.{FindIterable, MongoCollection, MongoDatabase}
 import org.bson.Document
 import org.mockito.ArgumentMatchers.{any, anyString, eq => meq}
 import org.mockito.Mockito._
-import org.scalatest.{BeforeAndAfterEach, MustMatchers, WordSpec}
+import org.scalatest.BeforeAndAfterEach
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.exports.migrations.repositories.TestObjectsBuilder.buildMongoCursor
 
-class ChangeEntryRepositorySpec extends WordSpec with MockitoSugar with BeforeAndAfterEach with MustMatchers {
+class ChangeEntryRepositorySpec extends AnyWordSpec with MockitoSugar with BeforeAndAfterEach with Matchers {
 
   private val databaseName = "testDatabase"
   private val collectionName = "testCollection"
