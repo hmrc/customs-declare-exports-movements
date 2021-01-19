@@ -16,14 +16,15 @@
 
 package unit.uk.gov.hmrc.exports.movements.models.notifications.parsers
 
-import org.scalatest.{MustMatchers, WordSpec}
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 import testdata.CommonTestData.MessageCodes
 import testdata.notifications.ExampleInventoryLinkingMovementResponse
 import uk.gov.hmrc.exports.movements.models.notifications.NotificationData
 import uk.gov.hmrc.exports.movements.models.notifications.parsers.{CommonTypesParser, MovementResponseParser}
 import uk.gov.hmrc.exports.movements.models.notifications.standard.StandardNotificationData
 
-class MovementResponseParserSpec extends WordSpec with MustMatchers {
+class MovementResponseParserSpec extends AnyWordSpec with Matchers {
 
   private trait Test {
     val commonTypesParser = new CommonTypesParser

@@ -18,7 +18,9 @@ package unit.uk.gov.hmrc.exports.movements.models.notifications
 
 import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito._
-import org.scalatest.{BeforeAndAfterEach, MustMatchers, WordSpec}
+import org.scalatest.BeforeAndAfterEach
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
 import testdata.CommonTestData.conversationId
 import testdata.notifications.NotificationTestData._
@@ -31,7 +33,7 @@ import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder
 import scala.util.{Failure, Try}
 import scala.xml.{Node, NodeSeq, Utility, XML}
 
-class NotificationFactorySpec extends WordSpec with MustMatchers with MockitoSugar with BeforeAndAfterEach {
+class NotificationFactorySpec extends AnyWordSpec with Matchers with MockitoSugar with BeforeAndAfterEach {
 
   private val responseValidator = UnitTestMockBuilder.buildResponseValidatorMock
   private val responseParserProvider = UnitTestMockBuilder.buildResponseParserProviderMock

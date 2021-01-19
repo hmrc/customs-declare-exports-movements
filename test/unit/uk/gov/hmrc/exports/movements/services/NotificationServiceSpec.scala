@@ -20,7 +20,9 @@ import org.mockito.ArgumentMatchers.{any, anyString, eq => meq}
 import org.mockito.Mockito._
 import org.mockito.{ArgumentCaptor, InOrder, Mockito}
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{BeforeAndAfterEach, MustMatchers, WordSpec}
+import org.scalatest.BeforeAndAfterEach
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
 import reactivemongo.api.commands.WriteResult
 import reactivemongo.bson.BSONObjectID
@@ -38,7 +40,7 @@ import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.util.control.NoStackTrace
 import scala.xml.{Elem, NodeSeq, Utility}
 
-class NotificationServiceSpec extends WordSpec with MockitoSugar with ScalaFutures with MustMatchers with BeforeAndAfterEach {
+class NotificationServiceSpec extends AnyWordSpec with MockitoSugar with ScalaFutures with Matchers with BeforeAndAfterEach {
 
   val notificationFactory: NotificationFactory = mock[NotificationFactory]
   val notificationRepository: NotificationRepository = mock[NotificationRepository]

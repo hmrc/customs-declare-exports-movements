@@ -39,21 +39,23 @@ class NotificationSpec extends ComponentSpec {
     Submission(eori = "eori", providerId = Some("pid"), conversationId = "conversation-id", ucrBlocks = Seq.empty, actionType = MovementType.Arrival)
   private val notification = Notification(
     conversationId = "conversation-id",
-    responseType = "response-type",
     payload = "",
-    data = StandardNotificationData(
-      messageCode = Some("message-code"),
-      crcCode = Some("crc-code"),
-      declarationCount = Some(1),
-      entries = Seq(Entry(Some(UcrBlock(ucr = "UCR", ucrType = Mucr.codeValue)))),
-      goodsArrivalDateTime = Some(Instant.parse("2020-03-01T12:45:00.000Z")),
-      goodsLocation = Some("location"),
-      masterRoe = Some("master-roe"),
-      masterSoe = Some("master-soe"),
-      masterUcr = Some("master-ucr"),
-      movementReference = Some("movement-ref"),
-      actionCode = Some("action-code"),
-      errorCodes = Seq("error-code")
+    data = Some(
+      StandardNotificationData(
+        messageCode = Some("message-code"),
+        crcCode = Some("crc-code"),
+        declarationCount = Some(1),
+        entries = Seq(Entry(Some(UcrBlock(ucr = "UCR", ucrType = Mucr.codeValue)))),
+        goodsArrivalDateTime = Some(Instant.parse("2020-03-01T12:45:00.000Z")),
+        goodsLocation = Some("location"),
+        masterRoe = Some("master-roe"),
+        masterSoe = Some("master-soe"),
+        masterUcr = Some("master-ucr"),
+        movementReference = Some("movement-ref"),
+        actionCode = Some("action-code"),
+        errorCodes = Seq("error-code"),
+        responseType = "response-type"
+      )
     ),
     timestampReceived = currentInstant
   )
@@ -108,13 +110,15 @@ class NotificationSpec extends ComponentSpec {
         val notifications = theNotificationsFor("conversation-id")
         notifications.size mustBe 1
         notifications.head.conversationId mustBe "conversation-id"
-        notifications.head.responseType mustBe "inventoryLinkingControlResponse"
-        notifications.head.data mustBe StandardNotificationData(
-          messageCode = Some("CST"),
-          entries = Seq(Entry(ucrBlock = Some(UcrBlock(ucr = "UCR", ucrType = Mucr.codeValue)))),
-          movementReference = Some("Reference"),
-          actionCode = Some("3"),
-          errorCodes = Seq("22")
+        notifications.head.data mustBe Some(
+          StandardNotificationData(
+            messageCode = Some("CST"),
+            entries = Seq(Entry(ucrBlock = Some(UcrBlock(ucr = "UCR", ucrType = Mucr.codeValue)))),
+            movementReference = Some("Reference"),
+            actionCode = Some("3"),
+            errorCodes = Seq("22"),
+            responseType = "inventoryLinkingControlResponse"
+          )
         )
       }
 
@@ -158,7 +162,6 @@ class NotificationSpec extends ComponentSpec {
         val notifications = theNotificationsFor("conversation-id")
         notifications.size mustBe 1
         notifications.head.conversationId mustBe "conversation-id"
-        notifications.head.responseType mustBe "inventoryLinkingQueryResponse"
         notifications.head.data mustBe IleQueryResponseData(
           queriedDucr = Some(
             DucrInfo(
@@ -176,7 +179,8 @@ class NotificationSpec extends ComponentSpec {
               ),
               goodsItem = Seq(GoodsItemInfo(totalPackages = Some(10)))
             )
-          )
+          ),
+          responseType = "inventoryLinkingControlResponse"
         )
       }
     }

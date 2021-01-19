@@ -20,7 +20,8 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito
 import org.mockito.Mockito.when
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{MustMatchers, WordSpec}
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
@@ -34,7 +35,7 @@ import uk.gov.hmrc.exports.movements.services.SubmissionService
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class SubmissionControllerSpec extends WordSpec with MustMatchers with MockitoSugar with ScalaFutures {
+class SubmissionControllerSpec extends AnyWordSpec with Matchers with MockitoSugar with ScalaFutures {
 
   private val requestGet = FakeRequest(GET, "").withHeaders(validHeaders.toSeq: _*)
 

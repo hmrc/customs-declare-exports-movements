@@ -16,13 +16,14 @@
 
 package unit.uk.gov.hmrc.exports.movements.models.submissions
 
-import org.scalatest.{MustMatchers, WordSpec}
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 import play.api.libs.json.{JsError, JsString}
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType.ConsolidationType._
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType.MovementType._
 
-class ActionTypeSpec extends WordSpec with MustMatchers {
+class ActionTypeSpec extends AnyWordSpec with Matchers {
 
   "ActionType" should {
 

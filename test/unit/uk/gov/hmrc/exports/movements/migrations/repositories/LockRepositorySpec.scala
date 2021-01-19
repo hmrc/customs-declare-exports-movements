@@ -31,7 +31,9 @@ import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, anyString, eq => meq}
 import org.mockito.Mockito._
 import org.mongodb.scala.bson.BsonString
-import org.scalatest.{BeforeAndAfterEach, MustMatchers, WordSpec}
+import org.scalatest.BeforeAndAfterEach
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.exports.migrations.repositories.TestObjectsBuilder.buildMongoCursor
 import uk.gov.hmrc.exports.movements.migrations.exceptions.LockPersistenceException
@@ -39,7 +41,7 @@ import uk.gov.hmrc.exports.movements.migrations.repositories.LockEntry._
 
 import scala.collection.JavaConverters.mapAsJavaMap
 
-class LockRepositorySpec extends WordSpec with MockitoSugar with BeforeAndAfterEach with MustMatchers {
+class LockRepositorySpec extends AnyWordSpec with MockitoSugar with BeforeAndAfterEach with Matchers {
 
   private val databaseName = "testDatabase"
   private val collectionName = "testCollection"

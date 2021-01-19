@@ -21,13 +21,15 @@ import java.time.{Clock, Duration, Instant, ZoneOffset}
 import java.util.concurrent.TimeUnit
 
 import org.mockito.Mockito.{reset, times, verify, when}
-import org.scalatest.{BeforeAndAfterEach, MustMatchers, WordSpec}
+import org.scalatest.BeforeAndAfterEach
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.exports.movements.config.AppConfig
 import uk.gov.hmrc.exports.movements.misc.IleQueryTimeoutCalculator
 import testdata.MovementsTestData.{dateTimeString, exampleIleQuerySubmission}
 
-class IleQueryTimeoutCalculatorSpec extends WordSpec with MustMatchers with MockitoSugar with BeforeAndAfterEach {
+class IleQueryTimeoutCalculatorSpec extends AnyWordSpec with Matchers with MockitoSugar with BeforeAndAfterEach {
 
   private val appConfig = mock[AppConfig]
   private val clock = Clock.fixed(Instant.parse(dateTimeString), ZoneOffset.UTC)

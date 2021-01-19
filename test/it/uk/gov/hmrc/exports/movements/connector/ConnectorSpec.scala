@@ -20,7 +20,9 @@ import java.time.{Clock, Instant, ZoneOffset}
 
 import com.codahale.metrics.SharedMetricRegistries
 import connector.WiremockTestServer
-import org.scalatest.{BeforeAndAfterEach, MustMatchers, WordSpec}
+import org.scalatest.BeforeAndAfterEach
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
@@ -32,7 +34,7 @@ import testdata.MovementsTestData.dateTimeString
 
 import scala.concurrent.ExecutionContext
 
-class ConnectorSpec extends WordSpec with GuiceOneAppPerSuite with WiremockTestServer with MustMatchers with MockitoSugar with BeforeAndAfterEach {
+class ConnectorSpec extends AnyWordSpec with GuiceOneAppPerSuite with WiremockTestServer with Matchers with MockitoSugar with BeforeAndAfterEach {
 
   private val clock = Clock.fixed(Instant.parse(dateTimeString), ZoneOffset.UTC)
 

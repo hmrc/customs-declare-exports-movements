@@ -20,7 +20,9 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.time.{Millis, Seconds, Span}
-import org.scalatest.{BeforeAndAfterEach, MustMatchers, WordSpec}
+import org.scalatest.BeforeAndAfterEach
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.Json
 import play.api.test.Helpers._
@@ -39,7 +41,7 @@ import testdata.notifications.NotificationTestData.{notificationIleQueryResponse
 import scala.concurrent.ExecutionContext.global
 import scala.concurrent.Future
 
-class IleQueryControllerSpec extends WordSpec with MustMatchers with MockitoSugar with ScalaFutures with BeforeAndAfterEach {
+class IleQueryControllerSpec extends AnyWordSpec with Matchers with MockitoSugar with ScalaFutures with BeforeAndAfterEach {
 
   private val ileQueryService = mock[IleQueryService]
   private val controller = new IleQueryController(ileQueryService, stubControllerComponents())(global)

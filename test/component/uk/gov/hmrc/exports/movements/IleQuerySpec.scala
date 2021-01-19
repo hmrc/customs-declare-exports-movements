@@ -44,46 +44,49 @@ class IleQuerySpec extends ComponentSpec {
   )
 
   private val ileQueryResponse = Notification(
-    conversationId = "conversation-id",
-    responseType = "response-type",
-    payload = "",
     timestampReceived = currentInstant,
-    data = IleQueryResponseData(
-      queriedDucr = Some(
-        DucrInfo(
-          ucr = "UCR-123",
-          parentMucr = Some("parent-mucr"),
-          declarationId = "declaration-id",
-          entryStatus = Some(EntryStatus(ics = Some("3"), roe = Some("6"), soe = Some("14"))),
-          goodsItem = Seq(GoodsItemInfo(totalPackages = Some(13))),
-          movements = Seq(
-            MovementInfo(
-              messageCode = "message-code",
-              goodsLocation = "goods-location",
-              movementDateTime = Some(Instant.parse("2019-12-23T11:40:00.000Z")),
-              movementReference = Some("movement-reference"),
-              transportDetails =
-                Some(Transport(modeOfTransport = Some("mode"), nationality = Some("nationality"), transportId = Some("transport-id")))
+    conversationId = "conversation-id",
+    payload = "",
+    data = Some(
+      IleQueryResponseData(
+        queriedDucr = Some(
+          DucrInfo(
+            ucr = "UCR-123",
+            parentMucr = Some("parent-mucr"),
+            declarationId = "declaration-id",
+            entryStatus = Some(EntryStatus(ics = Some("3"), roe = Some("6"), soe = Some("14"))),
+            goodsItem = Seq(GoodsItemInfo(totalPackages = Some(13))),
+            movements = Seq(
+              MovementInfo(
+                messageCode = "message-code",
+                goodsLocation = "goods-location",
+                movementDateTime = Some(Instant.parse("2019-12-23T11:40:00.000Z")),
+                movementReference = Some("movement-reference"),
+                transportDetails =
+                  Some(Transport(modeOfTransport = Some("mode"), nationality = Some("nationality"), transportId = Some("transport-id")))
+              )
             )
           )
-        )
-      ),
-      parentMucr = Some(
-        MucrInfo(
-          ucr = "parent-mucr",
-          entryStatus = Some(EntryStatus(ics = Some("3"), roe = Some("H"), soe = Some("17"))),
-          isShut = Some(true),
-          movements = Seq(
-            MovementInfo(
-              messageCode = "message-code-mucr",
-              goodsLocation = "goods-location-mucr",
-              movementDateTime = Some(Instant.parse("2019-12-23T12:30:00.000Z")),
-              movementReference = Some("movement-reference-mucr"),
-              transportDetails =
-                Some(Transport(modeOfTransport = Some("mode-mucr"), nationality = Some("nationality-mucr"), transportId = Some("transport-id-mucr")))
+        ),
+        parentMucr = Some(
+          MucrInfo(
+            ucr = "parent-mucr",
+            entryStatus = Some(EntryStatus(ics = Some("3"), roe = Some("H"), soe = Some("17"))),
+            isShut = Some(true),
+            movements = Seq(
+              MovementInfo(
+                messageCode = "message-code-mucr",
+                goodsLocation = "goods-location-mucr",
+                movementDateTime = Some(Instant.parse("2019-12-23T12:30:00.000Z")),
+                movementReference = Some("movement-reference-mucr"),
+                transportDetails = Some(
+                  Transport(modeOfTransport = Some("mode-mucr"), nationality = Some("nationality-mucr"), transportId = Some("transport-id-mucr"))
+                )
+              )
             )
           )
-        )
+        ),
+        responseType = "response-type"
       )
     )
   )

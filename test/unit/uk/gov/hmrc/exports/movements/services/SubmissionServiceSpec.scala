@@ -20,7 +20,9 @@ import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito.{verify, when}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.time.{Millis, Seconds, Span}
-import org.scalatest.{MustMatchers, OptionValues, WordSpec}
+import org.scalatest.OptionValues
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.Helpers._
 import uk.gov.hmrc.exports.movements.exceptions.CustomsInventoryLinkingUpstreamException
@@ -39,7 +41,7 @@ import testdata.MovementsTestData._
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class SubmissionServiceSpec extends WordSpec with MockitoSugar with ScalaFutures with MustMatchers with OptionValues {
+class SubmissionServiceSpec extends AnyWordSpec with MockitoSugar with ScalaFutures with Matchers with OptionValues {
 
   implicit val defaultPatience: PatienceConfig =
     PatienceConfig(timeout = Span(5, Seconds), interval = Span(10, Millis))

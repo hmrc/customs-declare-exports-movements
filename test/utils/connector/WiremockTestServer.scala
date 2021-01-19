@@ -19,9 +19,10 @@ package connector
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.{MappingBuilder, WireMock}
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
-import org.scalatest.{BeforeAndAfterEach, WordSpec}
+import org.scalatest.BeforeAndAfterEach
+import org.scalatest.wordspec.AnyWordSpec
 
-trait WiremockTestServer extends WordSpec with BeforeAndAfterEach {
+trait WiremockTestServer extends AnyWordSpec with BeforeAndAfterEach {
 
   val wireHost = "localhost"
   val mongoDBUri = "mongodb://localhost:27017/customs-declare-exports-movements"

@@ -19,7 +19,9 @@ package component.uk.gov.hmrc.exports.movements
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder
 import org.scalatest.concurrent.Eventually
-import org.scalatest.{BeforeAndAfterEach, MustMatchers, WordSpec}
+import org.scalatest.BeforeAndAfterEach
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -46,7 +48,7 @@ import scala.xml.NodeSeq
  * That way these tests act as a "spec" for our API, and we dont get unintentional API changes as a result of Model/TestData refactors etc.
  */
 abstract class ComponentSpec
-    extends WordSpec with MustMatchers with BeforeAndAfterEach with GuiceOneServerPerSuite with IleApiWiremockTestServer with AuditWiremockTestServer
+    extends AnyWordSpec with Matchers with BeforeAndAfterEach with GuiceOneServerPerSuite with IleApiWiremockTestServer with AuditWiremockTestServer
     with FixedTime with Eventually with TestMongoDB {
 
   /*
@@ -56,7 +58,6 @@ abstract class ComponentSpec
   private lazy val submissionRepository: JSONCollection = app.injector.instanceOf[SubmissionRepository].collection
   private lazy val ileQuerySubmissionRepository: JSONCollection = app.injector.instanceOf[IleQuerySubmissionRepository].collection
 
-  override lazy val port = 14681
   override def fakeApplication(): Application =
     new GuiceApplicationBuilder()
       .disable[com.kenshoo.play.metrics.PlayModule]

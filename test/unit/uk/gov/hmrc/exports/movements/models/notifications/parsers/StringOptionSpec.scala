@@ -16,10 +16,11 @@
 
 package unit.uk.gov.hmrc.exports.movements.models.notifications.parsers
 
-import org.scalatest.{MustMatchers, WordSpec}
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.hmrc.exports.movements.models.notifications.parsers.StringOption
 
-class StringOptionSpec extends WordSpec with MustMatchers {
+class StringOptionSpec extends AnyWordSpec with Matchers {
 
   "StringOption on apply" should {
 

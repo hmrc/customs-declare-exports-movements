@@ -17,7 +17,8 @@
 package unit.uk.gov.hmrc.exports.movements.models.notifications
 
 import com.typesafe.config.ConfigFactory
-import org.scalatest.{MustMatchers, WordSpec}
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 import play.api.Configuration
 import uk.gov.hmrc.exports.movements.config.AppConfig
 import uk.gov.hmrc.exports.movements.models.notifications.ResponseValidator
@@ -29,7 +30,7 @@ import testdata.notifications._
 import scala.util.Success
 import scala.xml.{NodeSeq, SAXParseException}
 
-class ResponseValidatorSpec extends WordSpec with MustMatchers {
+class ResponseValidatorSpec extends AnyWordSpec with Matchers {
 
   private val DefaultConfiguration = Configuration(
     ConfigFactory

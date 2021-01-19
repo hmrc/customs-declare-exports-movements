@@ -22,14 +22,15 @@ import com.mongodb.client.{ListIndexesIterable, MongoCollection, MongoDatabase}
 import org.bson.Document
 import org.mockito.ArgumentMatchers.{any, anyString, eq => meq}
 import org.mockito.Mockito._
-import org.scalatest.{BeforeAndAfterEach, WordSpec}
+import org.scalatest.BeforeAndAfterEach
+import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.Json
 import uk.gov.hmrc.exports.migrations.repositories.TestObjectsBuilder.buildMongoCursor
 
 import scala.collection.JavaConverters._
 
-class MongoRepositorySpec extends WordSpec with MockitoSugar with BeforeAndAfterEach {
+class MongoRepositorySpec extends AnyWordSpec with MockitoSugar with BeforeAndAfterEach {
 
   private val databaseName = "testDatabase"
   private val collectionName = "testCollection"

@@ -18,7 +18,9 @@ package unit.uk.gov.hmrc.exports.movements.controllers
 
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, verify, when}
-import org.scalatest.{BeforeAndAfterEach, MustMatchers, WordSpec}
+import org.scalatest.BeforeAndAfterEach
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.mvc.Request
 import play.api.test.Helpers._
@@ -33,7 +35,7 @@ import testdata.CommonTestData._
 import scala.concurrent.ExecutionContext.global
 import scala.concurrent.Future
 
-class ConsolidationControllerSpec extends WordSpec with BeforeAndAfterEach with MustMatchers with MockitoSugar {
+class ConsolidationControllerSpec extends AnyWordSpec with BeforeAndAfterEach with Matchers with MockitoSugar {
 
   private val submissionService = mock[SubmissionService]
   private val controller = new ConsolidationController(submissionService, stubControllerComponents())(global)

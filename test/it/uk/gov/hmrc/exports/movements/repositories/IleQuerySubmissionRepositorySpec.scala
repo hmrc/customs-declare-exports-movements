@@ -20,7 +20,9 @@ import java.time.{Clock, Instant, ZoneOffset}
 
 import com.codahale.metrics.SharedMetricRegistries
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
-import org.scalatest.{BeforeAndAfterEach, MustMatchers, WordSpec}
+import org.scalatest.BeforeAndAfterEach
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.bind
@@ -33,7 +35,7 @@ import testdata.MovementsTestData.{dateTimeString, exampleIleQuerySubmission}
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class IleQuerySubmissionRepositorySpec
-    extends WordSpec with GuiceOneAppPerSuite with BeforeAndAfterEach with ScalaFutures with MustMatchers with IntegrationPatience with TestMongoDB {
+    extends AnyWordSpec with GuiceOneAppPerSuite with BeforeAndAfterEach with ScalaFutures with Matchers with IntegrationPatience with TestMongoDB {
 
   private val clock = Clock.fixed(Instant.parse(dateTimeString), ZoneOffset.UTC)
 
