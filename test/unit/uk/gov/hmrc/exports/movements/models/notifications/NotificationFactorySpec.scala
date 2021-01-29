@@ -46,7 +46,7 @@ class NotificationFactorySpec extends AnyWordSpec with Matchers with MockitoSuga
 
     reset(responseValidator, responseParserProvider, responseParser)
     when(responseValidator.validate(any[NodeSeq])).thenReturn(Try((): Unit))
-    when(responseParserProvider.provideResponseParser(any())).thenReturn(responseParser)
+    when(responseParserProvider.provideResponseParser(any[NodeSeq])).thenReturn(responseParser)
   }
 
   override protected def afterEach(): Unit = {
@@ -209,6 +209,42 @@ class NotificationFactorySpec extends AnyWordSpec with Matchers with MockitoSuga
 
       "return Notification containing empty notificationData" in {
         when(responseParserProvider.provideResponseParser(any())).thenThrow(new IllegalArgumentException("Test Exception"))
+
+        val resultNotification = notificationFactory.buildMovementNotification(conversationId, responseXml)
+
+        resultNotification.data mustBe empty
+      }
+    }
+
+    "response parser throws Exception" should {
+
+      val responseXml = ExampleInventoryLinkingControlResponse.Correct.AcknowledgedEaaMessageCode.asXml
+
+      "not throw an Exception" in {
+        when(responseParser.parse(any[NodeSeq])).thenThrow(new RuntimeException("Test Exception"))
+
+        noException should be thrownBy notificationFactory.buildMovementNotification(conversationId, responseXml)
+      }
+
+      "return Notification containing correct conversationId" in {
+        when(responseParser.parse(any[NodeSeq])).thenThrow(new RuntimeException("Test Exception"))
+
+        val resultNotification = notificationFactory.buildMovementNotification(conversationId, responseXml)
+
+        resultNotification.conversationId must equal(conversationId)
+      }
+
+      "return Notification containing correct payload" in {
+        when(responseParser.parse(any[NodeSeq])).thenThrow(new RuntimeException("Test Exception"))
+        val expectedPayload: Node = clearNamespaces(Utility.trim(responseXml))
+
+        val resultNotification = notificationFactory.buildMovementNotification(conversationId, responseXml)
+
+        clearNamespaces(XML.loadString(resultNotification.payload)) must equal(expectedPayload)
+      }
+
+      "return Notification containing empty notificationData" in {
+        when(responseParser.parse(any[NodeSeq])).thenThrow(new RuntimeException("Test Exception"))
 
         val resultNotification = notificationFactory.buildMovementNotification(conversationId, responseXml)
 

@@ -136,6 +136,47 @@ object ExampleInventoryLinkingControlResponse {
       )
     )
 
+    lazy val AcknowledgedEaaMessageCode = ExampleStandardResponse(
+      asXml = <inventoryLinkingControlResponse
+      xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
+      xmlns="http://gov.uk/customs/inventoryLinking/v1">
+        <messageCode>{MessageCodes.EAA}</messageCode>
+        <actionCode>{actionCode_acknowledgedAndProcessed}</actionCode>
+        <ucr>
+          <ucr>{ucr}</ucr>
+          <ucrType>M</ucrType>
+        </ucr>
+        <movementReference>{movementReference}</movementReference>
+      </inventoryLinkingControlResponse>,
+      asDomainModel = StandardNotificationData(
+        responseType = "inventoryLinkingControlResponse",
+        messageCode = Some(MessageCodes.EAA),
+        actionCode = Some(actionCode_acknowledgedAndProcessed),
+        movementReference = Some(movementReference),
+        entries = Seq(Entry(ucrBlock = Some(UcrBlock(ucr = ucr, ucrType = "M"))))
+      )
+    )
+
+    lazy val AcknowledgedQueMessageCode = ExampleStandardResponse(
+      asXml = <inventoryLinkingControlResponse
+    xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
+    xmlns="http://gov.uk/customs/inventoryLinking/v1">
+      <messageCode>{MessageCodes.QUE}</messageCode>
+      <actionCode>{actionCode_acknowledgedAndProcessed}</actionCode>
+      <ucr>
+        <ucr>{ucr}</ucr>
+        <ucrType>M</ucrType>
+      </ucr>
+      <movementReference>{movementReference}</movementReference>
+    </inventoryLinkingControlResponse>,
+      asDomainModel = StandardNotificationData(
+        responseType = "inventoryLinkingControlResponse",
+        messageCode = Some(MessageCodes.QUE),
+        actionCode = Some(actionCode_acknowledgedAndProcessed),
+        movementReference = Some(movementReference),
+        entries = Seq(Entry(ucrBlock = Some(UcrBlock(ucr = ucr, ucrType = "M"))))
+      )
+    )
   }
 
   object Incorrect {

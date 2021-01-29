@@ -38,9 +38,8 @@ class NotificationFactory @Inject()(responseValidator: ResponseValidator, respon
     }
 
   def buildMovementNotification(conversationId: String, xml: NodeSeq): Notification =
-    responseValidator.validate(xml).map(_ => responseParserProvider.provideResponseParser(xml)) match {
-      case Success(parser) =>
-        val notificationData = parser.parse(xml)
+    responseValidator.validate(xml).map(_ => responseParserProvider.provideResponseParser(xml)).map(_.parse(xml)) match {
+      case Success(notificationData) =>
         Notification(conversationId = conversationId, payload = Utility.trim(xml.head).toString, data = Some(notificationData))
 
       case Failure(exc) =>
