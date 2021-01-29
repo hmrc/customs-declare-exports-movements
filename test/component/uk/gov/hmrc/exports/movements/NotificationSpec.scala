@@ -77,7 +77,7 @@ class NotificationSpec extends ComponentSpec {
     "messageCode" -> "message-code"
   )
 
-  "POST" should {
+  "POST /customs-declare-exports/notifyMovement" should {
     "return 202" when {
 
       "payload contains ControlResponse" in {
@@ -186,7 +186,7 @@ class NotificationSpec extends ComponentSpec {
     }
   }
 
-  "GET" should {
+  "GET /notifications" should {
     "return 200" when {
       "No filters" in {
         // Given
@@ -229,7 +229,7 @@ class NotificationSpec extends ComponentSpec {
     }
   }
 
-  "GET /id" should {
+  "GET /notifications/:conversationId" should {
     "return 200" when {
       "No filters" in {
         // Given
