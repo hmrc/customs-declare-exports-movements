@@ -26,6 +26,7 @@ object CommonTestData {
 
   object MessageCodes {
     val EAA = "EAA"
+    val QUE = "QUE"
     val EAL = "EAL"
     val RET = "RET"
     val EDL = "EDL"
