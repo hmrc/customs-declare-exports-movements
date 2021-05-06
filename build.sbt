@@ -8,11 +8,6 @@ val appName = "customs-declare-exports-movements"
 
 PlayKeys.devSettings := Seq("play.server.http.port" -> "6797")
 
-lazy val allResolvers = resolvers ++= Seq(
-  Resolver.bintrayRepo("hmrc", "releases"),
-  Resolver.jcenterRepo
-)
-
 lazy val ComponentTest = config("component") extend Test
 lazy val IntegrationTest = config("it") extend Test
 
@@ -38,7 +33,6 @@ lazy val microservice = Project(appName, file("."))
     unitTestSettings,
     integrationTestSettings,
     componentTestSettings,
-    allResolvers,
     scoverageSettings,
     silencerSettings)
   .disablePlugins(JUnitXmlReportPlugin) //Required to prevent https://github.com/scalatest/scalatest/issues/1427
