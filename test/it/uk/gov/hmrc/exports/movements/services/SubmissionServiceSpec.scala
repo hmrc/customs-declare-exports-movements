@@ -68,7 +68,7 @@ class SubmissionServiceSpec
 
   private lazy val movementsService = app.injector.instanceOf[SubmissionService]
 
-  private implicit val hc: HeaderCarrier = HeaderCarrier(extraHeaders = Seq("user-agent" -> "customs-movements-frontend"))
+  private implicit val hc: HeaderCarrier = HeaderCarrier(otherHeaders = Seq("user-agent" -> "customs-movements-frontend"))
 
   def withMovementSubmissionPersisted(result: Boolean): Unit =
     when(submissionRepository.insert(any())(any())).thenReturn(if (result) {
