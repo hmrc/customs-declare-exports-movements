@@ -71,7 +71,7 @@ class AppConfigSpec extends UnitSpec with MockitoSugar {
     "return client ID" when {
       "user agent is present" in {
         val serviceConfig: AppConfig = appConfig(validServicesConfiguration)
-        val hc: HeaderCarrier = HeaderCarrier().withExtraHeaders("User-Agent" -> "some-user-agent")
+        val hc: HeaderCarrier = HeaderCarrier(otherHeaders = Seq("User-Agent" -> "some-user-agent"))
         serviceConfig.clientIdInventory(hc) shouldEqual "some-user-agent-client-id"
       }
 

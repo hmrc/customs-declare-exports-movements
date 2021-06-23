@@ -1,8 +1,7 @@
 import sbt._
 import uk.gov.hmrc.DefaultBuildSettings._
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin.publishingSettings
-import uk.gov.hmrc.versioning.SbtGitVersioning
-import uk.gov.hmrc.{ForkedJvmPerTestSettings, SbtArtifactory, SbtAutoBuildPlugin}
+import uk.gov.hmrc.{ForkedJvmPerTestSettings, SbtAutoBuildPlugin}
 
 val appName = "customs-declare-exports-movements"
 
@@ -16,7 +15,7 @@ lazy val allTest = Seq(testAll := (test in ComponentTest)
   .dependsOn((test in IntegrationTest).dependsOn(test in Test)).value)
 
 lazy val microservice = Project(appName, file("."))
-  .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory)
+  .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtDistributablesPlugin)
   .settings(
     libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test,
     dependencyOverrides ++= AppDependencies.jettyOverrides.toSeq,

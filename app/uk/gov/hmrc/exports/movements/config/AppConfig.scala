@@ -45,8 +45,8 @@ class AppConfig @Inject()(runModeConfiguration: Configuration, servicesConfig: S
   )
 
   def clientIdInventory(implicit hc: HeaderCarrier): String = {
-    val userAgent = hc.headers.find(_._1.toLowerCase() == "user-agent").map(_._2).getOrElse {
-      logger.warn("Request had missing User-Agent header.")
+    val userAgent = hc.headers(Seq("user-agent")).headOption.map(_._2).getOrElse {
+      logger.warn("Request had missing User-Agent header")
       throw MissingClientIDException("User Agent")
     }
     servicesConfig.getConfString(s"customs-inventory-linking-exports.client-id.$userAgent", throw MissingClientIDException(userAgent))
