@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package unit.uk.gov.hmrc.exports.movements.controllers
+package uk.gov.hmrc.exports.movements.controllers
 
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}
@@ -23,13 +23,12 @@ import org.scalatestplus.mockito.MockitoSugar
 import play.api.mvc.Request
 import play.api.test.Helpers._
 import play.api.test._
-import uk.gov.hmrc.exports.movements.controllers.MovementsController
+import stubs.FakeRequestCSRFSupport._
+import testdata.CommonTestData._
+import uk.gov.hmrc.exports.movements.base.UnitSpec
 import uk.gov.hmrc.exports.movements.models.movements.{ConsignmentReference, MovementDetails, MovementsExchange}
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType.MovementType
 import uk.gov.hmrc.exports.movements.services.SubmissionService
-import unit.uk.gov.hmrc.exports.movements.base.UnitSpec
-import stubs.FakeRequestCSRFSupport._
-import testdata.CommonTestData._
 
 import scala.concurrent.ExecutionContext.global
 import scala.concurrent.Future

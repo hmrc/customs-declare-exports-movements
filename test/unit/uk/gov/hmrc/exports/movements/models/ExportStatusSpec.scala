@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package unit.uk.gov.hmrc.exports.movements.models
+package uk.gov.hmrc.exports.movements.models
 
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.libs.json._
-import uk.gov.hmrc.exports.movements.models._
 import uk.gov.hmrc.wco.dec.{Response, ResponseStatus}
 
 class ExportStatusSpec extends AnyWordSpec with Matchers {

@@ -22,7 +22,6 @@ import com.google.inject.AbstractModule
 import org.scalatest._
 import org.scalatest.concurrent.Eventually
 import play.api.inject.guice.GuiceableModule
-import unit.uk.gov.hmrc.exports.movements.base.UnitSpec
 
 object IntegrationTestModule extends AbstractModule {
   override def configure(): Unit = ()

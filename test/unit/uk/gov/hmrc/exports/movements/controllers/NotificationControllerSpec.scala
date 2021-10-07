@@ -14,31 +14,30 @@
  * limitations under the License.
  */
 
-package unit.uk.gov.hmrc.exports.movements.controllers
+package uk.gov.hmrc.exports.movements.controllers
 
-import akka.stream.ActorMaterializer
+import akka.stream.Materializer
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, anyString}
 import org.mockito.Mockito._
-import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.BeforeAndAfterEach
+import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.Json
 import play.api.mvc.ControllerComponents
 import play.api.test.Helpers._
-import uk.gov.hmrc.exports.movements.controllers.NotificationController
+import testdata.CommonTestData._
+import testdata.notifications.NotificationTestData._
+import testdata.notifications.{ExampleInventoryLinkingControlResponse, ExampleInventoryLinkingMovementTotalsResponse}
+import uk.gov.hmrc.exports.movements.base.Injector
+import uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
+import uk.gov.hmrc.exports.movements.controllers.FakeRequestFactory._
 import uk.gov.hmrc.exports.movements.controllers.util.HeaderValidator
 import uk.gov.hmrc.exports.movements.models.notifications.exchange.NotificationFrontendModel
 import uk.gov.hmrc.exports.movements.repositories.SearchParameters
 import uk.gov.hmrc.exports.movements.services.NotificationService
-import unit.uk.gov.hmrc.exports.movements.base.Injector
-import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
-import unit.uk.gov.hmrc.exports.movements.controllers.FakeRequestFactory._
-import testdata.CommonTestData._
-import testdata.notifications.NotificationTestData._
-import testdata.notifications.{ExampleInventoryLinkingControlResponse, ExampleInventoryLinkingMovementTotalsResponse}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.xml.{Elem, NodeSeq, Utility}
@@ -50,7 +49,7 @@ class NotificationControllerSpec extends AnyWordSpec with Matchers with MockitoS
   private val movementsMetrics = buildMovementsMetricsMock
 
   private val controllerComponents: ControllerComponents = instanceOf[ControllerComponents]
-  implicit private val materializer: ActorMaterializer = FakeRequestFactory.materializer
+  implicit private val materializer: Materializer = FakeRequestFactory.materializer
 
   private val controller =
     new NotificationController(headerValidator, movementsMetrics, notificationService, controllerComponents)(ExecutionContext.global)

@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package unit.uk.gov.hmrc.exports.movements.base
+package uk.gov.hmrc.exports.movements.base
 
 import org.scalatest.OptionValues
-import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
 
 trait UnitSpec extends AnyWordSpecLike with Matchers with OptionValues

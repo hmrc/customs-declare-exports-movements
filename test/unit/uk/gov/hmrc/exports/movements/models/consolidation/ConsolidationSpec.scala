@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package unit.uk.gov.hmrc.exports.movements.models.consolidation
+package uk.gov.hmrc.exports.movements.models.consolidation
 
 import play.api.libs.json.{JsObject, JsString, JsSuccess, JsValue}
-import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation._
-import uk.gov.hmrc.exports.movements.models.consolidation._
-import uk.gov.hmrc.exports.movements.models.submissions.ActionType.ConsolidationType._
-import unit.uk.gov.hmrc.exports.movements.base.UnitSpec
 import testdata.CommonTestData._
+import uk.gov.hmrc.exports.movements.base.UnitSpec
+import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation._
+import uk.gov.hmrc.exports.movements.models.submissions.ActionType.ConsolidationType._
 
 class ConsolidationSpec extends UnitSpec {
 

@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package unit.uk.gov.hmrc.exports.movements.models.notifications.exchange
+package uk.gov.hmrc.exports.movements.models.notifications.exchange
 
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import testdata.CommonTestData.ucr
 import testdata.notifications.NotificationTestData._
-import uk.gov.hmrc.exports.movements.models.notifications.exchange.NotificationFrontendModel
 import uk.gov.hmrc.exports.movements.models.notifications.standard.{Entry, UcrBlock}
 
 class NotificationFrontendModelSpec extends AnyWordSpec with Matchers {

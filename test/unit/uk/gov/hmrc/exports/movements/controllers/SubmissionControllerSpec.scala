@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package unit.uk.gov.hmrc.exports.movements.controllers
+package uk.gov.hmrc.exports.movements.controllers
 
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito
@@ -29,7 +29,6 @@ import play.api.test.Helpers._
 import testdata.CommonTestData._
 import testdata.MovementsTestData.exampleSubmission
 import testdata.notifications.NotificationTestData.validHeaders
-import uk.gov.hmrc.exports.movements.controllers.SubmissionController
 import uk.gov.hmrc.exports.movements.repositories.SearchParameters
 import uk.gov.hmrc.exports.movements.services.SubmissionService
 

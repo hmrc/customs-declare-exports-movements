@@ -14,25 +14,23 @@
  * limitations under the License.
  */
 
-package unit.uk.gov.hmrc.exports.movements.services
-
-import java.time.{Clock, Instant, ZoneOffset}
+package uk.gov.hmrc.exports.movements.services
 
 import org.mockito.ArgumentMatchers.{any, anyString}
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
+import testdata.CommonTestData._
+import testdata.ConsolidationTestData._
+import testdata.MovementsTestData._
+import uk.gov.hmrc.exports.movements.base.UnitSpec
 import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation._
 import uk.gov.hmrc.exports.movements.models.movements.ConsignmentReference
 import uk.gov.hmrc.exports.movements.models.notifications.standard
 import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType.ConsolidationType
-import uk.gov.hmrc.exports.movements.services.{IleMapper, UcrBlockBuilder}
-import unit.uk.gov.hmrc.exports.movements.base.UnitSpec
-import testdata.CommonTestData._
-import testdata.ConsolidationTestData._
-import testdata.MovementsTestData._
 
+import java.time.{Clock, Instant, ZoneOffset}
 import scala.xml.NodeSeq
 
 class IleMapperSpec extends UnitSpec with MockitoSugar with BeforeAndAfterEach {
