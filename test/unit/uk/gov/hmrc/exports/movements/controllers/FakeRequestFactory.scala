@@ -17,7 +17,7 @@
 package unit.uk.gov.hmrc.exports.movements.controllers
 
 import akka.actor.ActorSystem
-import akka.stream.ActorMaterializer
+import akka.stream.Materializer
 import play.api.libs.json.Writes
 import play.api.mvc.{AnyContent, AnyContentAsJson, AnyContentAsXml}
 import play.api.test.FakeRequest
@@ -29,7 +29,7 @@ import scala.xml.Elem
 object FakeRequestFactory {
 
   lazy val actorSystem: ActorSystem = ActorSystem()
-  lazy val materializer: ActorMaterializer = ActorMaterializer()(actorSystem)
+  lazy val materializer: Materializer = Materializer(actorSystem)
 
   def getRequest(): FakeRequest[AnyContent] = FakeRequest(GET, "/").withHeaders(validHeaders.toSeq: _*)
 
