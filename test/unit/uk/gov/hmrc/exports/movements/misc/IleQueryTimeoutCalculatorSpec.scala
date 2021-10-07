@@ -14,20 +14,19 @@
  * limitations under the License.
  */
 
-package unit.uk.gov.hmrc.exports.movements.misc
-
-import java.time.temporal.ChronoUnit
-import java.time.{Clock, Duration, Instant, ZoneOffset}
-import java.util.concurrent.TimeUnit
+package uk.gov.hmrc.exports.movements.misc
 
 import org.mockito.Mockito.{reset, times, verify, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
-import uk.gov.hmrc.exports.movements.config.AppConfig
-import uk.gov.hmrc.exports.movements.misc.IleQueryTimeoutCalculator
 import testdata.MovementsTestData.{dateTimeString, exampleIleQuerySubmission}
+import uk.gov.hmrc.exports.movements.config.AppConfig
+
+import java.time.temporal.ChronoUnit
+import java.time.{Clock, Duration, Instant, ZoneOffset}
+import java.util.concurrent.TimeUnit
 
 class IleQueryTimeoutCalculatorSpec extends AnyWordSpec with Matchers with MockitoSugar with BeforeAndAfterEach {
 

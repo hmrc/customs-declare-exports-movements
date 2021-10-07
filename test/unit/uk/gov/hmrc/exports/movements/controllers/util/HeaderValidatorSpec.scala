@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package unit.uk.gov.hmrc.exports.movements.controllers.util
+package uk.gov.hmrc.exports.movements.controllers.util
 
 import org.scalatestplus.mockito.MockitoSugar
-import uk.gov.hmrc.exports.movements.controllers.util.HeaderValidator
-import unit.uk.gov.hmrc.exports.movements.base.UnitSpec
-import testdata.CommonTestData.{conversationId, ValidHeaders}
+import testdata.CommonTestData._
+import uk.gov.hmrc.exports.movements.base.UnitSpec
 
 class HeaderValidatorSpec extends UnitSpec with MockitoSugar {
 

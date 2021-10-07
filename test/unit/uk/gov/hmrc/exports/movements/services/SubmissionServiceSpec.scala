@@ -14,17 +14,21 @@
  * limitations under the License.
  */
 
-package unit.uk.gov.hmrc.exports.movements.services
+package uk.gov.hmrc.exports.movements.services
 
 import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito.{verify, when}
-import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.time.{Millis, Seconds, Span}
 import org.scalatest.OptionValues
+import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers
+import org.scalatest.time.{Millis, Seconds, Span}
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.Helpers._
+import testdata.CommonTestData._
+import testdata.ConsolidationTestData._
+import testdata.MovementsTestData._
+import uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
 import uk.gov.hmrc.exports.movements.exceptions.CustomsInventoryLinkingUpstreamException
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
 import uk.gov.hmrc.exports.movements.models.common.UcrType.Ducr
@@ -32,12 +36,7 @@ import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType.{ConsolidationType, MovementType}
 import uk.gov.hmrc.exports.movements.models.submissions.{Submission, SubmissionFactory}
 import uk.gov.hmrc.exports.movements.repositories.SearchParameters
-import uk.gov.hmrc.exports.movements.services.{IleMapper, SubmissionService}
 import uk.gov.hmrc.http.HeaderCarrier
-import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
-import testdata.CommonTestData._
-import testdata.ConsolidationTestData._
-import testdata.MovementsTestData._
 
 import scala.concurrent.{ExecutionContext, Future}
 

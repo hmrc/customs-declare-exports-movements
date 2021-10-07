@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package unit.uk.gov.hmrc.exports.movements.base
+package uk.gov.hmrc.exports.movements.base
 
 import com.codahale.metrics.Timer
 import org.mockito.ArgumentMatchers.{any, anyString}

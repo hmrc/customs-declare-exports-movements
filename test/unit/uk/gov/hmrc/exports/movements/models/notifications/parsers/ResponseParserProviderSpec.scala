@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package unit.uk.gov.hmrc.exports.movements.models.notifications.parsers
+package uk.gov.hmrc.exports.movements.models.notifications.parsers
 
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import testdata.notifications.NotificationTestData._
 import testdata.notifications._
-import uk.gov.hmrc.exports.movements.models.notifications.parsers._
 
 class ResponseParserProviderSpec extends AnyWordSpec with Matchers {
 

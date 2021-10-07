@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package unit.uk.gov.hmrc.exports.movements.models.notifications
+package uk.gov.hmrc.exports.movements.models.notifications
 
 import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito._
@@ -25,10 +25,9 @@ import org.scalatestplus.mockito.MockitoSugar
 import testdata.CommonTestData.conversationId
 import testdata.notifications.NotificationTestData._
 import testdata.notifications._
+import uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder
 import uk.gov.hmrc.exports.movements.models.notifications.parsers.ResponseParser
 import uk.gov.hmrc.exports.movements.models.notifications.standard.StandardNotificationData
-import uk.gov.hmrc.exports.movements.models.notifications.{Notification, NotificationData, NotificationFactory}
-import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder
 
 import scala.util.{Failure, Try}
 import scala.xml.{Node, NodeSeq, Utility, XML}

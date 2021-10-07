@@ -14,19 +14,21 @@
  * limitations under the License.
  */
 
-package unit.uk.gov.hmrc.exports.movements.controllers
+package uk.gov.hmrc.exports.movements.controllers
 
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
-import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.time.{Millis, Seconds, Span}
 import org.scalatest.BeforeAndAfterEach
+import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers
+import org.scalatest.time.{Millis, Seconds, Span}
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.Json
 import play.api.test.Helpers._
-import uk.gov.hmrc.exports.movements.controllers.IleQueryController
+import testdata.CommonTestData._
+import testdata.notifications.NotificationTestData.{notificationIleQueryResponse_1, notificationIleQueryResponse_2}
+import uk.gov.hmrc.exports.movements.controllers.FakeRequestFactory.{postRequestWithBody, _}
 import uk.gov.hmrc.exports.movements.errors.TimeoutError
 import uk.gov.hmrc.exports.movements.models.common.UcrType.Ducr
 import uk.gov.hmrc.exports.movements.models.movements.IleQueryRequest
@@ -34,9 +36,6 @@ import uk.gov.hmrc.exports.movements.models.notifications.exchange.IleQueryRespo
 import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
 import uk.gov.hmrc.exports.movements.repositories.SearchParameters
 import uk.gov.hmrc.exports.movements.services.IleQueryService
-import unit.uk.gov.hmrc.exports.movements.controllers.FakeRequestFactory.{getRequest, postRequestWithBody}
-import testdata.CommonTestData._
-import testdata.notifications.NotificationTestData.{notificationIleQueryResponse_1, notificationIleQueryResponse_2}
 
 import scala.concurrent.ExecutionContext.global
 import scala.concurrent.Future

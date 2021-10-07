@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 
-package unit.uk.gov.hmrc.exports.movements.models.notifications
+package uk.gov.hmrc.exports.movements.models.notifications
 
 import com.typesafe.config.ConfigFactory
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.Configuration
-import uk.gov.hmrc.exports.movements.config.AppConfig
-import uk.gov.hmrc.exports.movements.models.notifications.ResponseValidator
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import testdata.CommonTestData.MessageCodes
 import testdata.notifications.NotificationTestData._
 import testdata.notifications._
+import uk.gov.hmrc.exports.movements.config.AppConfig
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import scala.util.Success
 import scala.xml.{NodeSeq, SAXParseException}

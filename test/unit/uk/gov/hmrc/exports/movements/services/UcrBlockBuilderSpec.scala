@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-package unit.uk.gov.hmrc.exports.movements.services
+package uk.gov.hmrc.exports.movements.services
 
+import testdata.CommonTestData._
+import testdata.{CommonTestData, ConsolidationTestData}
+import uk.gov.hmrc.exports.movements.base.UnitSpec
 import uk.gov.hmrc.exports.movements.models.common.UcrType._
 import uk.gov.hmrc.exports.movements.models.movements.ConsignmentReference
 import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType.ConsolidationType._
-import uk.gov.hmrc.exports.movements.services.UcrBlockBuilder
-import unit.uk.gov.hmrc.exports.movements.base.UnitSpec
-import unit.uk.gov.hmrc.exports.movements.services.UcrBlockBuilderSpec._
-import testdata.CommonTestData._
-import testdata.{CommonTestData, ConsolidationTestData}
+import uk.gov.hmrc.exports.movements.services.UcrBlockBuilderSpec._
 
 import scala.xml.NodeSeq
 

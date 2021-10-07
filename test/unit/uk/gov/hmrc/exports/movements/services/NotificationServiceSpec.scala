@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package unit.uk.gov.hmrc.exports.movements.services
+package uk.gov.hmrc.exports.movements.services
 
 import org.mockito.ArgumentMatchers.{any, anyString, eq => meq}
 import org.mockito.Mockito._
 import org.mockito.{ArgumentCaptor, InOrder, Mockito}
-import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.BeforeAndAfterEach
+import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
@@ -30,11 +30,10 @@ import testdata.CommonTestData._
 import testdata.MovementsTestData.exampleSubmission
 import testdata.notifications.NotificationTestData._
 import testdata.notifications.{ExampleInventoryLinkingControlResponse, NotificationTestData}
+import uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
 import uk.gov.hmrc.exports.movements.models.notifications.exchange.NotificationFrontendModel
 import uk.gov.hmrc.exports.movements.models.notifications.{Notification, NotificationFactory}
 import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, SearchParameters, SubmissionRepository}
-import uk.gov.hmrc.exports.movements.services.NotificationService
-import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
 
 import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.util.control.NoStackTrace

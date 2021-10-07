@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package unit.uk.gov.hmrc.exports.movements.models.notifications.parsers
+package uk.gov.hmrc.exports.movements.models.notifications.parsers
 
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import testdata.CommonTestData.MessageCodes
 import testdata.notifications.ExampleInventoryLinkingMovementTotalsResponse
 import testdata.notifications.NotificationTestData.goodsLocation
-import uk.gov.hmrc.exports.movements.models.notifications.parsers.{CommonTypesParser, MovementTotalsResponseParser}
 import uk.gov.hmrc.exports.movements.models.notifications.standard.StandardNotificationData
 
 class MovementTotalsResponseParserSpec extends AnyWordSpec with Matchers {

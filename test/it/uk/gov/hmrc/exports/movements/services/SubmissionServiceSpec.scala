@@ -16,8 +16,6 @@
 
 package uk.gov.hmrc.exports.movements.services
 
-import java.time.{Clock, Instant, ZoneOffset}
-
 import com.codahale.metrics.SharedMetricRegistries
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -29,15 +27,16 @@ import play.api.inject.bind
 import play.api.inject.guice.{GuiceApplicationBuilder, GuiceableModule}
 import play.api.test.Helpers._
 import reactivemongo.core.errors.GenericDatabaseException
-import stubs.ExternalServicesConfig.{mongoDBUri, Host, Port}
+import stubs.ExternalServicesConfig._
 import stubs.{CustomsMovementsAPIConfig, CustomsMovementsAPIService}
 import testdata.MovementsTestData._
 import uk.gov.hmrc.exports.movements.base.IntegrationTestSpec
+import uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
 import uk.gov.hmrc.exports.movements.exceptions.CustomsInventoryLinkingUpstreamException
 import uk.gov.hmrc.exports.movements.repositories.SubmissionRepository
 import uk.gov.hmrc.http.HeaderCarrier
-import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder.{buildSubmissionRepositoryMock, dummyWriteResultSuccess}
 
+import java.time.{Clock, Instant, ZoneOffset}
 import scala.concurrent.{Await, Future}
 
 class SubmissionServiceSpec

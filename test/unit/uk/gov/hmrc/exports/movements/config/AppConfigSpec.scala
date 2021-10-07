@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 
-package unit.uk.gov.hmrc.exports.movements.config
-
-import java.time.Duration
-import java.time.temporal.ChronoUnit
+package uk.gov.hmrc.exports.movements.config
 
 import com.typesafe.config.{Config, ConfigFactory}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.Configuration
-import uk.gov.hmrc.exports.movements.config.AppConfig
+import uk.gov.hmrc.exports.movements.base.UnitSpec
 import uk.gov.hmrc.exports.movements.exceptions.MissingClientIDException
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import unit.uk.gov.hmrc.exports.movements.base.UnitSpec
+
+import java.time.Duration
+import java.time.temporal.ChronoUnit
 
 class AppConfigSpec extends UnitSpec with MockitoSugar {
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package unit.uk.gov.hmrc.exports.movements.controllers
+package uk.gov.hmrc.exports.movements.controllers
 
 import play.api.test.{CSRFTokenHelper, FakeRequest}
 

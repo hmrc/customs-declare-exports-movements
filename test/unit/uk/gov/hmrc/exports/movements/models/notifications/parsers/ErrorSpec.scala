@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package unit.uk.gov.hmrc.exports.movements.models.notifications.parsers
+package uk.gov.hmrc.exports.movements.models.notifications.parsers
 
-import uk.gov.hmrc.exports.movements.models.notifications.parsers.Error
-import unit.uk.gov.hmrc.exports.movements.base.UnitSpec
+import uk.gov.hmrc.exports.movements.base.UnitSpec
 
 class ErrorSpec extends UnitSpec {
 

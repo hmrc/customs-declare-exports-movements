@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package unit.uk.gov.hmrc.exports.movements.models
+package uk.gov.hmrc.exports.movements.models
 
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
@@ -22,14 +22,14 @@ import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
+import testdata.CommonTestData.{conversationId, _}
+import testdata.ConsolidationTestData._
+import testdata.MovementsTestData.{exampleArrivalRequestXML, exampleDepartureRequestXML}
 import uk.gov.hmrc.exports.movements.models.common.UcrType.{Ducr, Mucr}
 import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType.{ConsolidationType, MovementType}
 import uk.gov.hmrc.exports.movements.models.submissions.{Submission, SubmissionFactory}
 import uk.gov.hmrc.exports.movements.services.UcrBlockBuilder
-import testdata.CommonTestData.{conversationId, _}
-import testdata.ConsolidationTestData._
-import testdata.MovementsTestData.{exampleArrivalRequestXML, exampleDepartureRequestXML}
 
 import scala.xml.NodeSeq
 

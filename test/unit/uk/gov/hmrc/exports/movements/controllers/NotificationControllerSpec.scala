@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package unit.uk.gov.hmrc.exports.movements.controllers
+package uk.gov.hmrc.exports.movements.controllers
 
 import akka.stream.Materializer
 import org.mockito.ArgumentCaptor
@@ -31,14 +31,13 @@ import play.api.test.Helpers._
 import testdata.CommonTestData._
 import testdata.notifications.NotificationTestData._
 import testdata.notifications.{ExampleInventoryLinkingControlResponse, ExampleInventoryLinkingMovementTotalsResponse}
-import uk.gov.hmrc.exports.movements.controllers.NotificationController
+import uk.gov.hmrc.exports.movements.base.Injector
+import uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
+import uk.gov.hmrc.exports.movements.controllers.FakeRequestFactory._
 import uk.gov.hmrc.exports.movements.controllers.util.HeaderValidator
 import uk.gov.hmrc.exports.movements.models.notifications.exchange.NotificationFrontendModel
 import uk.gov.hmrc.exports.movements.repositories.SearchParameters
 import uk.gov.hmrc.exports.movements.services.NotificationService
-import unit.uk.gov.hmrc.exports.movements.base.Injector
-import unit.uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
-import unit.uk.gov.hmrc.exports.movements.controllers.FakeRequestFactory._
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.xml.{Elem, NodeSeq, Utility}
