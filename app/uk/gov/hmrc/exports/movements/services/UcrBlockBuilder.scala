@@ -26,7 +26,7 @@ import uk.gov.hmrc.exports.movements.models.submissions.ActionType.Consolidation
 
 import scala.xml.NodeSeq
 
-class UcrBlockBuilder {
+object UcrBlockBuilder {
 
   def buildUcrBlock(consignmentReference: ConsignmentReference): UcrBlock =
     if (consignmentReference.is(DucrPart)) {
@@ -43,6 +43,26 @@ class UcrBlockBuilder {
       throw new IllegalArgumentException(s"Unknown ConsignmentReference of type: [${consignmentReference.reference}]")
     }
 
+  def buildUcrBlockNode(consolidationType: ConsolidationType, ucr: String): NodeSeq = consolidationType match {
+    case ShutMucr =>
+      throw new IllegalArgumentException(s"Cannot build UcrBlock instance for request of type: [$consolidationType]")
+    case DucrPartAssociation | DucrPartDisassociation => buildDucrPartUcrBlockNode(consolidationType, ucr)
+    case _                                            => buildCommonUcrBlockNode(consolidationType, ucr)
+  }
+
+  def extractUcrBlocksForSubmissionFrom(nodeSeq: NodeSeq): Seq[UcrBlock] = {
+    val ucrBlocks = (nodeSeq \ XmlTags.ucrBlock).map { node =>
+      val ucr = (node \ XmlTags.ucr).text
+      val ucrPartNo = StringOption((node \ XmlTags.ucrPartNo).text)
+      val ucrType = if (ucrPartNo.exists(_.nonEmpty)) DucrPart.codeValue else (node \ XmlTags.ucrType).text
+      UcrBlock(ucr = ucr, ucrType = ucrType, ucrPartNo = ucrPartNo)
+    }
+
+    val masterUcr = (nodeSeq \ XmlTags.masterUCR).map(node => UcrBlock(ucr = node.text, ucrType = "M"))
+
+    masterUcr ++ ucrBlocks
+  }
+
   private def splitDucrPart(ducrPart: String): (String, String) = {
     val DucrPartNoSeparator = "-"
 
@@ -51,13 +71,6 @@ class UcrBlockBuilder {
     val ducrPartIdWithoutSeparator = ducrPartNo.tail
 
     (ducr, ducrPartIdWithoutSeparator)
-  }
-
-  def buildUcrBlockNode(consolidationType: ConsolidationType, ucr: String): NodeSeq = consolidationType match {
-    case ShutMucr =>
-      throw new IllegalArgumentException(s"Cannot build UcrBlock instance for request of type: [$consolidationType]")
-    case DucrPartAssociation | DucrPartDisassociation => buildDucrPartUcrBlockNode(consolidationType, ucr)
-    case _                                            => buildCommonUcrBlockNode(consolidationType, ucr)
   }
 
   private def buildDucrPartUcrBlockNode(consolidationType: ConsolidationType, ucr: String): NodeSeq = {
@@ -80,18 +93,4 @@ class UcrBlockBuilder {
     case DucrAssociation | DucrDisassociation | DucrPartAssociation | DucrPartDisassociation => "D"
     case MucrAssociation | MucrDisassociation                                                => "M"
   }
-
-  def extractUcrBlocksForSubmissionFrom(nodeSeq: NodeSeq): Seq[UcrBlock] = {
-    val ucrBlocks = (nodeSeq \ XmlTags.ucrBlock).map { node =>
-      val ucr = (node \ XmlTags.ucr).text
-      val ucrPartNo = StringOption((node \ XmlTags.ucrPartNo).text)
-      val ucrType = if (ucrPartNo.exists(_.nonEmpty)) DucrPart.codeValue else (node \ XmlTags.ucrType).text
-      UcrBlock(ucr = ucr, ucrType = ucrType, ucrPartNo = ucrPartNo)
-    }
-
-    val masterUcr = (nodeSeq \ XmlTags.masterUCR).map(node => UcrBlock(ucr = node.text, ucrType = "M"))
-
-    masterUcr ++ ucrBlocks
-  }
-
 }

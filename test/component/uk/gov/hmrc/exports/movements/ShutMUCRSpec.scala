@@ -60,5 +60,4 @@ class ShutMUCRSpec extends ComponentSpec {
       )
     }
   }
-
 }

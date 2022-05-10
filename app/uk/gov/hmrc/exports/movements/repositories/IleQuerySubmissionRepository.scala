@@ -16,42 +16,34 @@
 
 package uk.gov.hmrc.exports.movements.repositories
 
-import javax.inject.{Inject, Singleton}
-import play.api.libs.json.{JsObject, Json}
-import play.modules.reactivemongo.ReactiveMongoComponent
-import reactivemongo.api.Cursor.FailOnError
-import reactivemongo.api.ReadPreference
-import reactivemongo.api.indexes.{Index, IndexType}
-import reactivemongo.bson.BSONObjectID
-import reactivemongo.play.json.ImplicitBSONHandlers
-import reactivemongo.play.json.collection.JSONCollection
+import com.mongodb.client.model.Indexes.ascending
+import org.mongodb.scala.model.{IndexModel, IndexOptions}
 import uk.gov.hmrc.exports.movements.models.submissions.IleQuerySubmission
-import uk.gov.hmrc.mongo.ReactiveRepository
+import uk.gov.hmrc.mongo.MongoComponent
+import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 
-import scala.concurrent.{ExecutionContext, Future}
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.ExecutionContext
+import scala.reflect.ClassTag
 
 @Singleton
-class IleQuerySubmissionRepository @Inject()(implicit mc: ReactiveMongoComponent, ec: ExecutionContext)
-    extends ReactiveRepository[IleQuerySubmission, BSONObjectID]("ileQuerySubmissions", mc.mongoConnector.db, IleQuerySubmission.format) {
+class IleQuerySubmissionRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: ExecutionContext)
+    extends PlayMongoRepository[IleQuerySubmission](
+      mongoComponent = mongoComponent,
+      collectionName = "ileQuerySubmissions",
+      domainFormat = IleQuerySubmission.format,
+      indexes = IleQuerySubmissionRepository.indexes
+    ) with RepositoryOps[IleQuerySubmission] {
 
-  override lazy val collection: JSONCollection =
-    mongo().collection[JSONCollection](collectionName, failoverStrategy = RepositorySettings.failoverStrategy)
+  override def classTag: ClassTag[IleQuerySubmission] = implicitly[ClassTag[IleQuerySubmission]]
+  implicit val executionContext = ec
+}
 
-  override def indexes: Seq[Index] = Seq(
-    Index(Seq("eori" -> IndexType.Ascending), name = Some("eoriIdx")),
-    Index(Seq("providerId" -> IndexType.Ascending), name = Some("providerIdIdx")),
-    Index(Seq("conversationId" -> IndexType.Ascending), unique = true, name = Some("conversationIdIdx"))
+object IleQuerySubmissionRepository {
+
+  val indexes: Seq[IndexModel] = List(
+    IndexModel(ascending("eori"), IndexOptions().name("eoriIdx")),
+    IndexModel(ascending("providerId"), IndexOptions().name("providerIdIdx")),
+    IndexModel(ascending("conversationId"), IndexOptions().name("conversationIdIdx").unique(true))
   )
-
-  def findBy(searchParameters: SearchParameters): Future[Seq[IleQuerySubmission]] =
-    if (searchParameters.isEmpty) Future.successful(Seq.empty) else findSubmissions(searchParameters)
-
-  private def findSubmissions(searchParameters: SearchParameters): Future[Seq[IleQuerySubmission]] = {
-    val query = Json.toJson(searchParameters).as[JsObject]
-    collection
-      .find(query, projection = None)(ImplicitBSONHandlers.JsObjectDocumentWriter, ImplicitBSONHandlers.JsObjectDocumentWriter)
-      .cursor[IleQuerySubmission](ReadPreference.primaryPreferred)
-      .collect(maxDocs = -1, FailOnError[Seq[IleQuerySubmission]]())
-  }
-
 }

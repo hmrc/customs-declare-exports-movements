@@ -16,51 +16,57 @@
 
 package uk.gov.hmrc.exports.movements.repositories
 
-import javax.inject.{Inject, Singleton}
-import play.api.libs.json.{JsNull, JsObject, JsString, Json}
-import play.modules.reactivemongo.ReactiveMongoComponent
-import reactivemongo.api.indexes.{Index, IndexType}
-import reactivemongo.bson.{BSONDocument, BSONNull, BSONObjectID}
-import reactivemongo.play.json.collection.JSONCollection
+import com.mongodb.client.model.Indexes.ascending
+import org.bson.BsonNull
+import org.mongodb.scala.bson.BsonDocument
+import org.mongodb.scala.model.{IndexModel, IndexOptions}
+import play.api.libs.json.{JsString, Json}
 import uk.gov.hmrc.exports.movements.models.notifications.Notification
-import uk.gov.hmrc.mongo.ReactiveRepository
-import uk.gov.hmrc.mongo.json.ReactiveMongoFormats.objectIdFormats
+import uk.gov.hmrc.mongo.MongoComponent
+import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
+import scala.reflect.ClassTag
 
 @Singleton
-class NotificationRepository @Inject()(mc: ReactiveMongoComponent)(implicit ec: ExecutionContext)
-    extends ReactiveRepository[Notification, BSONObjectID]("movementNotifications", mc.mongoConnector.db, Notification.format, objectIdFormats) {
+class NotificationRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: ExecutionContext)
+    extends PlayMongoRepository[Notification](
+      mongoComponent = mongoComponent,
+      collectionName = "movementNotifications",
+      domainFormat = Notification.format,
+      indexes = NotificationRepository.indexes
+    ) with RepositoryOps[Notification] {
 
-  override lazy val collection: JSONCollection =
-    mongo().collection[JSONCollection](collectionName, failoverStrategy = RepositorySettings.failoverStrategy)
-
-  override def indexes: Seq[Index] = Seq(
-    Index(Seq("dateTimeReceived" -> IndexType.Ascending), name = Some("dateTimeReceivedIdx")),
-    Index(Seq("conversationId" -> IndexType.Ascending), name = Some("conversationIdIdx")),
-    Index(Seq("data" -> IndexType.Ascending), name = Some("dataMissingIdx"), partialFilter = Some(BSONDocument("data" -> BSONNull)))
-  )
+  override def classTag: ClassTag[Notification] = implicitly[ClassTag[Notification]]
+  implicit val executionContext = ec
 
   def findByConversationIds(conversationIds: Seq[String]): Future[Seq[Notification]] =
     conversationIds match {
       case Nil => Future.successful(Seq.empty)
-      case _   => find("conversationId" -> Json.obj("$in" -> conversationIds.map(JsString)))
+
+      case _ =>
+        val query = Json.obj("conversationId" -> Json.obj("$in" -> conversationIds.map(JsString)))
+        collection.find(BsonDocument(query.toString)).toFuture
     }
 
-  def findUnparsedNotifications(): Future[Seq[Notification]] = find("data" -> JsNull)
+  def findUnparsedNotifications(): Future[Seq[Notification]] =
+    collection.find(BsonDocument(List("data" -> BsonNull.VALUE))).toFuture
 
-  def update(id: BSONObjectID, notification: Notification): Future[Option[Notification]] = {
-    val query = _id(id)
-    val update = Json.toJsObject(notification)
+  def update(notification: Notification): Future[Option[Notification]] =
+    findOneAndReplaceIfExists("_id", notification._id, notification)
+}
 
-    performUpdate(query, update)
-  }
+object NotificationRepository {
 
-  private def performUpdate(query: JsObject, update: JsObject): Future[Option[Notification]] =
-    findAndUpdate(query, update, fetchNewObject = true).map { updateResult =>
-      if (updateResult.value.isEmpty) {
-        updateResult.lastError.foreach(_.err.foreach(errorMsg => logger.error(s"Problem during database update: $errorMsg")))
-      }
-      updateResult.result[Notification]
-    }
+  val indexes: Seq[IndexModel] = List(
+    IndexModel(ascending("dateTimeReceived"), IndexOptions().name("dateTimeReceivedIdx")),
+    IndexModel(ascending("conversationId"), IndexOptions().name("conversationIdIdx")),
+    IndexModel(
+      ascending("data"),
+      IndexOptions()
+        .name("dataMissingIdx")
+        .partialFilterExpression(BsonDocument("data" -> BsonNull.VALUE))
+    )
+  )
 }

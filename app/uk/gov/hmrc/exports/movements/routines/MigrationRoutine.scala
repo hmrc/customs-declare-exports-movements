@@ -16,36 +16,42 @@
 
 package uk.gov.hmrc.exports.movements.routines
 
-import akka.actor.ActorSystem
 import com.google.inject.Singleton
-import com.mongodb.{MongoClient, MongoClientURI}
-import javax.inject.Inject
-import play.api.Logger
-import play.api.inject.ApplicationLifecycle
+import com.mongodb.client.{MongoClient, MongoClients}
+import play.api.Logging
 import uk.gov.hmrc.exports.movements.config.AppConfig
 import uk.gov.hmrc.exports.movements.migrations.changelogs.movementNotifications.MakeParsedDataOptional
 import uk.gov.hmrc.exports.movements.migrations.{ExportsMigrationTool, LockManagerConfig, MigrationsRegistry}
 
+import javax.inject.Inject
 import scala.concurrent.Future
 
 @Singleton
-class MigrationRoutine @Inject()(appConfig: AppConfig, actorSystem: ActorSystem, applicationLifecycle: ApplicationLifecycle)(
-  implicit rec: RoutinesExecutionContext
-) extends Routine {
+class MigrationRoutine @Inject()(appConfig: AppConfig)(implicit rec: RoutinesExecutionContext) extends Routine with Logging {
 
-  private val logger = Logger(this.getClass)
-
-  private val uri = new MongoClientURI(appConfig.mongodbUri.replaceAllLiterally("sslEnabled", "ssl"))
-  private val client = new MongoClient(uri)
-  private val db = client.getDatabase(uri.getDatabase)
+  private val (client, mongoDatabase) = createMongoClient
+  private val db = client.getDatabase(mongoDatabase)
 
   override def execute(): Future[Unit] = Future {
-    logger.info("Starting migration with ExportsMigrationTool")
+    logger.info("Exports Migration feature enabled. Starting migration with ExportsMigrationTool")
     migrateWithExportsMigrationTool()
   }
 
+  private def createMongoClient: (MongoClient, String) = {
+    val (mongoUri, _) = {
+      val sslParamPos = appConfig.mongodbUri.lastIndexOf('?'.toInt)
+      if (sslParamPos > 0) appConfig.mongodbUri.splitAt(sslParamPos) else (appConfig.mongodbUri, "")
+    }
+    val (_, mongoDatabase) = mongoUri.splitAt(mongoUri.lastIndexOf('/'.toInt))
+    (MongoClients.create(appConfig.mongodbUri), mongoDatabase.drop(1))
+  }
+
+  val lockMaxTries = 10
+  val lockMaxWaitMillis = minutesToMillis(5)
+  val lockAcquiredForMillis = minutesToMillis(3)
+
   private def migrateWithExportsMigrationTool(): Unit = {
-    val lockManagerConfig = LockManagerConfig(lockMaxTries = 10, lockMaxWaitMillis = minutesToMillis(5), lockAcquiredForMillis = minutesToMillis(3))
+    val lockManagerConfig = LockManagerConfig(lockMaxTries, lockMaxWaitMillis, lockAcquiredForMillis)
     val migrationsRegistry = MigrationsRegistry().register(new MakeParsedDataOptional())
     val migrationTool = ExportsMigrationTool(db, migrationsRegistry, lockManagerConfig)
 
@@ -54,5 +60,4 @@ class MigrationRoutine @Inject()(appConfig: AppConfig, actorSystem: ActorSystem,
   }
 
   private def minutesToMillis(minutes: Int): Long = minutes * 60L * 1000L
-
 }

@@ -26,20 +26,19 @@ import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.{GuiceApplicationBuilder, GuiceableModule}
 import play.api.test.Helpers._
-import reactivemongo.core.errors.GenericDatabaseException
 import stubs.ExternalServicesConfig._
 import stubs.{CustomsMovementsAPIConfig, CustomsMovementsAPIService}
 import testdata.MovementsTestData._
 import uk.gov.hmrc.exports.movements.base.IntegrationTestSpec
 import uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
 import uk.gov.hmrc.exports.movements.exceptions.CustomsInventoryLinkingUpstreamException
-import uk.gov.hmrc.exports.movements.repositories.SubmissionRepository
+import uk.gov.hmrc.exports.movements.repositories.{GenericError, SubmissionRepository}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import java.time.{Clock, Instant, ZoneOffset}
 import scala.concurrent.{Await, Future}
 
-class SubmissionServiceSpec
+class SubmissionServiceISpec
     extends IntegrationTestSpec with GuiceOneAppPerSuite with MockitoSugar with CustomsMovementsAPIService with ScalaFutures
     with IntegrationPatience {
 
@@ -70,56 +69,16 @@ class SubmissionServiceSpec
   private implicit val hc: HeaderCarrier = HeaderCarrier(otherHeaders = Seq("user-agent" -> "customs-movements-frontend"))
 
   def withMovementSubmissionPersisted(result: Boolean): Unit =
-    when(submissionRepository.insert(any())(any())).thenReturn(if (result) {
-      Future.successful(dummyWriteResultSuccess)
-    } else {
-      Future.failed(GenericDatabaseException("There was a problem with Database", None))
-    })
+    when(submissionRepository.insertOne(any())).thenReturn(
+      if (result) Future.successful(Right(exampleSubmission()))
+      else Future.successful(Left(GenericError("Some error")))
+    )
 
   "Movements Service" should {
 
-    "save movement submission in DB" when {
-
-      "Arrival is persisted" in {
-        startInventoryLinkingService(ACCEPTED)
-        withMovementSubmissionPersisted(true)
-
-        movementsService.submit(exampleArrivalRequest).futureValue should equal((): Unit)
-      }
-
-      "Departure is persisted" in {
-
-        startInventoryLinkingService(ACCEPTED)
-        withMovementSubmissionPersisted(true)
-
-        movementsService.submit(exampleDepartureRequest).futureValue should equal((): Unit)
-      }
-    }
-
     "do not save movement submission in DB" when {
 
-      "Arrival is not persisted" in {
-
-        startInventoryLinkingService(ACCEPTED)
-        withMovementSubmissionPersisted(false)
-
-        an[Exception] mustBe thrownBy {
-          Await.result(movementsService.submit(exampleArrivalRequest), patienceConfig.timeout)
-        }
-      }
-
-      "Departure is not persisted" in {
-
-        startInventoryLinkingService(ACCEPTED)
-        withMovementSubmissionPersisted(false)
-
-        an[GenericDatabaseException] mustBe thrownBy {
-          Await.result(movementsService.submit(exampleDepartureRequest), patienceConfig.timeout)
-        }
-      }
-
       "Arrival is not persisted (ACCEPTED but, no conversationID)" in {
-
         startInventoryLinkingService(ACCEPTED, conversationId = false)
         withMovementSubmissionPersisted(false)
 
@@ -129,7 +88,6 @@ class SubmissionServiceSpec
       }
 
       "Departure is not persisted (ACCEPTED but, no conversationID)" in {
-
         startInventoryLinkingService(ACCEPTED, conversationId = false)
         withMovementSubmissionPersisted(false)
 
@@ -139,7 +97,6 @@ class SubmissionServiceSpec
       }
 
       "it is Not Accepted (BAD_REQUEST)" in {
-
         startInventoryLinkingService(BAD_REQUEST)
         withMovementSubmissionPersisted(false)
 
@@ -150,7 +107,6 @@ class SubmissionServiceSpec
       }
 
       "it is Not Accepted (NOT_FOUND)" in {
-
         startInventoryLinkingService(NOT_FOUND)
         withMovementSubmissionPersisted(false)
 
@@ -160,7 +116,6 @@ class SubmissionServiceSpec
       }
 
       "it is Not Accepted (UNAUTHORIZED)" in {
-
         startInventoryLinkingService(UNAUTHORIZED)
         withMovementSubmissionPersisted(false)
 
@@ -170,7 +125,6 @@ class SubmissionServiceSpec
       }
 
       "it is Not Accepted (INTERNAL_SERVER_ERROR)" in {
-
         startInventoryLinkingService(INTERNAL_SERVER_ERROR)
         withMovementSubmissionPersisted(false)
 

@@ -24,5 +24,6 @@ import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
 case class IleQueryRequest(override val eori: String, override val providerId: Option[String], ucrBlock: UcrBlock) extends UserIdentification
 
 object IleQueryRequest extends JSONResponses {
+
   implicit val format = Json.format[IleQueryRequest]
 }

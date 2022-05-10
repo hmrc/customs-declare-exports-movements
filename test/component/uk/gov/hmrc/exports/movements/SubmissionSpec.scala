@@ -130,5 +130,4 @@ class SubmissionSpec extends ComponentSpec {
       }
     }
   }
-
 }

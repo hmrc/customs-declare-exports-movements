@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.exports.movements.services
 
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito.{verify, when}
 import org.scalatest.OptionValues
@@ -33,8 +34,8 @@ import uk.gov.hmrc.exports.movements.exceptions.CustomsInventoryLinkingUpstreamE
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
 import uk.gov.hmrc.exports.movements.models.common.UcrType.Ducr
 import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
-import uk.gov.hmrc.exports.movements.models.submissions.ActionType.{ConsolidationType, MovementType}
-import uk.gov.hmrc.exports.movements.models.submissions.{Submission, SubmissionFactory}
+import uk.gov.hmrc.exports.movements.models.submissions.ActionType.MovementType
+import uk.gov.hmrc.exports.movements.models.submissions.Submission
 import uk.gov.hmrc.exports.movements.repositories.SearchParameters
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -42,53 +43,44 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class SubmissionServiceSpec extends AnyWordSpec with MockitoSugar with ScalaFutures with Matchers with OptionValues {
 
-  implicit val defaultPatience: PatienceConfig =
-    PatienceConfig(timeout = Span(5, Seconds), interval = Span(10, Millis))
+  implicit val defaultPatience: PatienceConfig = PatienceConfig(timeout = Span(5, Seconds), interval = Span(10, Millis))
 
   private trait Test {
     implicit val hc: HeaderCarrier = mock[HeaderCarrier]
     val customsInventoryLinkingExportsConnectorMock = buildCustomsInventoryLinkingExportsConnectorMock
     val submissionRepositoryMock = buildSubmissionRepositoryMock
-    val submissionFactoryMock = mock[SubmissionFactory]
     val wcoMapperMock = mock[IleMapper]
     val submissionService =
-      new SubmissionService(customsInventoryLinkingExportsConnectorMock, submissionRepositoryMock, submissionFactoryMock, wcoMapperMock)(
-        ExecutionContext.global
-      )
+      new SubmissionService(customsInventoryLinkingExportsConnectorMock, submissionRepositoryMock, wcoMapperMock)(ExecutionContext.global)
   }
 
   "SubmissionService on submitMovement" should {
 
     "successfully submit movement" in new Test {
-      val arrivalSubmission =
-        Submission(
-          eori = validEori,
-          providerId = Some(validProviderId),
-          conversationId = conversationId,
-          ucrBlocks = Seq(UcrBlock(ucr = ucr, ucrType = Ducr.codeValue)),
-          actionType = MovementType.Arrival
-        )
-
       when(wcoMapperMock.buildInventoryLinkingMovementRequestXml(any())).thenReturn(exampleArrivalRequestXML("123"))
       when(customsInventoryLinkingExportsConnectorMock.submit(any(), any())(any()))
         .thenReturn(Future.successful(CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId))))
-      when(submissionFactoryMock.buildMovementSubmission(any(), any(), any(), any(), any()))
-        .thenReturn(arrivalSubmission)
-      when(submissionRepositoryMock.insert(any())(any())).thenReturn(Future.successful(dummyWriteResultSuccess))
+      when(submissionRepositoryMock.insertOne(any())).thenReturn(Future.successful(Right(exampleSubmission())))
 
       submissionService.submit(exampleArrivalRequest).futureValue
 
       verify(wcoMapperMock).buildInventoryLinkingMovementRequestXml(meq(exampleArrivalRequest))
       verify(customsInventoryLinkingExportsConnectorMock)
         .submit(meq(exampleArrivalRequest), meq(exampleArrivalRequestXML("123")))(any())
-      verify(submissionFactoryMock).buildMovementSubmission(
-        meq(validEori),
-        meq(Some(validProviderId)),
-        meq(conversationId),
-        meq(exampleArrivalRequestXML("123")),
-        meq(MovementType.Arrival)
+
+      val submissionCaptor: ArgumentCaptor[Submission] = ArgumentCaptor.forClass(classOf[Submission])
+      verify(submissionRepositoryMock).insertOne(submissionCaptor.capture())
+
+      val arrivalSubmission = submissionCaptor.getValue
+      arrivalSubmission mustBe Submission(
+        uuid = arrivalSubmission.uuid,
+        eori = validEori,
+        providerId = Some(validProviderId),
+        conversationId = conversationId,
+        ucrBlocks = Seq(UcrBlock(ucr = ucr, ucrType = Ducr.codeValue)),
+        actionType = MovementType.Arrival,
+        requestTimestamp = arrivalSubmission.requestTimestamp
       )
-      verify(submissionRepositoryMock).insert(meq(arrivalSubmission))(any())
     }
 
     "return exception when submission failed" in new Test {
@@ -105,35 +97,16 @@ class SubmissionServiceSpec extends AnyWordSpec with MockitoSugar with ScalaFutu
   "SubmissionService on submitConsolidation" should {
 
     "successfully submit consolidation" in new Test {
-
-      val shutMucrSubmission =
-        Submission(
-          eori = validEori,
-          providerId = Some(validProviderId),
-          conversationId = conversationId,
-          ucrBlocks = Seq.empty,
-          actionType = ConsolidationType.ShutMucr
-        )
-
       when(wcoMapperMock.buildConsolidationXml(any())).thenReturn(exampleShutMucrConsolidationRequestXML)
       when(customsInventoryLinkingExportsConnectorMock.submit(any(), any())(any()))
         .thenReturn(Future.successful(CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId))))
-      when(submissionFactoryMock.buildConsolidationSubmission(any(), any(), any(), any(), any()))
-        .thenReturn(shutMucrSubmission)
-      when(submissionRepositoryMock.insert(any())(any())).thenReturn(Future.successful(dummyWriteResultSuccess))
+      when(submissionRepositoryMock.insertOne(any())).thenReturn(Future.successful(Right(exampleSubmission())))
 
       submissionService.submit(shutMucrRequest).futureValue
 
       verify(wcoMapperMock).buildConsolidationXml(meq(shutMucrRequest))
       verify(customsInventoryLinkingExportsConnectorMock)
         .submit(meq(shutMucrRequest), meq(exampleShutMucrConsolidationRequestXML))(any())
-      verify(submissionFactoryMock).buildConsolidationSubmission(
-        meq(validEori),
-        meq(Some(validProviderId)),
-        meq(conversationId),
-        meq(exampleShutMucrConsolidationRequestXML),
-        meq(ConsolidationType.ShutMucr)
-      )
     }
 
     "return exception when submission failed" in new Test {
@@ -150,22 +123,20 @@ class SubmissionServiceSpec extends AnyWordSpec with MockitoSugar with ScalaFutu
   "SubmissionService on getSubmissions" should {
 
     "call SubmissionRepository, passing query parameters provided" in new Test {
-
       val searchParameters = SearchParameters(eori = Some(validEori), providerId = Some(validProviderId), conversationId = Some(conversationId))
       submissionService.getSubmissions(searchParameters)
 
-      verify(submissionRepositoryMock).findBy(meq(searchParameters))
+      verify(submissionRepositoryMock).findAll(meq(searchParameters))
     }
 
     "return result of calling SubmissionRepository" in new Test {
-
       val storedSubmissions = Seq(
         exampleSubmission(),
         exampleSubmission(conversationId = conversationId_2),
         exampleSubmission(conversationId = conversationId_3),
         exampleSubmission(conversationId = conversationId_4)
       )
-      when(submissionRepositoryMock.findBy(any[SearchParameters])).thenReturn(Future.successful(storedSubmissions))
+      when(submissionRepositoryMock.findAll(any[SearchParameters])).thenReturn(Future.successful(storedSubmissions))
 
       val result: Seq[Submission] = submissionService.getSubmissions(SearchParameters()).futureValue
 
@@ -177,23 +148,20 @@ class SubmissionServiceSpec extends AnyWordSpec with MockitoSugar with ScalaFutu
   "SubmissionService on getSingleSubmission" should {
 
     "call SubmissionRepository, passing query parameters provided" in new Test {
-
       val searchParameters = SearchParameters(eori = Some(validEori), providerId = Some(validProviderId), conversationId = Some(conversationId))
 
       submissionService.getSingleSubmission(searchParameters)
 
-      verify(submissionRepositoryMock).findBy(meq(searchParameters))
+      verify(submissionRepositoryMock).findAll(meq(searchParameters))
     }
 
     "return result of calling SubmissionRepository" in new Test {
-
       val storedSubmission = exampleSubmission()
-      when(submissionRepositoryMock.findBy(any[SearchParameters])).thenReturn(Future.successful(Seq(storedSubmission)))
+      when(submissionRepositoryMock.findAll(any[SearchParameters])).thenReturn(Future.successful(Seq(storedSubmission)))
 
       val result: Option[Submission] = submissionService.getSingleSubmission(SearchParameters()).futureValue
 
       result.value mustBe storedSubmission
     }
   }
-
 }

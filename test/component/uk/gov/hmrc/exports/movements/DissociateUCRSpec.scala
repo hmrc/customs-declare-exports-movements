@@ -97,5 +97,4 @@ class DissociateUCRSpec extends ComponentSpec {
       }
     }
   }
-
 }

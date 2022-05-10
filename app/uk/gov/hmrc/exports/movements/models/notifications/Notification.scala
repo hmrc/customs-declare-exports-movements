@@ -16,21 +16,23 @@
 
 package uk.gov.hmrc.exports.movements.models.notifications
 
-import java.time.Instant
+import org.bson.types.ObjectId
 
+import java.time.Instant
 import play.api.libs.json._
-import reactivemongo.bson.BSONObjectID
-import reactivemongo.play.json.BSONObjectIDFormat
+import uk.gov.hmrc.mongo.play.json.formats.MongoFormats
 
 final case class Notification(
-  _id: BSONObjectID = BSONObjectID.generate(),
-  timestampReceived: Instant = Instant.now(),
+  _id: ObjectId = ObjectId.get,
+  timestampReceived: Instant = Instant.now,
   conversationId: String,
   payload: String,
   data: Option[NotificationData]
 )
 
 object Notification {
+
+  implicit val objectIdFormats: Format[ObjectId] = MongoFormats.objectIdFormat
 
   implicit val format: OFormat[Notification] = Json.format[Notification]
 

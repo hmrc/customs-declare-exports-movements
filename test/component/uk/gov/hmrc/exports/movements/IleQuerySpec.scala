@@ -16,8 +16,6 @@
 
 package component.uk.gov.hmrc.exports.movements
 
-import java.time.Instant
-
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.verify
 import play.api.libs.json.Json
@@ -29,6 +27,8 @@ import uk.gov.hmrc.exports.movements.models.notifications.Notification
 import uk.gov.hmrc.exports.movements.models.notifications.queries._
 import uk.gov.hmrc.exports.movements.models.notifications.standard.{EntryStatus, UcrBlock}
 import uk.gov.hmrc.exports.movements.models.submissions.IleQuerySubmission
+
+import java.time.Instant
 
 /*
  * Component Tests are Intentionally Explicit with the JSON input, XML & DB output and DONT use TestData helpers.
@@ -212,5 +212,4 @@ class IleQuerySpec extends ComponentSpec {
       }
     }
   }
-
 }
