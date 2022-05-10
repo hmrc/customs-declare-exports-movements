@@ -17,7 +17,7 @@ lazy val allTest = Seq(testAll := (test in ComponentTest)
 lazy val microservice = Project(appName, file("."))
   .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtDistributablesPlugin)
   .settings(
-    libraryDependencies ++= Dependencies.compile ++ Dependencies.test,
+    libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test,
     evictionWarningOptions in update := EvictionWarningOptions.default.withWarnScalaVersionEviction(false),
     majorVersion := 0,
     scalaVersion := "2.12.12"
