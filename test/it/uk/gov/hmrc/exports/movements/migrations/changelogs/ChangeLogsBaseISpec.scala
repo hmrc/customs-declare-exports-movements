@@ -9,7 +9,7 @@ import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import stubs.TestMongoDB.mongoConfiguration
 
-trait ChangeLogsBaseSpec extends AnyWordSpec with Matchers with GuiceOneServerPerSuite with BeforeAndAfterEach {
+trait ChangeLogsBaseISpec extends AnyWordSpec with Matchers with GuiceOneServerPerSuite with BeforeAndAfterEach {
 
   override def fakeApplication(): Application =
     new GuiceApplicationBuilder().disable[com.kenshoo.play.metrics.PlayModule].configure(mongoConfiguration).build()

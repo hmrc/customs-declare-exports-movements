@@ -24,14 +24,15 @@ import uk.gov.hmrc.exports.movements.models.UserIdentification
 import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
 
 case class IleQuerySubmission(
-  uuid: String = UUID.randomUUID().toString,
+  uuid: String = UUID.randomUUID.toString,
   override val eori: String,
   override val providerId: Option[String],
   conversationId: String,
   ucrBlock: UcrBlock,
-  requestTimestamp: Instant = Instant.now()
+  requestTimestamp: Instant = Instant.now
 ) extends UserIdentification
 
 object IleQuerySubmission {
+
   implicit val format: OFormat[IleQuerySubmission] = Json.format[IleQuerySubmission]
 }

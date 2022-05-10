@@ -23,13 +23,12 @@ import uk.gov.hmrc.exports.movements.models.common.UcrType._
 import uk.gov.hmrc.exports.movements.models.movements.ConsignmentReference
 import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType.ConsolidationType._
+import uk.gov.hmrc.exports.movements.services.UcrBlockBuilder._
 import uk.gov.hmrc.exports.movements.services.UcrBlockBuilderSpec._
 
 import scala.xml.NodeSeq
 
 class UcrBlockBuilderSpec extends UnitSpec {
-
-  private val ucrBlockBuilder = new UcrBlockBuilder()
 
   private def assertNodeSequencesEqual(actual: NodeSeq, expected: NodeSeq): Unit =
     xml.Utility.trim(actual.head) shouldBe xml.Utility.trim(expected.head)
@@ -42,7 +41,7 @@ class UcrBlockBuilderSpec extends UnitSpec {
 
         val consignmentReference = ConsignmentReference(reference = Ducr.codeValue, referenceValue = ucr)
 
-        val result = ucrBlockBuilder.buildUcrBlock(consignmentReference)
+        val result = buildUcrBlock(consignmentReference)
 
         val expectedResult = UcrBlock(ucr = ucr, ucrType = Ducr.codeValue)
         result shouldBe expectedResult
@@ -52,7 +51,7 @@ class UcrBlockBuilderSpec extends UnitSpec {
 
         val consignmentReference = ConsignmentReference(reference = Mucr.codeValue, referenceValue = CommonTestData.mucr)
 
-        val result = ucrBlockBuilder.buildUcrBlock(consignmentReference)
+        val result = buildUcrBlock(consignmentReference)
 
         val expectedResult = UcrBlock(ucr = CommonTestData.mucr, ucrType = Mucr.codeValue)
         result shouldBe expectedResult
@@ -62,7 +61,7 @@ class UcrBlockBuilderSpec extends UnitSpec {
 
         val consignmentReference = ConsignmentReference(reference = DucrPart.codeValue, referenceValue = CommonTestData.validWholeDucrPart)
 
-        val result = ucrBlockBuilder.buildUcrBlock(consignmentReference)
+        val result = buildUcrBlock(consignmentReference)
 
         val expectedResult = UcrBlock(ucr = ucr, ucrPartNo = Some(CommonTestData.validUcrPartNo), ucrType = Ducr.codeValue)
         result shouldBe expectedResult
@@ -75,7 +74,7 @@ class UcrBlockBuilderSpec extends UnitSpec {
 
         val consignmentReference = ConsignmentReference(reference = "UNKNOWN", referenceValue = ucr)
 
-        intercept[IllegalArgumentException](ucrBlockBuilder.buildUcrBlock(consignmentReference))
+        intercept[IllegalArgumentException](buildUcrBlock(consignmentReference))
 
       }
 
@@ -83,7 +82,7 @@ class UcrBlockBuilderSpec extends UnitSpec {
 
         val consignmentReference = ConsignmentReference(reference = DucrPart.codeValue, referenceValue = s"${ucr}-")
 
-        intercept[IllegalArgumentException](ucrBlockBuilder.buildUcrBlock(consignmentReference))
+        intercept[IllegalArgumentException](buildUcrBlock(consignmentReference))
       }
     }
   }
@@ -97,7 +96,7 @@ class UcrBlockBuilderSpec extends UnitSpec {
         val consolidationType = DucrAssociation
         val testUcr = ucr
 
-        val result = ucrBlockBuilder.buildUcrBlockNode(consolidationType, testUcr)
+        val result = buildUcrBlockNode(consolidationType, testUcr)
 
         assertNodeSequencesEqual(result, ConsolidationTestData.buildUcrBlockNode(ucr = testUcr, ucrType = Ducr.codeValue))
       }
@@ -107,7 +106,7 @@ class UcrBlockBuilderSpec extends UnitSpec {
         val consolidationType = MucrAssociation
         val testUcr = CommonTestData.mucr
 
-        val result = ucrBlockBuilder.buildUcrBlockNode(consolidationType, testUcr)
+        val result = buildUcrBlockNode(consolidationType, testUcr)
 
         assertNodeSequencesEqual(result, ConsolidationTestData.buildUcrBlockNode(ucr = testUcr, ucrType = Mucr.codeValue))
       }
@@ -118,7 +117,7 @@ class UcrBlockBuilderSpec extends UnitSpec {
         val testUcr = ucr
         val testDucrPartNo = CommonTestData.validUcrPartNo
 
-        val result = ucrBlockBuilder.buildUcrBlockNode(consolidationType, CommonTestData.validWholeDucrPart)
+        val result = buildUcrBlockNode(consolidationType, CommonTestData.validWholeDucrPart)
 
         assertNodeSequencesEqual(result, ConsolidationTestData.buildUcrBlockNode(ucr = testUcr, ucrType = Ducr.codeValue, ucrPartNo = testDucrPartNo))
       }
@@ -128,7 +127,7 @@ class UcrBlockBuilderSpec extends UnitSpec {
         val consolidationType = DucrDisassociation
         val testUcr = ucr
 
-        val result = ucrBlockBuilder.buildUcrBlockNode(consolidationType, testUcr)
+        val result = buildUcrBlockNode(consolidationType, testUcr)
 
         assertNodeSequencesEqual(result, ConsolidationTestData.buildUcrBlockNode(ucr = testUcr, ucrType = Ducr.codeValue))
       }
@@ -138,7 +137,7 @@ class UcrBlockBuilderSpec extends UnitSpec {
         val consolidationType = MucrDisassociation
         val testUcr = CommonTestData.mucr
 
-        val result = ucrBlockBuilder.buildUcrBlockNode(consolidationType, testUcr)
+        val result = buildUcrBlockNode(consolidationType, testUcr)
 
         assertNodeSequencesEqual(result, ConsolidationTestData.buildUcrBlockNode(ucr = testUcr, ucrType = Mucr.codeValue))
       }
@@ -149,7 +148,7 @@ class UcrBlockBuilderSpec extends UnitSpec {
         val testUcr = ucr
         val testDucrPartNo = CommonTestData.validUcrPartNo
 
-        val result = ucrBlockBuilder.buildUcrBlockNode(consolidationType, CommonTestData.validWholeDucrPart)
+        val result = buildUcrBlockNode(consolidationType, CommonTestData.validWholeDucrPart)
 
         assertNodeSequencesEqual(result, ConsolidationTestData.buildUcrBlockNode(ucr = testUcr, ucrType = Ducr.codeValue, ucrPartNo = testDucrPartNo))
       }
@@ -162,7 +161,7 @@ class UcrBlockBuilderSpec extends UnitSpec {
         val consolidationType = ShutMucr
         val testUcr = CommonTestData.mucr
 
-        intercept[IllegalArgumentException](ucrBlockBuilder.buildUcrBlockNode(consolidationType, testUcr))
+        intercept[IllegalArgumentException](buildUcrBlockNode(consolidationType, testUcr))
       }
     }
   }
@@ -178,7 +177,7 @@ class UcrBlockBuilderSpec extends UnitSpec {
           val input = EmptyUcrBlockXml
           val expectedResult = Seq.empty[UcrBlock]
 
-          ucrBlockBuilder.extractUcrBlocksForSubmissionFrom(input) shouldBe expectedResult
+          extractUcrBlocksForSubmissionFrom(input) shouldBe expectedResult
         }
       }
     }
@@ -192,7 +191,7 @@ class UcrBlockBuilderSpec extends UnitSpec {
           val input = singleUcrBlockXml
           val expectedResult = Seq(UcrBlock(ucr = ucr, ucrType = Ducr.codeValue))
 
-          ucrBlockBuilder.extractUcrBlocksForSubmissionFrom(input) shouldBe expectedResult
+          extractUcrBlocksForSubmissionFrom(input) shouldBe expectedResult
         }
 
         "contains single UcrBlock with UcrPartNo element" in {
@@ -200,7 +199,7 @@ class UcrBlockBuilderSpec extends UnitSpec {
           val input = singleUcrBlockWithUcrPartNoXml
           val expectedResult = Seq(UcrBlock(ucr = ucr, ucrPartNo = Some(validUcrPartNo), ucrType = DucrPart.codeValue))
 
-          ucrBlockBuilder.extractUcrBlocksForSubmissionFrom(input) shouldBe expectedResult
+          extractUcrBlocksForSubmissionFrom(input) shouldBe expectedResult
         }
 
         "contains multiple UcrBlocks" in {
@@ -208,7 +207,7 @@ class UcrBlockBuilderSpec extends UnitSpec {
           val input = doubleUcrBlocksXml
           val expectedResult = Seq(UcrBlock(ucr = ucr, ucrType = Ducr.codeValue), UcrBlock(ucr = ucr_2, ucrType = Ducr.codeValue))
 
-          ucrBlockBuilder.extractUcrBlocksForSubmissionFrom(input) shouldBe expectedResult
+          extractUcrBlocksForSubmissionFrom(input) shouldBe expectedResult
         }
 
         "contains masterUcr element" in {
@@ -216,7 +215,7 @@ class UcrBlockBuilderSpec extends UnitSpec {
           val input = masterUcrOnlyXml
           val expectedResult = Seq(UcrBlock(ucr = mucr, ucrType = Mucr.codeValue))
 
-          ucrBlockBuilder.extractUcrBlocksForSubmissionFrom(input) shouldBe expectedResult
+          extractUcrBlocksForSubmissionFrom(input) shouldBe expectedResult
         }
 
         "contains masterUcr element and UcrBlock" in {
@@ -224,7 +223,7 @@ class UcrBlockBuilderSpec extends UnitSpec {
           val input = singleUcrBlockWithMasterUcrXml
           val expectedResult = Seq(UcrBlock(ucr = mucr, ucrType = Mucr.codeValue), UcrBlock(ucr = ucr, ucrType = Ducr.codeValue))
 
-          ucrBlockBuilder.extractUcrBlocksForSubmissionFrom(input) shouldBe expectedResult
+          extractUcrBlocksForSubmissionFrom(input) shouldBe expectedResult
         }
       }
     }

@@ -16,19 +16,17 @@
 
 package uk.gov.hmrc.exports.movements.repositories
 
-import java.time.{Clock, Instant, ZoneOffset}
-
 import com.codahale.metrics.SharedMetricRegistries
-import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
-import org.scalatest.matchers.{MatchResult, Matcher}
+import org.bson.types.ObjectId
 import org.scalatest.BeforeAndAfterEach
+import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.must.Matchers
+import org.scalatest.matchers.{MatchResult, Matcher}
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import reactivemongo.bson.BSONObjectID
 import stubs.TestMongoDB
 import testdata.CommonTestData
 import testdata.CommonTestData.{conversationId, conversationId_2}
@@ -36,11 +34,10 @@ import testdata.MovementsTestData.dateTimeString
 import testdata.notifications.NotificationTestData._
 import uk.gov.hmrc.exports.movements.models.notifications.Notification
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import java.time.{Clock, Instant, ZoneOffset}
 
-class NotificationRepositorySpec
+class NotificationRepositoryISpec
     extends AnyWordSpec with GuiceOneAppPerSuite with BeforeAndAfterEach with ScalaFutures with Matchers with IntegrationPatience with TestMongoDB {
-
   private val clock = Clock.fixed(Instant.parse(dateTimeString), ZoneOffset.UTC)
 
   override def fakeApplication: Application = {
@@ -54,11 +51,11 @@ class NotificationRepositorySpec
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    repo.removeAll().futureValue
+    repo.removeAll.futureValue
   }
 
   override def afterEach(): Unit = {
-    repo.removeAll().futureValue
+    repo.removeAll.futureValue
     super.afterEach()
   }
 
@@ -69,18 +66,18 @@ class NotificationRepositorySpec
       "result in a success" when {
 
         "provided with StandardNotification" in {
-          repo.insert(notification_1).futureValue.ok must be(true)
+          repo.insertOne(notification_1).futureValue.isRight must be(true)
 
-          val notificationInDB = repo.findAll().futureValue
+          val notificationInDB = repo.findAll.futureValue
 
           notificationInDB.length must equal(1)
           notificationInDB.head must equalWithoutId(notification_1)
         }
 
         "provided with IleQueryResponseNotification" in {
-          repo.insert(notificationIleQueryResponse_1).futureValue.ok must be(true)
+          repo.insertOne(notificationIleQueryResponse_1).futureValue.isRight must be(true)
 
-          val notificationInDB = repo.findAll().futureValue
+          val notificationInDB = repo.findAll.futureValue
 
           notificationInDB.length must equal(1)
           notificationInDB.head must equalWithoutId(notificationIleQueryResponse_1)
@@ -90,15 +87,15 @@ class NotificationRepositorySpec
 
     "trying to insert the same Notification twice" should {
       "result in a success" in {
-        repo.insert(notification_1).futureValue.ok must be(true)
-        repo.insert(notification_1.copy(_id = BSONObjectID.generate())).futureValue.ok must be(true)
+        repo.insertOne(notification_1).futureValue.isRight must be(true)
+        repo.insertOne(notification_1.copy(_id = ObjectId.get)).futureValue.isRight must be(true)
       }
 
       "result in having both Notifications persisted" in {
-        repo.insert(notification_1).futureValue.ok must be(true)
-        repo.insert(notification_1.copy(_id = BSONObjectID.generate())).futureValue.ok must be(true)
+        repo.insertOne(notification_1).futureValue.isRight must be(true)
+        repo.insertOne(notification_1.copy(_id = ObjectId.get)).futureValue.isRight must be(true)
 
-        val notificationsInDB = repo.findAll().futureValue
+        val notificationsInDB = repo.findAll.futureValue
 
         notificationsInDB.length must equal(2)
         notificationsInDB.head must equalWithoutId(notification_1)
@@ -110,10 +107,10 @@ class NotificationRepositorySpec
       "result in having all Notifications persisted" in {
         val notificationsToInsert = Seq(notification_1, notification_2.copy(conversationId = conversationId), notificationIleQueryResponse_1)
         notificationsToInsert.foreach { notification =>
-          repo.insert(notification).futureValue.ok must be(true)
+          repo.insertOne(notification).futureValue.isRight must be(true)
         }
 
-        val notificationsInDB = repo.findAll().futureValue
+        val notificationsInDB = repo.findAll.futureValue
 
         notificationsInDB.length must equal(3)
 
@@ -134,7 +131,7 @@ class NotificationRepositorySpec
 
     "there is single Notification with one of given conversationIds" should {
       "return this Notification only" in {
-        repo.insert(notification_1).futureValue
+        repo.insertOne(notification_1).futureValue
 
         val foundNotifications = repo.findByConversationIds(Seq(conversationId, conversationId_2)).futureValue
 
@@ -146,8 +143,8 @@ class NotificationRepositorySpec
     "there are multiple Notifications with given conversationIds" should {
       "return all the Notifications" in {
         val notifications =
-          Seq(notification_1, notification_2.copy(_id = BSONObjectID.generate(), conversationId = notification_1.conversationId), notification_2)
-        notifications.map(repo.insert(_).futureValue)
+          Seq(notification_1, notification_2.copy(_id = ObjectId.get, conversationId = notification_1.conversationId), notification_2)
+        notifications.map(repo.insertOne(_).futureValue)
 
         val foundNotifications = repo.findByConversationIds(Seq(conversationId, conversationId_2)).futureValue
 
@@ -163,20 +160,18 @@ class NotificationRepositorySpec
 
     "there are no unparsed Notification" should {
       "return empty list" in {
+        repo.insertOne(notification_1).futureValue.isRight must be(true)
 
-        repo.insert(notification_1).futureValue.ok must be(true)
-
-        repo.findUnparsedNotifications().futureValue must equal(Seq.empty)
+        repo.findUnparsedNotifications.futureValue must equal(Seq.empty)
       }
     }
 
     "there is one unparsed Notification" should {
       "return that Notification" in {
+        repo.insertOne(notification_1).futureValue.isRight must be(true)
+        repo.insertOne(notificationUnparsed).futureValue.isRight must be(true)
 
-        repo.insert(notification_1).futureValue.ok must be(true)
-        repo.insert(notificationUnparsed).futureValue.ok must be(true)
-
-        val foundNotifications = repo.findUnparsedNotifications().futureValue
+        val foundNotifications = repo.findUnparsedNotifications.futureValue
 
         foundNotifications.length mustBe 1
         foundNotifications.head must equalWithoutId(notificationUnparsed)
@@ -185,14 +180,13 @@ class NotificationRepositorySpec
 
     "there are many unparsed Notification" should {
       "return those Notifications" in {
-
         val anotherUnparsableNotification =
-          notificationUnparsed.copy(_id = BSONObjectID.generate(), conversationId = CommonTestData.conversationId_4)
+          notificationUnparsed.copy(_id = ObjectId.get, conversationId = CommonTestData.conversationId_4)
         val unparsedNotifications = Seq(notificationUnparsed, anotherUnparsableNotification)
-        repo.insert(notification_1).futureValue.ok must be(true)
-        unparsedNotifications.map(repo.insert(_).futureValue)
+        repo.insertOne(notification_1).futureValue.isRight must be(true)
+        unparsedNotifications.map(repo.insertOne(_).futureValue)
 
-        val foundNotifications = repo.findUnparsedNotifications().futureValue
+        val foundNotifications = repo.findUnparsedNotifications.futureValue
 
         foundNotifications.length mustBe unparsedNotifications.length
         unparsedNotifications.foreach { notification =>
@@ -207,21 +201,19 @@ class NotificationRepositorySpec
     "update the document with given _id" when {
 
       "the update notification is the same" in {
+        repo.insertOne(notification_1).futureValue.isRight must be(true)
 
-        repo.insert(notification_1).futureValue.ok must be(true)
-
-        val updatedNotification = repo.update(notification_1._id, notification_1).futureValue
+        val updatedNotification = repo.update(notification_1).futureValue
 
         updatedNotification mustBe defined
         updatedNotification.get mustBe notification_1
       }
 
       "the update notification is different" in {
-
-        repo.insert(notification_1).futureValue.ok must be(true)
+        repo.insertOne(notification_1).futureValue.isRight must be(true)
         val update = notification_2.copy(_id = notification_1._id)
 
-        val updatedNotification = repo.update(notification_1._id, update).futureValue
+        val updatedNotification = repo.update(update).futureValue
 
         updatedNotification mustBe defined
         updatedNotification.get mustBe update
@@ -229,9 +221,7 @@ class NotificationRepositorySpec
     }
 
     "not create a new document if there is no document matching given _id" in {
-
-      val updatedNotification = repo.update(notification_1._id, notification_1).futureValue
-
+      val updatedNotification = repo.update(notification_1).futureValue
       updatedNotification must not be defined
     }
   }
@@ -246,7 +236,7 @@ class NotificationRepositorySpec
 
     override def apply(left: Notification): MatchResult = {
       def compare: Boolean = {
-        val id = BSONObjectID.generate()
+        val id = ObjectId.get
         val leftNoId = left.copy(_id = id)
         val rightNoId = notification.copy(_id = id)
 
@@ -260,5 +250,4 @@ class NotificationRepositorySpec
       )
     }
   }
-
 }

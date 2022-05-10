@@ -24,19 +24,15 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
-import reactivemongo.api.commands.WriteResult
-import reactivemongo.bson.BSONObjectID
 import testdata.CommonTestData._
 import testdata.MovementsTestData.exampleSubmission
 import testdata.notifications.NotificationTestData._
 import testdata.notifications.{ExampleInventoryLinkingControlResponse, NotificationTestData}
-import uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
 import uk.gov.hmrc.exports.movements.models.notifications.exchange.NotificationFrontendModel
 import uk.gov.hmrc.exports.movements.models.notifications.{Notification, NotificationFactory}
 import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, SearchParameters, SubmissionRepository}
 
 import scala.concurrent.{Await, ExecutionContext, Future}
-import scala.util.control.NoStackTrace
 import scala.xml.{Elem, NodeSeq, Utility}
 
 class NotificationServiceSpec extends AnyWordSpec with MockitoSugar with ScalaFutures with Matchers with BeforeAndAfterEach {
@@ -57,14 +53,14 @@ class NotificationServiceSpec extends AnyWordSpec with MockitoSugar with ScalaFu
     super.beforeEach()
     reset(notificationFactory, notificationRepository, submissionRepository)
 
-    when(notificationRepository.insert(any())(any())).thenReturn(Future.successful(dummyWriteResultSuccess))
+    when(notificationRepository.insertOne(any())).thenReturn(Future.successful(Right(notification_1)))
     when(notificationRepository.findByConversationIds(any[Seq[String]])).thenReturn(Future.successful(Seq.empty))
-    when(notificationRepository.findUnparsedNotifications()).thenReturn(Future.successful(Seq.empty))
-    when(notificationRepository.update(any(), any())).thenReturn(Future.successful(None))
+    when(notificationRepository.findUnparsedNotifications).thenReturn(Future.successful(Seq.empty))
+    when(notificationRepository.update(any())).thenReturn(Future.successful(None))
 
     when(notificationFactory.buildMovementNotification(anyString(), any[NodeSeq])).thenReturn(Notification.empty)
     when(notificationFactory.buildMovementNotification(anyString(), anyString())).thenReturn(Notification.empty)
-    when(submissionRepository.findBy(any[SearchParameters])).thenReturn(Future.successful(Seq.empty))
+    when(submissionRepository.findAll(any[SearchParameters])).thenReturn(Future.successful(Seq.empty))
   }
 
   override def afterEach(): Unit = {
@@ -89,7 +85,7 @@ class NotificationServiceSpec extends AnyWordSpec with MockitoSugar with ScalaFu
 
         val inOrder: InOrder = Mockito.inOrder(notificationFactory, notificationRepository)
         inOrder.verify(notificationFactory).buildMovementNotification(any(), any[NodeSeq])
-        inOrder.verify(notificationRepository).insert(any())(any())
+        inOrder.verify(notificationRepository).insertOne(any())
       }
 
       "call MovementNotificationFactory once, passing conversationId from headers and request body" in {
@@ -113,7 +109,7 @@ class NotificationServiceSpec extends AnyWordSpec with MockitoSugar with ScalaFu
 
         notificationService.save(conversationId, requestBody).futureValue
 
-        verify(notificationRepository).insert(meq(notification_1))(any())
+        verify(notificationRepository).insertOne(meq(notification_1))
       }
     }
 
@@ -143,19 +139,6 @@ class NotificationServiceSpec extends AnyWordSpec with MockitoSugar with ScalaFu
         verifyNoMoreInteractions(notificationRepository)
       }
     }
-
-    "NotificationRepository on insert returns WriteResult with Error" should {
-
-      "return failed Future" in {
-        val exceptionMsg = "Test Exception message"
-        when(notificationRepository.insert(any())(any()))
-          .thenReturn(Future.failed[WriteResult](new Exception(exceptionMsg) with NoStackTrace))
-
-        the[Exception] thrownBy {
-          Await.result(notificationService.save(conversationId, requestBody), patienceConfig.timeout)
-        } must have message exceptionMsg
-      }
-    }
   }
 
   "NotificationService on getAllNotifications" when {
@@ -163,23 +146,21 @@ class NotificationServiceSpec extends AnyWordSpec with MockitoSugar with ScalaFu
     "provided with conversationId" should {
 
       "call SubmissionRepository, passing SearchParameters provided" in {
-
         val searchParameters = SearchParameters(eori = Some(validEori), conversationId = Some(conversationId))
 
         val submission = exampleSubmission()
-        when(submissionRepository.findBy(meq(searchParameters))).thenReturn(Future.successful(Seq(submission)))
+        when(submissionRepository.findAll(meq(searchParameters))).thenReturn(Future.successful(Seq(submission)))
 
         notificationService.getAllNotifications(searchParameters).futureValue
 
-        verify(submissionRepository).findBy(meq(searchParameters))
+        verify(submissionRepository).findAll(meq(searchParameters))
       }
 
       "call NotificationRepository, passing ConversationID provided" in {
-
         val searchParameters = SearchParameters(eori = Some(validEori), conversationId = Some(conversationId))
 
         val submission = exampleSubmission()
-        when(submissionRepository.findBy(meq(searchParameters))).thenReturn(Future.successful(Seq(submission)))
+        when(submissionRepository.findAll(meq(searchParameters))).thenReturn(Future.successful(Seq(submission)))
 
         notificationService.getAllNotifications(searchParameters).futureValue
 
@@ -187,13 +168,12 @@ class NotificationServiceSpec extends AnyWordSpec with MockitoSugar with ScalaFu
       }
 
       "return list of NotificationPresentationData converted from Notifications returned by repository" in {
-
         val searchParameters = SearchParameters(eori = Some(validEori), conversationId = Some(conversationId))
 
         val submission = exampleSubmission()
         val firstNotification = notification_1.copy(conversationId = conversationId)
         val secondNotification = notification_2.copy(conversationId = conversationId)
-        when(submissionRepository.findBy(meq(searchParameters))).thenReturn(Future.successful(Seq(submission)))
+        when(submissionRepository.findAll(meq(searchParameters))).thenReturn(Future.successful(Seq(submission)))
         when(notificationRepository.findByConversationIds(meq(Seq(conversationId))))
           .thenReturn(Future.successful(Seq(firstNotification, secondNotification)))
 
@@ -207,11 +187,10 @@ class NotificationServiceSpec extends AnyWordSpec with MockitoSugar with ScalaFu
       }
 
       "return empty list, if NotificationRepository returns empty list" in {
-
         val searchParameters = SearchParameters(eori = Some(validEori), conversationId = Some(conversationId))
 
         val submission = exampleSubmission()
-        when(submissionRepository.findBy(meq(searchParameters))).thenReturn(Future.successful(Seq(submission)))
+        when(submissionRepository.findAll(meq(searchParameters))).thenReturn(Future.successful(Seq(submission)))
         when(notificationRepository.findByConversationIds(meq(Seq(conversationId)))).thenReturn(Future.successful(Seq.empty))
 
         val returnedNotifications = notificationService.getAllNotifications(searchParameters).futureValue
@@ -223,23 +202,21 @@ class NotificationServiceSpec extends AnyWordSpec with MockitoSugar with ScalaFu
     "provided with no conversationId" should {
 
       "call SubmissionRepository, passing SearchParameters provided" in {
-
         val searchParameters = SearchParameters(eori = Some(validEori))
 
         val submissions = Seq(exampleSubmission(), exampleSubmission(conversationId = conversationId_2))
-        when(submissionRepository.findBy(meq(searchParameters))).thenReturn(Future.successful(submissions))
+        when(submissionRepository.findAll(meq(searchParameters))).thenReturn(Future.successful(submissions))
 
         notificationService.getAllNotifications(searchParameters).futureValue
 
-        verify(submissionRepository).findBy(meq(searchParameters))
+        verify(submissionRepository).findAll(meq(searchParameters))
       }
 
       "call NotificationRepository, passing ConversationIDs from Submissions" in {
-
         val searchParameters = SearchParameters(eori = Some(validEori))
 
         val submissions = Seq(exampleSubmission(), exampleSubmission(conversationId = conversationId_2))
-        when(submissionRepository.findBy(meq(searchParameters))).thenReturn(Future.successful(submissions))
+        when(submissionRepository.findAll(meq(searchParameters))).thenReturn(Future.successful(submissions))
 
         notificationService.getAllNotifications(searchParameters).futureValue
 
@@ -247,7 +224,6 @@ class NotificationServiceSpec extends AnyWordSpec with MockitoSugar with ScalaFu
       }
 
       "return list of NotificationPresentationData converted from Notifications returned by repository" in {
-
         val searchParameters = SearchParameters(eori = Some(validEori))
 
         val submissions = Seq(exampleSubmission(), exampleSubmission(conversationId = conversationId_2))
@@ -256,7 +232,7 @@ class NotificationServiceSpec extends AnyWordSpec with MockitoSugar with ScalaFu
           notification_2.copy(conversationId = conversationId),
           notification_1.copy(conversationId = conversationId_2)
         )
-        when(submissionRepository.findBy(meq(searchParameters))).thenReturn(Future.successful(submissions))
+        when(submissionRepository.findAll(meq(searchParameters))).thenReturn(Future.successful(submissions))
         when(notificationRepository.findByConversationIds(meq(Seq(conversationId, conversationId_2))))
           .thenReturn(Future.successful(notifications))
 
@@ -270,11 +246,10 @@ class NotificationServiceSpec extends AnyWordSpec with MockitoSugar with ScalaFu
       }
 
       "return empty list, if NotificationRepository returns empty list" in {
-
         val searchParameters = SearchParameters(eori = Some(validEori))
 
         val submissions = Seq(exampleSubmission(), exampleSubmission(conversationId = conversationId_2))
-        when(submissionRepository.findBy(meq(searchParameters))).thenReturn(Future.successful(submissions))
+        when(submissionRepository.findAll(meq(searchParameters))).thenReturn(Future.successful(submissions))
         when(notificationRepository.findByConversationIds(meq(Seq(conversationId)))).thenReturn(Future.successful(Seq.empty))
 
         val returnedNotifications = notificationService.getAllNotifications(searchParameters).futureValue
@@ -284,12 +259,10 @@ class NotificationServiceSpec extends AnyWordSpec with MockitoSugar with ScalaFu
     }
 
     "there is no Submission for given set of SearchParameters" should {
-
       "return empty Sequence" in {
-
         val searchParameters = SearchParameters(eori = Some(validEori), conversationId = Some(conversationId))
 
-        when(submissionRepository.findBy(meq(searchParameters))).thenReturn(Future.successful(Seq.empty))
+        when(submissionRepository.findAll(meq(searchParameters))).thenReturn(Future.successful(Seq.empty))
 
         val returnedNotifications = notificationService.getAllNotifications(searchParameters).futureValue
 
@@ -303,17 +276,15 @@ class NotificationServiceSpec extends AnyWordSpec with MockitoSugar with ScalaFu
     "there are no unparsed notifications" should {
 
       "call NotificationRepository findUnparsedNotifications method" in {
-
-        when(notificationRepository.findUnparsedNotifications()).thenReturn(Future.successful(Seq.empty))
+        when(notificationRepository.findUnparsedNotifications).thenReturn(Future.successful(Seq.empty))
 
         notificationService.parseUnparsedNotifications.futureValue
 
-        verify(notificationRepository).findUnparsedNotifications()
+        verify(notificationRepository).findUnparsedNotifications
       }
 
       "not call NotificationFactory" in {
-
-        when(notificationRepository.findUnparsedNotifications()).thenReturn(Future.successful(Seq.empty))
+        when(notificationRepository.findUnparsedNotifications).thenReturn(Future.successful(Seq.empty))
 
         notificationService.parseUnparsedNotifications.futureValue
 
@@ -321,17 +292,15 @@ class NotificationServiceSpec extends AnyWordSpec with MockitoSugar with ScalaFu
       }
 
       "not call NotificationRepository update method" in {
-
-        when(notificationRepository.findUnparsedNotifications()).thenReturn(Future.successful(Seq.empty))
+        when(notificationRepository.findUnparsedNotifications).thenReturn(Future.successful(Seq.empty))
 
         notificationService.parseUnparsedNotifications.futureValue
 
-        verify(notificationRepository, never()).update(any(), any())
+        verify(notificationRepository, never()).update(any())
       }
 
       "return Future with empty Sequence" in {
-
-        when(notificationRepository.findUnparsedNotifications()).thenReturn(Future.successful(Seq.empty))
+        when(notificationRepository.findUnparsedNotifications).thenReturn(Future.successful(Seq.empty))
 
         val result = notificationService.parseUnparsedNotifications.futureValue
 
@@ -347,18 +316,16 @@ class NotificationServiceSpec extends AnyWordSpec with MockitoSugar with ScalaFu
       "cannot be parsed" should {
 
         "call NotificationRepository findUnparsedNotifications method" in {
-
-          when(notificationRepository.findUnparsedNotifications()).thenReturn(Future.successful(Seq(unparsedNotification)))
+          when(notificationRepository.findUnparsedNotifications).thenReturn(Future.successful(Seq(unparsedNotification)))
           when(notificationFactory.buildMovementNotification(anyString(), anyString())).thenReturn(unparsedNotification)
 
           notificationService.parseUnparsedNotifications.futureValue
 
-          verify(notificationRepository).findUnparsedNotifications()
+          verify(notificationRepository).findUnparsedNotifications
         }
 
         "call NotificationFactory" in {
-
-          when(notificationRepository.findUnparsedNotifications()).thenReturn(Future.successful(Seq(unparsedNotification)))
+          when(notificationRepository.findUnparsedNotifications).thenReturn(Future.successful(Seq(unparsedNotification)))
           when(notificationFactory.buildMovementNotification(anyString(), anyString())).thenReturn(unparsedNotification)
 
           notificationService.parseUnparsedNotifications.futureValue
@@ -370,18 +337,16 @@ class NotificationServiceSpec extends AnyWordSpec with MockitoSugar with ScalaFu
         }
 
         "not call NotificationRepository update method" in {
-
-          when(notificationRepository.findUnparsedNotifications()).thenReturn(Future.successful(Seq(unparsedNotification)))
+          when(notificationRepository.findUnparsedNotifications).thenReturn(Future.successful(Seq(unparsedNotification)))
           when(notificationFactory.buildMovementNotification(anyString(), anyString())).thenReturn(unparsedNotification)
 
           notificationService.parseUnparsedNotifications.futureValue
 
-          verify(notificationRepository, never()).update(any(), any())
+          verify(notificationRepository, never()).update(any())
         }
 
         "return Future with empty Sequence" in {
-
-          when(notificationRepository.findUnparsedNotifications()).thenReturn(Future.successful(Seq(unparsedNotification)))
+          when(notificationRepository.findUnparsedNotifications).thenReturn(Future.successful(Seq(unparsedNotification)))
           when(notificationFactory.buildMovementNotification(anyString(), anyString())).thenReturn(unparsedNotification)
 
           val result = notificationService.parseUnparsedNotifications.futureValue
@@ -393,21 +358,19 @@ class NotificationServiceSpec extends AnyWordSpec with MockitoSugar with ScalaFu
       "can be parsed" should {
 
         "call NotificationRepository findUnparsedNotifications method" in {
-
-          when(notificationRepository.findUnparsedNotifications()).thenReturn(Future.successful(Seq(unparsedNotification)))
+          when(notificationRepository.findUnparsedNotifications).thenReturn(Future.successful(Seq(unparsedNotification)))
           when(notificationFactory.buildMovementNotification(anyString(), anyString())).thenReturn(parsedNotification)
-          when(notificationRepository.update(any[BSONObjectID], any[Notification])).thenReturn(Future.successful(Some(parsedNotification)))
+          when(notificationRepository.update(any[Notification])).thenReturn(Future.successful(Some(parsedNotification)))
 
           notificationService.parseUnparsedNotifications.futureValue
 
-          verify(notificationRepository).findUnparsedNotifications()
+          verify(notificationRepository).findUnparsedNotifications
         }
 
         "call NotificationFactory" in {
-
-          when(notificationRepository.findUnparsedNotifications()).thenReturn(Future.successful(Seq(unparsedNotification)))
+          when(notificationRepository.findUnparsedNotifications).thenReturn(Future.successful(Seq(unparsedNotification)))
           when(notificationFactory.buildMovementNotification(anyString(), anyString())).thenReturn(parsedNotification)
-          when(notificationRepository.update(any[BSONObjectID], any[Notification])).thenReturn(Future.successful(Some(parsedNotification)))
+          when(notificationRepository.update(any[Notification])).thenReturn(Future.successful(Some(parsedNotification)))
 
           notificationService.parseUnparsedNotifications.futureValue
 
@@ -419,21 +382,20 @@ class NotificationServiceSpec extends AnyWordSpec with MockitoSugar with ScalaFu
 
         "call NotificationRepository update method" in {
 
-          when(notificationRepository.findUnparsedNotifications()).thenReturn(Future.successful(Seq(unparsedNotification)))
+          when(notificationRepository.findUnparsedNotifications).thenReturn(Future.successful(Seq(unparsedNotification)))
           when(notificationFactory.buildMovementNotification(anyString(), anyString())).thenReturn(parsedNotification)
-          when(notificationRepository.update(any[BSONObjectID], any[Notification])).thenReturn(Future.successful(Some(parsedNotification)))
+          when(notificationRepository.update(any[Notification])).thenReturn(Future.successful(Some(parsedNotification)))
 
           notificationService.parseUnparsedNotifications.futureValue
 
-          val expectedId = parsedNotification._id
-          verify(notificationRepository).update(meq(expectedId), meq(parsedNotification))
+          verify(notificationRepository).update(meq(parsedNotification))
         }
 
         "return Future with Sequence containing " in {
 
-          when(notificationRepository.findUnparsedNotifications()).thenReturn(Future.successful(Seq(unparsedNotification)))
+          when(notificationRepository.findUnparsedNotifications).thenReturn(Future.successful(Seq(unparsedNotification)))
           when(notificationFactory.buildMovementNotification(anyString(), anyString())).thenReturn(parsedNotification)
-          when(notificationRepository.update(any[BSONObjectID], any[Notification])).thenReturn(Future.successful(Some(parsedNotification)))
+          when(notificationRepository.update(any[Notification])).thenReturn(Future.successful(Some(parsedNotification)))
 
           val result = notificationService.parseUnparsedNotifications.futureValue
 

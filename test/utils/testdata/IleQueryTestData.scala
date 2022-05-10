@@ -29,5 +29,4 @@ object IleQueryTestData {
         <ucrType>{ucrBlock.ucrType}</ucrType>
       </queryUCR>
     </inventoryLinkingQueryRequest>
-
 }

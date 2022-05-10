@@ -16,24 +16,24 @@
 
 package uk.gov.hmrc.exports.movements.services
 
-import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoUnit
-import java.time.{Clock, Instant}
-
-import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation
 import uk.gov.hmrc.exports.movements.models.movements.{MovementsExchange, Transport}
 import uk.gov.hmrc.exports.movements.models.notifications.standard
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType.ConsolidationType
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType.MovementType._
+import uk.gov.hmrc.exports.movements.services.UcrBlockBuilder.{buildUcrBlock, buildUcrBlockNode}
 import uk.gov.hmrc.wco.dec.inventorylinking.common.TransportDetails
 import uk.gov.hmrc.wco.dec.inventorylinking.movement.request.InventoryLinkingMovementRequest
 
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
+import java.time.{Clock, Instant}
+import javax.inject.{Inject, Singleton}
 import scala.util.Random
 import scala.xml.{Node, NodeSeq}
 
 @Singleton
-class IleMapper @Inject()(clock: Clock, ucrBlockBuilder: UcrBlockBuilder) {
+class IleMapper @Inject()(clock: Clock) {
 
   private val dateTimeFormatter = DateTimeFormatter.ISO_INSTANT
 
@@ -61,7 +61,7 @@ class IleMapper @Inject()(clock: Clock, ucrBlockBuilder: UcrBlockBuilder) {
     InventoryLinkingMovementRequest(
       messageCode = request.choice.ileCode,
       agentDetails = None,
-      ucrBlock = ucrBlockBuilder.buildUcrBlock(request.consignmentReference).toWcoUcrBlock,
+      ucrBlock = buildUcrBlock(request.consignmentReference).toWcoUcrBlock,
       goodsLocation = request.location.map(_.code).getOrElse(""),
       goodsArrivalDateTime = arrivalDetails,
       goodsDepartureDateTime = departureDetails,
@@ -86,7 +86,7 @@ class IleMapper @Inject()(clock: Clock, ucrBlockBuilder: UcrBlockBuilder) {
       <inventoryLinkingConsolidationRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
         <messageCode>{buildMessageCode(consolidation.consolidationType)}</messageCode>
         {buildMasterUcrNode(consolidation.mucrOpt)}
-        {consolidation.ucrOpt.map(ucr => ucrBlockBuilder.buildUcrBlockNode(consolidation.consolidationType, ucr)).getOrElse(NodeSeq.Empty)}
+        {consolidation.ucrOpt.map(ucr => buildUcrBlockNode(consolidation.consolidationType, ucr)).getOrElse(NodeSeq.Empty)}
       </inventoryLinkingConsolidationRequest>
     }
 

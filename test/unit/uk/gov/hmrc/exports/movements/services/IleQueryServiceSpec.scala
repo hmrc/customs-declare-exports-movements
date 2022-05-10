@@ -25,12 +25,10 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.Helpers._
-import reactivemongo.api.commands.WriteResult
 import testdata.CommonTestData._
 import testdata.IleQueryTestData.ileQueryXml
 import testdata.MovementsTestData.exampleIleQuerySubmission
 import testdata.notifications.NotificationTestData.notificationIleQueryResponse_1
-import uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder.dummyWriteResultSuccess
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
 import uk.gov.hmrc.exports.movements.misc.IleQueryTimeoutCalculator
 import uk.gov.hmrc.exports.movements.models.movements.IleQueryRequest
@@ -57,6 +55,8 @@ class IleQueryServiceSpec extends AnyWordSpec with MockitoSugar with Matchers wi
   private val ileConnector = mock[CustomsInventoryLinkingExportsConnector]
   private val ileQueryTimeoutCalculator = mock[IleQueryTimeoutCalculator]
 
+  private val ileQuerySubmission = Right(exampleIleQuerySubmission())
+
   private val ileQueryService =
     new IleQueryService(ileMapper, ileQuerySubmissionRepository, notificationRepository, ileConnector, ileQueryTimeoutCalculator)(global)
 
@@ -68,8 +68,8 @@ class IleQueryServiceSpec extends AnyWordSpec with MockitoSugar with Matchers wi
     when(ileMapper.buildIleQuery(any[UcrBlock])).thenReturn(ileQueryXml(UcrBlock(ucr = ucr, ucrType = "D")))
     when(ileConnector.submit(any[UserIdentification], any[NodeSeq])(any()))
       .thenReturn(Future.successful(CustomsInventoryLinkingResponse(ACCEPTED, Some(""))))
-    when(ileQuerySubmissionRepository.insert(any[IleQuerySubmission])(any())).thenReturn(Future.successful(dummyWriteResultSuccess))
-    when(ileQuerySubmissionRepository.findBy(any[SearchParameters])).thenReturn(Future.successful(Seq.empty))
+    when(ileQuerySubmissionRepository.insertOne(any[IleQuerySubmission])).thenReturn(Future.successful(ileQuerySubmission))
+    when(ileQuerySubmissionRepository.findAll(any[SearchParameters])).thenReturn(Future.successful(Seq.empty))
     when(notificationRepository.findByConversationIds(any[Seq[String]])).thenReturn(Future.successful(Seq.empty))
     when(ileQueryTimeoutCalculator.hasQueryTimedOut(any[IleQuerySubmission])).thenReturn(false)
   }
@@ -87,24 +87,20 @@ class IleQueryServiceSpec extends AnyWordSpec with MockitoSugar with Matchers wi
     "everything works correctly" should {
 
       "call ILEMapper, IleConnector and IleQueryRepository in this order" in {
-
         ileQueryService.submit(ileQueryRequest).futureValue
 
         val inOrder: InOrder = Mockito.inOrder(ileMapper, ileConnector, ileQuerySubmissionRepository)
         inOrder.verify(ileMapper, times(1)).buildIleQuery(any())
         inOrder.verify(ileConnector, times(1)).submit(any(), any())(any())
-        inOrder.verify(ileQuerySubmissionRepository, times(1)).insert(any())(any())
+        inOrder.verify(ileQuerySubmissionRepository, times(1)).insertOne(any())
       }
 
       "call ILEMapper once, passing UcrBlock from request" in {
-
         ileQueryService.submit(ileQueryRequest).futureValue
-
         verify(ileMapper, times(1)).buildIleQuery(ileQueryRequest.ucrBlock)
       }
 
       "call IleConnector once, passing IleQueryRequest and request xml returned from ILEMapper" in {
-
         val queryXml = ileQueryXml(UcrBlock(ucr = ucr, ucrType = "D"))
         when(ileMapper.buildIleQuery(any[UcrBlock])).thenReturn(queryXml)
 
@@ -114,14 +110,13 @@ class IleQueryServiceSpec extends AnyWordSpec with MockitoSugar with Matchers wi
       }
 
       "call IleQueryRepository once, passing constructed IleQuerySubmission with Conversation ID returned from IleConnector" in {
-
         when(ileConnector.submit(any[UserIdentification], any[NodeSeq])(any()))
           .thenReturn(Future.successful(CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId))))
 
         ileQueryService.submit(ileQueryRequest).futureValue
 
         val ileQuerySubmissionCaptor: ArgumentCaptor[IleQuerySubmission] = ArgumentCaptor.forClass(classOf[IleQuerySubmission])
-        verify(ileQuerySubmissionRepository, times(1)).insert(ileQuerySubmissionCaptor.capture())(any())
+        verify(ileQuerySubmissionRepository, times(1)).insertOne(ileQuerySubmissionCaptor.capture())
         val actualIleQuerySubmission = ileQuerySubmissionCaptor.getValue
 
         actualIleQuerySubmission.eori mustBe validEori
@@ -132,7 +127,6 @@ class IleQueryServiceSpec extends AnyWordSpec with MockitoSugar with Matchers wi
       }
 
       "return successful Future with Conversation ID returned from IleConnector" in {
-
         when(ileConnector.submit(any[UserIdentification], any[NodeSeq])(any()))
           .thenReturn(Future.successful(CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId))))
 
@@ -143,7 +137,6 @@ class IleQueryServiceSpec extends AnyWordSpec with MockitoSugar with Matchers wi
     "ILEMapper throws an exception" should {
 
       "return failed Future" in {
-
         val exceptionMsg = "Test Exception message"
         when(ileMapper.buildIleQuery(any[UcrBlock]))
           .thenThrow(new RuntimeException(exceptionMsg))
@@ -154,7 +147,6 @@ class IleQueryServiceSpec extends AnyWordSpec with MockitoSugar with Matchers wi
       }
 
       "not call IleConnector nor IleQueryRepository" in {
-
         when(ileMapper.buildIleQuery(any[UcrBlock])).thenThrow(new RuntimeException("Test Exception message"))
 
         an[Exception] mustBe thrownBy {
@@ -169,7 +161,6 @@ class IleQueryServiceSpec extends AnyWordSpec with MockitoSugar with Matchers wi
     "IleConnector returns CustomsInventoryLinkingResponse without Conversation ID" should {
 
       "return failed Future" in {
-
         when(ileConnector.submit(any[UserIdentification], any[NodeSeq])(any()))
           .thenReturn(Future.successful(CustomsInventoryLinkingResponse(ACCEPTED, None)))
 
@@ -179,7 +170,6 @@ class IleQueryServiceSpec extends AnyWordSpec with MockitoSugar with Matchers wi
       }
 
       "not call IleQueryRepository" in {
-
         when(ileConnector.submit(any[UserIdentification], any[NodeSeq])(any()))
           .thenReturn(Future.successful(CustomsInventoryLinkingResponse(ACCEPTED, None)))
 
@@ -192,7 +182,6 @@ class IleQueryServiceSpec extends AnyWordSpec with MockitoSugar with Matchers wi
     "IleConnector returns CustomsInventoryLinkingResponse with InternalServerError status" should {
 
       "return failed Future" in {
-
         when(ileConnector.submit(any[UserIdentification], any[NodeSeq])(any()))
           .thenReturn(Future.successful(CustomsInventoryLinkingResponse(INTERNAL_SERVER_ERROR, Some(conversationId))))
 
@@ -202,26 +191,12 @@ class IleQueryServiceSpec extends AnyWordSpec with MockitoSugar with Matchers wi
       }
 
       "not call IleQueryRepository" in {
-
         when(ileConnector.submit(any[UserIdentification], any[NodeSeq])(any()))
           .thenReturn(Future.successful(CustomsInventoryLinkingResponse(INTERNAL_SERVER_ERROR, Some(conversationId))))
 
         ileQueryService.submit(ileQueryRequest).failed.futureValue
 
         verifyNoMoreInteractions(ileQuerySubmissionRepository)
-      }
-    }
-
-    "IleQueryRepository on insert returns WriteResult with Error" should {
-
-      "return failed Future" in {
-
-        val exceptionMsg = "Test Exception message"
-        when(ileQuerySubmissionRepository.insert(any[IleQuerySubmission])(any()))
-          .thenReturn(Future.failed[WriteResult](new Exception(exceptionMsg)))
-
-        val exc = ileQueryService.submit(ileQueryRequest).failed.futureValue
-        exc.getMessage must include(exceptionMsg)
       }
     }
   }
@@ -233,8 +208,7 @@ class IleQueryServiceSpec extends AnyWordSpec with MockitoSugar with Matchers wi
     "everything works correctly" should {
 
       "call SubmissionRepository, IleQueryTimeoutCalculator and NotificationRepository in this order" in {
-
-        when(ileQuerySubmissionRepository.findBy(any[SearchParameters]))
+        when(ileQuerySubmissionRepository.findAll(any[SearchParameters]))
           .thenReturn(Future.successful(Seq(exampleIleQuerySubmission(providerId = Some(validProviderId)))))
         when(ileQueryTimeoutCalculator.hasQueryTimedOut(any[IleQuerySubmission])).thenReturn(false)
         when(notificationRepository.findByConversationIds(any[Seq[String]])).thenReturn(Future.successful(Seq(notificationIleQueryResponse_1)))
@@ -242,26 +216,24 @@ class IleQueryServiceSpec extends AnyWordSpec with MockitoSugar with Matchers wi
         ileQueryService.fetchResponses(searchParameters).futureValue
 
         val inOrder: InOrder = Mockito.inOrder(ileQuerySubmissionRepository, notificationRepository)
-        inOrder.verify(ileQuerySubmissionRepository, times(1)).findBy(any())
+        inOrder.verify(ileQuerySubmissionRepository, times(1)).findAll(any())
         inOrder.verify(notificationRepository, times(1)).findByConversationIds(any())
       }
 
       "call SubmissionRepository, passing SearchParameters provided" in {
-
-        when(ileQuerySubmissionRepository.findBy(any[SearchParameters]))
+        when(ileQuerySubmissionRepository.findAll(any[SearchParameters]))
           .thenReturn(Future.successful(Seq(exampleIleQuerySubmission(providerId = Some(validProviderId)))))
         when(ileQueryTimeoutCalculator.hasQueryTimedOut(any[IleQuerySubmission])).thenReturn(false)
         when(notificationRepository.findByConversationIds(any[Seq[String]])).thenReturn(Future.successful(Seq(notificationIleQueryResponse_1)))
 
         ileQueryService.fetchResponses(searchParameters).futureValue
 
-        verify(ileQuerySubmissionRepository, times(1)).findBy(searchParameters)
+        verify(ileQuerySubmissionRepository, times(1)).findAll(searchParameters)
       }
 
       "call IleQueryTimeoutCalculator, passing Submission returned by SubmissionRepository" in {
-
         val submission = exampleIleQuerySubmission(providerId = Some(validProviderId))
-        when(ileQuerySubmissionRepository.findBy(any[SearchParameters])).thenReturn(Future.successful(Seq(submission)))
+        when(ileQuerySubmissionRepository.findAll(any[SearchParameters])).thenReturn(Future.successful(Seq(submission)))
         when(ileQueryTimeoutCalculator.hasQueryTimedOut(any[IleQuerySubmission])).thenReturn(false)
         when(notificationRepository.findByConversationIds(any[Seq[String]])).thenReturn(Future.successful(Seq(notificationIleQueryResponse_1)))
 
@@ -271,8 +243,7 @@ class IleQueryServiceSpec extends AnyWordSpec with MockitoSugar with Matchers wi
       }
 
       "call NotificationRepository, passing Conversation ID provided" in {
-
-        when(ileQuerySubmissionRepository.findBy(any[SearchParameters]))
+        when(ileQuerySubmissionRepository.findAll(any[SearchParameters]))
           .thenReturn(Future.successful(Seq(exampleIleQuerySubmission(providerId = Some(validProviderId)))))
         when(ileQueryTimeoutCalculator.hasQueryTimedOut(any[IleQuerySubmission])).thenReturn(false)
         when(notificationRepository.findByConversationIds(any[Seq[String]])).thenReturn(Future.successful(Seq(notificationIleQueryResponse_1)))
@@ -283,8 +254,7 @@ class IleQueryServiceSpec extends AnyWordSpec with MockitoSugar with Matchers wi
       }
 
       "return converted IleQueryResponses returned by NotificationRepository" in {
-
-        when(ileQuerySubmissionRepository.findBy(any[SearchParameters]))
+        when(ileQuerySubmissionRepository.findAll(any[SearchParameters]))
           .thenReturn(Future.successful(Seq(exampleIleQuerySubmission(providerId = Some(validProviderId)))))
         when(ileQueryTimeoutCalculator.hasQueryTimedOut(any[IleQuerySubmission])).thenReturn(false)
         when(notificationRepository.findByConversationIds(any[Seq[String]])).thenReturn(Future.successful(Seq(notificationIleQueryResponse_1)))
@@ -309,8 +279,7 @@ class IleQueryServiceSpec extends AnyWordSpec with MockitoSugar with Matchers wi
     "there is no Submission with given User Identification and Conversation ID" should {
 
       "return empty Sequence" in {
-
-        when(ileQuerySubmissionRepository.findBy(any[SearchParameters])).thenReturn(Future.successful(Seq.empty))
+        when(ileQuerySubmissionRepository.findAll(any[SearchParameters])).thenReturn(Future.successful(Seq.empty))
 
         val result = ileQueryService.fetchResponses(searchParameters).futureValue
 
@@ -319,8 +288,7 @@ class IleQueryServiceSpec extends AnyWordSpec with MockitoSugar with Matchers wi
       }
 
       "not call TimeComparator, nor NotificationRepository" in {
-
-        when(ileQuerySubmissionRepository.findBy(any[SearchParameters])).thenReturn(Future.successful(Seq.empty))
+        when(ileQuerySubmissionRepository.findAll(any[SearchParameters])).thenReturn(Future.successful(Seq.empty))
 
         ileQueryService.fetchResponses(searchParameters).futureValue
 
@@ -332,8 +300,7 @@ class IleQueryServiceSpec extends AnyWordSpec with MockitoSugar with Matchers wi
     "IleQueryTimeoutCalculator on hasQueryTimedOut returns true" should {
 
       "return successful Future with Either.left" in {
-
-        when(ileQuerySubmissionRepository.findBy(any[SearchParameters]))
+        when(ileQuerySubmissionRepository.findAll(any[SearchParameters]))
           .thenReturn(Future.successful(Seq(exampleIleQuerySubmission(providerId = Some(validProviderId)))))
         when(ileQueryTimeoutCalculator.hasQueryTimedOut(any[IleQuerySubmission])).thenReturn(true)
 
@@ -343,8 +310,7 @@ class IleQueryServiceSpec extends AnyWordSpec with MockitoSugar with Matchers wi
       }
 
       "not call NotificationRepository" in {
-
-        when(ileQuerySubmissionRepository.findBy(any[SearchParameters]))
+        when(ileQuerySubmissionRepository.findAll(any[SearchParameters]))
           .thenReturn(Future.successful(Seq(exampleIleQuerySubmission(providerId = Some(validProviderId)))))
         when(ileQueryTimeoutCalculator.hasQueryTimedOut(any[IleQuerySubmission])).thenReturn(true)
 
@@ -356,8 +322,7 @@ class IleQueryServiceSpec extends AnyWordSpec with MockitoSugar with Matchers wi
 
     "there is no Notification with given Conversation ID" should {
       "return empty Sequence" in {
-
-        when(ileQuerySubmissionRepository.findBy(any[SearchParameters]))
+        when(ileQuerySubmissionRepository.findAll(any[SearchParameters]))
           .thenReturn(Future.successful(Seq(exampleIleQuerySubmission(providerId = Some(validProviderId)))))
         when(ileQueryTimeoutCalculator.hasQueryTimedOut(any[IleQuerySubmission])).thenReturn(false)
         when(notificationRepository.findByConversationIds(any[Seq[String]])).thenReturn(Future.successful(Seq.empty))
@@ -369,5 +334,4 @@ class IleQueryServiceSpec extends AnyWordSpec with MockitoSugar with Matchers wi
       }
     }
   }
-
 }

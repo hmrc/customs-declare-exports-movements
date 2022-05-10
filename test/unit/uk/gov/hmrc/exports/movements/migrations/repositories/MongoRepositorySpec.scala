@@ -20,6 +20,7 @@ import com.mongodb.MongoNamespace
 import com.mongodb.client.model.IndexOptions
 import com.mongodb.client.{ListIndexesIterable, MongoCollection, MongoDatabase}
 import org.bson.Document
+import org.bson.conversions.Bson
 import org.mockito.ArgumentMatchers.{any, anyString, eq => meq}
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
@@ -47,7 +48,7 @@ class MongoRepositorySpec extends AnyWordSpec with MockitoSugar with BeforeAndAf
     reset(indexesList, mongoCollection, mongoDatabase)
 
     when(mongoCollection.getNamespace).thenReturn(mongoNamespace)
-    when(mongoCollection.createIndex(any(), any())).thenReturn(testIndex)
+    when(mongoCollection.createIndex(any[Bson], any())).thenReturn(testIndex)
     when(mongoCollection.listIndexes).thenReturn(indexesList)
     when(mongoDatabase.getCollection(anyString())).thenReturn(mongoCollection)
   }

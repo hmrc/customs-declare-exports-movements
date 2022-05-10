@@ -20,15 +20,13 @@ import com.codahale.metrics.Timer
 import org.mockito.ArgumentMatchers.{any, anyString}
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import reactivemongo.api.commands.{LastError, WriteResult}
-import reactivemongo.core.errors.GenericDatabaseException
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
 import uk.gov.hmrc.exports.movements.metrics.MovementsMetrics
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
 import uk.gov.hmrc.exports.movements.models.notifications._
 import uk.gov.hmrc.exports.movements.models.notifications.parsers.{ResponseParser, ResponseParserProvider}
 import uk.gov.hmrc.exports.movements.models.notifications.standard.StandardNotificationData
-import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, SubmissionRepository}
+import uk.gov.hmrc.exports.movements.repositories.{GenericError, NotificationRepository, SubmissionRepository}
 import uk.gov.hmrc.exports.movements.services.NotificationService
 
 import scala.concurrent.Future
@@ -37,14 +35,12 @@ import scala.xml.NodeSeq
 
 object UnitTestMockBuilder extends MockitoSugar {
 
-  val dummyWriteResultSuccess: WriteResult =
-    LastError(true, None, None, None, 0, None, false, None, None, false, None, None)
-
   def buildNotificationRepositoryMock: NotificationRepository = {
     val notificationRepositoryMock = mock[NotificationRepository]
 
-    when(notificationRepositoryMock.insert(any[Notification])(any()))
-      .thenReturn(Future.failed(GenericDatabaseException("ERROR", None)))
+    when(notificationRepositoryMock.insertOne(any[Notification]))
+      .thenReturn(Future.successful(Left(GenericError("ERROR"))))
+
     when(notificationRepositoryMock.findByConversationIds(any[Seq[String]]))
       .thenReturn(Future.successful(Seq.empty))
 
@@ -54,9 +50,9 @@ object UnitTestMockBuilder extends MockitoSugar {
   def buildSubmissionRepositoryMock: SubmissionRepository = {
     val submissionRepositoryMock = mock[SubmissionRepository]
 
-    when(submissionRepositoryMock.findBy(any())).thenReturn(Future.successful(Seq.empty))
-    when(submissionRepositoryMock.insert(any())(any()))
-      .thenReturn(Future.failed(GenericDatabaseException("ERROR", None)))
+    when(submissionRepositoryMock.findAll(any())).thenReturn(Future.successful(Seq.empty))
+    when(submissionRepositoryMock.insertOne(any()))
+      .thenReturn(Future.successful(Left(GenericError("ERROR"))))
 
     submissionRepositoryMock
   }

@@ -16,23 +16,45 @@
 
 package uk.gov.hmrc.exports.movements.models.submissions
 
-import java.time.Instant
-import java.util.UUID
-
 import play.api.libs.json._
 import uk.gov.hmrc.exports.movements.models.UserIdentification
 import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
+import uk.gov.hmrc.exports.movements.models.submissions.ActionType.{ConsolidationType, MovementType}
+import uk.gov.hmrc.exports.movements.services.UcrBlockBuilder.extractUcrBlocksForSubmissionFrom
+
+import java.time.Instant
+import java.util.UUID
+import scala.xml.Node
 
 case class Submission(
-  uuid: String = UUID.randomUUID().toString,
+  uuid: String = UUID.randomUUID.toString,
   override val eori: String,
   override val providerId: Option[String],
   conversationId: String,
   ucrBlocks: Seq[UcrBlock],
   actionType: ActionType,
-  requestTimestamp: Instant = Instant.now()
+  requestTimestamp: Instant = Instant.now
 ) extends UserIdentification
 
 object Submission {
+
   implicit val format: OFormat[Submission] = Json.format[Submission]
+
+  def apply(eori: String, providerId: Option[String], conversationId: String, requestXml: Node, movementType: MovementType): Submission =
+    Submission(
+      eori = eori,
+      providerId = providerId,
+      conversationId = conversationId,
+      ucrBlocks = extractUcrBlocksForSubmissionFrom(requestXml),
+      actionType = movementType
+    )
+
+  def apply(eori: String, providerId: Option[String], conversationId: String, requestXml: Node, consolidationType: ConsolidationType): Submission =
+    Submission(
+      eori = eori,
+      providerId = providerId,
+      conversationId = conversationId,
+      ucrBlocks = extractUcrBlocksForSubmissionFrom(requestXml),
+      actionType = consolidationType
+    )
 }

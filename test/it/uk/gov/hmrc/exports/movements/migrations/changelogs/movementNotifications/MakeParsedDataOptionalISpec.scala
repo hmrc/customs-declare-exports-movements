@@ -1,62 +1,53 @@
 package uk.gov.hmrc.exports.movements.migrations.changelogs.movementNotifications
 
-import com.mongodb.client.{MongoCollection, MongoDatabase}
-import com.mongodb.{MongoClient, MongoClientURI}
+import com.mongodb.client.{MongoClients, MongoDatabase}
 import org.bson.Document
 import stubs.TestMongoDB
 import stubs.TestMongoDB.mongoConfiguration
-import uk.gov.hmrc.exports.movements.migrations.changelogs.ChangeLogsBaseSpec
-import uk.gov.hmrc.exports.movements.migrations.changelogs.movementNotifications.MakeParsedDataOptionalSpec._
+import uk.gov.hmrc.exports.movements.migrations.changelogs.ChangeLogsBaseISpec
+import uk.gov.hmrc.exports.movements.migrations.changelogs.movementNotifications.MakeParsedDataOptionalISpec._
 
-class MakeParsedDataOptionalSpec extends ChangeLogsBaseSpec {
+class MakeParsedDataOptionalISpec extends ChangeLogsBaseISpec {
 
   private val MongoURI = mongoConfiguration.get[String]("mongodb.uri")
   private val DatabaseName = TestMongoDB.DatabaseName
   private val CollectionName = "movementNotifications"
 
-  private implicit val mongoDatabase: MongoDatabase = {
-    val uri = new MongoClientURI(MongoURI.replaceAllLiterally("sslEnabled", "ssl"))
-    val client = new MongoClient(uri)
+  private val mongoDatabase: MongoDatabase =
+    MongoClients.create(MongoURI.replaceAllLiterally("sslEnabled", "ssl")).getDatabase(DatabaseName)
 
-    client.getDatabase(DatabaseName)
-  }
-
-  private val changeLog = new MakeParsedDataOptional()
+  private val changeLog = new MakeParsedDataOptional
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    mongoDatabase.getCollection(CollectionName).drop()
+    mongoDatabase.getCollection(CollectionName).drop
   }
 
   override def afterEach(): Unit = {
-    mongoDatabase.getCollection(CollectionName).drop()
+    mongoDatabase.getCollection(CollectionName).drop
     super.afterEach()
   }
 
-  def runTest(inputDataJson: String, expectedDataJson: String)(test: MongoDatabase => Unit)(implicit mongoDatabase: MongoDatabase): Unit = {
-    getMovementNotificationsCollection(mongoDatabase).insertOne(Document.parse(inputDataJson))
+  def runTest(inputDataJson: String, expectedDataJson: String)(test: MongoDatabase => Unit): Unit = {
+    mongoDatabase.getCollection(CollectionName).insertOne(Document.parse(inputDataJson))
 
     test(mongoDatabase)
 
-    val result: Document = getMovementNotificationsCollection(mongoDatabase).find().first()
+    val result: Document = mongoDatabase.getCollection(CollectionName).find.first
     val expectedResult: String = expectedDataJson
 
     compareJson(result.toJson, expectedResult)
   }
-
-  private def getMovementNotificationsCollection(db: MongoDatabase): MongoCollection[Document] = mongoDatabase.getCollection(CollectionName)
 
   "CacheChangeLog" should {
 
     "correctly migrate data" when {
 
       "migrating IleQueryResponse" in {
-
         runTest(TestDataBeforeChange.ileQueryResponse, TestDataAfterChange.ileQueryResponse)(changeLog.migrationFunction)
       }
 
       "migrating MovementTotalsResponse" in {
-
         runTest(TestDataBeforeChange.movementTotalsResponse, TestDataAfterChange.movementTotalsResponse)(changeLog.migrationFunction)
       }
     }
@@ -64,19 +55,17 @@ class MakeParsedDataOptionalSpec extends ChangeLogsBaseSpec {
     "not change data already migrated" when {
 
       "migrating IleQueryResponse" in {
-
         runTest(TestDataAfterChange.ileQueryResponse, TestDataAfterChange.ileQueryResponse)(changeLog.migrationFunction)
       }
 
       "migrating MovementTotalsResponse" in {
-
         runTest(TestDataAfterChange.movementTotalsResponse, TestDataAfterChange.movementTotalsResponse)(changeLog.migrationFunction)
       }
     }
   }
 }
 
-object MakeParsedDataOptionalSpec {
+object MakeParsedDataOptionalISpec {
 
   object TestDataBeforeChange {
 
@@ -261,5 +250,4 @@ object MakeParsedDataOptionalSpec {
         |}
       """.stripMargin
   }
-
 }

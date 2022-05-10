@@ -34,7 +34,7 @@ import testdata.MovementsTestData.dateTimeString
 
 import scala.concurrent.ExecutionContext
 
-class ConnectorSpec extends AnyWordSpec with GuiceOneAppPerSuite with WiremockTestServer with Matchers with MockitoSugar with BeforeAndAfterEach {
+class ConnectorISpec extends AnyWordSpec with GuiceOneAppPerSuite with WiremockTestServer with Matchers with MockitoSugar with BeforeAndAfterEach {
 
   private val clock = Clock.fixed(Instant.parse(dateTimeString), ZoneOffset.UTC)
 

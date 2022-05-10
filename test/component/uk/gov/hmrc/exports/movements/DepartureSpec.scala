@@ -77,5 +77,4 @@ class DepartureSpec extends ComponentSpec {
       )
     }
   }
-
 }

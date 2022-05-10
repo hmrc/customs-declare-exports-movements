@@ -30,7 +30,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.xml.Elem
 
-class CustomsInventoryLinkingExportsConnectorSpec extends ConnectorSpec {
+class CustomsInventoryLinkingExportsConnectorISpec extends ConnectorISpec {
 
   private val xml: Elem = <Xml></Xml>
   private val config = mock[AppConfig]

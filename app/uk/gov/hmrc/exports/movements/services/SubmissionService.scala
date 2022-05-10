@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.exports.movements.services
 
-import javax.inject.{Inject, Singleton}
 import play.api.Logger
 import play.api.http.Status.ACCEPTED
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
@@ -24,10 +23,11 @@ import uk.gov.hmrc.exports.movements.exceptions.CustomsInventoryLinkingUpstreamE
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
 import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation
 import uk.gov.hmrc.exports.movements.models.movements.MovementsExchange
-import uk.gov.hmrc.exports.movements.models.submissions.{Submission, SubmissionFactory}
+import uk.gov.hmrc.exports.movements.models.submissions.Submission
 import uk.gov.hmrc.exports.movements.repositories.{SearchParameters, SubmissionRepository}
 import uk.gov.hmrc.http.HeaderCarrier
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.xml.Node
 
@@ -35,7 +35,6 @@ import scala.xml.Node
 class SubmissionService @Inject()(
   customsInventoryLinkingExportsConnector: CustomsInventoryLinkingExportsConnector,
   submissionRepository: SubmissionRepository,
-  submissionFactory: SubmissionFactory,
   ileMapper: IleMapper
 )(implicit executionContext: ExecutionContext) {
 
@@ -47,10 +46,9 @@ class SubmissionService @Inject()(
     customsInventoryLinkingExportsConnector.submit(movement, requestXml).flatMap {
       case CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId)) =>
         logger.info(s"Movement Submission Accepted with conversation-id=[$conversationId]")
-        val newSubmission =
-          submissionFactory.buildMovementSubmission(movement.eori, movement.providerId, conversationId, requestXml, movement.choice)
+        val newSubmission = Submission(movement.eori, movement.providerId, conversationId, requestXml, movement.choice)
 
-        submissionRepository.insert(newSubmission).map(_ => (): Unit)
+        submissionRepository.insertOne(newSubmission).map(_ => (): Unit)
 
       case CustomsInventoryLinkingResponse(status, conversationId) =>
         logger.warn(s"Movement Submission failed with conversation-id=[$conversationId] and status [$status]")
@@ -66,13 +64,9 @@ class SubmissionService @Inject()(
     customsInventoryLinkingExportsConnector.submit(consolidation, requestXml).flatMap {
       case CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId)) =>
         logger.info(s"Consolidation Submission Accepted with conversation-id=[$conversationId]")
-        val newSubmission =
-          submissionFactory
-            .buildConsolidationSubmission(consolidation.eori, consolidation.providerId, conversationId, requestXml, consolidation.consolidationType)
+        val newSubmission = Submission(consolidation.eori, consolidation.providerId, conversationId, requestXml, consolidation.consolidationType)
+        submissionRepository.insertOne(newSubmission).map(_ => (): Unit)
 
-        submissionRepository
-          .insert(newSubmission)
-          .map(_ => (): Unit)
       case CustomsInventoryLinkingResponse(status, conversationId) =>
         logger.warn(s"Consolidation Submission failed with conversation-id=[$conversationId] and status [$status]")
         Future.failed(
@@ -82,9 +76,9 @@ class SubmissionService @Inject()(
   }
 
   def getSubmissions(searchParameters: SearchParameters): Future[Seq[Submission]] =
-    submissionRepository.findBy(searchParameters)
+    submissionRepository.findAll(searchParameters)
 
   def getSingleSubmission(searchParameters: SearchParameters): Future[Option[Submission]] =
-    submissionRepository.findBy(searchParameters).map(_.headOption)
+    submissionRepository.findAll(searchParameters).map(_.headOption)
 
 }

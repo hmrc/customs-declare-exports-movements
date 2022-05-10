@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.exports.movements.services
 
-import javax.inject.{Inject, Singleton}
 import play.api.Logger
 import play.api.http.Status.ACCEPTED
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
@@ -30,6 +29,7 @@ import uk.gov.hmrc.exports.movements.models.submissions.IleQuerySubmission
 import uk.gov.hmrc.exports.movements.repositories.{IleQuerySubmissionRepository, NotificationRepository, SearchParameters}
 import uk.gov.hmrc.http.HeaderCarrier
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
@@ -56,7 +56,7 @@ class IleQueryService @Inject()(
           ucrBlock = ileQueryRequest.ucrBlock
         )
 
-        ileQuerySubmissionRepository.insert(submission).map(_ => conversationId)
+        ileQuerySubmissionRepository.insertOne(submission).map(_ => conversationId)
 
       case CustomsInventoryLinkingResponse(status, conversationId) =>
         logger.warn(s"ILE Query failed with conversation-id=[$conversationId] and status [$status]")
@@ -67,7 +67,7 @@ class IleQueryService @Inject()(
   }
 
   def fetchResponses(searchParameters: SearchParameters): Future[Either[TimeoutError, Seq[IleQueryResponseExchange]]] =
-    ileQuerySubmissionRepository.findBy(searchParameters).flatMap {
+    ileQuerySubmissionRepository.findAll(searchParameters).flatMap {
       case Nil => Future.successful(Right(Seq.empty))
 
       case submission :: Nil =>

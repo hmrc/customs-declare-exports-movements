@@ -16,25 +16,22 @@
 
 package uk.gov.hmrc.exports.movements.repositories
 
-import java.time.{Clock, Instant, ZoneOffset}
-
 import com.codahale.metrics.SharedMetricRegistries
-import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.BeforeAndAfterEach
+import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import reactivemongo.core.errors.DatabaseException
 import stubs.TestMongoDB
 import testdata.CommonTestData._
 import testdata.MovementsTestData.{dateTimeString, exampleIleQuerySubmission}
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import java.time.{Clock, Instant, ZoneOffset}
 
-class IleQuerySubmissionRepositorySpec
+class IleQuerySubmissionRepositoryISpec
     extends AnyWordSpec with GuiceOneAppPerSuite with BeforeAndAfterEach with ScalaFutures with Matchers with IntegrationPatience with TestMongoDB {
 
   private val clock = Clock.fixed(Instant.parse(dateTimeString), ZoneOffset.UTC)
@@ -50,11 +47,11 @@ class IleQuerySubmissionRepositorySpec
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    repo.removeAll().futureValue
+    repo.removeAll.futureValue
   }
 
   override def afterEach(): Unit = {
-    repo.removeAll().futureValue
+    repo.removeAll.futureValue
     super.afterEach()
   }
 
@@ -63,37 +60,26 @@ class IleQuerySubmissionRepositorySpec
     "the operation was successful" should {
       "result in a success" in {
         val submission = exampleIleQuerySubmission(eori = validEori)
-        repo.insert(submission).futureValue.ok mustBe true
+        repo.insertOne(submission).futureValue.isRight mustBe true
 
-        val submissionFromDB = repo.findAll().futureValue
+        val submissionFromDB = repo.findAll.futureValue
         submissionFromDB.length must equal(1)
         submissionFromDB.head must equal(submission)
       }
     }
 
     "trying to insert IleQuerySubmission with the same Conversation ID twice" should {
-
-      "throw DatabaseException" in {
-        val submission_1 = exampleIleQuerySubmission(conversationId = conversationId)
-        val submission_2 = exampleIleQuerySubmission(conversationId = conversationId)
-
-        repo.insert(submission_1).futureValue.ok must be(true)
-        val exc = repo.insert(submission_2).failed.futureValue
-
-        exc mustBe an[DatabaseException]
-        exc.getMessage must include(
-          "E11000 duplicate key error collection: test-customs-declare-exports-movements.ileQuerySubmissions index: conversationIdIdx dup key"
-        )
-      }
-
       "result in having only the first IleQuerySubmission persisted" in {
         val submission_1 = exampleIleQuerySubmission(conversationId = conversationId)
         val submission_2 = exampleIleQuerySubmission(conversationId = conversationId)
 
-        repo.insert(submission_1).futureValue.ok must be(true)
-        repo.insert(submission_2).failed.futureValue
+        repo.insertOne(submission_1).futureValue.isRight must be(true)
 
-        val submissionFromDB = repo.findAll().futureValue
+        val result = repo.insertOne(submission_2).futureValue
+        result.isLeft must be(true)
+        result.left.get mustBe a[DuplicateKey]
+
+        val submissionFromDB = repo.findAll.futureValue
         submissionFromDB.length must equal(1)
         submissionFromDB.head must equal(submission_1)
       }
@@ -107,19 +93,18 @@ class IleQuerySubmissionRepositorySpec
       "there is no Submission with given EORI" should {
         "return empty list" in {
           val query = SearchParameters(eori = Some(validEori))
-
-          repo.findBy(query).futureValue mustBe Seq.empty
+          repo.findAll(query).futureValue mustBe Seq.empty
         }
       }
 
       "there is single Submission with given EORI" should {
         "return this Submission only" in {
           val submission = exampleIleQuerySubmission(eori = validEori)
-          repo.insert(submission).futureValue.ok must be(true)
+          repo.insertOne(submission).futureValue.isRight must be(true)
 
           val query = SearchParameters(eori = Some(validEori))
 
-          val foundSubmissions = repo.findBy(query).futureValue
+          val foundSubmissions = repo.findAll(query).futureValue
 
           foundSubmissions.length mustBe 1
           foundSubmissions.head mustBe submission
@@ -133,17 +118,17 @@ class IleQuerySubmissionRepositorySpec
           val submission_3 = exampleIleQuerySubmission(eori = validEori, conversationId = conversationId_3)
           val submission_4 = exampleIleQuerySubmission(eori = validEori, conversationId = conversationId_4)
           val submission_5 = exampleIleQuerySubmission(eori = validEori, conversationId = conversationId_5)
-          repo.insert(submission).futureValue.ok must be(true)
-          repo.insert(submission_2).futureValue.ok must be(true)
-          repo.insert(submission_3).futureValue.ok must be(true)
-          repo.insert(submission_4).futureValue.ok must be(true)
-          repo.insert(submission_5).futureValue.ok must be(true)
+          repo.insertOne(submission).futureValue.isRight must be(true)
+          repo.insertOne(submission_2).futureValue.isRight must be(true)
+          repo.insertOne(submission_3).futureValue.isRight must be(true)
+          repo.insertOne(submission_4).futureValue.isRight must be(true)
+          repo.insertOne(submission_5).futureValue.isRight must be(true)
 
           val query = SearchParameters(eori = Some(validEori))
 
-          val foundSubmissions = repo.findBy(query).futureValue
+          val foundSubmissions = repo.findAll(query).futureValue
 
-          foundSubmissions.length must equal(5)
+          foundSubmissions.length mustBe 5
           foundSubmissions must contain(submission)
           foundSubmissions must contain(submission_2)
           foundSubmissions must contain(submission_3)
@@ -159,18 +144,18 @@ class IleQuerySubmissionRepositorySpec
         "return empty list" in {
           val query = SearchParameters(providerId = Some(validProviderId))
 
-          repo.findBy(query).futureValue mustBe Seq.empty
+          repo.findAll(query).futureValue mustBe Seq.empty
         }
       }
 
       "there is single Submission with given Provider ID" should {
         "return this Submission only" in {
           val submission = exampleIleQuerySubmission(providerId = Some(validProviderId))
-          repo.insert(submission).futureValue.ok must be(true)
+          repo.insertOne(submission).futureValue.isRight must be(true)
 
           val query = SearchParameters(providerId = Some(validProviderId))
 
-          val foundSubmissions = repo.findBy(query).futureValue
+          val foundSubmissions = repo.findAll(query).futureValue
 
           foundSubmissions.length mustBe 1
           foundSubmissions.head mustBe submission
@@ -184,17 +169,17 @@ class IleQuerySubmissionRepositorySpec
           val submission_3 = exampleIleQuerySubmission(providerId = Some(validProviderId), conversationId = conversationId_3)
           val submission_4 = exampleIleQuerySubmission(providerId = Some(validProviderId), conversationId = conversationId_4)
           val submission_5 = exampleIleQuerySubmission(providerId = Some(validProviderId), conversationId = conversationId_5)
-          repo.insert(submission).futureValue.ok must be(true)
-          repo.insert(submission_2).futureValue.ok must be(true)
-          repo.insert(submission_3).futureValue.ok must be(true)
-          repo.insert(submission_4).futureValue.ok must be(true)
-          repo.insert(submission_5).futureValue.ok must be(true)
+          repo.insertOne(submission).futureValue.isRight must be(true)
+          repo.insertOne(submission_2).futureValue.isRight must be(true)
+          repo.insertOne(submission_3).futureValue.isRight must be(true)
+          repo.insertOne(submission_4).futureValue.isRight must be(true)
+          repo.insertOne(submission_5).futureValue.isRight must be(true)
 
           val query = SearchParameters(providerId = Some(validProviderId))
 
-          val foundSubmissions = repo.findBy(query).futureValue
+          val foundSubmissions = repo.findAll(query).futureValue
 
-          foundSubmissions.length must equal(5)
+          foundSubmissions.length mustBe 5
           foundSubmissions must contain(submission)
           foundSubmissions must contain(submission_2)
           foundSubmissions must contain(submission_3)
@@ -210,18 +195,18 @@ class IleQuerySubmissionRepositorySpec
         "return empty list" in {
           val query = SearchParameters(conversationId = Some(conversationId))
 
-          repo.findBy(query).futureValue mustBe Seq.empty
+          repo.findAll(query).futureValue mustBe Seq.empty
         }
       }
 
       "there is single Submission with given Conversation ID" should {
         "return this Submission" in {
           val submission = exampleIleQuerySubmission(conversationId = conversationId)
-          repo.insert(submission).futureValue.ok must be(true)
+          repo.insertOne(submission).futureValue.isRight must be(true)
 
           val query = SearchParameters(conversationId = Some(conversationId))
 
-          val foundSubmissions = repo.findBy(query).futureValue
+          val foundSubmissions = repo.findAll(query).futureValue
 
           foundSubmissions.length mustBe 1
           foundSubmissions.head mustBe submission
@@ -236,37 +221,36 @@ class IleQuerySubmissionRepositorySpec
         "there is no Submission with given EORI and Conversation ID" in {
           val query = SearchParameters(eori = Some(validEori), conversationId = Some(conversationId))
 
-          repo.findBy(query).futureValue mustBe Seq.empty
+          repo.findAll(query).futureValue mustBe Seq.empty
         }
 
         "there is Submission with given EORI but not Conversation ID" in {
           val submission = exampleIleQuerySubmission(eori = validEori, conversationId = conversationId_2)
-          repo.insert(submission).futureValue.ok must be(true)
+          repo.insertOne(submission).futureValue.isRight must be(true)
 
           val query = SearchParameters(eori = Some(validEori), conversationId = Some(conversationId))
 
-          repo.findBy(query).futureValue mustBe Seq.empty
+          repo.findAll(query).futureValue mustBe Seq.empty
         }
 
         "there is Submission with given Conversation ID but not EORI" in {
           val submission = exampleIleQuerySubmission(eori = validEori_2, conversationId = conversationId)
-          repo.insert(submission).futureValue.ok must be(true)
+          repo.insertOne(submission).futureValue.isRight must be(true)
 
           val query = SearchParameters(eori = Some(validEori), conversationId = Some(conversationId))
 
-          repo.findBy(query).futureValue mustBe Seq.empty
+          repo.findAll(query).futureValue mustBe Seq.empty
         }
       }
 
       "return single-element list with Submission" when {
-
         "there is single Submission with given EORI and Conversation ID" in {
           val submission = exampleIleQuerySubmission(eori = validEori, conversationId = conversationId)
-          repo.insert(submission).futureValue.ok must be(true)
+          repo.insertOne(submission).futureValue.isRight must be(true)
 
           val query = SearchParameters(eori = Some(validEori), conversationId = Some(conversationId))
 
-          val foundSubmissions = repo.findBy(query).futureValue
+          val foundSubmissions = repo.findAll(query).futureValue
 
           foundSubmissions.length mustBe 1
           foundSubmissions.head mustBe submission
@@ -281,37 +265,36 @@ class IleQuerySubmissionRepositorySpec
         "there is no Submission with given Provider ID and Conversation ID" in {
           val query = SearchParameters(providerId = Some(validProviderId), conversationId = Some(conversationId))
 
-          repo.findBy(query).futureValue mustBe Seq.empty
+          repo.findAll(query).futureValue mustBe Seq.empty
         }
 
         "there is Submission with given Provider ID but not Conversation ID" in {
           val submission = exampleIleQuerySubmission(providerId = Some(validProviderId), conversationId = conversationId_2)
-          repo.insert(submission).futureValue.ok must be(true)
+          repo.insertOne(submission).futureValue.isRight must be(true)
 
           val query = SearchParameters(providerId = Some(validProviderId), conversationId = Some(conversationId))
 
-          repo.findBy(query).futureValue mustBe Seq.empty
+          repo.findAll(query).futureValue mustBe Seq.empty
         }
 
         "there is Submission with given Conversation ID but not Provider ID" in {
           val submission = exampleIleQuerySubmission(providerId = Some(validProviderId_2), conversationId = conversationId)
-          repo.insert(submission).futureValue.ok must be(true)
+          repo.insertOne(submission).futureValue.isRight must be(true)
 
           val query = SearchParameters(providerId = Some(validProviderId), conversationId = Some(conversationId))
 
-          repo.findBy(query).futureValue mustBe Seq.empty
+          repo.findAll(query).futureValue mustBe Seq.empty
         }
       }
 
       "return single-element list with Submission" when {
-
         "there is single Submission with given Provider ID and Conversation ID" in {
           val submission = exampleIleQuerySubmission(providerId = Some(validProviderId), conversationId = conversationId)
-          repo.insert(submission).futureValue.ok must be(true)
+          repo.insertOne(submission).futureValue.isRight must be(true)
 
           val query = SearchParameters(providerId = Some(validProviderId), conversationId = Some(conversationId))
 
-          val foundSubmissions = repo.findBy(query).futureValue
+          val foundSubmissions = repo.findAll(query).futureValue
 
           foundSubmissions.length mustBe 1
           foundSubmissions.head mustBe submission
@@ -320,17 +303,14 @@ class IleQuerySubmissionRepositorySpec
     }
 
     "querying with empty SearchParameters" should {
-
       "return empty list" in {
         val submission = exampleIleQuerySubmission(providerId = Some(validProviderId), conversationId = conversationId)
-        repo.insert(submission).futureValue.ok must be(true)
+        repo.insertOne(submission).futureValue.isRight must be(true)
 
         val query = SearchParameters(None, None, None)
 
-        repo.findBy(query).futureValue mustBe Seq.empty
+        repo.findAll(query).futureValue mustBe Seq.empty
       }
     }
-
   }
-
 }

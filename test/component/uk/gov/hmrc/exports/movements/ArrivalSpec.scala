@@ -79,5 +79,4 @@ class ArrivalSpec extends ComponentSpec {
       )
     }
   }
-
 }

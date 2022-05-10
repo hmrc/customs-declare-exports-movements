@@ -16,8 +16,6 @@
 
 package component.uk.gov.hmrc.exports.movements
 
-import java.time.Instant
-
 import play.api.libs.json.Json
 import play.api.test.Helpers._
 import uk.gov.hmrc.exports.movements.controllers.routes
@@ -28,6 +26,8 @@ import uk.gov.hmrc.exports.movements.models.notifications.queries.{DucrInfo, Goo
 import uk.gov.hmrc.exports.movements.models.notifications.standard.{Entry, EntryStatus, StandardNotificationData, UcrBlock}
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType.MovementType
 import uk.gov.hmrc.exports.movements.models.submissions.Submission
+
+import java.time.Instant
 
 /*
  * Component Tests are Intentionally Explicit with the JSON input, XML & DB output and DONT use TestData helpers.

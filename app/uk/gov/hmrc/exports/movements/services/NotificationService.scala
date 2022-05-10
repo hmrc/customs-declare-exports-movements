@@ -16,13 +16,13 @@
 
 package uk.gov.hmrc.exports.movements.services
 
-import javax.inject.{Inject, Singleton}
 import play.api.Logger
 import uk.gov.hmrc.exports.movements.models.notifications.exchange.NotificationFrontendModel
 import uk.gov.hmrc.exports.movements.models.notifications.standard.StandardNotificationData
 import uk.gov.hmrc.exports.movements.models.notifications.{Notification, NotificationFactory}
 import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, SearchParameters, SubmissionRepository}
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.xml.NodeSeq
 
@@ -39,11 +39,11 @@ class NotificationService @Inject()(
     val notification = notificationFactory.buildMovementNotification(conversationId, body)
     logger.info(s"Notification created with conversation-id=[${notification.conversationId}] and payload=[${notification.payload}]")
 
-    notificationRepository.insert(notification).map(_ => (): Unit)
+    notificationRepository.insertOne(notification).map(_ => (): Unit)
   }
 
   def getAllNotifications(searchParameters: SearchParameters): Future[Seq[NotificationFrontendModel]] =
-    submissionRepository.findBy(searchParameters).flatMap { submissions =>
+    submissionRepository.findAll(searchParameters).flatMap { submissions =>
       getNotifications(submissions.map(_.conversationId))
     }
 
@@ -56,18 +56,16 @@ class NotificationService @Inject()(
       )
 
   def parseUnparsedNotifications: Future[Seq[Option[Notification]]] =
-    notificationRepository
-      .findUnparsedNotifications()
-      .flatMap { unparsedNotifications =>
-        logger.info(s"Found ${unparsedNotifications.size} unparsed Notifications. Attempting to parse them.")
-        val parsedNotifications = unparsedNotifications.map { notification =>
-          notificationFactory.buildMovementNotification(notification.conversationId, notification.payload).copy(_id = notification._id)
-        }.filter(_.data.nonEmpty)
+    notificationRepository.findUnparsedNotifications.flatMap { unparsedNotifications =>
+      logger.info(s"Found ${unparsedNotifications.size} unparsed Notifications. Attempting to parse them.")
+      val parsedNotifications = unparsedNotifications.map { notification =>
+        notificationFactory.buildMovementNotification(notification.conversationId, notification.payload).copy(_id = notification._id)
+      }.filter(_.data.nonEmpty)
 
-        logger.info(s"Updating ${parsedNotifications.size} previously unparsed Notifications.")
-        Future.sequence(parsedNotifications.map { parsedNotification =>
-          notificationRepository.update(parsedNotification._id, parsedNotification)
-        })
-      }
+      logger.info(s"Updating ${parsedNotifications.size} previously unparsed Notifications.")
+      Future.sequence(parsedNotifications.map { parsedNotification =>
+        notificationRepository.update(parsedNotification)
+      })
+    }
 
 }
