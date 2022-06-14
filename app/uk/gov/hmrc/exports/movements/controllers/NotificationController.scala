@@ -33,7 +33,7 @@ import scala.util.Success
 import scala.xml.NodeSeq
 
 @Singleton
-class NotificationController @Inject()(
+class NotificationController @Inject() (
   headerValidator: HeaderValidator,
   metrics: MovementsMetrics,
   notificationService: NotificationService,
@@ -49,9 +49,8 @@ class NotificationController @Inject()(
     val res = headerValidator.extractConversationIdHeader(request.headers.toSimpleMap) match {
       case Some(conversationId) =>
         logger.info(s"Notification received with conversation-id=[$conversationId]")
-        notificationService.save(conversationId, request.body).map(_ => Accepted).andThen {
-          case Success(_) =>
-            metrics.incrementCounter(movementMetric)
+        notificationService.save(conversationId, request.body).map(_ => Accepted).andThen { case Success(_) =>
+          metrics.incrementCounter(movementMetric)
         }
       case None =>
         logger.warn("Notification received without a conversation-id. It will be dropped.")

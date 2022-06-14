@@ -26,7 +26,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 @Singleton
-class AppConfig @Inject()(runModeConfiguration: Configuration, servicesConfig: ServicesConfig) {
+class AppConfig @Inject() (runModeConfiguration: Configuration, servicesConfig: ServicesConfig) {
 
   lazy val mongodbUri: String = runModeConfiguration.get[String]("mongodb.uri")
 

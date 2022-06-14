@@ -27,7 +27,7 @@ import javax.inject.Inject
 import scala.concurrent.Future
 
 @Singleton
-class MigrationRoutine @Inject()(appConfig: AppConfig)(implicit rec: RoutinesExecutionContext) extends Routine with Logging {
+class MigrationRoutine @Inject() (appConfig: AppConfig)(implicit rec: RoutinesExecutionContext) extends Routine with Logging {
 
   private val (client, mongoDatabase) = createMongoClient
   private val db = client.getDatabase(mongoDatabase)

@@ -30,7 +30,7 @@ import scala.xml.parsing._
 import scala.xml.{NodeSeq, _}
 
 @Singleton
-class ResponseValidator @Inject()(appConfig: AppConfig) {
+class ResponseValidator @Inject() (appConfig: AppConfig) {
 
   private val XSDFilePath = appConfig.ileSchemasFilePath
   private val schema =

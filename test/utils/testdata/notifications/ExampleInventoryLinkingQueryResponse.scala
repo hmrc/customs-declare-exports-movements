@@ -29,10 +29,13 @@ object ExampleInventoryLinkingQueryResponse {
 
   object Correct {
 
-    lazy val Empty = ExampleQueryResponse(asXml = <inventoryLinkingQueryResponse
+    lazy val Empty = ExampleQueryResponse(
+      asXml = <inventoryLinkingQueryResponse
         xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
         xmlns="http://gov.uk/customs/inventoryLinking/v1">
-      </inventoryLinkingQueryResponse>, asDomainModel = IleQueryResponseData(responseType = "inventoryLinkingQueryResponse"))
+      </inventoryLinkingQueryResponse>,
+      asDomainModel = IleQueryResponseData(responseType = "inventoryLinkingQueryResponse")
+    )
 
     lazy val QueriedDucr = ExampleQueryResponse(
       asXml = <inventoryLinkingQueryResponse

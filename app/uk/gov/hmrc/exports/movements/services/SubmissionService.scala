@@ -32,7 +32,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.xml.Node
 
 @Singleton
-class SubmissionService @Inject()(
+class SubmissionService @Inject() (
   customsInventoryLinkingExportsConnector: CustomsInventoryLinkingExportsConnector,
   submissionRepository: SubmissionRepository,
   ileMapper: IleMapper

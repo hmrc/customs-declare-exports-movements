@@ -25,7 +25,7 @@ import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import scala.concurrent.ExecutionContext
 
 @Singleton
-class ConsolidationController @Inject()(consolidationService: SubmissionService, cc: ControllerComponents)(
+class ConsolidationController @Inject() (consolidationService: SubmissionService, cc: ControllerComponents)(
   implicit executionContext: ExecutionContext
 ) extends BackendController(cc) {
 

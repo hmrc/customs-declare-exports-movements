@@ -22,7 +22,7 @@ import uk.gov.hmrc.exports.movements.models.notifications.NotificationData
 import scala.xml.NodeSeq
 
 @Singleton
-class ResponseParserProvider @Inject()(
+class ResponseParserProvider @Inject() (
   movementResponseParser: MovementResponseParser,
   movementTotalsResponseParser: MovementTotalsResponseParser,
   controlResponseParser: ControlResponseParser,

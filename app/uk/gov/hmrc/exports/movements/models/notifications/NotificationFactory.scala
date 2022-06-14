@@ -25,7 +25,7 @@ import scala.util.{Failure, Success, Try}
 import scala.xml.{NodeSeq, Utility}
 
 @Singleton
-class NotificationFactory @Inject()(responseValidator: ResponseValidator, responseParserProvider: ResponseParserProvider) {
+class NotificationFactory @Inject() (responseValidator: ResponseValidator, responseParserProvider: ResponseParserProvider) {
 
   private val logger = Logger(this.getClass)
 

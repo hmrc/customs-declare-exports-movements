@@ -26,7 +26,7 @@ import uk.gov.hmrc.exports.movements.models.submissions.ActionType.MovementType.
 
 import scala.xml.{Node, NodeSeq}
 
-class IleQueryResponseParser @Inject()(commonTypesParser: CommonTypesParser) extends ResponseParser[IleQueryResponseData] {
+class IleQueryResponseParser @Inject() (commonTypesParser: CommonTypesParser) extends ResponseParser[IleQueryResponseData] {
 
   override val responseTypeIle: String = "inventoryLinkingQueryResponse"
 

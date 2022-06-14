@@ -24,7 +24,7 @@ import scala.concurrent.Future
 import scala.concurrent.duration._
 
 @Singleton
-class RoutineRunner @Inject()(
+class RoutineRunner @Inject() (
   actorSystem: ActorSystem,
   applicationLifecycle: ApplicationLifecycle,
   migrationRoutine: MigrationRoutine,

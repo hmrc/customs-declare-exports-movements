@@ -58,9 +58,9 @@ class LockManager(
     } catch {
       case _: LockPersistenceException =>
         handleLockException(true)
-    } while ({
+    } while (
       keepLooping
-    })
+    )
   }
 
   private[migrations] def ensureLockDefault(): Unit = ensureLock(DefaultKey)
@@ -80,9 +80,10 @@ class LockManager(
     } catch {
       case _: LockPersistenceException =>
         handleLockException(false)
-    } else keepLooping = false while ({
+    }
+    else keepLooping = false while (
       keepLooping
-    })
+    )
   }
 
   private def updateStatus(lockExpiresAt: Date): Unit = {

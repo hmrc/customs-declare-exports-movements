@@ -30,8 +30,7 @@ import java.time.temporal.ChronoUnit
 class AppConfigSpec extends UnitSpec with MockitoSugar {
 
   private val validAppConfig: Config =
-    ConfigFactory.parseString(
-      """
+    ConfigFactory.parseString("""
         |urls.login="http://localhost:9949/auth-login-stub/gg-sign-in"
         |microservice.services.auth.host=localhost.auth
         |mongodb.uri="mongodb://localhost:27017/customs-declare-exports-movements"
@@ -45,8 +44,7 @@ class AppConfigSpec extends UnitSpec with MockitoSugar {
         |microservice.services.customs-inventory-linking-exports.internal-user-eori=ABC123
         |microservice.ileQueryResponseTimeout.value=30
         |microservice.ileQueryResponseTimeout.unit=SECONDS
-      """.stripMargin
-    )
+      """.stripMargin)
   private val invalidAppConfig: Config = ConfigFactory.parseString("""
       |mongodb.uri="mongodb://localhost:27017/customs-movements-frontend"
       |""".stripMargin)

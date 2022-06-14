@@ -30,7 +30,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.xml.NodeSeq
 
 @Singleton
-class CustomsInventoryLinkingExportsConnector @Inject()(appConfig: AppConfig, httpClient: HttpClient)(implicit ec: ExecutionContext) {
+class CustomsInventoryLinkingExportsConnector @Inject() (appConfig: AppConfig, httpClient: HttpClient)(implicit ec: ExecutionContext) {
 
   private val logger = Logger(this.getClass)
   private val contentHeaders = Seq(
@@ -45,10 +45,9 @@ class CustomsInventoryLinkingExportsConnector @Inject()(appConfig: AppConfig, ht
         body.toString,
         headers = headers(identification)
       )
-      .recover {
-        case error: Throwable =>
-          logger.warn(s"Error from Customs Inventory Linking. $error")
-          CustomsInventoryLinkingResponse(Status.INTERNAL_SERVER_ERROR, None)
+      .recover { case error: Throwable =>
+        logger.warn(s"Error from Customs Inventory Linking. $error")
+        CustomsInventoryLinkingResponse(Status.INTERNAL_SERVER_ERROR, None)
       }
 
   private def headers(identification: UserIdentification)(implicit hc: HeaderCarrier): Seq[(String, String)] = {

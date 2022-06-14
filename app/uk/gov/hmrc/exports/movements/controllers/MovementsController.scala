@@ -25,7 +25,7 @@ import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import scala.concurrent.ExecutionContext
 
 @Singleton
-class MovementsController @Inject()(submissionService: SubmissionService, override val controllerComponents: ControllerComponents)(
+class MovementsController @Inject() (submissionService: SubmissionService, override val controllerComponents: ControllerComponents)(
   implicit executionContext: ExecutionContext
 ) extends BackendController(controllerComponents) {
 

@@ -23,7 +23,7 @@ import uk.gov.hmrc.exports.movements.services.NotificationService
 import scala.concurrent.Future
 
 @Singleton
-class NotificationsParsingRoutine @Inject()(sotificationService: NotificationService)(implicit rec: RoutinesExecutionContext) extends Routine {
+class NotificationsParsingRoutine @Inject() (sotificationService: NotificationService)(implicit rec: RoutinesExecutionContext) extends Routine {
 
   private val logger = Logger(this.getClass)
 
