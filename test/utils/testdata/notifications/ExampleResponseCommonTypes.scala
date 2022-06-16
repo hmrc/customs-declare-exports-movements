@@ -25,21 +25,30 @@ object ExampleResponseCommonTypes {
 
   object Correct {
 
-    lazy val DucrBlock = ExampleUcrBlockPair(asXml = <ucrBlock>
+    lazy val DucrBlock = ExampleUcrBlockPair(
+      asXml = <ucrBlock>
         <ucr>{ucr}</ucr>
         <ucrType>D</ucrType>
-      </ucrBlock>, asDomainModel = UcrBlock(ucr = ucr, ucrType = "D"))
+      </ucrBlock>,
+      asDomainModel = UcrBlock(ucr = ucr, ucrType = "D")
+    )
 
-    lazy val MucrBlock = ExampleUcrBlockPair(asXml = <ucrBlock>
+    lazy val MucrBlock = ExampleUcrBlockPair(
+      asXml = <ucrBlock>
         <ucr>{mucr}</ucr>
         <ucrType>M</ucrType>
-      </ucrBlock>, asDomainModel = UcrBlock(ucr = mucr, ucrType = "M"))
+      </ucrBlock>,
+      asDomainModel = UcrBlock(ucr = mucr, ucrType = "M")
+    )
 
-    lazy val EntryStatusAll = ExampleEntryStatusPair(asXml = <entryStatus>
+    lazy val EntryStatusAll = ExampleEntryStatusPair(
+      asXml = <entryStatus>
           <ics>7</ics>
           <roe>6</roe>
           <soe>3</soe>
-        </entryStatus>, asDomainModel = EntryStatus(ics = Some("7"), roe = Some("6"), soe = Some("3")))
+        </entryStatus>,
+      asDomainModel = EntryStatus(ics = Some("7"), roe = Some("6"), soe = Some("3"))
+    )
 
     lazy val GoodsItemAll = ExampleGoodsItemPair(
       asXml = <goodsItem>

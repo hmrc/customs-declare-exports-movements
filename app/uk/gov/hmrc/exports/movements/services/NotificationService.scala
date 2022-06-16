@@ -27,7 +27,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.xml.NodeSeq
 
 @Singleton
-class NotificationService @Inject()(
+class NotificationService @Inject() (
   notificationFactory: NotificationFactory,
   notificationRepository: NotificationRepository,
   submissionRepository: SubmissionRepository

@@ -22,7 +22,7 @@ import uk.gov.hmrc.exports.movements.models.notifications.standard.{Entry, Stand
 
 import scala.xml.NodeSeq
 
-class ControlResponseParser @Inject()(errorValidator: ErrorValidator) extends ResponseParser[StandardNotificationData] {
+class ControlResponseParser @Inject() (errorValidator: ErrorValidator) extends ResponseParser[StandardNotificationData] {
 
   override val responseTypeIle: String = "inventoryLinkingControlResponse"
 

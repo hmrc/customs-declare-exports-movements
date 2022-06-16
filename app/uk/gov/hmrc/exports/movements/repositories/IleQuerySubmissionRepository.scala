@@ -27,7 +27,7 @@ import scala.concurrent.ExecutionContext
 import scala.reflect.ClassTag
 
 @Singleton
-class IleQuerySubmissionRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: ExecutionContext)
+class IleQuerySubmissionRepository @Inject() (mongoComponent: MongoComponent)(implicit ec: ExecutionContext)
     extends PlayMongoRepository[IleQuerySubmission](
       mongoComponent = mongoComponent,
       collectionName = "ileQuerySubmissions",

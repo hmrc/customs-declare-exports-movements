@@ -22,7 +22,7 @@ import javax.inject.Inject
 import uk.gov.hmrc.exports.movements.config.AppConfig
 import uk.gov.hmrc.exports.movements.models.submissions.IleQuerySubmission
 
-class IleQueryTimeoutCalculator @Inject()(appConfig: AppConfig, clock: Clock) {
+class IleQueryTimeoutCalculator @Inject() (appConfig: AppConfig, clock: Clock) {
 
   def hasQueryTimedOut(ileQuerySubmission: IleQuerySubmission): Boolean = {
     val submissionTime = ileQuerySubmission.requestTimestamp

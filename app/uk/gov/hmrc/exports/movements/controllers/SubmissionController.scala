@@ -26,7 +26,7 @@ import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import scala.concurrent.ExecutionContext
 
 @Singleton
-class SubmissionController @Inject()(submissionService: SubmissionService, cc: ControllerComponents)(implicit executionContext: ExecutionContext)
+class SubmissionController @Inject() (submissionService: SubmissionService, cc: ControllerComponents)(implicit executionContext: ExecutionContext)
     extends BackendController(cc) {
 
   def getAllSubmissions(eori: Option[String], providerId: Option[String]): Action[AnyContent] = Action.async(parse.default) { _ =>

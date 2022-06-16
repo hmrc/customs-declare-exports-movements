@@ -27,7 +27,7 @@ import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import scala.concurrent.ExecutionContext
 
 @Singleton
-class IleQueryController @Inject()(ileQueryService: IleQueryService, cc: ControllerComponents)(implicit ec: ExecutionContext)
+class IleQueryController @Inject() (ileQueryService: IleQueryService, cc: ControllerComponents)(implicit ec: ExecutionContext)
     extends BackendController(cc) {
 
   def submitIleQuery(): Action[IleQueryRequest] = Action.async(parse.json[IleQueryRequest]) { implicit request =>

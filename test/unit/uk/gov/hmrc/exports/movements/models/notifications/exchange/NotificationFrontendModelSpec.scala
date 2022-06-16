@@ -41,8 +41,8 @@ class NotificationFrontendModelSpec extends AnyWordSpec with Matchers {
       "contains only DUCR" should {
         "return NotificationFrontendModel with entry for this DUCR" in {
           val notification =
-            notification_1.copy(
-              data = Some(standardNotificationDataArrival.copy(entries = Seq(Entry(ucrBlock = Some(UcrBlock(ucr = ucr, ucrType = "D"))))))
+            notification_1.copy(data =
+              Some(standardNotificationDataArrival.copy(entries = Seq(Entry(ucrBlock = Some(UcrBlock(ucr = ucr, ucrType = "D"))))))
             )
 
           val result = NotificationFrontendModel(notification)
@@ -58,8 +58,8 @@ class NotificationFrontendModelSpec extends AnyWordSpec with Matchers {
       "contains only MUCR" should {
         "return NotificationFrontendModel with entry for this MUCR" in {
           val notification =
-            notification_1.copy(
-              data = Some(standardNotificationDataArrival.copy(masterUcr = Some(ucr), masterRoe = Some("ROE"), masterSoe = Some("SOE")))
+            notification_1.copy(data =
+              Some(standardNotificationDataArrival.copy(masterUcr = Some(ucr), masterRoe = Some("ROE"), masterSoe = Some("SOE")))
             )
 
           val result = NotificationFrontendModel(notification)
@@ -77,8 +77,8 @@ class NotificationFrontendModelSpec extends AnyWordSpec with Matchers {
 
       "contains both MUCR and DUCR" should {
         "return NotificationFrontendModel with entries for them" in {
-          val notification = notification_1.copy(
-            data = Some(
+          val notification = notification_1.copy(data =
+            Some(
               standardNotificationDataArrival.copy(
                 entries = Seq(Entry(ucrBlock = Some(UcrBlock(ucr = ucr, ucrType = "D")))),
                 masterUcr = Some(ucr),

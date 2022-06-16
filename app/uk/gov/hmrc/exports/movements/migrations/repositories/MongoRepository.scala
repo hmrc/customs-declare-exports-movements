@@ -62,9 +62,8 @@ abstract class MongoRepository private[migrations] (val mongoDatabase: MongoData
 
     if (index.getString("name").equals("_id_")) return true
 
-    for (uniqueField <- uniqueFields) {
+    for (uniqueField <- uniqueFields)
       if (key.getInteger(uniqueField, 0) != 1) return false
-    }
     fullCollectionName == index.getString("ns") && index.getBoolean("unique", false)
   }
 
@@ -73,9 +72,8 @@ abstract class MongoRepository private[migrations] (val mongoDatabase: MongoData
 
   private def getIndexDocument(uniqueFields: Array[String]): Document = {
     val indexDocument = new Document
-    for (field <- uniqueFields) {
+    for (field <- uniqueFields)
       indexDocument.append(field, 1)
-    }
     indexDocument
   }
 

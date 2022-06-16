@@ -62,7 +62,7 @@ class StringOptionSpec extends AnyWordSpec with Matchers {
 
       "provided with null value" in {
 
-        //noinspection ScalaStyle
+        // noinspection ScalaStyle
         val input = null
         val output = StringOption(input)
 

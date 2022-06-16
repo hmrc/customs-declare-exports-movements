@@ -22,7 +22,7 @@ import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.exports.movements.metrics.MetricIdentifiers._
 
 @Singleton
-class MovementsMetrics @Inject()(metrics: Metrics) {
+class MovementsMetrics @Inject() (metrics: Metrics) {
 
   private val timers = Map(
     notificationMetric -> metrics.defaultRegistry.timer(s"$notificationMetric.timer"),

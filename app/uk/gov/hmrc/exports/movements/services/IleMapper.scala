@@ -33,7 +33,7 @@ import scala.util.Random
 import scala.xml.{Node, NodeSeq}
 
 @Singleton
-class IleMapper @Inject()(clock: Clock) {
+class IleMapper @Inject() (clock: Clock) {
 
   private val dateTimeFormatter = DateTimeFormatter.ISO_INSTANT
 
@@ -75,8 +75,8 @@ class IleMapper @Inject()(clock: Clock) {
   private def formatOutputDateTime(dateTime: Instant): String = dateTimeFormatter.format(dateTime.truncatedTo(ChronoUnit.SECONDS))
 
   private def mapTransportDetails(transport: Option[Transport]): Option[TransportDetails] =
-    transport.map(
-      data => TransportDetails(transportID = data.transportId, transportMode = data.modeOfTransport, transportNationality = data.nationality)
+    transport.map(data =>
+      TransportDetails(transportID = data.transportId, transportMode = data.modeOfTransport, transportNationality = data.nationality)
     )
 
   private def generateRandomReference: String = Random.alphanumeric.take(25).toList.mkString("")

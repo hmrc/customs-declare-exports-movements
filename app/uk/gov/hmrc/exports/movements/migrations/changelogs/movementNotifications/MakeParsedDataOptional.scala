@@ -19,7 +19,7 @@ package uk.gov.hmrc.exports.movements.migrations.changelogs.movementNotification
 import com.mongodb.client.MongoDatabase
 import org.bson.Document
 import org.mongodb.scala.bson.conversions.Bson
-import org.mongodb.scala.model.Filters.{exists, eq => feq}
+import org.mongodb.scala.model.Filters.{eq => feq, exists}
 import org.mongodb.scala.model.UpdateOneModel
 import org.mongodb.scala.model.Updates.{combine, set, unset}
 import play.api.Logger
@@ -55,12 +55,11 @@ class MakeParsedDataOptional extends MigrationDefinition {
       val update = combine(unset(RESPONSE_TYPE), set(DATA, newDataElement))
 
       new UpdateOneModel[Document](filter, update)
-    }.grouped(updateBatchSize).zipWithIndex.foreach {
-      case (requests, idx) =>
-        logger.info(s"Updating batch no. $idx...")
+    }.grouped(updateBatchSize).zipWithIndex.foreach { case (requests, idx) =>
+      logger.info(s"Updating batch no. $idx...")
 
-        db.getCollection(collectionName).bulkWrite(seqAsJavaList(requests))
-        logger.info(s"Updated batch no. $idx")
+      db.getCollection(collectionName).bulkWrite(seqAsJavaList(requests))
+      logger.info(s"Updated batch no. $idx")
     }
 
     logger.info(s"Applying '${migrationInformation.id}' db migration... Done.")

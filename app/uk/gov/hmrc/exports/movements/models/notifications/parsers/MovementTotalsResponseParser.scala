@@ -24,7 +24,7 @@ import uk.gov.hmrc.exports.movements.models.notifications.standard.{Entry, Stand
 
 import scala.xml.NodeSeq
 
-class MovementTotalsResponseParser @Inject()(commonTypesParser: CommonTypesParser) extends ResponseParser[StandardNotificationData] {
+class MovementTotalsResponseParser @Inject() (commonTypesParser: CommonTypesParser) extends ResponseParser[StandardNotificationData] {
 
   override val responseTypeIle: String = "inventoryLinkingMovementTotalsResponse"
 
