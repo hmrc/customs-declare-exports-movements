@@ -18,10 +18,10 @@ package uk.gov.hmrc.exports.movements.models.submissions
 
 import java.time.Instant
 import java.util.UUID
-
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.{Format, Json, OFormat}
 import uk.gov.hmrc.exports.movements.models.UserIdentification
 import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
+import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 
 case class IleQuerySubmission(
   uuid: String = UUID.randomUUID.toString,
@@ -33,6 +33,6 @@ case class IleQuerySubmission(
 ) extends UserIdentification
 
 object IleQuerySubmission {
-
+  implicit private val formatInstant: Format[Instant] = MongoJavatimeFormats.instantFormat
   implicit val format: OFormat[IleQuerySubmission] = Json.format[IleQuerySubmission]
 }

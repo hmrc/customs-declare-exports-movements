@@ -25,6 +25,7 @@ import uk.gov.hmrc.exports.movements.models.notifications.Notification
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 
+import java.util.concurrent.TimeUnit.DAYS
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.reflect.ClassTag
@@ -59,6 +60,8 @@ class NotificationRepository @Inject() (mongoComponent: MongoComponent)(implicit
 
 object NotificationRepository {
 
+  private val ttlDays = 122
+
   val indexes: Seq[IndexModel] = List(
     IndexModel(ascending("dateTimeReceived"), IndexOptions().name("dateTimeReceivedIdx")),
     IndexModel(ascending("conversationId"), IndexOptions().name("conversationIdIdx")),
@@ -67,6 +70,7 @@ object NotificationRepository {
       IndexOptions()
         .name("dataMissingIdx")
         .partialFilterExpression(BsonDocument("data" -> BsonNull.VALUE))
-    )
+    ),
+    IndexModel(ascending("timestampReceived"), IndexOptions().name("ttl").expireAfter(ttlDays, DAYS))
   )
 }

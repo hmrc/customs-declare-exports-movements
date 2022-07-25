@@ -22,6 +22,7 @@ import uk.gov.hmrc.exports.movements.models.submissions.Submission
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 
+import java.util.concurrent.TimeUnit.DAYS
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 import scala.reflect.ClassTag
@@ -41,9 +42,12 @@ class SubmissionRepository @Inject() (mongoComponent: MongoComponent)(implicit e
 
 object SubmissionRepository {
 
+  private val ttlDays = 122
+
   val indexes: Seq[IndexModel] = List(
     IndexModel(ascending("eori"), IndexOptions().name("eoriIdx")),
     IndexModel(ascending("providerId"), IndexOptions().name("providerIdIdx")),
-    IndexModel(ascending("conversationId"), IndexOptions().name("conversationIdIdx").unique(true))
+    IndexModel(ascending("conversationId"), IndexOptions().name("conversationIdIdx").unique(true)),
+    IndexModel(ascending("requestTimestamp"), IndexOptions().name("ttl").expireAfter(ttlDays, DAYS))
   )
 }
