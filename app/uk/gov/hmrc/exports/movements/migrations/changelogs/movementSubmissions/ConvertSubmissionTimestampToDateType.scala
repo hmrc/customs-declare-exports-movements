@@ -28,6 +28,7 @@ import uk.gov.hmrc.exports.movements.migrations.changelogs.{MigrationDefinition,
 
 import java.time.ZonedDateTime
 import scala.collection.JavaConverters._
+import scala.util.{Failure, Success, Try}
 
 class ConvertSubmissionTimestampToDateType extends MigrationDefinition {
 
@@ -50,11 +51,16 @@ class ConvertSubmissionTimestampToDateType extends MigrationDefinition {
 
     getDocumentsToUpdate(db, queryFilter).map { document =>
       val timestamp = document.get(REQUEST_TIMESTAMP, classOf[String])
-      val newTimestamp = ZonedDateTime.parse(timestamp).toInstant
+      val newTimestamp = Try(ZonedDateTime.parse(timestamp).toInstant)
 
       val documentId = document.get(INDEX_ID)
       val filter = feq(INDEX_ID, documentId)
-      val update = set(REQUEST_TIMESTAMP, BsonDateTime(newTimestamp.toEpochMilli))
+      val update = newTimestamp match {
+        case Success(value) => set(REQUEST_TIMESTAMP, BsonDateTime(value.toEpochMilli))
+        case Failure(_) =>
+          logger.warn(s"Unable to update $REQUEST_TIMESTAMP for document with id $documentId")
+          set(REQUEST_TIMESTAMP, timestamp)
+      }
 
       new UpdateOneModel[Document](filter, update)
     }.grouped(updateBatchSize).zipWithIndex.foreach { case (requests, idx) =>
