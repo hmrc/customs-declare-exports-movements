@@ -21,6 +21,7 @@ import uk.gov.hmrc.exports.movements.models.UserIdentification
 import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType.{ConsolidationType, MovementType}
 import uk.gov.hmrc.exports.movements.services.UcrBlockBuilder.extractUcrBlocksForSubmissionFrom
+import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 
 import java.time.Instant
 import java.util.UUID
@@ -38,6 +39,7 @@ case class Submission(
 
 object Submission {
 
+  implicit private val formatInstant: Format[Instant] = MongoJavatimeFormats.instantFormat
   implicit val format: OFormat[Submission] = Json.format[Submission]
 
   def apply(eori: String, providerId: Option[String], conversationId: String, requestXml: Node, movementType: MovementType): Submission =

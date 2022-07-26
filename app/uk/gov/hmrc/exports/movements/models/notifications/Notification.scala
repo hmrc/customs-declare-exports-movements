@@ -20,7 +20,7 @@ import org.bson.types.ObjectId
 
 import java.time.Instant
 import play.api.libs.json._
-import uk.gov.hmrc.mongo.play.json.formats.MongoFormats
+import uk.gov.hmrc.mongo.play.json.formats.{MongoFormats, MongoJavatimeFormats}
 
 final case class Notification(
   _id: ObjectId = ObjectId.get,
@@ -32,8 +32,8 @@ final case class Notification(
 
 object Notification {
 
+  implicit private val formatInstant: Format[Instant] = MongoJavatimeFormats.instantFormat
   implicit val objectIdFormats: Format[ObjectId] = MongoFormats.objectIdFormat
-
   implicit val format: OFormat[Notification] = Json.format[Notification]
 
   def empty = Notification(conversationId = "", payload = "", data = None)
