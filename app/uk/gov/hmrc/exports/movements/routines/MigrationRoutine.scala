@@ -20,7 +20,9 @@ import com.google.inject.Singleton
 import com.mongodb.client.{MongoClient, MongoClients}
 import play.api.Logging
 import uk.gov.hmrc.exports.movements.config.AppConfig
-import uk.gov.hmrc.exports.movements.migrations.changelogs.movementNotifications.MakeParsedDataOptional
+import uk.gov.hmrc.exports.movements.migrations.changelogs.ileQuerySubmissions.ConvertIleQuerySubmissionTimestampToDateType
+import uk.gov.hmrc.exports.movements.migrations.changelogs.movementNotifications.{ConvertNotificationTimestampToDateType, MakeParsedDataOptional}
+import uk.gov.hmrc.exports.movements.migrations.changelogs.movementSubmissions.ConvertSubmissionTimestampToDateType
 import uk.gov.hmrc.exports.movements.migrations.{ExportsMigrationTool, LockManagerConfig, MigrationsRegistry}
 
 import javax.inject.Inject
@@ -52,7 +54,11 @@ class MigrationRoutine @Inject() (appConfig: AppConfig)(implicit rec: RoutinesEx
 
   private def migrateWithExportsMigrationTool(): Unit = {
     val lockManagerConfig = LockManagerConfig(lockMaxTries, lockMaxWaitMillis, lockAcquiredForMillis)
-    val migrationsRegistry = MigrationsRegistry().register(new MakeParsedDataOptional())
+    val migrationsRegistry = MigrationsRegistry()
+      .register(new MakeParsedDataOptional())
+      .register(new ConvertNotificationTimestampToDateType())
+      .register(new ConvertSubmissionTimestampToDateType())
+      .register(new ConvertIleQuerySubmissionTimestampToDateType())
     val migrationTool = ExportsMigrationTool(db, migrationsRegistry, lockManagerConfig)
 
     migrationTool.execute()
