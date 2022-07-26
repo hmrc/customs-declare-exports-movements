@@ -3,7 +3,7 @@ import sbt._
 object AppDependencies {
 
   val bootstrapPlayVersion = "5.24.0"
-  val hmrcMongoVersion = "0.64.0"
+  val hmrcMongoVersion = "0.68.0"
   val testScope = "test,it"
 
   val compile = Seq(
@@ -18,7 +18,7 @@ object AppDependencies {
     "com.fasterxml.jackson.dataformat"  %  "jackson-dataformat-xml"        % "2.13.3",
     "com.fasterxml.jackson.dataformat"  %  "jackson-dataformat-properties" % "2.13.3",
     // Used by the Migration tool. Try to keep it to the same version of mongo-scala-driver.
-    "org.mongodb"                       %  "mongodb-driver-sync"           % "4.5.1"
+    "org.mongodb"                       %  "mongodb-driver-sync"           % "4.6.0"
   )
 
   val test = Seq(
