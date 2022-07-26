@@ -17,10 +17,10 @@
 package uk.gov.hmrc.exports.movements.models.notifications.exchange
 
 import java.time.Instant
-
-import play.api.libs.json.Json
+import play.api.libs.json.{Format, Json}
 import uk.gov.hmrc.exports.movements.models.notifications.Notification
 import uk.gov.hmrc.exports.movements.models.notifications.standard.{Entry, EntryStatus, StandardNotificationData, UcrBlock}
+import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 
 final case class NotificationFrontendModel(
   timestampReceived: Instant,
@@ -34,6 +34,7 @@ final case class NotificationFrontendModel(
 )
 
 object NotificationFrontendModel {
+  implicit private val formatInstant: Format[Instant] = MongoJavatimeFormats.instantFormat
   implicit val format = Json.format[NotificationFrontendModel]
 
   def apply(notification: Notification): NotificationFrontendModel = notification.data match {
