@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package component.uk.gov.hmrc.exports.movements
+package uk.gov.hmrc.exports.movements.api
 
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.verify
 import play.api.libs.json.Json
 import play.api.test.Helpers._
+import uk.gov.hmrc.exports.movements.base.ApiSpec
 import uk.gov.hmrc.exports.movements.controllers.routes
 import uk.gov.hmrc.exports.movements.models.common.UcrType.Mucr
 import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
@@ -27,10 +28,10 @@ import uk.gov.hmrc.exports.movements.models.submissions.ActionType.MovementType
 import uk.gov.hmrc.exports.movements.models.submissions.Submission
 
 /*
- * Component Tests are Intentionally Explicit with the JSON input, XML & DB output and DONT use TestData helpers.
+ * API Tests are Intentionally Explicit with the JSON input, XML & DB output and DONT use TestData helpers.
  * That way these tests act as a "spec" for our API, and we dont get unintentional API changes as a result of Model/TestData refactors etc.
  */
-class RetrospectiveArrivalSpec extends ComponentSpec {
+class ArrivalISpec extends ApiSpec {
 
   "POST" should {
     "return 201" in {
@@ -42,10 +43,10 @@ class RetrospectiveArrivalSpec extends ComponentSpec {
         routes.MovementsController.createMovement(),
         Json.obj(
           "eori" -> "eori",
-          "choice" -> "RetrospectiveArrival",
+          "choice" -> "Arrival",
           "consignmentReference" -> Json.obj("reference" -> "M", "referenceValue" -> "UCR"),
           "location" -> Json.obj("code" -> "abc"),
-          "movementDetails" -> Json.obj("dateTime" -> "some date time"),
+          "movementDetails" -> Json.obj("dateTime" -> "2020-01-01T00:00:00Z"),
           "transport" -> Json.obj("modeOfTransport" -> "mode", "nationality" -> "nationality", "transportId" -> "transportId")
         )
       )
@@ -57,25 +58,33 @@ class RetrospectiveArrivalSpec extends ComponentSpec {
       submissions.size mustBe 1
       submissions.head.conversationId mustBe "conversation-id"
       submissions.head.ucrBlocks mustBe Seq(UcrBlock(ucr = "UCR", ucrType = Mucr.codeValue))
-      submissions.head.actionType mustBe MovementType.RetrospectiveArrival
+      submissions.head.actionType mustBe MovementType.Arrival
+
+      // WireMock uses XmlUnit to ignore certain values. '$$' avoid a compiler warning!!
+      val ignore = s"$${xmlunit.ignore}"
 
       verify(
         postRequestedToILE()
-          .withRequestBody(WireMock.equalToXml("""<inventoryLinkingMovementRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
-            <messageCode>RET</messageCode>
+          .withRequestBody(
+            WireMock.equalToXml(
+              s"""<inventoryLinkingMovementRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
+            <messageCode>EAL</messageCode>
             <ucrBlock>
               <ucr>UCR</ucr>
               <ucrType>M</ucrType>
             </ucrBlock>
             <goodsLocation>abc</goodsLocation>
-            <goodsArrivalDateTime>2020-01-01T12:30:30Z</goodsArrivalDateTime>
-            <movementReference>${xmlunit.ignore}</movementReference>
+            <goodsArrivalDateTime>2020-01-01T00:00:00Z</goodsArrivalDateTime>
+            <movementReference>${ignore}</movementReference>
             <transportDetails>
               <transportID>transportId</transportID>
               <transportMode>mode</transportMode>
               <transportNationality>nationality</transportNationality>
             </transportDetails>
-          </inventoryLinkingMovementRequest>""", true))
+          </inventoryLinkingMovementRequest>""",
+              true
+            )
+          )
       )
     }
   }

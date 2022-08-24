@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package component.uk.gov.hmrc.exports.movements
+package uk.gov.hmrc.exports.movements.base
 
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder
@@ -42,9 +42,9 @@ import scala.xml.NodeSeq
  * Component Tests are Intentionally Explicit with the JSON input, XML & DB output and DONT use TestData helpers.
  * That way these tests act as a "spec" for our API, and we dont get unintentional API changes as a result of Model/TestData refactors etc.
  */
-abstract class ComponentSpec
-    extends AnyWordSpec with Matchers with BeforeAndAfterEach with GuiceOneServerPerSuite with IleApiWiremockTestServer with AuditWiremockTestServer
-    with FixedTime with Eventually with TestMongoDB {
+abstract class ApiSpec
+    extends AnyWordSpec with AuditWiremockTestServer with BeforeAndAfterEach with Eventually with FixedTime with GuiceOneServerPerSuite
+    with IleApiWiremockTestServer with Matchers with TestMongoDB {
 
   /*
     Intentionally NOT exposing the real Repository as we shouldn't test our production code using our production classes.
@@ -95,5 +95,4 @@ abstract class ComponentSpec
     route(app, FakeRequest("POST", call.url).withHeaders(headers: _*).withHeaders("User-Agent" -> userAgent).withXmlBody(payload)).get
 
   protected def verifyEventually(requestPatternBuilder: RequestPatternBuilder): Unit = eventually(WireMock.verify(requestPatternBuilder))
-
 }

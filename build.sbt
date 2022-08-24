@@ -7,12 +7,10 @@ val appName = "customs-declare-exports-movements"
 
 PlayKeys.devSettings := Seq("play.server.http.port" -> "6797")
 
-lazy val ComponentTest = config("component") extend Test
 lazy val IntegrationTest = config("it") extend Test
 
 lazy val testAll = TaskKey[Unit]("test-all")
-lazy val allTest = Seq(testAll := (test in ComponentTest)
-  .dependsOn((test in IntegrationTest).dependsOn(test in Test)).value)
+lazy val allTest = Seq(testAll := (test in IntegrationTest).dependsOn(test in Test).value)
 
 lazy val microservice = Project(appName, file("."))
   .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtDistributablesPlugin)
@@ -24,13 +22,10 @@ lazy val microservice = Project(appName, file("."))
   )
   .settings(publishingSettings: _*)
   .configs(IntegrationTest)
-  .configs(ComponentTest)
   .settings(inConfig(IntegrationTest)(Defaults.itSettings): _*)
-  .settings(inConfig(ComponentTest)(Defaults.itSettings): _*)
   .settings(commonSettings,
     unitTestSettings,
     integrationTestSettings,
-    componentTestSettings,
     scoverageSettings,
     silencerSettings)
   .disablePlugins(JUnitXmlReportPlugin) //Required to prevent https://github.com/scalatest/scalatest/issues/1427
@@ -61,18 +56,6 @@ lazy val integrationTestSettings =
       addTestReportOption(IntegrationTest, "int-test-reports"),
       testGrouping in IntegrationTest := ForkedJvmPerTestSettings.oneForkedJvmPerTest((definedTests in IntegrationTest).value)
     )
-
-lazy val componentTestSettings =
-  inConfig(ComponentTest)(Defaults.testTasks) ++ Seq(
-    unmanagedSourceDirectories in ComponentTest := Seq(
-      (baseDirectory in ComponentTest).value / "test/component",
-      (baseDirectory in Test).value / "test/utils"
-    ),
-    fork in ComponentTest := false,
-    parallelExecution in ComponentTest := false,
-    addTestReportOption(ComponentTest, "int-test-reports"),
-    testGrouping in ComponentTest := ForkedJvmPerTestSettings.oneForkedJvmPerTest((definedTests in ComponentTest).value)
-  )
 
 lazy val scoverageSettings: Seq[Setting[_]] = Seq(
   coverageExcludedPackages := List(

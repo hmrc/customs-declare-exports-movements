@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package component.uk.gov.hmrc.exports.movements
+package uk.gov.hmrc.exports.movements.api
 
 import com.github.tomakehurst.wiremock.client.WireMock.verify
 import play.api.libs.json.Json
 import play.api.test.Helpers._
+import uk.gov.hmrc.exports.movements.base.ApiSpec
 import uk.gov.hmrc.exports.movements.controllers.routes
 import uk.gov.hmrc.exports.movements.models.common.UcrType.{Ducr, Mucr}
 import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
@@ -26,10 +27,10 @@ import uk.gov.hmrc.exports.movements.models.submissions.ActionType.Consolidation
 import uk.gov.hmrc.exports.movements.models.submissions.Submission
 
 /*
- * Component Tests are Intentionally Explicit with the JSON input, XML & DB output and DONT use TestData helpers.
+ * API Tests are Intentionally Explicit with the JSON input, XML & DB output and DONT use TestData helpers.
  * That way these tests act as a "spec" for our API, and we dont get unintentional API changes as a result of Model/TestData refactors etc.
  */
-class DissociateUCRSpec extends ComponentSpec {
+class DissociateUcrISpec extends ApiSpec {
 
   "POST" should {
     "return 201" when {

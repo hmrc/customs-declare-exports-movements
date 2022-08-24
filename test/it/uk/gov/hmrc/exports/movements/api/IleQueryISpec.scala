@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package component.uk.gov.hmrc.exports.movements
+package uk.gov.hmrc.exports.movements.api
 
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.verify
 import play.api.libs.json.Json
 import play.api.test.Helpers._
+import uk.gov.hmrc.exports.movements.base.ApiSpec
 import uk.gov.hmrc.exports.movements.controllers.routes
 import uk.gov.hmrc.exports.movements.models.common.UcrType.Ducr
 import uk.gov.hmrc.exports.movements.models.movements.Transport
@@ -31,10 +32,10 @@ import uk.gov.hmrc.exports.movements.models.submissions.IleQuerySubmission
 import java.time.Instant
 
 /*
- * Component Tests are Intentionally Explicit with the JSON input, XML & DB output and DONT use TestData helpers.
+ * API Tests are Intentionally Explicit with the JSON input, XML & DB output and DONT use TestData helpers.
  * That way these tests act as a "spec" for our API, and we dont get unintentional API changes as a result of Model/TestData refactors etc.
  */
-class IleQuerySpec extends ComponentSpec {
+class IleQueryISpec extends ApiSpec {
 
   private val ileQuerySubmission = IleQuerySubmission(
     eori = "eori",
@@ -156,14 +157,19 @@ class IleQuerySpec extends ComponentSpec {
 
       verify(
         postRequestedToILE()
-          .withRequestBody(WireMock.equalToXml("""
+          .withRequestBody(
+            WireMock.equalToXml(
+              """
             |<inventoryLinkingQueryRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
             |      <queryUCR>
             |        <ucr>UCR-123</ucr>
             |        <ucrType>D</ucrType>
             |      </queryUCR>
             |    </inventoryLinkingQueryRequest>
-            |""".stripMargin, true))
+            |""".stripMargin,
+              true
+            )
+          )
       )
     }
   }

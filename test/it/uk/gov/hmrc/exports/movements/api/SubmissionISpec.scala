@@ -14,39 +14,35 @@
  * limitations under the License.
  */
 
-package component.uk.gov.hmrc.exports.movements
+package uk.gov.hmrc.exports.movements.api
 
 import play.api.libs.json.Json
 import play.api.test.Helpers._
-import uk.gov.hmrc.exports.movements.controllers.routes
+import uk.gov.hmrc.exports.movements.base.ApiSpec
+import uk.gov.hmrc.exports.movements.controllers.routes.SubmissionController
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType.MovementType
 import uk.gov.hmrc.exports.movements.models.submissions.Submission
 
 /*
- * Component Tests are Intentionally Explicit with the JSON input, XML & DB output and DONT use TestData helpers.
+ * API Tests are Intentionally Explicit with the JSON input, XML & DB output and DONT use TestData helpers.
  * That way these tests act as a "spec" for our API, and we dont get unintentional API changes as a result of Model/TestData refactors etc.
  */
-class SubmissionSpec extends ComponentSpec {
+class SubmissionISpec extends ApiSpec {
+
+  val conversationId = "conversation-id"
 
   private val submission =
     Submission(
       uuid = "id",
       eori = "eori",
       providerId = Some("pid"),
-      conversationId = "conversation-id",
+      conversationId = conversationId,
       ucrBlocks = Seq.empty,
       actionType = MovementType.Arrival,
       requestTimestamp = currentInstant
     )
-  private val submissionJson = Json.obj(
-    "uuid" -> "id",
-    "eori" -> "eori",
-    "providerId" -> "pid",
-    "conversationId" -> "conversation-id",
-    "ucrBlocks" -> Json.arr(),
-    "actionType" -> "Arrival",
-    "requestTimestamp" -> currentInstant
-  )
+
+  private val submissionJson = Json.toJson(submission)
 
   "GET" should {
     "return 200" when {
@@ -55,7 +51,7 @@ class SubmissionSpec extends ComponentSpec {
         givenAnExisting(submission)
 
         // When
-        val response = get(routes.SubmissionController.getAllSubmissions(eori = None, providerId = None))
+        val response = get(SubmissionController.getAllSubmissions(eori = None, providerId = None))
 
         // Then
         status(response) mustBe OK
@@ -67,7 +63,7 @@ class SubmissionSpec extends ComponentSpec {
         givenAnExisting(submission)
 
         // When
-        val response = get(routes.SubmissionController.getAllSubmissions(eori = Some("eori"), providerId = None))
+        val response = get(SubmissionController.getAllSubmissions(eori = Some("eori"), providerId = None))
 
         // Then
         status(response) mustBe OK
@@ -79,7 +75,7 @@ class SubmissionSpec extends ComponentSpec {
         givenAnExisting(submission)
 
         // When
-        val response = get(routes.SubmissionController.getAllSubmissions(eori = None, providerId = Some("pid")))
+        val response = get(SubmissionController.getAllSubmissions(eori = None, providerId = Some("pid")))
 
         // Then
         status(response) mustBe OK
@@ -95,8 +91,8 @@ class SubmissionSpec extends ComponentSpec {
         givenAnExisting(submission)
 
         // When
-        val response =
-          get(routes.SubmissionController.getSubmission(eori = None, providerId = None, conversationId = "conversation-id"))
+        val call = SubmissionController.getSubmission(eori = None, providerId = None, conversationId = conversationId)
+        val response = get(call)
 
         // Then
         status(response) mustBe OK
@@ -108,8 +104,8 @@ class SubmissionSpec extends ComponentSpec {
         givenAnExisting(submission)
 
         // When
-        val response =
-          get(routes.SubmissionController.getSubmission(eori = Some("eori"), providerId = None, conversationId = "conversation-id"))
+        val call = SubmissionController.getSubmission(eori = Some("eori"), providerId = None, conversationId = conversationId)
+        val response = get(call)
 
         // Then
         status(response) mustBe OK
@@ -121,12 +117,12 @@ class SubmissionSpec extends ComponentSpec {
         givenAnExisting(submission)
 
         // When
-        val response =
-          get(routes.SubmissionController.getSubmission(eori = None, providerId = Some("pid"), conversationId = "conversation-id"))
+        val call = SubmissionController.getSubmission(eori = None, providerId = Some("pid"), conversationId = conversationId)
+        val result = get(call)
 
         // Then
-        status(response) mustBe OK
-        contentAsJson(response) mustBe submissionJson
+        status(result) mustBe OK
+        contentAsJson(result) mustBe submissionJson
       }
     }
   }
