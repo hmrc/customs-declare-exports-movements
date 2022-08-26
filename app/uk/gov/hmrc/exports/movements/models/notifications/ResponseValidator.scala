@@ -48,5 +48,4 @@ class ResponseValidator @Inject() (appConfig: AppConfig) {
 
     Try(xmlReader.parse(xml))
   }
-
 }

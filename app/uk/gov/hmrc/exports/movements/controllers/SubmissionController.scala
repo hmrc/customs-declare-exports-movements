@@ -40,5 +40,4 @@ class SubmissionController @Inject() (submissionService: SubmissionService, cc: 
       .getSingleSubmission(SearchParameters(eori = eori, providerId = providerId, conversationId = Some(conversationId)))
       .map(movementSubmission => Ok(Json.toJson(movementSubmission)))
   }
-
 }

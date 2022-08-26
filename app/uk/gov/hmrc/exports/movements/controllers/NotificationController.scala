@@ -46,7 +46,7 @@ class NotificationController @Inject() (
   def saveNotification(): Action[NodeSeq] = Action.async(parse.xml) { implicit request =>
     val timer = metrics.startTimer(movementMetric)
 
-    val res = headerValidator.extractConversationIdHeader(request.headers.toSimpleMap) match {
+    val result = headerValidator.extractConversationIdHeader(request.headers.toSimpleMap) match {
       case Some(conversationId) =>
         logger.info(s"Notification received with conversation-id=[$conversationId]")
         notificationService.save(conversationId, request.body).map(_ => Accepted).andThen { case Success(_) =>
@@ -58,7 +58,7 @@ class NotificationController @Inject() (
     }
 
     timer.stop()
-    res
+    result
   }
 
   def getNotificationsForSubmission(eori: Option[String], providerId: Option[String], conversationId: String): Action[AnyContent] =
