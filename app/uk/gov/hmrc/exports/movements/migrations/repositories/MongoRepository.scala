@@ -21,17 +21,15 @@ import com.mongodb.client.model.IndexOptions
 import org.bson.Document
 import play.api.Logger
 
-import scala.collection.JavaConverters.asScalaIterator
+  import scala.jdk.javaapi.CollectionConverters.asScala
 
 abstract class MongoRepository private[migrations] (val mongoDatabase: MongoDatabase, val collectionName: String, val uniqueFields: Array[String]) {
 
+  private lazy val indexes: Seq[Document] = asScala(collection.listIndexes.iterator()).toSeq
   private val logger = Logger(this.getClass)
-  private var ensuredCollectionIndex = false
-
   private[migrations] val collection = mongoDatabase.getCollection(collectionName)
   private[migrations] val fullCollectionName = collection.getNamespace.getDatabaseName + "." + collection.getNamespace.getCollectionName
-
-  private lazy val indexes: Seq[Document] = asScalaIterator(collection.listIndexes.iterator()).toSeq
+  private var ensuredCollectionIndex = false
 
   private[migrations] def ensureIndex(): Unit =
     if (!this.ensuredCollectionIndex) {

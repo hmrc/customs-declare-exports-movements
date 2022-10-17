@@ -22,7 +22,7 @@ import org.bson.Document
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
-import scala.collection.JavaConverters.mapAsJavaMap
+import scala.jdk.javaapi.CollectionConverters.asJava
 
 class ChangeEntrySpec extends AnyWordSpec with Matchers {
 
@@ -34,7 +34,7 @@ class ChangeEntrySpec extends AnyWordSpec with Matchers {
       val changeEntry = ChangeEntry(changeId = "changeIdValue", author = "authorValue", timestamp = date, changeLogClass = "changeLogClassValue")
       val expectedOutput =
         new Document(
-          mapAsJavaMap(Map("changeId" -> "changeIdValue", "author" -> "authorValue", "timestamp" -> date, "changeLogClass" -> "changeLogClassValue"))
+          asJava(Map("changeId" -> "changeIdValue", "author" -> "authorValue", "timestamp" -> date, "changeLogClass" -> "changeLogClassValue"))
         )
 
       changeEntry.buildFullDBObject mustBe expectedOutput

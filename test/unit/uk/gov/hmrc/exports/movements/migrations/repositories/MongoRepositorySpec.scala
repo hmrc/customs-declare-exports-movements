@@ -29,7 +29,7 @@ import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.Json
 import uk.gov.hmrc.exports.migrations.repositories.TestObjectsBuilder.buildMongoCursor
 
-import scala.collection.JavaConverters._
+import scala.jdk.javaapi.CollectionConverters.asJava
 
 class MongoRepositorySpec extends AnyWordSpec with MockitoSugar with BeforeAndAfterEach {
 
@@ -61,7 +61,7 @@ class MongoRepositorySpec extends AnyWordSpec with MockitoSugar with BeforeAndAf
 
   private def buildIndex(field: String): Document = {
     val fields = Map("key" -> new Document(field, 1), "name" -> s"${field}Name")
-    new Document(mapAsJavaMap(fields))
+    new Document(asJava(fields))
   }
 
   private def buildUniqueIndex(field: String): Document = {

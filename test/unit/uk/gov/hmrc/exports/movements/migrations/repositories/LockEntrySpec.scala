@@ -22,7 +22,7 @@ import org.bson.Document
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
-import scala.collection.JavaConverters.mapAsJavaMap
+import scala.jdk.javaapi.CollectionConverters.asJava
 
 class LockEntrySpec extends AnyWordSpec with Matchers {
 
@@ -33,7 +33,7 @@ class LockEntrySpec extends AnyWordSpec with Matchers {
       val date = new Date()
       val lockEntry = LockEntry(key = "keyValue", status = "statusValue", owner = "ownerValue", expiresAt = date)
       val expectedOutput =
-        new Document(mapAsJavaMap(Map("key" -> "keyValue", "status" -> "statusValue", "owner" -> "ownerValue", "expiresAt" -> date)))
+        new Document(asJava(Map("key" -> "keyValue", "status" -> "statusValue", "owner" -> "ownerValue", "expiresAt" -> date)))
 
       lockEntry.buildFullDBObject mustBe expectedOutput
     }

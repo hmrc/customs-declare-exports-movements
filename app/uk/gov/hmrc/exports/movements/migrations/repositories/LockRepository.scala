@@ -16,8 +16,6 @@
 
 package uk.gov.hmrc.exports.movements.migrations.repositories
 
-import java.util.Date
-
 import com.mongodb.client.MongoDatabase
 import com.mongodb.client.model.Filters.{and, eq => feq, lt, or}
 import com.mongodb.client.model.UpdateOptions
@@ -28,7 +26,8 @@ import org.bson.conversions.Bson
 import uk.gov.hmrc.exports.movements.migrations.exceptions.LockPersistenceException
 import uk.gov.hmrc.exports.movements.migrations.repositories.LockEntry._
 
-import scala.collection.JavaConverters.asScalaIterator
+import java.util.Date
+import scala.jdk.javaapi.CollectionConverters.asScala
 
 class LockRepository(collectionName: String, db: MongoDatabase) extends MongoRepository(db, collectionName, Array(KeyField)) {
 
@@ -39,7 +38,7 @@ class LockRepository(collectionName: String, db: MongoDatabase) extends MongoRep
    * @return LockEntry
    */
   private[migrations] def findByKey(lockKey: String): Option[LockEntry] =
-    asScalaIterator(collection.find(new Document().append(KeyField, lockKey)).iterator).toSeq.headOption
+    asScala(collection.find(new Document().append(KeyField, lockKey)).iterator).toSeq.headOption
       .map(LockEntry(_))
 
   /**
