@@ -25,7 +25,7 @@ import org.mongodb.scala.model.Updates.{combine, set, unset}
 import play.api.Logger
 import uk.gov.hmrc.exports.movements.migrations.changelogs.{MigrationDefinition, MigrationInformation}
 
-import scala.jdk.javaapi.CollectionConverters.{asScala, asJava}
+import scala.jdk.javaapi.CollectionConverters.{asJava, asScala}
 
 class MakeParsedDataOptional extends MigrationDefinition {
 

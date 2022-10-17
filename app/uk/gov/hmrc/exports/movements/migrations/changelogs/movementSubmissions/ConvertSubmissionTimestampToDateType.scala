@@ -27,7 +27,7 @@ import play.api.Logger
 import uk.gov.hmrc.exports.movements.migrations.changelogs.{MigrationDefinition, MigrationInformation}
 
 import java.time.ZonedDateTime
-import scala.jdk.javaapi.CollectionConverters.{asScala, asJava}
+import scala.jdk.javaapi.CollectionConverters.{asJava, asScala}
 import scala.util.{Failure, Success, Try}
 
 class ConvertSubmissionTimestampToDateType extends MigrationDefinition {

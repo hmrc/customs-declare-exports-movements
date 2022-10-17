@@ -21,7 +21,7 @@ import com.mongodb.client.model.IndexOptions
 import org.bson.Document
 import play.api.Logger
 
-  import scala.jdk.javaapi.CollectionConverters.asScala
+import scala.jdk.javaapi.CollectionConverters.asScala
 
 abstract class MongoRepository private[migrations] (val mongoDatabase: MongoDatabase, val collectionName: String, val uniqueFields: Array[String]) {
 
