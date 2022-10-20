@@ -39,6 +39,6 @@ trait IntegrationTestSpec extends UnitSpec with BeforeAndAfterEach with BeforeAn
 
   override protected def afterAll(): Unit =
     stopMockServer()
-    SharedMetricRegistries.clear()
+  SharedMetricRegistries.clear()
 
 }
