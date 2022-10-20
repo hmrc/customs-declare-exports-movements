@@ -18,7 +18,7 @@ object AppDependencies {
     "com.fasterxml.jackson.dataformat"  %  "jackson-dataformat-xml"        % "2.13.4",
     "com.fasterxml.jackson.dataformat"  %  "jackson-dataformat-properties" % "2.13.4",
     // Used by the Migration tool. Try to keep it to the same version of mongo-scala-driver.
-    "org.mongodb"                       %  "mongodb-driver-sync"           % "4.7.2"
+    "org.mongodb"                       %  "mongodb-driver-sync"           % "4.6.1"
   )
 
   val test = Seq(

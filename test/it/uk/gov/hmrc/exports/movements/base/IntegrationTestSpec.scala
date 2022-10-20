@@ -31,15 +31,14 @@ object IntegrationTestModule extends AbstractModule {
 
 trait IntegrationTestSpec extends UnitSpec with BeforeAndAfterEach with BeforeAndAfterAll with WireMockRunner with Eventually {
 
-  override protected def beforeAll() {
+  override protected def beforeAll(): Unit =
     startMockServer()
-  }
 
   override protected def afterEach(): Unit =
     resetMockServer()
 
-  override protected def afterAll() {
+  override protected def afterAll(): Unit =
     stopMockServer()
     SharedMetricRegistries.clear()
-  }
+
 }

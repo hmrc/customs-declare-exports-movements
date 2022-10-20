@@ -46,7 +46,7 @@ class SubmissionServiceISpec
   private val submissionRepository: SubmissionRepository = buildSubmissionRepositoryMock
   private val clock = Clock.fixed(Instant.parse(dateTimeString), ZoneOffset.UTC)
 
-  override def fakeApplication: Application = {
+  override val fakeApplication: Application = {
     SharedMetricRegistries.clear()
     GuiceApplicationBuilder()
       .overrides(overrideModules: _*)

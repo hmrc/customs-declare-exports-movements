@@ -37,7 +37,7 @@ class SubmissionRepositoryISpec
 
   private val clock = Clock.fixed(Instant.parse(dateTimeString), ZoneOffset.UTC)
 
-  override def fakeApplication: Application = {
+  override val fakeApplication: Application = {
     SharedMetricRegistries.clear
     GuiceApplicationBuilder()
       .overrides(bind[Clock].to(clock))
@@ -79,7 +79,7 @@ class SubmissionRepositoryISpec
         val result = repo.insertOne(submission_2).futureValue
 
         result.isLeft mustBe true
-        result.left.get mustBe a[DuplicateKey]
+        result.swap.toOption.get mustBe a[DuplicateKey]
 
         val submissionFromDB = repo.findAll("eori", validEori).futureValue
         submissionFromDB.length must equal(1)
