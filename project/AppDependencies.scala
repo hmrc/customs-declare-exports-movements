@@ -12,13 +12,13 @@ object AppDependencies {
     "uk.gov.hmrc"                       %% "wco-dec"                       % "0.37.0" excludeAll ExclusionRule("com.fasterxml.jackson.dataformat"),
     "uk.gov.hmrc"                       %% "logback-json-logger"           % "5.2.0",
     "uk.gov.hmrc"                       %% "play-json-union-formatter"     % "1.16.0-play-28",
-    "com.typesafe.play"                 %% "play-json-joda"                % "2.9.2",
+    "com.typesafe.play"                 %% "play-json-joda"                % "2.9.3",
     "com.github.tototoshi"              %% "scala-csv"                     % "1.3.10",
-    "com.fasterxml.jackson.module"      %% "jackson-module-scala"          % "2.13.3",
-    "com.fasterxml.jackson.dataformat"  %  "jackson-dataformat-xml"        % "2.13.3",
-    "com.fasterxml.jackson.dataformat"  %  "jackson-dataformat-properties" % "2.13.3",
+    "com.fasterxml.jackson.module"      %% "jackson-module-scala"          % "2.13.4",
+    "com.fasterxml.jackson.dataformat"  %  "jackson-dataformat-xml"        % "2.13.4",
+    "com.fasterxml.jackson.dataformat"  %  "jackson-dataformat-properties" % "2.13.4",
     // Used by the Migration tool. Try to keep it to the same version of mongo-scala-driver.
-    "org.mongodb"                       %  "mongodb-driver-sync"           % "4.6.0"
+    "org.mongodb"                       %  "mongodb-driver-sync"           % "4.7.2"
   )
 
   val test = Seq(

@@ -10,13 +10,13 @@ PlayKeys.devSettings := Seq("play.server.http.port" -> "6797")
 lazy val IntegrationTest = config("it") extend Test
 
 lazy val testAll = TaskKey[Unit]("test-all")
-lazy val allTest = Seq(testAll := (test in IntegrationTest).dependsOn(test in Test).value)
+lazy val allTest = Seq(testAll := (IntegrationTest / test).dependsOn(Test / test).value)
 
 lazy val microservice = Project(appName, file("."))
   .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtDistributablesPlugin)
   .settings(
     libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test,
-    evictionWarningOptions in update := EvictionWarningOptions.default.withWarnScalaVersionEviction(false),
+    update / evictionWarningOptions := EvictionWarningOptions.default.withWarnScalaVersionEviction(false),
     majorVersion := 0,
     scalaVersion := "2.13.8"
   )
@@ -37,9 +37,9 @@ def onPackageName(rootPackage: String): String => Boolean = {
 lazy val unitTestSettings =
   inConfig(Test)(Defaults.testTasks) ++
     Seq(
-      unmanagedSourceDirectories in Test := Seq(
-        (baseDirectory in Test).value / "test/unit",
-        (baseDirectory in Test).value / "test/utils"
+      Test / unmanagedSourceDirectories := Seq(
+        (Test / baseDirectory).value / "test/unit",
+        (Test / baseDirectory).value / "test/utils"
       ),
       addTestReportOption(Test, "test-reports")
     )
@@ -47,14 +47,14 @@ lazy val unitTestSettings =
 lazy val integrationTestSettings =
   inConfig(IntegrationTest)(Defaults.testTasks) ++
     Seq(
-      unmanagedSourceDirectories in IntegrationTest := Seq(
-        (baseDirectory in IntegrationTest).value / "test/it",
-        (baseDirectory in Test).value / "test/utils"
+      IntegrationTest / unmanagedSourceDirectories := Seq(
+        (IntegrationTest / baseDirectory).value / "test/it",
+        (Test / baseDirectory).value / "test/utils"
       ),
-      fork in IntegrationTest := false,
-      parallelExecution in IntegrationTest := false,
+      IntegrationTest / fork := false,
+      IntegrationTest / parallelExecution := false,
       addTestReportOption(IntegrationTest, "int-test-reports"),
-      testGrouping in IntegrationTest := ForkedJvmPerTestSettings.oneForkedJvmPerTest((definedTests in IntegrationTest).value)
+      IntegrationTest / testGrouping := ForkedJvmPerTestSettings.oneForkedJvmPerTest((IntegrationTest / definedTests).value)
     )
 
 lazy val scoverageSettings: Seq[Setting[_]] = Seq(
@@ -69,7 +69,7 @@ lazy val scoverageSettings: Seq[Setting[_]] = Seq(
   coverageMinimumStmtTotal := 90,
   coverageFailOnMinimum := true,
   coverageHighlighting := true,
-  parallelExecution in Test := false
+  Test / parallelExecution := false
 )
 
 lazy val commonSettings: Seq[Setting[_]] = publishingSettings ++ defaultSettings()

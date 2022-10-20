@@ -29,7 +29,7 @@ class ConsolidationController @Inject() (consolidationService: SubmissionService
   implicit executionContext: ExecutionContext
 ) extends BackendController(cc) {
 
-  def submitConsolidation(): Action[Consolidation] = Action.async(parse.json[Consolidation]) { implicit request =>
+  val submitConsolidation: Action[Consolidation] = Action.async(parse.json[Consolidation]) { implicit request =>
     consolidationService.submit(request.body).map(_ => Accepted(request.body))
   }
 }

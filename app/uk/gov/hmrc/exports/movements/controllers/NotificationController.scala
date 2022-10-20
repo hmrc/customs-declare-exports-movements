@@ -43,7 +43,7 @@ class NotificationController @Inject() (
 
   private val logger = Logger(this.getClass)
 
-  def saveNotification(): Action[NodeSeq] = Action.async(parse.xml) { implicit request =>
+  val saveNotification: Action[NodeSeq] = Action.async(parse.xml) { implicit request =>
     val timer = metrics.startTimer(movementMetric)
 
     val result = headerValidator.extractConversationIdHeader(request.headers.toSimpleMap) match {
