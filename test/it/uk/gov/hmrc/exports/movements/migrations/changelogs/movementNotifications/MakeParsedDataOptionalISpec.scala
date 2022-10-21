@@ -14,17 +14,17 @@ class MakeParsedDataOptionalISpec extends ChangeLogsBaseISpec {
   private val CollectionName = "movementNotifications"
 
   private val mongoDatabase: MongoDatabase =
-    MongoClients.create(MongoURI.replaceAllLiterally("sslEnabled", "ssl")).getDatabase(DatabaseName)
+    MongoClients.create(MongoURI.replace("sslEnabled", "ssl")).getDatabase(DatabaseName)
 
   private val changeLog = new MakeParsedDataOptional
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    mongoDatabase.getCollection(CollectionName).drop
+    mongoDatabase.getCollection(CollectionName).drop()
   }
 
   override def afterEach(): Unit = {
-    mongoDatabase.getCollection(CollectionName).drop
+    mongoDatabase.getCollection(CollectionName).drop()
     super.afterEach()
   }
 

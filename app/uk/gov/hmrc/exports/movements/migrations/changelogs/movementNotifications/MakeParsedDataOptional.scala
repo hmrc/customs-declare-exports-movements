@@ -25,7 +25,7 @@ import org.mongodb.scala.model.Updates.{combine, set, unset}
 import play.api.Logger
 import uk.gov.hmrc.exports.movements.migrations.changelogs.{MigrationDefinition, MigrationInformation}
 
-import scala.collection.JavaConverters._
+import scala.jdk.javaapi.CollectionConverters.{asJava, asScala}
 
 class MakeParsedDataOptional extends MigrationDefinition {
 
@@ -58,7 +58,7 @@ class MakeParsedDataOptional extends MigrationDefinition {
     }.grouped(updateBatchSize).zipWithIndex.foreach { case (requests, idx) =>
       logger.info(s"Updating batch no. $idx...")
 
-      db.getCollection(collectionName).bulkWrite(seqAsJavaList(requests))
+      db.getCollection(collectionName).bulkWrite(asJava(requests))
       logger.info(s"Updated batch no. $idx")
     }
 
@@ -72,7 +72,7 @@ class MakeParsedDataOptional extends MigrationDefinition {
     data.append(RESPONSE_TYPE, responseType)
   }
 
-  private def getDocumentsToUpdate(db: MongoDatabase, filter: Bson): Iterator[Document] = asScalaIterator(
+  private def getDocumentsToUpdate(db: MongoDatabase, filter: Bson): Iterator[Document] = asScala(
     db.getCollection(collectionName).find(filter).batchSize(queryBatchSize).iterator
   )
 }

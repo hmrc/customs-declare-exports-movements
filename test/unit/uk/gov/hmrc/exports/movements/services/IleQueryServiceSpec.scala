@@ -262,9 +262,9 @@ class IleQueryServiceSpec extends AnyWordSpec with MockitoSugar with Matchers wi
         val result = ileQueryService.fetchResponses(searchParameters).futureValue
 
         result.isRight mustBe true
-        result.right.get.size mustBe 1
+        result.toOption.get.size mustBe 1
 
-        val ileQueryResponseExchange: IleQueryResponseExchange = result.right.get.head
+        val ileQueryResponseExchange: IleQueryResponseExchange = result.toOption.get.head
         val expectedIleQueryResponseExchange = IleQueryResponseExchange(
           timestampReceived = notificationIleQueryResponse_1.timestampReceived,
           conversationId = notificationIleQueryResponse_1.conversationId,
@@ -284,7 +284,7 @@ class IleQueryServiceSpec extends AnyWordSpec with MockitoSugar with Matchers wi
         val result = ileQueryService.fetchResponses(searchParameters).futureValue
 
         result.isRight mustBe true
-        result.right.get.isEmpty mustBe true
+        result.toOption.get.isEmpty mustBe true
       }
 
       "not call TimeComparator, nor NotificationRepository" in {
@@ -330,7 +330,7 @@ class IleQueryServiceSpec extends AnyWordSpec with MockitoSugar with Matchers wi
         val result = ileQueryService.fetchResponses(searchParameters).futureValue
 
         result.isRight mustBe true
-        result.right.get.isEmpty mustBe true
+        result.toOption.get.isEmpty mustBe true
       }
     }
   }

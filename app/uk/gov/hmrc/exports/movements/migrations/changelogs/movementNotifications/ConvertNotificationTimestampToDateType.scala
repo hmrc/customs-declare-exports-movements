@@ -27,7 +27,7 @@ import play.api.Logger
 import uk.gov.hmrc.exports.movements.migrations.changelogs.{MigrationDefinition, MigrationInformation}
 
 import java.time.ZonedDateTime
-import scala.collection.JavaConverters._
+import scala.jdk.javaapi.CollectionConverters.{asJava, asScala}
 import scala.util.{Failure, Success, Try}
 
 class ConvertNotificationTimestampToDateType extends MigrationDefinition {
@@ -66,14 +66,14 @@ class ConvertNotificationTimestampToDateType extends MigrationDefinition {
     }.grouped(updateBatchSize).zipWithIndex.foreach { case (requests, idx) =>
       logger.info(s"Updating batch no. $idx...")
 
-      db.getCollection(collectionName).bulkWrite(seqAsJavaList(requests))
+      db.getCollection(collectionName).bulkWrite(asJava(requests))
       logger.info(s"Updated batch no. $idx")
     }
 
     logger.info(s"Applying '${migrationInformation.id}' db migration... Done.")
   }
 
-  private def getDocumentsToUpdate(db: MongoDatabase, filter: Bson): Iterator[Document] = asScalaIterator(
+  private def getDocumentsToUpdate(db: MongoDatabase, filter: Bson): Iterator[Document] = asScala(
     db.getCollection(collectionName).find(filter).batchSize(queryBatchSize).iterator
   )
 }

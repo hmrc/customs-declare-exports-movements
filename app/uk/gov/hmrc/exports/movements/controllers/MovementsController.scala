@@ -29,7 +29,7 @@ class MovementsController @Inject() (submissionService: SubmissionService, overr
   implicit executionContext: ExecutionContext
 ) extends BackendController(controllerComponents) {
 
-  def createMovement(): Action[MovementsExchange] = Action.async(parse.json[MovementsExchange]) { implicit request =>
+  val createMovement: Action[MovementsExchange] = Action.async(parse.json[MovementsExchange]) { implicit request =>
     submissionService.submit(request.body).map(_ => Accepted(request.body))
   }
 }

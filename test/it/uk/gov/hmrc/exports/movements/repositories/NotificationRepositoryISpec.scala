@@ -40,7 +40,7 @@ class NotificationRepositoryISpec
     extends AnyWordSpec with GuiceOneAppPerSuite with BeforeAndAfterEach with ScalaFutures with Matchers with IntegrationPatience with TestMongoDB {
   private val clock = Clock.fixed(Instant.parse(dateTimeString), ZoneOffset.UTC)
 
-  override def fakeApplication: Application = {
+  override val fakeApplication: Application = {
     SharedMetricRegistries.clear()
     GuiceApplicationBuilder()
       .overrides(bind[Clock].to(clock))
@@ -162,7 +162,7 @@ class NotificationRepositoryISpec
       "return empty list" in {
         repo.insertOne(notification_1).futureValue.isRight must be(true)
 
-        repo.findUnparsedNotifications.futureValue must equal(Seq.empty)
+        repo.findUnparsedNotifications().futureValue must equal(Seq.empty)
       }
     }
 
@@ -171,7 +171,7 @@ class NotificationRepositoryISpec
         repo.insertOne(notification_1).futureValue.isRight must be(true)
         repo.insertOne(notificationUnparsed).futureValue.isRight must be(true)
 
-        val foundNotifications = repo.findUnparsedNotifications.futureValue
+        val foundNotifications = repo.findUnparsedNotifications().futureValue
 
         foundNotifications.length mustBe 1
         foundNotifications.head must equalWithoutId(notificationUnparsed)
@@ -186,7 +186,7 @@ class NotificationRepositoryISpec
         repo.insertOne(notification_1).futureValue.isRight must be(true)
         unparsedNotifications.map(repo.insertOne(_).futureValue)
 
-        val foundNotifications = repo.findUnparsedNotifications.futureValue
+        val foundNotifications = repo.findUnparsedNotifications().futureValue
 
         foundNotifications.length mustBe unparsedNotifications.length
         unparsedNotifications.foreach { notification =>

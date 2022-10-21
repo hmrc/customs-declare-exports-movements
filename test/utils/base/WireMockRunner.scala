@@ -26,16 +26,14 @@ trait WireMockRunner {
   lazy val wireMockUrl = s"http://$Host:$Port"
   lazy val wireMockServer = new WireMockServer(wireMockConfig().port(Port))
 
-  def startMockServer() {
+  def startMockServer(): Unit = {
     if (!wireMockServer.isRunning) wireMockServer.start()
     WireMock.configureFor(Host, Port)
   }
 
-  def stopMockServer() {
+  def stopMockServer(): Unit =
     if (wireMockServer.isRunning) wireMockServer.stop()
-  }
 
-  def resetMockServer() {
+  def resetMockServer(): Unit =
     wireMockServer.resetAll()
-  }
 }

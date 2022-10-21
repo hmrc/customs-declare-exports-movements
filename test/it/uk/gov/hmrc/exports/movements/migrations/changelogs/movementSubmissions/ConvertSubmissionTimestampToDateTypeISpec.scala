@@ -5,10 +5,7 @@ import org.bson.Document
 import stubs.TestMongoDB
 import stubs.TestMongoDB.mongoConfiguration
 import uk.gov.hmrc.exports.movements.migrations.changelogs.ChangeLogsBaseISpec
-import uk.gov.hmrc.exports.movements.migrations.changelogs.movementSubmissions.ConvertSubmissionTimestampToDateTypeISpec.{
-  TestDataAfterChange,
-  TestDataBeforeChange
-}
+import uk.gov.hmrc.exports.movements.migrations.changelogs.movementSubmissions.ConvertSubmissionTimestampToDateTypeISpec._
 
 class ConvertSubmissionTimestampToDateTypeISpec extends ChangeLogsBaseISpec {
 
@@ -17,17 +14,17 @@ class ConvertSubmissionTimestampToDateTypeISpec extends ChangeLogsBaseISpec {
   private val CollectionName = "movementSubmissions"
 
   private val mongoDatabase: MongoDatabase =
-    MongoClients.create(MongoURI.replaceAllLiterally("sslEnabled", "ssl")).getDatabase(DatabaseName)
+    MongoClients.create(MongoURI.replace("sslEnabled", "ssl")).getDatabase(DatabaseName)
 
   private val changeLog = new ConvertSubmissionTimestampToDateType
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    mongoDatabase.getCollection(CollectionName).drop
+    mongoDatabase.getCollection(CollectionName).drop()
   }
 
   override def afterEach(): Unit = {
-    mongoDatabase.getCollection(CollectionName).drop
+    mongoDatabase.getCollection(CollectionName).drop()
     super.afterEach()
   }
 

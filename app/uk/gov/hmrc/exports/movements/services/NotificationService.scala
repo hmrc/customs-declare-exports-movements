@@ -56,7 +56,7 @@ class NotificationService @Inject() (
       )
 
   def parseUnparsedNotifications: Future[Seq[Option[Notification]]] =
-    notificationRepository.findUnparsedNotifications.flatMap { unparsedNotifications =>
+    notificationRepository.findUnparsedNotifications().flatMap { unparsedNotifications =>
       logger.info(s"Found ${unparsedNotifications.size} unparsed Notifications. Attempting to parse them.")
       val parsedNotifications = unparsedNotifications.map { notification =>
         notificationFactory.buildMovementNotification(notification.conversationId, notification.payload).copy(_id = notification._id)

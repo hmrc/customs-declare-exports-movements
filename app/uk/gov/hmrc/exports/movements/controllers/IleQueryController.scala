@@ -30,7 +30,7 @@ import scala.concurrent.ExecutionContext
 class IleQueryController @Inject() (ileQueryService: IleQueryService, cc: ControllerComponents)(implicit ec: ExecutionContext)
     extends BackendController(cc) {
 
-  def submitIleQuery(): Action[IleQueryRequest] = Action.async(parse.json[IleQueryRequest]) { implicit request =>
+  val submitIleQuery: Action[IleQueryRequest] = Action.async(parse.json[IleQueryRequest]) { implicit request =>
     ileQueryService.submit(request.body).map(Accepted(_))
   }
 

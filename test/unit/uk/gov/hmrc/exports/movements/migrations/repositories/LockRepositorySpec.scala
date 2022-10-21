@@ -37,7 +37,7 @@ import uk.gov.hmrc.exports.movements.migrations.exceptions.LockPersistenceExcept
 import uk.gov.hmrc.exports.movements.migrations.repositories.LockEntry._
 
 import java.util.Date
-import scala.collection.JavaConverters.mapAsJavaMap
+import scala.jdk.javaapi.CollectionConverters.asJava
 
 class LockRepositorySpec extends AnyWordSpec with MockitoSugar with BeforeAndAfterEach with Matchers {
 
@@ -68,12 +68,6 @@ class LockRepositorySpec extends AnyWordSpec with MockitoSugar with BeforeAndAft
     defineMocksBehaviourDefault()
   }
 
-  override def afterEach(): Unit = {
-    reset(findIterable, mongoCollection, mongoDatabase)
-
-    super.afterEach()
-  }
-
   private def defineMocksBehaviourDefault(): Unit = {
     when(findIterable.iterator()).thenReturn(buildMongoCursor(Seq.empty))
     when(mongoCollection.getNamespace).thenReturn(mongoNamespace)
@@ -82,6 +76,12 @@ class LockRepositorySpec extends AnyWordSpec with MockitoSugar with BeforeAndAft
     when(mongoCollection.updateMany(any[Bson], any[Bson], any[UpdateOptions]))
       .thenReturn(UpdateResult.unacknowledged())
     when(mongoDatabase.getCollection(anyString())).thenReturn(mongoCollection)
+  }
+
+  override def afterEach(): Unit = {
+    reset(findIterable, mongoCollection, mongoDatabase)
+
+    super.afterEach()
   }
 
   private def getDeleteManyFilterQuery: Bson = {
@@ -134,7 +134,7 @@ class LockRepositorySpec extends AnyWordSpec with MockitoSugar with BeforeAndAft
 
     "return LockEntry built from Document returned by MongoCollection" in {
       val elementInDb =
-        new Document(mapAsJavaMap(Map(KeyField -> lockKey, StatusField -> "statusValue", OwnerField -> "ownerValue", ExpiresAtField -> date)))
+        new Document(asJava(Map(KeyField -> lockKey, StatusField -> "statusValue", OwnerField -> "ownerValue", ExpiresAtField -> date)))
       when(findIterable.iterator()).thenReturn(buildMongoCursor(Seq(elementInDb)))
 
       val result = repo.findByKey(lockKey)

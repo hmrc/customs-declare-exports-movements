@@ -48,11 +48,11 @@ class NotificationRepository @Inject() (mongoComponent: MongoComponent)(implicit
 
       case _ =>
         val query = Json.obj("conversationId" -> Json.obj("$in" -> conversationIds.map(JsString)))
-        collection.find(BsonDocument(query.toString)).toFuture
+        collection.find(BsonDocument(query.toString)).toFuture()
     }
 
   def findUnparsedNotifications(): Future[Seq[Notification]] =
-    collection.find(BsonDocument(List("data" -> BsonNull.VALUE))).toFuture
+    collection.find(BsonDocument(List("data" -> BsonNull.VALUE))).toFuture()
 
   def update(notification: Notification): Future[Option[Notification]] =
     findOneAndReplaceIfExists("_id", notification._id, notification)

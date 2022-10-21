@@ -36,13 +36,14 @@ class IleQuerySubmissionRepositoryISpec
 
   private val clock = Clock.fixed(Instant.parse(dateTimeString), ZoneOffset.UTC)
 
-  override def fakeApplication: Application = {
+  override val fakeApplication: Application = {
     SharedMetricRegistries.clear()
     GuiceApplicationBuilder()
       .overrides(bind[Clock].to(clock))
       .configure(mongoConfiguration)
       .build()
   }
+
   private val repo = app.injector.instanceOf[IleQuerySubmissionRepository]
 
   override def beforeEach(): Unit = {
@@ -77,7 +78,7 @@ class IleQuerySubmissionRepositoryISpec
 
         val result = repo.insertOne(submission_2).futureValue
         result.isLeft must be(true)
-        result.left.get mustBe a[DuplicateKey]
+        result.swap.toOption.get mustBe a[DuplicateKey]
 
         val submissionFromDB = repo.findAll.futureValue
         submissionFromDB.length must equal(1)
