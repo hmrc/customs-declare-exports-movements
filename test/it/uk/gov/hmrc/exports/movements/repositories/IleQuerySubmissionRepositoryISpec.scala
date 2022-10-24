@@ -28,6 +28,7 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import stubs.TestMongoDB
 import testdata.CommonTestData._
 import testdata.MovementsTestData.{dateTimeString, exampleIleQuerySubmission}
+import uk.gov.hmrc.exports.movements.models.submissions.IleQuerySubmission
 
 import java.time.{Clock, Instant, ZoneOffset}
 
@@ -60,7 +61,7 @@ class IleQuerySubmissionRepositoryISpec
 
     "the operation was successful" should {
       "result in a success" in {
-        val submission = exampleIleQuerySubmission(eori = validEori)
+        val submission: IleQuerySubmission = exampleIleQuerySubmission(eori = validEori)
         repo.insertOne(submission).futureValue.isRight mustBe true
 
         val submissionFromDB = repo.findAll.futureValue
@@ -114,11 +115,13 @@ class IleQuerySubmissionRepositoryISpec
 
       "there are multiple Submissions with given EORI" should {
         "return all the Submissions" in {
+
           val submission = exampleIleQuerySubmission(eori = validEori, conversationId = conversationId)
           val submission_2 = exampleIleQuerySubmission(eori = validEori, conversationId = conversationId_2)
           val submission_3 = exampleIleQuerySubmission(eori = validEori, conversationId = conversationId_3)
           val submission_4 = exampleIleQuerySubmission(eori = validEori, conversationId = conversationId_4)
           val submission_5 = exampleIleQuerySubmission(eori = validEori, conversationId = conversationId_5)
+
           repo.insertOne(submission).futureValue.isRight must be(true)
           repo.insertOne(submission_2).futureValue.isRight must be(true)
           repo.insertOne(submission_3).futureValue.isRight must be(true)
@@ -165,11 +168,13 @@ class IleQuerySubmissionRepositoryISpec
 
       "there are multiple Submissions with given Provider ID" should {
         "return all the Submissions" in {
+
           val submission = exampleIleQuerySubmission(providerId = Some(validProviderId), conversationId = conversationId)
           val submission_2 = exampleIleQuerySubmission(providerId = Some(validProviderId), conversationId = conversationId_2)
           val submission_3 = exampleIleQuerySubmission(providerId = Some(validProviderId), conversationId = conversationId_3)
           val submission_4 = exampleIleQuerySubmission(providerId = Some(validProviderId), conversationId = conversationId_4)
           val submission_5 = exampleIleQuerySubmission(providerId = Some(validProviderId), conversationId = conversationId_5)
+
           repo.insertOne(submission).futureValue.isRight must be(true)
           repo.insertOne(submission_2).futureValue.isRight must be(true)
           repo.insertOne(submission_3).futureValue.isRight must be(true)
@@ -254,7 +259,8 @@ class IleQuerySubmissionRepositoryISpec
           val foundSubmissions = repo.findAll(query).futureValue
 
           foundSubmissions.length mustBe 1
-          foundSubmissions.head mustBe submission
+          foundSubmissions.head.eori mustBe submission.eori
+          foundSubmissions.head.conversationId mustBe submission.conversationId
         }
       }
     }
@@ -298,7 +304,8 @@ class IleQuerySubmissionRepositoryISpec
           val foundSubmissions = repo.findAll(query).futureValue
 
           foundSubmissions.length mustBe 1
-          foundSubmissions.head mustBe submission
+          foundSubmissions.head.conversationId mustBe submission.conversationId
+          foundSubmissions.head.providerId mustBe submission.providerId
         }
       }
     }

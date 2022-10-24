@@ -19,12 +19,14 @@ package testdata.notifications
 import play.api.http.{ContentTypes, HeaderNames}
 import play.api.mvc.Codec
 import testdata.CommonTestData._
+import testdata.MovementsTestData.dateTimeString
 import testdata.TestDataHelper
 import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames
 import uk.gov.hmrc.exports.movements.models.notifications._
 import uk.gov.hmrc.exports.movements.models.notifications.queries.IleQueryResponseData
 import uk.gov.hmrc.exports.movements.models.notifications.standard.StandardNotificationData
 
+import java.time.Instant
 import scala.xml.{Elem, Node, TopScope}
 
 object NotificationTestData {
@@ -114,15 +116,36 @@ object NotificationTestData {
   val standardNotificationDataDeparture = StandardNotificationData(messageCode = Some(MessageCodes.EDL), responseType = "TestResponse_2")
 
   val notification_1: Notification =
-    Notification(conversationId = conversationId, payload = payload_1, data = Some(standardNotificationDataArrival))
+    Notification(
+      conversationId = conversationId,
+      payload = payload_1,
+      data = Some(standardNotificationDataArrival),
+      timestampReceived = Instant.parse(dateTimeString)
+    )
   val notification_2: Notification =
-    Notification(conversationId = conversationId_2, payload = payload_2, data = Some(standardNotificationDataDeparture))
+    Notification(
+      conversationId = conversationId_2,
+      payload = payload_2,
+      data = Some(standardNotificationDataDeparture),
+      timestampReceived = Instant.parse(dateTimeString)
+    )
 
-  val notificationUnparsed = Notification(conversationId = conversationId_3, payload = payload_3, data = None)
+  val notificationUnparsed =
+    Notification(conversationId = conversationId_3, payload = payload_3, data = None, timestampReceived = Instant.parse(dateTimeString))
 
   val notificationIleQueryResponse_1: Notification =
-    Notification(conversationId = conversationId, payload = payload_1, data = Some(IleQueryResponseData(responseType = "QueryTestResponse_1")))
+    Notification(
+      conversationId = conversationId,
+      payload = payload_1,
+      data = Some(IleQueryResponseData(responseType = "QueryTestResponse_1")),
+      timestampReceived = Instant.parse(dateTimeString)
+    )
   val notificationIleQueryResponse_2: Notification =
-    Notification(conversationId = conversationId_2, payload = payload_2, data = Some(IleQueryResponseData(responseType = "QueryTestResponse_2")))
+    Notification(
+      conversationId = conversationId_2,
+      payload = payload_2,
+      data = Some(IleQueryResponseData(responseType = "QueryTestResponse_2")),
+      timestampReceived = Instant.parse(dateTimeString)
+    )
 
 }
