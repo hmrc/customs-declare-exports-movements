@@ -24,6 +24,7 @@ import uk.gov.hmrc.exports.movements.models.notifications.standard.{UcrBlock => 
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType.MovementType
 import uk.gov.hmrc.exports.movements.models.submissions.{ActionType, IleQuerySubmission, Submission}
 
+import java.time.Instant
 import scala.xml.Node
 
 object MovementsTestData {
@@ -160,6 +161,12 @@ object MovementsTestData {
     ucr: String = ucr,
     ucrType: String = "D"
   ): IleQuerySubmission =
-    IleQuerySubmission(eori = eori, providerId = providerId, conversationId = conversationId, ucrBlock = UcrBlockModel(ucr = ucr, ucrType = ucrType))
+    IleQuerySubmission(
+      eori = eori,
+      providerId = providerId,
+      conversationId = conversationId,
+      ucrBlock = UcrBlockModel(ucr = ucr, ucrType = ucrType),
+      requestTimestamp = Instant.parse(dateTimeString)
+    )
 
 }
