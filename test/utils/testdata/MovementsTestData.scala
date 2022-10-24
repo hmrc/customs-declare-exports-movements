@@ -148,7 +148,8 @@ object MovementsTestData {
       providerId = providerId,
       conversationId = conversationId,
       ucrBlocks = Seq(UcrBlockModel(ucr = ucr, ucrType = ucrType)),
-      actionType = actionType
+      actionType = actionType,
+      requestTimestamp = Instant.parse(dateTimeString)
     )
 
   def emptySubmission: Submission =
