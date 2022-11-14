@@ -2,6 +2,7 @@ import sbt._
 
 object AppDependencies {
 
+  val jacksonVersion = "2.14.0"
   val bootstrapPlayVersion = "7.7.0"
   val hmrcMongoVersion = "0.73.0"
   val testScope = "test,it"
@@ -14,9 +15,9 @@ object AppDependencies {
     "uk.gov.hmrc"                       %% "play-json-union-formatter"     % "1.16.0-play-28",
     "com.typesafe.play"                 %% "play-json-joda"                % "2.9.3",
     "com.github.tototoshi"              %% "scala-csv"                     % "1.3.10",
-    "com.fasterxml.jackson.module"      %% "jackson-module-scala"          % "2.13.4",
-    "com.fasterxml.jackson.dataformat"  %  "jackson-dataformat-xml"        % "2.13.4",
-    "com.fasterxml.jackson.dataformat"  %  "jackson-dataformat-properties" % "2.13.4",
+    "com.fasterxml.jackson.module"      %% "jackson-module-scala"          % jacksonVersion,
+    "com.fasterxml.jackson.dataformat"  %  "jackson-dataformat-xml"        % jacksonVersion,
+    "com.fasterxml.jackson.dataformat"  %  "jackson-dataformat-properties" % jacksonVersion,
     // Used by the Migration tool. Try to keep it to the same version of mongo-scala-driver.
     "org.mongodb"                       %  "mongodb-driver-sync"           % "4.6.1"
   )
