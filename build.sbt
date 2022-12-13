@@ -1,7 +1,7 @@
 import sbt._
 import uk.gov.hmrc.DefaultBuildSettings._
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin.publishingSettings
-import uk.gov.hmrc.{ForkedJvmPerTestSettings, SbtAutoBuildPlugin}
+import uk.gov.hmrc.SbtAutoBuildPlugin
 
 val appName = "customs-declare-exports-movements"
 
@@ -16,7 +16,6 @@ lazy val microservice = Project(appName, file("."))
   .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtDistributablesPlugin)
   .settings(
     libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test,
-    update / evictionWarningOptions := EvictionWarningOptions.default.withWarnScalaVersionEviction(false),
     majorVersion := 0,
     scalaVersion := "2.13.8"
   )
@@ -54,7 +53,7 @@ lazy val integrationTestSettings =
       IntegrationTest / fork := false,
       IntegrationTest / parallelExecution := false,
       addTestReportOption(IntegrationTest, "int-test-reports"),
-      IntegrationTest / testGrouping := ForkedJvmPerTestSettings.oneForkedJvmPerTest((IntegrationTest / definedTests).value)
+      IntegrationTest / testGrouping := oneForkedJvmPerTest((IntegrationTest / definedTests).value)
     )
 
 lazy val scoverageSettings: Seq[Setting[_]] = Seq(

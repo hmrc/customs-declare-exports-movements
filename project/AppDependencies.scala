@@ -10,7 +10,6 @@ object AppDependencies {
     "uk.gov.hmrc"                       %% "bootstrap-backend-play-28"     % bootstrapPlayVersion,
     "uk.gov.hmrc.mongo"                 %% "hmrc-mongo-play-28"            % hmrcMongoVersion,
     "uk.gov.hmrc"                       %% "wco-dec"                       % "0.37.0" excludeAll ExclusionRule("com.fasterxml.jackson.dataformat"),
-    "uk.gov.hmrc"                       %% "logback-json-logger"           % "5.2.0",
     "uk.gov.hmrc"                       %% "play-json-union-formatter"     % "1.16.0-play-28",
     "com.typesafe.play"                 %% "play-json-joda"                % "2.9.3",
     "com.github.tototoshi"              %% "scala-csv"                     % "1.3.10",
