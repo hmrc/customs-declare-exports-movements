@@ -16,22 +16,19 @@
 
 package uk.gov.hmrc.exports.movements.controllers
 
-import akka.stream.Materializer
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, anyString}
-import org.mockito.Mockito._
+import org.mockito.Mockito.{reset, verify, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.libs.json.Json
-import play.api.mvc.ControllerComponents
 import play.api.test.Helpers._
 import testdata.CommonTestData._
 import testdata.notifications.NotificationTestData._
 import testdata.notifications.{ExampleInventoryLinkingControlResponse, ExampleInventoryLinkingMovementTotalsResponse}
-import uk.gov.hmrc.exports.movements.base.Injector
 import uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
 import uk.gov.hmrc.exports.movements.controllers.FakeRequestFactory._
 import uk.gov.hmrc.exports.movements.controllers.util.HeaderValidator
@@ -39,26 +36,22 @@ import uk.gov.hmrc.exports.movements.models.notifications.exchange.NotificationF
 import uk.gov.hmrc.exports.movements.repositories.SearchParameters
 import uk.gov.hmrc.exports.movements.services.NotificationService
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext.global
+import scala.concurrent.Future
 import scala.xml.{Elem, NodeSeq, Utility}
 
-class NotificationControllerSpec extends AnyWordSpec with Matchers with MockitoSugar with ScalaFutures with BeforeAndAfterEach with Injector {
+class NotificationControllerSpec extends AnyWordSpec with Matchers with ScalaFutures with BeforeAndAfterEach {
 
   private val headerValidator = mock[HeaderValidator]
   private val notificationService = mock[NotificationService]
   private val movementsMetrics = buildMovementsMetricsMock
 
-  private val controllerComponents: ControllerComponents = instanceOf[ControllerComponents]
-  implicit private val materializer: Materializer = FakeRequestFactory.materializer
-
-  private val controller =
-    new NotificationController(headerValidator, movementsMetrics, notificationService, controllerComponents)(ExecutionContext.global)
+  private val controller = new NotificationController(headerValidator, movementsMetrics, notificationService, stubControllerComponents())(global)
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    reset(headerValidator, notificationService)
-
     when(headerValidator.extractConversationIdHeader(any())).thenReturn(Some(conversationId))
+    when(notificationService.save(anyString, any[NodeSeq])).thenReturn(Future.successful((): Unit))
   }
 
   override def afterEach(): Unit = {
@@ -71,23 +64,19 @@ class NotificationControllerSpec extends AnyWordSpec with Matchers with MockitoS
     "received inventoryLinkingControlResponse and everything works correctly" should {
 
       "return Accepted (200) status" in {
-        when(notificationService.save(anyString, any[NodeSeq])).thenReturn(Future.successful((): Unit))
-        val request = postRequestWithXmlBody(ExampleInventoryLinkingControlResponse.Correct.Rejected.asXml)
-
-        val result = call(controller.saveNotification(), request)
+        val request = postRequestWithBody(ExampleInventoryLinkingControlResponse.Correct.Rejected.asXml).withHeaders(XmlContentTypeHeader)
+        val result = controller.saveNotification()(request)
 
         status(result) mustBe ACCEPTED
       }
 
       "call NotificationService once, passing conversationId from headers and request body" in {
-        when(notificationService.save(anyString, any[NodeSeq])).thenReturn(Future.successful((): Unit))
-        val request = postRequestWithXmlBody(ExampleInventoryLinkingControlResponse.Correct.Rejected.asXml)
-
-        call(controller.saveNotification(), request).futureValue
+        val request = postRequestWithBody(ExampleInventoryLinkingControlResponse.Correct.Rejected.asXml).withHeaders(XmlContentTypeHeader)
+        controller.saveNotification()(request).futureValue
 
         val conversationIdCaptor: ArgumentCaptor[String] = ArgumentCaptor.forClass(classOf[String])
         val requestBodyCaptor: ArgumentCaptor[NodeSeq] = ArgumentCaptor.forClass(classOf[NodeSeq])
-        verify(notificationService, times(1)).save(conversationIdCaptor.capture(), requestBodyCaptor.capture())
+        verify(notificationService).save(conversationIdCaptor.capture(), requestBodyCaptor.capture())
 
         conversationIdCaptor.getValue must equal(conversationId)
         requestBodyCaptor.getValue must equal(ExampleInventoryLinkingControlResponse.Correct.Rejected.asXml)
@@ -97,23 +86,19 @@ class NotificationControllerSpec extends AnyWordSpec with Matchers with MockitoS
     "received inventoryLinkingMovementTotalsResponse and everything works correctly" should {
 
       "return Accepted (200) status" in {
-        when(notificationService.save(anyString, any[NodeSeq])).thenReturn(Future.successful((): Unit))
-        val request = postRequestWithXmlBody(ExampleInventoryLinkingMovementTotalsResponse.Correct.AllElements.asXml)
-
-        val result = call(controller.saveNotification(), request)
+        val request = postRequestWithBody(ExampleInventoryLinkingMovementTotalsResponse.Correct.AllElements.asXml).withHeaders(XmlContentTypeHeader)
+        val result = controller.saveNotification()(request)
 
         status(result) mustBe ACCEPTED
       }
 
       "call NotificationService once, passing conversationId from headers and request body" in {
-        when(notificationService.save(anyString, any[NodeSeq])).thenReturn(Future.successful((): Unit))
-        val request = postRequestWithXmlBody(ExampleInventoryLinkingMovementTotalsResponse.Correct.AllElements.asXml)
-
-        call(controller.saveNotification(), request).futureValue
+        val request = postRequestWithBody(ExampleInventoryLinkingMovementTotalsResponse.Correct.AllElements.asXml).withHeaders(XmlContentTypeHeader)
+        controller.saveNotification()(request).futureValue
 
         val conversationIdCaptor: ArgumentCaptor[String] = ArgumentCaptor.forClass(classOf[String])
         val requestBodyCaptor: ArgumentCaptor[Elem] = ArgumentCaptor.forClass(classOf[Elem])
-        verify(notificationService, times(1)).save(conversationIdCaptor.capture(), requestBodyCaptor.capture())
+        verify(notificationService).save(conversationIdCaptor.capture(), requestBodyCaptor.capture())
 
         conversationIdCaptor.getValue must equal(conversationId)
         Utility.trim(clearNamespaces(requestBodyCaptor.getValue)).toString must equal(
@@ -125,14 +110,12 @@ class NotificationControllerSpec extends AnyWordSpec with Matchers with MockitoS
     }
 
     "NotificationService returns failure" should {
-
       "return InternalServerError" in {
         when(notificationService.save(anyString, any[NodeSeq])).thenReturn(Future.failed(new Exception("")))
 
-        val request = postRequestWithXmlBody(ExampleInventoryLinkingControlResponse.Correct.Rejected.asXml)
-
         an[Exception] mustBe thrownBy {
-          await(call(controller.saveNotification(), request))
+          val request = postRequestWithBody(ExampleInventoryLinkingControlResponse.Correct.Rejected.asXml).withHeaders(XmlContentTypeHeader)
+          await(controller.saveNotification()(request))
         }
       }
     }
@@ -207,5 +190,4 @@ class NotificationControllerSpec extends AnyWordSpec with Matchers with MockitoS
     verify(notificationService).getAllNotifications(captor.capture())
     captor.getValue
   }
-
 }

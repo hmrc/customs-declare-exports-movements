@@ -18,16 +18,13 @@ package uk.gov.hmrc.exports.movements.migrations
 
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import org.scalatestplus.mockito.MockitoSugar
 
-class TimeUtilsSpec extends AnyWordSpec with Matchers with MockitoSugar {
+class TimeUtilsSpec extends AnyWordSpec with Matchers {
 
   private val timeUtils = new TimeUtils
 
   "TimeUtils on minutesToMillis" should {
-
     "correctly convert to milliseconds" in {
-
       val minutes = 13
       val expectedOutput = 780000
 
@@ -36,14 +33,11 @@ class TimeUtilsSpec extends AnyWordSpec with Matchers with MockitoSugar {
   }
 
   "TimeUtils on millisToMinutes" should {
-
     "correctly convert to minutes" in {
-
       val millis = 120000
       val expectedOutput = 2
 
       timeUtils.millisToMinutes(millis) mustBe expectedOutput
     }
   }
-
 }

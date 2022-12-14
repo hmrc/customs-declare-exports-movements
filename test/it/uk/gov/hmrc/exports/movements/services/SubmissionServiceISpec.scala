@@ -20,7 +20,6 @@ import com.codahale.metrics.SharedMetricRegistries
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
-import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.bind
@@ -39,8 +38,7 @@ import java.time.{Clock, Instant, ZoneOffset}
 import scala.concurrent.{Await, Future}
 
 class SubmissionServiceISpec
-    extends IntegrationTestSpec with GuiceOneAppPerSuite with MockitoSugar with CustomsMovementsAPIService with ScalaFutures
-    with IntegrationPatience {
+    extends IntegrationTestSpec with GuiceOneAppPerSuite with CustomsMovementsAPIService with ScalaFutures with IntegrationPatience {
 
   private def overrideModules: Seq[GuiceableModule] = Nil
   private val submissionRepository: SubmissionRepository = buildSubmissionRepositoryMock

@@ -17,13 +17,13 @@
 package uk.gov.hmrc.exports.movements.services
 
 import org.mockito.ArgumentMatchers.{any, anyString, eq => meq}
-import org.mockito.Mockito._
+import org.mockito.Mockito.{never, reset, verify, verifyNoInteractions, verifyNoMoreInteractions, when}
 import org.mockito.{ArgumentCaptor, InOrder, Mockito}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar.mock
 import testdata.CommonTestData._
 import testdata.MovementsTestData.exampleSubmission
 import testdata.notifications.NotificationTestData._
@@ -35,7 +35,7 @@ import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, Searc
 import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.xml.{Elem, NodeSeq, Utility}
 
-class NotificationServiceSpec extends AnyWordSpec with MockitoSugar with ScalaFutures with Matchers with BeforeAndAfterEach {
+class NotificationServiceSpec extends AnyWordSpec with ScalaFutures with Matchers with BeforeAndAfterEach {
 
   val notificationFactory: NotificationFactory = mock[NotificationFactory]
   val notificationRepository: NotificationRepository = mock[NotificationRepository]
@@ -69,18 +69,15 @@ class NotificationServiceSpec extends AnyWordSpec with MockitoSugar with ScalaFu
   }
 
   "NotificationService on save" when {
-
     val requestBody = ExampleInventoryLinkingControlResponse.Correct.Rejected.asXml
 
     "everything works correctly" should {
 
       "return successful Future" in {
-
         notificationService.save(conversationId, requestBody).futureValue must equal((): Unit)
       }
 
       "call MovementNotificationFactory and NotificationRepository afterwards" in {
-
         notificationService.save(conversationId, requestBody).futureValue
 
         val inOrder: InOrder = Mockito.inOrder(notificationFactory, notificationRepository)
@@ -89,7 +86,6 @@ class NotificationServiceSpec extends AnyWordSpec with MockitoSugar with ScalaFu
       }
 
       "call MovementNotificationFactory once, passing conversationId from headers and request body" in {
-
         notificationService.save(conversationId, requestBody).futureValue
 
         val conversationIdCaptor: ArgumentCaptor[String] = ArgumentCaptor.forClass(classOf[String])
@@ -405,5 +401,4 @@ class NotificationServiceSpec extends AnyWordSpec with MockitoSugar with ScalaFu
       }
     }
   }
-
 }

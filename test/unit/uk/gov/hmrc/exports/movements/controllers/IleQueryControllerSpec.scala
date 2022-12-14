@@ -17,13 +17,13 @@
 package uk.gov.hmrc.exports.movements.controllers
 
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito._
+import org.mockito.Mockito.{reset, verify, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.time.{Millis, Seconds, Span}
 import org.scalatest.wordspec.AnyWordSpec
-import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.libs.json.Json
 import play.api.test.Helpers._
 import testdata.CommonTestData._
@@ -40,7 +40,7 @@ import uk.gov.hmrc.exports.movements.services.IleQueryService
 import scala.concurrent.ExecutionContext.global
 import scala.concurrent.Future
 
-class IleQueryControllerSpec extends AnyWordSpec with Matchers with MockitoSugar with ScalaFutures with BeforeAndAfterEach {
+class IleQueryControllerSpec extends AnyWordSpec with Matchers with ScalaFutures with BeforeAndAfterEach {
 
   private val ileQueryService = mock[IleQueryService]
   private val controller = new IleQueryController(ileQueryService, stubControllerComponents())(global)
@@ -60,11 +60,8 @@ class IleQueryControllerSpec extends AnyWordSpec with Matchers with MockitoSugar
   }
 
   "Ile Query Controller on submitIleQuery" should {
-
     "return ACCEPTED" when {
-
       "query is successfully processed" in {
-
         when(ileQueryService.submit(any())(any())).thenReturn(Future.successful("conversationId"))
         val ileQueryRequest = IleQueryRequest("GB12345678912345", Some("12345"), UcrBlock(ucr = "9GB025115188654-IAZ1", ucrType = Ducr.codeValue))
         val request = postRequestWithBody(ileQueryRequest).withHeaders(JsonContentTypeHeader)
@@ -81,7 +78,6 @@ class IleQueryControllerSpec extends AnyWordSpec with Matchers with MockitoSugar
     "everything works correctly" should {
 
       "call IleQueryService, passing SearchParameters" in {
-
         val ileQueryResponseExchanges =
           Seq(
             IleQueryResponseExchange(notificationIleQueryResponse_1),
@@ -93,12 +89,11 @@ class IleQueryControllerSpec extends AnyWordSpec with Matchers with MockitoSugar
           .getIleQueryResponses(eori = Some(validEori), providerId = Some(validProviderId), conversationId = conversationId)(getRequest())
           .futureValue
 
-        verify(ileQueryService, times(1))
+        verify(ileQueryService)
           .fetchResponses(SearchParameters(eori = Some(validEori), providerId = Some(validProviderId), conversationId = Some(conversationId)))
       }
 
       "return Ok status with Sequence containing IleQueryResponseExchange returned by IleQueryService" in {
-
         val ileQueryResponseExchanges =
           Seq(
             IleQueryResponseExchange(notificationIleQueryResponse_1),
@@ -116,7 +111,6 @@ class IleQueryControllerSpec extends AnyWordSpec with Matchers with MockitoSugar
 
     "IleQueryService returns empty Sequence" should {
       "return Ok status with empty Sequence" in {
-
         when(ileQueryService.fetchResponses(any[SearchParameters])).thenReturn(Future.successful(Right(Seq.empty)))
 
         val result = controller
@@ -129,7 +123,6 @@ class IleQueryControllerSpec extends AnyWordSpec with Matchers with MockitoSugar
 
     "IleQueryService returns Either.Left" should {
       "return FailedDependency (424) status with TimeoutError message from IleQueryService" in {
-
         when(ileQueryService.fetchResponses(any[SearchParameters])).thenReturn(Future.successful(Left(TimeoutError("TIMEOUT"))))
 
         val result = controller
@@ -140,5 +133,4 @@ class IleQueryControllerSpec extends AnyWordSpec with Matchers with MockitoSugar
       }
     }
   }
-
 }

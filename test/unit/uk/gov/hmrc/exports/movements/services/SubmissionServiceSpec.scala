@@ -24,7 +24,7 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.time.{Millis, Seconds, Span}
 import org.scalatest.wordspec.AnyWordSpec
-import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.test.Helpers._
 import testdata.CommonTestData._
 import testdata.ConsolidationTestData._
@@ -41,7 +41,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class SubmissionServiceSpec extends AnyWordSpec with MockitoSugar with ScalaFutures with Matchers with OptionValues {
+class SubmissionServiceSpec extends AnyWordSpec with ScalaFutures with Matchers with OptionValues {
 
   implicit val defaultPatience: PatienceConfig = PatienceConfig(timeout = Span(5, Seconds), interval = Span(10, Millis))
 

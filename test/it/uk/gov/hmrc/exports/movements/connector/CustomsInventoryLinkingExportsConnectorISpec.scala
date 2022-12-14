@@ -18,7 +18,8 @@ package uk.gov.hmrc.exports.movements.connector
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import org.mockito.ArgumentMatchers
-import org.mockito.BDDMockito._
+import org.mockito.BDDMockito.`given`
+import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.http.Status
 import play.api.http.Status.ACCEPTED
 import play.api.test.Helpers._

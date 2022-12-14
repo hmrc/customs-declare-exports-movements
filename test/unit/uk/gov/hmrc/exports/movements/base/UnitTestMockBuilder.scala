@@ -19,7 +19,7 @@ package uk.gov.hmrc.exports.movements.base
 import com.codahale.metrics.Timer
 import org.mockito.ArgumentMatchers.{any, anyString}
 import org.mockito.Mockito.when
-import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar.mock
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
 import uk.gov.hmrc.exports.movements.metrics.MovementsMetrics
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
@@ -33,7 +33,7 @@ import scala.concurrent.Future
 import scala.util.Failure
 import scala.xml.NodeSeq
 
-object UnitTestMockBuilder extends MockitoSugar {
+object UnitTestMockBuilder {
 
   def buildNotificationRepositoryMock: NotificationRepository = {
     val notificationRepositoryMock = mock[NotificationRepository]

@@ -17,9 +17,10 @@
 package uk.gov.hmrc.exports.movements.controllers
 
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{reset, when}
+import org.mockito.Mockito.{reset, verify, when}
 import org.scalatest.BeforeAndAfterEach
-import org.scalatestplus.mockito.MockitoSugar
+import org.scalatest.matchers.must.Matchers.convertToAnyMustWrapper
+import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.mvc.Request
 import play.api.test.Helpers._
 import play.api.test._
@@ -33,12 +34,12 @@ import uk.gov.hmrc.exports.movements.services.SubmissionService
 import scala.concurrent.ExecutionContext.global
 import scala.concurrent.Future
 
-class MovementsControllerSpec extends UnitSpec with MockitoSugar with BeforeAndAfterEach {
+class MovementsControllerSpec extends UnitSpec with BeforeAndAfterEach {
 
-  private val submissionServiceMock = mock[SubmissionService]
+  private val submissionService = mock[SubmissionService]
 
   private val controller =
-    new MovementsController(submissionServiceMock, stubControllerComponents())(global)
+    new MovementsController(submissionService, stubControllerComponents())(global)
 
   private val correctJson = MovementsExchange(
     eori = validEori,
@@ -51,7 +52,7 @@ class MovementsControllerSpec extends UnitSpec with MockitoSugar with BeforeAndA
     super.beforeEach()
 
   override protected def afterEach(): Unit = {
-    reset(submissionServiceMock)
+    reset(submissionService)
 
     super.afterEach()
   }
@@ -67,13 +68,14 @@ class MovementsControllerSpec extends UnitSpec with MockitoSugar with BeforeAndA
     "return 202 (Accepted)" when {
 
       "consolidation submission ends with success" in {
-
-        when(submissionServiceMock.submit(any[MovementsExchange]())(any()))
-          .thenReturn(Future.successful((): Unit))
+        val conversationId = "conversationId"
+        when(submissionService.submit(any[MovementsExchange]())(any())).thenReturn(Future.successful(conversationId))
 
         val result = controller.createMovement()(postRequest(correctJson))
 
         status(result) shouldBe ACCEPTED
+        contentAsString(result) mustBe conversationId
+        verify(submissionService).submit(any[MovementsExchange]())(any())
       }
     }
   }

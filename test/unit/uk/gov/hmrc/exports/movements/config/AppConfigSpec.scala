@@ -17,7 +17,6 @@
 package uk.gov.hmrc.exports.movements.config
 
 import com.typesafe.config.{Config, ConfigFactory}
-import org.scalatestplus.mockito.MockitoSugar
 import play.api.Configuration
 import uk.gov.hmrc.exports.movements.base.UnitSpec
 import uk.gov.hmrc.exports.movements.exceptions.MissingClientIDException
@@ -27,7 +26,7 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import java.time.Duration
 import java.time.temporal.ChronoUnit
 
-class AppConfigSpec extends UnitSpec with MockitoSugar {
+class AppConfigSpec extends UnitSpec {
 
   private val validAppConfig: Config =
     ConfigFactory.parseString("""

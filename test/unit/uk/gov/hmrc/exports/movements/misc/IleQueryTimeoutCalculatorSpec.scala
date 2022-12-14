@@ -20,7 +20,7 @@ import org.mockito.Mockito.{reset, times, verify, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar.mock
 import testdata.MovementsTestData.{dateTimeString, exampleIleQuerySubmission}
 import uk.gov.hmrc.exports.movements.config.AppConfig
 
@@ -28,7 +28,7 @@ import java.time.temporal.ChronoUnit
 import java.time.{Clock, Duration, Instant, ZoneOffset}
 import java.util.concurrent.TimeUnit
 
-class IleQueryTimeoutCalculatorSpec extends AnyWordSpec with Matchers with MockitoSugar with BeforeAndAfterEach {
+class IleQueryTimeoutCalculatorSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach {
 
   private val appConfig = mock[AppConfig]
   private val clock = Clock.fixed(Instant.parse(dateTimeString), ZoneOffset.UTC)
@@ -52,7 +52,6 @@ class IleQueryTimeoutCalculatorSpec extends AnyWordSpec with Matchers with Mocki
     "return true" when {
 
       "provided with Submission which requestTimestamp is older than timeout in seconds" in {
-
         val timeout = Duration.of(30, ChronoUnit.SECONDS)
         when(appConfig.ileQueryResponseTimeout).thenReturn(timeout)
         val submission = exampleIleQuerySubmission().copy(requestTimestamp = Instant.now(clock).minusSeconds(31))
@@ -61,7 +60,6 @@ class IleQueryTimeoutCalculatorSpec extends AnyWordSpec with Matchers with Mocki
       }
 
       "provided with Submission which requestTimestamp is older than timeout in minutes" in {
-
         val timeout = Duration.of(2, ChronoUnit.MINUTES)
         when(appConfig.ileQueryResponseTimeout).thenReturn(timeout)
         val submission = exampleIleQuerySubmission().copy(requestTimestamp = Instant.now(clock).minusSeconds(TimeUnit.MINUTES.toSeconds(2) + 1))
@@ -73,7 +71,6 @@ class IleQueryTimeoutCalculatorSpec extends AnyWordSpec with Matchers with Mocki
     "return false" when {
 
       "provided with Submission which requestTimestamp and current time difference is smaller than timeout in seconds" in {
-
         val timeout = Duration.of(30, ChronoUnit.SECONDS)
         when(appConfig.ileQueryResponseTimeout).thenReturn(timeout)
         val submission = exampleIleQuerySubmission().copy(requestTimestamp = Instant.now(clock).minusSeconds(25))
@@ -82,7 +79,6 @@ class IleQueryTimeoutCalculatorSpec extends AnyWordSpec with Matchers with Mocki
       }
 
       "provided with Submission which requestTimestamp and current time difference is smaller than timeout in minutes" in {
-
         val timeout = Duration.of(2, ChronoUnit.MINUTES)
         when(appConfig.ileQueryResponseTimeout).thenReturn(timeout)
         val submission = exampleIleQuerySubmission().copy(requestTimestamp = Instant.now(clock).minusSeconds(TimeUnit.MINUTES.toSeconds(2) - 5))
@@ -92,7 +88,6 @@ class IleQueryTimeoutCalculatorSpec extends AnyWordSpec with Matchers with Mocki
     }
 
     "call AppConfig for ileQueryResponseTimeout" in {
-
       val timeout = Duration.of(30, ChronoUnit.SECONDS)
       when(appConfig.ileQueryResponseTimeout).thenReturn(timeout)
       val submission = exampleIleQuerySubmission().copy(requestTimestamp = Instant.now(clock).minusSeconds(5))
@@ -102,5 +97,4 @@ class IleQueryTimeoutCalculatorSpec extends AnyWordSpec with Matchers with Mocki
       verify(appConfig, times(1)).ileQueryResponseTimeout
     }
   }
-
 }

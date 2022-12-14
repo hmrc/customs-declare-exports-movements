@@ -21,7 +21,7 @@ import org.mockito.Mockito.{reset, verify, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.mvc.Request
 import play.api.test.Helpers._
 import play.api.test._
@@ -34,7 +34,7 @@ import uk.gov.hmrc.exports.movements.services.SubmissionService
 import scala.concurrent.ExecutionContext.global
 import scala.concurrent.Future
 
-class ConsolidationControllerSpec extends AnyWordSpec with BeforeAndAfterEach with Matchers with MockitoSugar {
+class ConsolidationControllerSpec extends AnyWordSpec with BeforeAndAfterEach with Matchers {
 
   private val submissionService = mock[SubmissionService]
   private val controller = new ConsolidationController(submissionService, stubControllerComponents())(global)
@@ -63,13 +63,13 @@ class ConsolidationControllerSpec extends AnyWordSpec with BeforeAndAfterEach wi
     "return 202 (Accepted)" when {
 
       "consolidation submission ends with success" in {
-
-        when(submissionService.submit(any[Consolidation]())(any()))
-          .thenReturn(Future.successful((): Unit))
+        val conversationId = "conversationId"
+        when(submissionService.submit(any[Consolidation]())(any())).thenReturn(Future.successful(conversationId))
 
         val result = controller.submitConsolidation()(postRequest(correctRequest))
 
         status(result) mustBe ACCEPTED
+        contentAsString(result) mustBe conversationId
         verify(submissionService).submit(any[Consolidation]())(any())
       }
     }

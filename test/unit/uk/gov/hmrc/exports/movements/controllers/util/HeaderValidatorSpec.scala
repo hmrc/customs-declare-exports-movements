@@ -16,11 +16,10 @@
 
 package uk.gov.hmrc.exports.movements.controllers.util
 
-import org.scalatestplus.mockito.MockitoSugar
 import testdata.CommonTestData._
 import uk.gov.hmrc.exports.movements.base.UnitSpec
 
-class HeaderValidatorSpec extends UnitSpec with MockitoSugar {
+class HeaderValidatorSpec extends UnitSpec {
 
   trait SetUp {
     val validator = new HeaderValidator
@@ -29,7 +28,6 @@ class HeaderValidatorSpec extends UnitSpec with MockitoSugar {
   "Header Validator" when {
 
     "header is present" should {
-
       "return conversationId from header when extract is called" in new SetUp {
         val extractedConversationId: Option[String] =
           validator.extractConversationIdHeader(ValidHeaders)
@@ -38,7 +36,6 @@ class HeaderValidatorSpec extends UnitSpec with MockitoSugar {
     }
 
     "header is not present" should {
-
       "return None from header when extract is called (no ConversationId)" in new SetUp {
         val extractedConversationId: Option[String] =
           validator.extractConversationIdHeader(Map.empty)
@@ -46,5 +43,4 @@ class HeaderValidatorSpec extends UnitSpec with MockitoSugar {
       }
     }
   }
-
 }
