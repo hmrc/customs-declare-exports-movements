@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.exports.movements.services
 
-import org.scalatestplus.mockito.MockitoSugar
 import testdata.CommonTestData._
 import testdata.ConsolidationTestData._
 import testdata.MovementsTestData._
@@ -26,7 +25,7 @@ import uk.gov.hmrc.exports.movements.models.notifications.standard
 
 import java.time.{Clock, Instant, ZoneOffset}
 
-class IleMapperSpec extends UnitSpec with MockitoSugar {
+class IleMapperSpec extends UnitSpec {
 
   private val clock = Clock.fixed(Instant.parse(dateTimeString), ZoneOffset.UTC)
   private val ileMapper = new IleMapper(clock)
@@ -63,7 +62,6 @@ class IleMapperSpec extends UnitSpec with MockitoSugar {
     }
 
     "create correct XML for Create Empty MUCR" in {
-
       val input = exampleCreateEmptyMucrRequest
       val xml = ileMapper.buildInventoryLinkingMovementRequestXml(input)
       val reference = (xml \ "movementReference").text
@@ -121,7 +119,6 @@ class IleMapperSpec extends UnitSpec with MockitoSugar {
       }
 
       "it is Shut MUCR" in {
-
         val consolidation = ShutMucrRequest(eori = validEori, mucr = ucr_2)
         val expectedXml = scala.xml.Utility.trim(exampleShutMucrConsolidationRequestXML)
 
@@ -131,9 +128,7 @@ class IleMapperSpec extends UnitSpec with MockitoSugar {
   }
 
   "ILE Mapper on buildIleQuery" should {
-
     "create correct XML based on the ILE Query" in {
-
       val ucrBlock = standard.UcrBlock(ucr = ucr, ucrType = "D")
       val expectedXml = scala.xml.Utility.trim(exampleIleQueryRequestXml)
 

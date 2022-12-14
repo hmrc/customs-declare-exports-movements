@@ -40,7 +40,7 @@ class SubmissionService @Inject() (
 
   private val logger = Logger(this.getClass)
 
-  def submit(movement: MovementsExchange)(implicit hc: HeaderCarrier): Future[Unit] = {
+  def submit(movement: MovementsExchange)(implicit hc: HeaderCarrier): Future[String] = {
     val requestXml: Node = ileMapper.buildInventoryLinkingMovementRequestXml(movement)
 
     customsInventoryLinkingExportsConnector.submit(movement, requestXml).flatMap {
@@ -48,7 +48,7 @@ class SubmissionService @Inject() (
         logger.info(s"Movement Submission Accepted with conversation-id=[$conversationId]")
         val newSubmission = Submission(movement.eori, movement.providerId, conversationId, requestXml, movement.choice)
 
-        submissionRepository.insertOne(newSubmission).map(_ => (): Unit)
+        submissionRepository.insertOne(newSubmission).map(_ => conversationId)
 
       case CustomsInventoryLinkingResponse(status, conversationId) =>
         logger.warn(s"Movement Submission failed with conversation-id=[$conversationId] and status [$status]")
@@ -58,14 +58,14 @@ class SubmissionService @Inject() (
     }
   }
 
-  def submit(consolidation: Consolidation)(implicit hc: HeaderCarrier): Future[Unit] = {
+  def submit(consolidation: Consolidation)(implicit hc: HeaderCarrier): Future[String] = {
     val requestXml = ileMapper.buildConsolidationXml(consolidation)
 
     customsInventoryLinkingExportsConnector.submit(consolidation, requestXml).flatMap {
       case CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId)) =>
         logger.info(s"Consolidation Submission Accepted with conversation-id=[$conversationId]")
         val newSubmission = Submission(consolidation.eori, consolidation.providerId, conversationId, requestXml, consolidation.consolidationType)
-        submissionRepository.insertOne(newSubmission).map(_ => (): Unit)
+        submissionRepository.insertOne(newSubmission).map(_ => conversationId)
 
       case CustomsInventoryLinkingResponse(status, conversationId) =>
         logger.warn(s"Consolidation Submission failed with conversation-id=[$conversationId] and status [$status]")

@@ -17,12 +17,11 @@
 package uk.gov.hmrc.exports.movements.controllers
 
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{verify, when}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -34,7 +33,7 @@ import uk.gov.hmrc.exports.movements.services.SubmissionService
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class SubmissionControllerSpec extends AnyWordSpec with Matchers with MockitoSugar with ScalaFutures {
+class SubmissionControllerSpec extends AnyWordSpec with Matchers with ScalaFutures {
 
   private val requestGet = FakeRequest(GET, "").withHeaders(validHeaders.toSeq: _*)
 
@@ -51,7 +50,7 @@ class SubmissionControllerSpec extends AnyWordSpec with Matchers with MockitoSug
 
       controller.getAllSubmissions(Some(validEori), Some(validProviderId))(requestGet)
 
-      Mockito.verify(submissionService).getSubmissions(any[SearchParameters])
+      verify(submissionService).getSubmissions(any[SearchParameters])
     }
 
     "return Ok status" in new Test {
@@ -81,7 +80,7 @@ class SubmissionControllerSpec extends AnyWordSpec with Matchers with MockitoSug
 
       controller.getSubmission(Some(validEori), Some(validProviderId), conversationId)(requestGet)
 
-      Mockito.verify(submissionService).getSingleSubmission(any[SearchParameters])
+      verify(submissionService).getSingleSubmission(any[SearchParameters])
     }
 
     "return Ok status" in new Test {

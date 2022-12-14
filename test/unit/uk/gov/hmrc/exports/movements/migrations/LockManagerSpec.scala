@@ -17,19 +17,18 @@
 package uk.gov.hmrc.exports.movements.migrations
 
 import java.util.Date
-
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, anyString, eq => meq}
-import org.mockito.Mockito._
+import org.mockito.Mockito.{doNothing, reset, times, verify, verifyNoInteractions, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar.mock
 import uk.gov.hmrc.exports.movements.migrations.LockManager.DefaultKey
 import uk.gov.hmrc.exports.movements.migrations.exceptions.{LockManagerException, LockPersistenceException}
 import uk.gov.hmrc.exports.movements.migrations.repositories.{LockEntry, LockRefreshChecker, LockRepository, LockStatus}
 
-class LockManagerSpec extends AnyWordSpec with MockitoSugar with Matchers with BeforeAndAfterEach {
+class LockManagerSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach {
 
   private val lockRepository = mock[LockRepository]
   private val lockRefreshChecker = mock[LockRefreshChecker]
@@ -75,7 +74,6 @@ class LockManagerSpec extends AnyWordSpec with MockitoSugar with Matchers with B
 
   "LockManager on acquireLockDefault" should {
     "provide LockRepository with correct LockEntry" in {
-
       when(timeUtils.currentTimePlusMillis(any())).thenReturn(newLockExpiryDate)
       doNothing().when(lockRepository).insertUpdate(any())
 
@@ -94,7 +92,6 @@ class LockManagerSpec extends AnyWordSpec with MockitoSugar with Matchers with B
 
     "no exception thrown by LockRepository (no lock in DB, lock belongs to this LockManager, or to some other but is expired)" should {
       "call LockRepository only once" in {
-
         when(timeUtils.currentTimePlusMillis(any())).thenReturn(newLockExpiryDate)
         doNothing().when(lockRepository).insertUpdate(any())
 
@@ -107,11 +104,9 @@ class LockManagerSpec extends AnyWordSpec with MockitoSugar with Matchers with B
     }
 
     "LockPersistenceException is thrown by LockRepository" when {
-
       "current lock belongs to different owner and it's not expired" should {
 
         "call LockRepository up to maxTries times" in {
-
           when(timeUtils.currentTimePlusMillis(any())).thenReturn(newLockExpiryDate)
           val currentLock = LockEntry(DefaultKey, LockStatus.LockHeld.name, "OtherLockOwner", currentLockExpiryDate)
           when(lockRepository.insertUpdate(any())).thenThrow(new LockPersistenceException("Lock is held"))
@@ -125,7 +120,6 @@ class LockManagerSpec extends AnyWordSpec with MockitoSugar with Matchers with B
         }
 
         "throw LockCheckException('MaxTries(_) reached') after not succeeding any try" in {
-
           when(timeUtils.currentTimePlusMillis(any())).thenReturn(newLockExpiryDate)
           val currentLock = LockEntry(DefaultKey, LockStatus.LockHeld.name, "OtherLockOwner", currentLockExpiryDate)
           when(lockRepository.insertUpdate(any())).thenThrow(new LockPersistenceException("Lock is held"))
@@ -137,7 +131,6 @@ class LockManagerSpec extends AnyWordSpec with MockitoSugar with Matchers with B
         }
 
         "throw LockCheckException('Waiting time required...') if lock's expiry date is further in the future than lockMaxWaitMillis" in {
-
           when(timeUtils.currentTimePlusMillis(any())).thenReturn(newLockExpiryDate)
 
           val currentLockExpiryDate = new Date(newLockExpiryDate.getTime + 10 * config.lockMaxWaitMillis)
@@ -154,10 +147,8 @@ class LockManagerSpec extends AnyWordSpec with MockitoSugar with Matchers with B
   }
 
   "LockManager on ensureLockDefault" when {
-
     "does need to refresh the lock" should {
       "provide LockRepository with correct LockEntry" in {
-
         when(timeUtils.currentTimePlusMillis(any())).thenReturn(newLockExpiryDate)
         doNothing().when(lockRepository).updateIfSameOwner(any())
         when(lockRefreshChecker.needsRefreshLock(any())).thenReturn(true)
@@ -178,7 +169,6 @@ class LockManagerSpec extends AnyWordSpec with MockitoSugar with Matchers with B
 
     "does NOT need to refresh the lock" should {
       "not call LockRepository" in {
-
         when(lockRefreshChecker.needsRefreshLock(any())).thenReturn(false)
 
         val lockManager = new LockManager(lockRepository, lockRefreshChecker, timeUtils, config)
@@ -193,7 +183,6 @@ class LockManagerSpec extends AnyWordSpec with MockitoSugar with Matchers with B
 
       "LockRepository does not throw any exceptions (there is a lock belonging to this LockManager)" should {
         "call LockRepository only once" in {
-
           when(lockRefreshChecker.needsRefreshLock(any())).thenReturn(true)
           when(timeUtils.currentTimePlusMillis(any())).thenReturn(newLockExpiryDate)
           doNothing().when(lockRepository).updateIfSameOwner(any())
@@ -207,11 +196,9 @@ class LockManagerSpec extends AnyWordSpec with MockitoSugar with Matchers with B
       }
 
       "LockPersistenceException is thrown by LockRepository" when {
-
         "there is no lock in the DB" should {
 
           "call LockRepository maxTries times" in {
-
             when(lockRefreshChecker.needsRefreshLock(any())).thenReturn(true)
             when(timeUtils.currentTimePlusMillis(any())).thenReturn(newLockExpiryDate)
             when(lockRepository.updateIfSameOwner(any())).thenThrow(new LockPersistenceException("Lock is held"))
@@ -225,7 +212,6 @@ class LockManagerSpec extends AnyWordSpec with MockitoSugar with Matchers with B
           }
 
           "throw LockCheckException('MaxTries(_) reached')" in {
-
             when(lockRefreshChecker.needsRefreshLock(any())).thenReturn(true)
             when(timeUtils.currentTimePlusMillis(any())).thenReturn(newLockExpiryDate)
             when(lockRepository.updateIfSameOwner(any())).thenThrow(new LockPersistenceException("Lock is held"))
@@ -240,7 +226,6 @@ class LockManagerSpec extends AnyWordSpec with MockitoSugar with Matchers with B
         "there is a lock belonging to some other LockManager (expired or not)" should {
 
           "call LockRepository only once" in {
-
             when(lockRefreshChecker.needsRefreshLock(any())).thenReturn(true)
             when(timeUtils.currentTimePlusMillis(any())).thenReturn(newLockExpiryDate)
             val currentLock = LockEntry(DefaultKey, LockStatus.LockHeld.name, "OtherLockOwner", currentLockExpiryDate)
@@ -255,7 +240,6 @@ class LockManagerSpec extends AnyWordSpec with MockitoSugar with Matchers with B
           }
 
           "throw LockCheckException('Lock held by other process. Cannot ensure lock')" in {
-
             when(lockRefreshChecker.needsRefreshLock(any())).thenReturn(true)
             when(timeUtils.currentTimePlusMillis(any())).thenReturn(newLockExpiryDate)
             val currentLock = LockEntry(DefaultKey, LockStatus.LockHeld.name, "OtherLockOwner", currentLockExpiryDate)
@@ -272,15 +256,11 @@ class LockManagerSpec extends AnyWordSpec with MockitoSugar with Matchers with B
   }
 
   "LockManager on releaseLockDefault" should {
-
     "call LockRepository" in {
-
       val lockManager = new LockManager(lockRepository, lockRefreshChecker, timeUtils, config)
-
       lockManager.releaseLockDefault()
 
       verify(lockRepository).removeByKeyAndOwner(meq(DefaultKey), any())
     }
   }
-
 }

@@ -17,20 +17,19 @@
 package uk.gov.hmrc.exports.movements.migrations
 
 import java.util.Date
-
 import com.mongodb.client.MongoDatabase
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito
-import org.mockito.Mockito._
+import org.mockito.Mockito.{never, reset, verify, verifyNoInteractions, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar.mock
 import uk.gov.hmrc.exports.movements.migrations.changelogs.{MigrationDefinition, MigrationInformation}
 import uk.gov.hmrc.exports.movements.migrations.exceptions.{ExportsMigrationException, LockManagerException}
 import uk.gov.hmrc.exports.movements.migrations.repositories.{ChangeEntry, ChangeEntryRepository}
 
-class ExportsMigrationToolSpec extends AnyWordSpec with MockitoSugar with Matchers with BeforeAndAfterEach {
+class ExportsMigrationToolSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach {
 
   private val lockManager: LockManager = mock[LockManager]
   private val migrationsRegistry: MigrationsRegistry = mock[MigrationsRegistry]
@@ -56,13 +55,11 @@ class ExportsMigrationToolSpec extends AnyWordSpec with MockitoSugar with Matche
   "ExportsMigrationTool on execute" should {
 
     "call LockManager acquireLockDefault method" in {
-
       exportsMigrationTool().execute()
       verify(lockManager).acquireLockDefault()
     }
 
     "call LockManager releaseLockDefault method" in {
-
       exportsMigrationTool().execute()
       verify(lockManager).releaseLockDefault()
     }
@@ -73,20 +70,17 @@ class ExportsMigrationToolSpec extends AnyWordSpec with MockitoSugar with Matche
     "MigrationsRegistry is empty" should {
 
       "not call LockManager ensureLockDefault" in {
-
         exportsMigrationTool().execute()
         verify(lockManager, never()).ensureLockDefault()
       }
 
       "not call ChangeEntryRepository" in {
-
         exportsMigrationTool().execute()
         verifyNoInteractions(changeEntryRepository)
       }
     }
 
     "MigrationsRegistry contains new migration definition" should {
-
       val testMigrationInformation = MigrationInformation(id = "TestId", order = 1, author = "TestAuthor")
       val migrationDefinition = new MigrationDefinition {
         override val migrationInformation: MigrationInformation = testMigrationInformation
@@ -94,7 +88,6 @@ class ExportsMigrationToolSpec extends AnyWordSpec with MockitoSugar with Matche
       }
 
       "call ChangeEntryRepository findAll method" in {
-
         when(migrationsRegistry.migrations).thenReturn(Seq(migrationDefinition))
         when(changeEntryRepository.findAll()).thenReturn(List.empty)
 
@@ -104,7 +97,6 @@ class ExportsMigrationToolSpec extends AnyWordSpec with MockitoSugar with Matche
       }
 
       "call LockManager ensureLockDefault" in {
-
         when(migrationsRegistry.migrations).thenReturn(Seq(migrationDefinition))
         when(changeEntryRepository.findAll()).thenReturn(List.empty)
 
@@ -114,7 +106,6 @@ class ExportsMigrationToolSpec extends AnyWordSpec with MockitoSugar with Matche
       }
 
       "call ChangeEntryRepository save method" in {
-
         when(migrationsRegistry.migrations).thenReturn(Seq(migrationDefinition))
         when(changeEntryRepository.findAll()).thenReturn(List.empty)
 
@@ -125,7 +116,6 @@ class ExportsMigrationToolSpec extends AnyWordSpec with MockitoSugar with Matche
     }
 
     "MigrationsRegistry contains old migration definition with runAlways flag" should {
-
       val testMigrationInformation = MigrationInformation(id = "TestId", order = 1, author = "TestAuthor", runAlways = true)
       val migrationDefinition = new MigrationDefinition {
         override val migrationInformation: MigrationInformation = testMigrationInformation
@@ -139,7 +129,6 @@ class ExportsMigrationToolSpec extends AnyWordSpec with MockitoSugar with Matche
       )
 
       "call ChangeEntryRepository findAll method" in {
-
         when(migrationsRegistry.migrations).thenReturn(Seq(migrationDefinition))
         when(changeEntryRepository.findAll()).thenReturn(List(currentChangeEntry.buildFullDBObject))
 
@@ -149,7 +138,6 @@ class ExportsMigrationToolSpec extends AnyWordSpec with MockitoSugar with Matche
       }
 
       "call LockManager ensureLockDefault" in {
-
         when(migrationsRegistry.migrations).thenReturn(Seq(migrationDefinition))
         when(changeEntryRepository.findAll()).thenReturn(List(currentChangeEntry.buildFullDBObject))
 
@@ -159,7 +147,6 @@ class ExportsMigrationToolSpec extends AnyWordSpec with MockitoSugar with Matche
       }
 
       "not call ChangeEntryRepository save method" in {
-
         when(migrationsRegistry.migrations).thenReturn(Seq(migrationDefinition))
         when(changeEntryRepository.findAll()).thenReturn(List(currentChangeEntry.buildFullDBObject))
 
@@ -170,9 +157,7 @@ class ExportsMigrationToolSpec extends AnyWordSpec with MockitoSugar with Matche
     }
 
     "MigrationsRegistry contains multiple new migration definitions" should {
-
       "execute them in order" in {
-
         def testMigrationInformation(order: Int) = MigrationInformation(id = "TestId", order = order, author = "TestAuthor")
         val migrationDefinition_1 = mock[MigrationDefinition]
         val migrationDefinition_2 = mock[MigrationDefinition]
@@ -198,7 +183,6 @@ class ExportsMigrationToolSpec extends AnyWordSpec with MockitoSugar with Matche
       "throwExceptionIfCannotObtainLock == true" should {
 
         "throw ExportsMigrationException" in {
-
           val exceptionMessage = "Test Exception Message"
           when(lockManager.acquireLockDefault()).thenThrow(new LockManagerException(exceptionMessage))
 
@@ -223,7 +207,6 @@ class ExportsMigrationToolSpec extends AnyWordSpec with MockitoSugar with Matche
       "throwExceptionIfCannotObtainLock == false" should {
 
         "not throw ExportsMigrationException" in {
-
           val exceptionMessage = "Test Exception Message"
           when(lockManager.acquireLockDefault()).thenThrow(new LockManagerException(exceptionMessage))
 
@@ -231,7 +214,6 @@ class ExportsMigrationToolSpec extends AnyWordSpec with MockitoSugar with Matche
         }
 
         "call LockManager releaseLockDefault method" in {
-
           val exceptionMessage = "Test Exception Message"
           when(lockManager.acquireLockDefault()).thenThrow(new LockManagerException(exceptionMessage))
 
@@ -242,5 +224,4 @@ class ExportsMigrationToolSpec extends AnyWordSpec with MockitoSugar with Matche
       }
     }
   }
-
 }

@@ -23,7 +23,6 @@ import connector.WiremockTestServer
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.bind
@@ -34,7 +33,7 @@ import testdata.MovementsTestData.dateTimeString
 
 import scala.concurrent.ExecutionContext
 
-class ConnectorISpec extends AnyWordSpec with GuiceOneAppPerSuite with WiremockTestServer with Matchers with MockitoSugar with BeforeAndAfterEach {
+class ConnectorISpec extends AnyWordSpec with GuiceOneAppPerSuite with WiremockTestServer with Matchers with BeforeAndAfterEach {
 
   private val clock = Clock.fixed(Instant.parse(dateTimeString), ZoneOffset.UTC)
 

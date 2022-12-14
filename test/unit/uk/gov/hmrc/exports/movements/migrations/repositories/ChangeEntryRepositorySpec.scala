@@ -16,20 +16,20 @@
 
 package uk.gov.hmrc.exports.movements.migrations.repositories
 
-import java.util.Date
-
 import com.mongodb.MongoNamespace
 import com.mongodb.client.{FindIterable, MongoCollection, MongoDatabase}
 import org.bson.Document
 import org.mockito.ArgumentMatchers.{any, anyString, eq => meq}
-import org.mockito.Mockito._
+import org.mockito.Mockito.{reset, verify, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar.mock
 import uk.gov.hmrc.exports.migrations.repositories.TestObjectsBuilder.buildMongoCursor
 
-class ChangeEntryRepositorySpec extends AnyWordSpec with MockitoSugar with BeforeAndAfterEach with Matchers {
+import java.util.Date
+
+class ChangeEntryRepositorySpec extends AnyWordSpec with BeforeAndAfterEach with Matchers {
 
   private val databaseName = "testDatabase"
   private val collectionName = "testCollection"
@@ -48,13 +48,11 @@ class ChangeEntryRepositorySpec extends AnyWordSpec with MockitoSugar with Befor
     super.beforeEach()
 
     reset(findIterable, mongoCollection, mongoDatabase)
-
     defineMocksBehaviourDefault()
   }
 
   override def afterEach(): Unit = {
     reset(findIterable, mongoCollection, mongoDatabase)
-
     super.afterEach()
   }
 
@@ -67,17 +65,14 @@ class ChangeEntryRepositorySpec extends AnyWordSpec with MockitoSugar with Befor
   "ChangeEntryRepository on findAll" should {
 
     "call MongoCollection" in {
-
       when(findIterable.iterator()).thenReturn(buildMongoCursor(Seq.empty))
 
       repo.findAll()
-
       verify(mongoCollection).find()
     }
 
     "return empty List" when {
       "MongoCollection returned empty Iterable" in {
-
         when(findIterable.iterator()).thenReturn(buildMongoCursor(Seq.empty))
 
         val result = repo.findAll()
@@ -87,7 +82,6 @@ class ChangeEntryRepositorySpec extends AnyWordSpec with MockitoSugar with Befor
     }
 
     "return List of Documents returned by MongoCollection" in {
-
       val elementsInDb = List(new Document("id", "ID_1"), new Document("id", "ID_2"), new Document("id", "ID_3"))
       when(findIterable.iterator()).thenReturn(buildMongoCursor(elementsInDb))
 
@@ -100,7 +94,6 @@ class ChangeEntryRepositorySpec extends AnyWordSpec with MockitoSugar with Befor
   "ChangeEntryRepository on save" should {
 
     "call ChangeEntry" in {
-
       val changeEntry = mock[ChangeEntry]
       when(changeEntry.buildFullDBObject).thenReturn(new Document())
 
@@ -110,7 +103,6 @@ class ChangeEntryRepositorySpec extends AnyWordSpec with MockitoSugar with Befor
     }
 
     "call MongoCollection" in {
-
       val changeEntry = mock[ChangeEntry]
       when(changeEntry.buildFullDBObject).thenReturn(new Document())
 
@@ -120,7 +112,6 @@ class ChangeEntryRepositorySpec extends AnyWordSpec with MockitoSugar with Befor
     }
 
     "provide MongoCollection with Document from provided ChangeEntry" in {
-
       val changeEntry = ChangeEntry("changeIdValue", "authorValue", new Date(), "changeLogClassValue")
 
       repo.save(changeEntry)
@@ -129,5 +120,4 @@ class ChangeEntryRepositorySpec extends AnyWordSpec with MockitoSugar with Befor
       verify(mongoCollection).insertOne(meq(expectedDocument))
     }
   }
-
 }

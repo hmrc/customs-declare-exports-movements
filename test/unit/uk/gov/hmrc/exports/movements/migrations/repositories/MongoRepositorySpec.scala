@@ -22,16 +22,16 @@ import com.mongodb.client.{ListIndexesIterable, MongoCollection, MongoDatabase}
 import org.bson.Document
 import org.bson.conversions.Bson
 import org.mockito.ArgumentMatchers.{any, anyString, eq => meq}
-import org.mockito.Mockito._
+import org.mockito.Mockito.{atMostOnce, never, reset, verify, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.wordspec.AnyWordSpec
-import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.libs.json.Json
 import uk.gov.hmrc.exports.migrations.repositories.TestObjectsBuilder.buildMongoCursor
 
 import scala.jdk.javaapi.CollectionConverters.asJava
 
-class MongoRepositorySpec extends AnyWordSpec with MockitoSugar with BeforeAndAfterEach {
+class MongoRepositorySpec extends AnyWordSpec with BeforeAndAfterEach {
 
   private val databaseName = "testDatabase"
   private val collectionName = "testCollection"
@@ -74,9 +74,7 @@ class MongoRepositorySpec extends AnyWordSpec with MockitoSugar with BeforeAndAf
   "MongoRepository on ensureIndex" when {
 
     "there is no index in DB" should {
-
       "call MongoCollection to create index" in {
-
         when(indexesList.iterator()).thenReturn(buildMongoCursor(Seq.empty))
         val repo = new MongoRepository(mongoDatabase, collectionName, Array("uniqueIndex")) {}
 
@@ -89,7 +87,6 @@ class MongoRepositorySpec extends AnyWordSpec with MockitoSugar with BeforeAndAf
     "there is non-unique index in DB" should {
 
       "call MongoCollection to drop index" in {
-
         val mongoCursor = buildMongoCursor(Seq(buildIndex("DEFAULT_LOCK")))
         when(indexesList.iterator()).thenReturn(mongoCursor)
         val repo = new MongoRepository(mongoDatabase, collectionName, Array("uniqueIndex")) {}
@@ -100,7 +97,6 @@ class MongoRepositorySpec extends AnyWordSpec with MockitoSugar with BeforeAndAf
       }
 
       "call MongoCollection to create index" in {
-
         val mongoCursor = buildMongoCursor(Seq(buildIndex("DEFAULT_LOCK")))
         when(indexesList.iterator()).thenReturn(mongoCursor)
         val repo = new MongoRepository(mongoDatabase, collectionName, Array("uniqueIndex")) {}
@@ -116,7 +112,6 @@ class MongoRepositorySpec extends AnyWordSpec with MockitoSugar with BeforeAndAf
       val uniqueField = "uniqueIndex"
 
       "not call MongoCollection to drop or create index" in {
-
         val mongoCursor = buildMongoCursor(Seq(buildUniqueIndex(uniqueField)))
         when(indexesList.iterator()).thenReturn(mongoCursor)
         val repo = new MongoRepository(mongoDatabase, collectionName, Array(uniqueField)) {}
@@ -133,9 +128,7 @@ class MongoRepositorySpec extends AnyWordSpec with MockitoSugar with BeforeAndAf
       val uniqueField = "uniqueIndex"
 
       "call MongoCollection to drop all non-unique indexes" in {
-
-        val mongoCursor =
-          buildMongoCursor(Seq(buildUniqueIndex(uniqueField), buildIndex("DEFAULT_LOCK"), buildIndex("DEFAULT_LOCK_2")))
+        val mongoCursor = buildMongoCursor(Seq(buildUniqueIndex(uniqueField), buildIndex("DEFAULT_LOCK"), buildIndex("DEFAULT_LOCK_2")))
         when(indexesList.iterator()).thenReturn(mongoCursor)
         val repo = new MongoRepository(mongoDatabase, collectionName, Array(uniqueField)) {}
 
@@ -146,9 +139,7 @@ class MongoRepositorySpec extends AnyWordSpec with MockitoSugar with BeforeAndAf
       }
 
       "not call MongoCollection to create index qwerty" in {
-
-        val mongoCursor =
-          buildMongoCursor(Seq(buildUniqueIndex(uniqueField), buildIndex("DEFAULT_LOCK"), buildIndex("DEFAULT_LOCK_2")))
+        val mongoCursor = buildMongoCursor(Seq(buildUniqueIndex(uniqueField), buildIndex("DEFAULT_LOCK"), buildIndex("DEFAULT_LOCK_2")))
         when(indexesList.iterator()).thenReturn(mongoCursor)
         val repo = new MongoRepository(mongoDatabase, collectionName, Array(uniqueField)) {}
 
@@ -159,9 +150,7 @@ class MongoRepositorySpec extends AnyWordSpec with MockitoSugar with BeforeAndAf
     }
 
     "called twice" should {
-
       "not call MongoCollection again" in {
-
         when(indexesList.iterator()).thenReturn(buildMongoCursor(Seq.empty))
         val repo = new MongoRepository(mongoDatabase, collectionName, Array("uniqueIndex")) {}
 
@@ -172,5 +161,4 @@ class MongoRepositorySpec extends AnyWordSpec with MockitoSugar with BeforeAndAf
       }
     }
   }
-
 }

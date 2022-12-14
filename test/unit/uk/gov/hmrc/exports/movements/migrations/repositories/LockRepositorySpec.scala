@@ -26,12 +26,12 @@ import org.bson.conversions.Bson
 import org.bson.{BsonDateTime, BsonDocument, Document}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, anyString, eq => meq}
-import org.mockito.Mockito._
+import org.mockito.Mockito.{reset, verify, when}
 import org.mongodb.scala.bson.BsonString
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar.mock
 import uk.gov.hmrc.exports.migrations.repositories.TestObjectsBuilder.buildMongoCursor
 import uk.gov.hmrc.exports.movements.migrations.exceptions.LockPersistenceException
 import uk.gov.hmrc.exports.movements.migrations.repositories.LockEntry._
@@ -39,7 +39,7 @@ import uk.gov.hmrc.exports.movements.migrations.repositories.LockEntry._
 import java.util.Date
 import scala.jdk.javaapi.CollectionConverters.asJava
 
-class LockRepositorySpec extends AnyWordSpec with MockitoSugar with BeforeAndAfterEach with Matchers {
+class LockRepositorySpec extends AnyWordSpec with BeforeAndAfterEach with Matchers {
 
   private val databaseName = "testDatabase"
   private val collectionName = "testCollection"
@@ -64,7 +64,6 @@ class LockRepositorySpec extends AnyWordSpec with MockitoSugar with BeforeAndAft
     super.beforeEach()
 
     reset(findIterable, mongoCollection, mongoDatabase)
-
     defineMocksBehaviourDefault()
   }
 
@@ -73,14 +72,12 @@ class LockRepositorySpec extends AnyWordSpec with MockitoSugar with BeforeAndAft
     when(mongoCollection.getNamespace).thenReturn(mongoNamespace)
     when(mongoCollection.find(any[Bson])).thenReturn(findIterable)
     when(mongoCollection.deleteMany(any[Bson])).thenReturn(DeleteResult.unacknowledged())
-    when(mongoCollection.updateMany(any[Bson], any[Bson], any[UpdateOptions]))
-      .thenReturn(UpdateResult.unacknowledged())
+    when(mongoCollection.updateMany(any[Bson], any[Bson], any[UpdateOptions])).thenReturn(UpdateResult.unacknowledged())
     when(mongoDatabase.getCollection(anyString())).thenReturn(mongoCollection)
   }
 
   override def afterEach(): Unit = {
     reset(findIterable, mongoCollection, mongoDatabase)
-
     super.afterEach()
   }
 

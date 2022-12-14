@@ -17,11 +17,11 @@
 package uk.gov.hmrc.exports.movements.models.notifications
 
 import org.mockito.ArgumentMatchers.{any, eq => meq}
-import org.mockito.Mockito._
+import org.mockito.Mockito.{reset, verify, verifyNoInteractions, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar.mock
 import testdata.CommonTestData.conversationId
 import testdata.notifications.NotificationTestData._
 import testdata.notifications._
@@ -32,7 +32,7 @@ import uk.gov.hmrc.exports.movements.models.notifications.standard.StandardNotif
 import scala.util.{Failure, Try}
 import scala.xml.{Node, NodeSeq, Utility, XML}
 
-class NotificationFactorySpec extends AnyWordSpec with Matchers with MockitoSugar with BeforeAndAfterEach {
+class NotificationFactorySpec extends AnyWordSpec with Matchers with BeforeAndAfterEach {
 
   private val responseValidator = UnitTestMockBuilder.buildResponseValidatorMock
   private val responseParserProvider = UnitTestMockBuilder.buildResponseParserProviderMock
@@ -56,24 +56,20 @@ class NotificationFactorySpec extends AnyWordSpec with Matchers with MockitoSuga
   "MovementNotificationFactory on buildMovementNotification" when {
 
     "everything works correctly" should {
-
       val responseXml = ExampleInventoryLinkingControlResponse.Correct.Rejected.asXml
 
       "call ResponseParserFactory, passing response XML provided" in {
         notificationFactory.buildMovementNotification(conversationId, responseXml)
-
         verify(responseParserProvider).provideResponseParser(meq(responseXml))
       }
 
       "call ResponseValidator, passing response XML provided" in {
         notificationFactory.buildMovementNotification(conversationId, responseXml)
-
         verify(responseValidator).validate(meq(responseXml))
       }
 
       "call ResponseParser returned by the ResponseParserFactory, passing response XML provided" in {
         notificationFactory.buildMovementNotification(conversationId, responseXml)
-
         verify(responseParser).parse(meq(responseXml))
       }
 
@@ -251,5 +247,4 @@ class NotificationFactorySpec extends AnyWordSpec with Matchers with MockitoSuga
       }
     }
   }
-
 }
