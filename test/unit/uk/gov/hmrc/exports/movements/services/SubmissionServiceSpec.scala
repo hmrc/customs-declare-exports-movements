@@ -18,13 +18,12 @@ package uk.gov.hmrc.exports.movements.services
 
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq => meq}
-import org.mockito.Mockito.{verify, when}
+import org.mockito.MockitoSugar.{mock, verify, when}
 import org.scalatest.OptionValues
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.time.{Millis, Seconds, Span}
 import org.scalatest.wordspec.AnyWordSpec
-import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.test.Helpers._
 import testdata.CommonTestData._
 import testdata.ConsolidationTestData._
@@ -39,7 +38,9 @@ import uk.gov.hmrc.exports.movements.models.submissions.Submission
 import uk.gov.hmrc.exports.movements.repositories.SearchParameters
 import uk.gov.hmrc.http.HeaderCarrier
 
+import java.time.Clock
 import scala.concurrent.{ExecutionContext, Future}
+import scala.xml.Node
 
 class SubmissionServiceSpec extends AnyWordSpec with ScalaFutures with Matchers with OptionValues {
 
@@ -49,24 +50,22 @@ class SubmissionServiceSpec extends AnyWordSpec with ScalaFutures with Matchers 
     implicit val hc: HeaderCarrier = mock[HeaderCarrier]
     val customsInventoryLinkingExportsConnectorMock = buildCustomsInventoryLinkingExportsConnectorMock
     val submissionRepositoryMock = buildSubmissionRepositoryMock
-    val wcoMapperMock = mock[IleMapper]
-    val submissionService =
-      new SubmissionService(customsInventoryLinkingExportsConnectorMock, submissionRepositoryMock, wcoMapperMock)(ExecutionContext.global)
+
+    val wcoMapper = new IleMapper(Clock.systemUTC())
+
+    val submissionService = new SubmissionService(customsInventoryLinkingExportsConnectorMock, submissionRepositoryMock, wcoMapper)(
+      ExecutionContext.global
+    )
   }
 
   "SubmissionService on submitMovement" should {
 
     "successfully submit movement" in new Test {
-      when(wcoMapperMock.buildInventoryLinkingMovementRequestXml(any())).thenReturn(exampleArrivalRequestXML("123"))
+      when(submissionRepositoryMock.insertOne(any())).thenReturn(Future.successful(Right(exampleSubmission())))
       when(customsInventoryLinkingExportsConnectorMock.submit(any(), any())(any()))
         .thenReturn(Future.successful(CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId))))
-      when(submissionRepositoryMock.insertOne(any())).thenReturn(Future.successful(Right(exampleSubmission())))
 
       submissionService.submit(exampleArrivalRequest).futureValue
-
-      verify(wcoMapperMock).buildInventoryLinkingMovementRequestXml(meq(exampleArrivalRequest))
-      verify(customsInventoryLinkingExportsConnectorMock)
-        .submit(meq(exampleArrivalRequest), meq(exampleArrivalRequestXML("123")))(any())
 
       val submissionCaptor: ArgumentCaptor[Submission] = ArgumentCaptor.forClass(classOf[Submission])
       verify(submissionRepositoryMock).insertOne(submissionCaptor.capture())
@@ -84,7 +83,6 @@ class SubmissionServiceSpec extends AnyWordSpec with ScalaFutures with Matchers 
     }
 
     "return exception when submission failed" in new Test {
-      when(wcoMapperMock.buildInventoryLinkingMovementRequestXml(any())).thenReturn(exampleArrivalRequestXML("123"))
       when(customsInventoryLinkingExportsConnectorMock.submit(any(), any())(any()))
         .thenReturn(Future.successful(CustomsInventoryLinkingResponse(BAD_REQUEST, None)))
 
@@ -97,20 +95,25 @@ class SubmissionServiceSpec extends AnyWordSpec with ScalaFutures with Matchers 
   "SubmissionService on submitConsolidation" should {
 
     "successfully submit consolidation" in new Test {
-      when(wcoMapperMock.buildConsolidationXml(any())).thenReturn(exampleShutMucrConsolidationRequestXML)
+      when(submissionRepositoryMock.insertOne(any())).thenReturn(Future.successful(Right(exampleSubmission())))
       when(customsInventoryLinkingExportsConnectorMock.submit(any(), any())(any()))
         .thenReturn(Future.successful(CustomsInventoryLinkingResponse(ACCEPTED, Some(conversationId))))
-      when(submissionRepositoryMock.insertOne(any())).thenReturn(Future.successful(Right(exampleSubmission())))
 
       submissionService.submit(shutMucrRequest).futureValue
 
-      verify(wcoMapperMock).buildConsolidationXml(meq(shutMucrRequest))
+      val shutMucrConsolidationRequestXML: Node =
+        scala.xml.Utility.trim {
+          <inventoryLinkingConsolidationRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
+            <messageCode>CST</messageCode>
+            <masterUCR>7GB123456789000-123ABC456DEFQWERT</masterUCR>
+          </inventoryLinkingConsolidationRequest>
+        }
+
       verify(customsInventoryLinkingExportsConnectorMock)
-        .submit(meq(shutMucrRequest), meq(exampleShutMucrConsolidationRequestXML))(any())
+        .submit(meq(shutMucrRequest), meq(shutMucrConsolidationRequestXML))(any())
     }
 
     "return exception when submission failed" in new Test {
-      when(wcoMapperMock.buildConsolidationXml(any())).thenReturn(exampleShutMucrConsolidationRequestXML)
       when(customsInventoryLinkingExportsConnectorMock.submit(any(), any())(any()))
         .thenReturn(Future.successful(CustomsInventoryLinkingResponse(BAD_REQUEST, None)))
 

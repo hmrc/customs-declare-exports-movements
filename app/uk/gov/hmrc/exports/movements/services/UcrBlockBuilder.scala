@@ -89,6 +89,7 @@ object UcrBlockBuilder {
       <ucrType>{ucrType(consolidationType)}</ucrType>
     </ucrBlock>
 
+  @annotation.nowarn("msg=match may not be exhaustive")
   private def ucrType(consolidationType: ConsolidationType): String = consolidationType match {
     case DucrAssociation | DucrDisassociation | DucrPartAssociation | DucrPartDisassociation => "D"
     case MucrAssociation | MucrDisassociation                                                => "M"

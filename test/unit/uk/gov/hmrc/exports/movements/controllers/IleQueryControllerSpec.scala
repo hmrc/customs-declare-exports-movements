@@ -17,18 +17,17 @@
 package uk.gov.hmrc.exports.movements.controllers
 
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{reset, verify, when}
+import org.mockito.MockitoSugar.{mock, reset, verify, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.time.{Millis, Seconds, Span}
 import org.scalatest.wordspec.AnyWordSpec
-import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.libs.json.Json
 import play.api.test.Helpers._
 import testdata.CommonTestData._
 import testdata.notifications.NotificationTestData.{notificationIleQueryResponse_1, notificationIleQueryResponse_2}
-import uk.gov.hmrc.exports.movements.controllers.FakeRequestFactory.{postRequestWithBody, _}
+import uk.gov.hmrc.exports.movements.controllers.FakeRequestFactory._
 import uk.gov.hmrc.exports.movements.errors.TimeoutError
 import uk.gov.hmrc.exports.movements.models.common.UcrType.Ducr
 import uk.gov.hmrc.exports.movements.models.movements.IleQueryRequest

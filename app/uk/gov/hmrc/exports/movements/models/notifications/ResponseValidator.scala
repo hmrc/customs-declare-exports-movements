@@ -16,18 +16,17 @@
 
 package uk.gov.hmrc.exports.movements.models.notifications
 
-import java.io._
-
-import javax.inject.{Inject, Singleton}
-import javax.xml.XMLConstants
-import javax.xml.transform.stream.StreamSource
-import javax.xml.validation.{SchemaFactory, ValidatorHandler}
-import org.xml.sax.helpers.XMLReaderFactory
 import uk.gov.hmrc.exports.movements.config.AppConfig
 
+import java.io._
+import javax.inject.{Inject, Singleton}
+import javax.xml.XMLConstants
+import javax.xml.parsers.SAXParserFactory
+import javax.xml.transform.stream.StreamSource
+import javax.xml.validation.{SchemaFactory, ValidatorHandler}
 import scala.util.Try
 import scala.xml.parsing._
-import scala.xml.{NodeSeq, _}
+import scala.xml._
 
 @Singleton
 class ResponseValidator @Inject() (appConfig: AppConfig) {
@@ -42,7 +41,9 @@ class ResponseValidator @Inject() (appConfig: AppConfig) {
     val validatorHandler: ValidatorHandler = schema.newValidatorHandler()
     validatorHandler.setContentHandler(new NoBindingFactoryAdapter)
 
-    val xmlReader = XMLReaderFactory.createXMLReader()
+    val parserFactory = SAXParserFactory.newInstance
+    parserFactory.setNamespaceAware(true);
+    val xmlReader = parserFactory.newSAXParser.getXMLReader
     xmlReader.setFeature("http://xml.org/sax/features/namespace-prefixes", true)
     xmlReader.setContentHandler(validatorHandler)
 

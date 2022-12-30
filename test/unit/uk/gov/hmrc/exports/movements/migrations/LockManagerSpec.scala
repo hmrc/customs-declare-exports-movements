@@ -16,17 +16,18 @@
 
 package uk.gov.hmrc.exports.movements.migrations
 
-import java.util.Date
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, anyString, eq => meq}
-import org.mockito.Mockito.{doNothing, reset, times, verify, verifyNoInteractions, when}
+import org.mockito.Mockito.doNothing
+import org.mockito.MockitoSugar.{mock, reset, times, verify, verifyZeroInteractions, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import org.scalatestplus.mockito.MockitoSugar.mock
 import uk.gov.hmrc.exports.movements.migrations.LockManager.DefaultKey
 import uk.gov.hmrc.exports.movements.migrations.exceptions.{LockManagerException, LockPersistenceException}
 import uk.gov.hmrc.exports.movements.migrations.repositories.{LockEntry, LockRefreshChecker, LockRepository, LockStatus}
+
+import java.util.Date
 
 class LockManagerSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach {
 
@@ -175,7 +176,7 @@ class LockManagerSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach 
 
         lockManager.ensureLockDefault()
 
-        verifyNoInteractions(lockRepository)
+        verifyZeroInteractions(lockRepository)
       }
     }
 

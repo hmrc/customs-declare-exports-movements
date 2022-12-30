@@ -76,6 +76,7 @@ class IleQueryResponseParser @Inject() (commonTypesParser: CommonTypesParser) ex
     }.headOption
   )
 
+  @annotation.nowarn("msg=match may not be exhaustive")
   private def getMovementDateTimeXmlTag(movementXml: Node): String = (movementXml \ XmlTags.messageCode).text match {
     case Arrival.ileCode | RetrospectiveArrival.ileCode => XmlTags.goodsArrivalDateTime
     case Departure.ileCode                              => XmlTags.goodsDepartureDateTime

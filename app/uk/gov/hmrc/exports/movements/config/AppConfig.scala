@@ -60,7 +60,7 @@ class AppConfig @Inject() (runModeConfiguration: Configuration, servicesConfig: 
   lazy val ileQueryResponseTimeout: Duration = {
     val value = servicesConfig.getInt("microservice.ileQueryResponseTimeout.value")
     val unit = servicesConfig.getString("microservice.ileQueryResponseTimeout.unit")
-    Duration.of(value, ChronoUnit.valueOf(unit.toUpperCase))
+    Duration.of(value.toLong, ChronoUnit.valueOf(unit.toUpperCase))
   }
 
   lazy val internalUserEori: String = servicesConfig.getConfString(
