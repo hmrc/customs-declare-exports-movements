@@ -17,10 +17,9 @@
 package uk.gov.hmrc.exports.movements.controllers
 
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{reset, verify, when}
+import org.mockito.MockitoSugar.{mock, reset, verify, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.must.Matchers.convertToAnyMustWrapper
-import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.mvc.Request
 import play.api.test.Helpers._
 import play.api.test._
@@ -38,8 +37,7 @@ class MovementsControllerSpec extends UnitSpec with BeforeAndAfterEach {
 
   private val submissionService = mock[SubmissionService]
 
-  private val controller =
-    new MovementsController(submissionService, stubControllerComponents())(global)
+  private val controller = new MovementsController(submissionService, stubControllerComponents())(global)
 
   private val correctJson = MovementsExchange(
     eori = validEori,
@@ -47,9 +45,6 @@ class MovementsControllerSpec extends UnitSpec with BeforeAndAfterEach {
     consignmentReference = ConsignmentReference("reference", "value"),
     movementDetails = Some(MovementDetails("dateTime"))
   )
-
-  override protected def beforeEach(): Unit =
-    super.beforeEach()
 
   override protected def afterEach(): Unit = {
     reset(submissionService)

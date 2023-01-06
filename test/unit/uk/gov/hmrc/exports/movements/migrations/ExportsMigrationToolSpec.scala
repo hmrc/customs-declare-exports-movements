@@ -16,18 +16,19 @@
 
 package uk.gov.hmrc.exports.movements.migrations
 
-import java.util.Date
 import com.mongodb.client.MongoDatabase
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito
-import org.mockito.Mockito.{never, reset, verify, verifyNoInteractions, when}
+import org.mockito.Mockito.never
+import org.mockito.MockitoSugar.{mock, reset, verify, verifyZeroInteractions, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import org.scalatestplus.mockito.MockitoSugar.mock
 import uk.gov.hmrc.exports.movements.migrations.changelogs.{MigrationDefinition, MigrationInformation}
 import uk.gov.hmrc.exports.movements.migrations.exceptions.{ExportsMigrationException, LockManagerException}
 import uk.gov.hmrc.exports.movements.migrations.repositories.{ChangeEntry, ChangeEntryRepository}
+
+import java.util.Date
 
 class ExportsMigrationToolSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach {
 
@@ -76,7 +77,7 @@ class ExportsMigrationToolSpec extends AnyWordSpec with Matchers with BeforeAndA
 
       "not call ChangeEntryRepository" in {
         exportsMigrationTool().execute()
-        verifyNoInteractions(changeEntryRepository)
+        verifyZeroInteractions(changeEntryRepository)
       }
     }
 

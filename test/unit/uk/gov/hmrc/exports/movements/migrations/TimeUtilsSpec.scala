@@ -25,8 +25,8 @@ class TimeUtilsSpec extends AnyWordSpec with Matchers {
 
   "TimeUtils on minutesToMillis" should {
     "correctly convert to milliseconds" in {
-      val minutes = 13
-      val expectedOutput = 780000
+      val minutes = 13L
+      val expectedOutput = 780000L
 
       timeUtils.minutesToMillis(minutes) mustBe expectedOutput
     }
@@ -34,8 +34,8 @@ class TimeUtilsSpec extends AnyWordSpec with Matchers {
 
   "TimeUtils on millisToMinutes" should {
     "correctly convert to minutes" in {
-      val millis = 120000
-      val expectedOutput = 2
+      val millis = 120000L
+      val expectedOutput = 2L
 
       timeUtils.millisToMinutes(millis) mustBe expectedOutput
     }

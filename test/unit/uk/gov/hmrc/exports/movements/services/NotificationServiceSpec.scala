@@ -17,13 +17,13 @@
 package uk.gov.hmrc.exports.movements.services
 
 import org.mockito.ArgumentMatchers.{any, anyString, eq => meq}
-import org.mockito.Mockito.{never, reset, verify, verifyNoInteractions, verifyNoMoreInteractions, when}
+import org.mockito.Mockito.never
+import org.mockito.MockitoSugar.{mock, reset, verify, verifyZeroInteractions, when}
 import org.mockito.{ArgumentCaptor, InOrder, Mockito}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import org.scalatestplus.mockito.MockitoSugar.mock
 import testdata.CommonTestData._
 import testdata.MovementsTestData.exampleSubmission
 import testdata.notifications.NotificationTestData._
@@ -132,7 +132,7 @@ class NotificationServiceSpec extends AnyWordSpec with ScalaFutures with Matcher
           Await.result(notificationService.save(conversationId, requestBody), patienceConfig.timeout)
         }
 
-        verifyNoMoreInteractions(notificationRepository)
+        verifyZeroInteractions(notificationRepository)
       }
     }
   }
@@ -284,7 +284,7 @@ class NotificationServiceSpec extends AnyWordSpec with ScalaFutures with Matcher
 
         notificationService.parseUnparsedNotifications.futureValue
 
-        verifyNoInteractions(notificationFactory)
+        verifyZeroInteractions(notificationFactory)
       }
 
       "not call NotificationRepository update method" in {

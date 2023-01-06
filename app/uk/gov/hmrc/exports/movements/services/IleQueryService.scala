@@ -89,5 +89,4 @@ class IleQueryService @Inject() (
       notifications <- notificationRepository.findByConversationIds(conversationIds)
       result <- Future.successful(notifications.map(IleQueryResponseExchange(_)))
     } yield Right(result)
-
 }

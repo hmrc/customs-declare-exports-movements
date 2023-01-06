@@ -22,10 +22,10 @@ import com.mongodb.client.{ListIndexesIterable, MongoCollection, MongoDatabase}
 import org.bson.Document
 import org.bson.conversions.Bson
 import org.mockito.ArgumentMatchers.{any, anyString, eq => meq}
-import org.mockito.Mockito.{atMostOnce, never, reset, verify, when}
+import org.mockito.Mockito.{atMostOnce, never}
+import org.mockito.MockitoSugar.{mock, reset, verify, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.wordspec.AnyWordSpec
-import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.libs.json.Json
 import uk.gov.hmrc.exports.migrations.repositories.TestObjectsBuilder.buildMongoCursor
 

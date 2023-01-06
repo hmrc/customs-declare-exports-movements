@@ -16,11 +16,10 @@
 
 package uk.gov.hmrc.exports.movements.misc
 
-import org.mockito.Mockito.{reset, times, verify, when}
+import org.mockito.MockitoSugar.{mock, reset, verify, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import org.scalatestplus.mockito.MockitoSugar.mock
 import testdata.MovementsTestData.{dateTimeString, exampleIleQuerySubmission}
 import uk.gov.hmrc.exports.movements.config.AppConfig
 
@@ -94,7 +93,7 @@ class IleQueryTimeoutCalculatorSpec extends AnyWordSpec with Matchers with Befor
 
       ileQueryTimeoutCalculator.hasQueryTimedOut(submission)
 
-      verify(appConfig, times(1)).ileQueryResponseTimeout
+      verify(appConfig).ileQueryResponseTimeout
     }
   }
 }

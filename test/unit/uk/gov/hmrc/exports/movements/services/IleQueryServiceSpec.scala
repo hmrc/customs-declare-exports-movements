@@ -17,16 +17,14 @@
 package uk.gov.hmrc.exports.movements.services
 
 import org.mockito.ArgumentMatchers.{any, eq => meq}
-import org.mockito.Mockito.{reset, verify, verifyNoMoreInteractions, when}
+import org.mockito.MockitoSugar.{mock, reset, verify, verifyZeroInteractions, when}
 import org.mockito.{ArgumentCaptor, InOrder, Mockito}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.test.Helpers._
 import testdata.CommonTestData._
-import testdata.IleQueryTestData.ileQueryXml
 import testdata.MovementsTestData.exampleIleQuerySubmission
 import testdata.notifications.NotificationTestData.notificationIleQueryResponse_1
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
@@ -41,6 +39,7 @@ import uk.gov.hmrc.exports.movements.models.{CustomsInventoryLinkingResponse, Us
 import uk.gov.hmrc.exports.movements.repositories.{IleQuerySubmissionRepository, NotificationRepository, SearchParameters}
 import uk.gov.hmrc.http.HeaderCarrier
 
+import java.time.Clock
 import scala.concurrent.ExecutionContext.global
 import scala.concurrent.Future
 import scala.xml.NodeSeq
@@ -49,7 +48,6 @@ class IleQueryServiceSpec extends AnyWordSpec with Matchers with ScalaFutures wi
 
   implicit private val hc = mock[HeaderCarrier]
 
-  private val ileMapper = mock[IleMapper]
   private val ileQuerySubmissionRepository = mock[IleQuerySubmissionRepository]
   private val notificationRepository = mock[NotificationRepository]
   private val ileConnector = mock[CustomsInventoryLinkingExportsConnector]
@@ -57,15 +55,14 @@ class IleQueryServiceSpec extends AnyWordSpec with Matchers with ScalaFutures wi
 
   private val ileQuerySubmission = Right(exampleIleQuerySubmission())
 
+  private val ileMapper = new IleMapper(Clock.systemUTC())
+
   private val ileQueryService =
     new IleQueryService(ileMapper, ileQuerySubmissionRepository, notificationRepository, ileConnector, ileQueryTimeoutCalculator)(global)
-
-  private val queryXml = ileQueryXml(UcrBlock(ucr = ucr, ucrType = "D"))
 
   override protected def beforeEach(): Unit = {
     super.beforeEach()
 
-    when(ileMapper.buildIleQuery(any[UcrBlock])).thenReturn(queryXml)
     when(ileConnector.submit(any[UserIdentification], any[NodeSeq])(any()))
       .thenReturn(Future.successful(CustomsInventoryLinkingResponse(ACCEPTED, Some(""))))
     when(ileQuerySubmissionRepository.insertOne(any[IleQuerySubmission])).thenReturn(Future.successful(ileQuerySubmission))
@@ -75,7 +72,7 @@ class IleQueryServiceSpec extends AnyWordSpec with Matchers with ScalaFutures wi
   }
 
   override protected def afterEach(): Unit = {
-    reset(ileMapper, ileQuerySubmissionRepository, ileConnector, notificationRepository, ileQueryTimeoutCalculator)
+    reset(ileQuerySubmissionRepository, ileConnector, notificationRepository, ileQueryTimeoutCalculator)
     super.afterEach()
   }
 
@@ -85,24 +82,18 @@ class IleQueryServiceSpec extends AnyWordSpec with Matchers with ScalaFutures wi
 
     "everything works correctly" should {
 
-      "call ILEMapper, IleConnector and IleQueryRepository in this order" in {
+      "call IleConnector and IleQueryRepository in this order" in {
         ileQueryService.submit(ileQueryRequest).futureValue
 
-        val inOrder: InOrder = Mockito.inOrder(ileMapper, ileConnector, ileQuerySubmissionRepository)
-        inOrder.verify(ileMapper).buildIleQuery(any())
+        val inOrder: InOrder = Mockito.inOrder(ileConnector, ileQuerySubmissionRepository)
         inOrder.verify(ileConnector).submit(any(), any())(any())
         inOrder.verify(ileQuerySubmissionRepository).insertOne(any())
       }
 
-      "call ILEMapper once, passing UcrBlock from request" in {
-        ileQueryService.submit(ileQueryRequest).futureValue
-        verify(ileMapper).buildIleQuery(ileQueryRequest.ucrBlock)
-      }
-
       "call IleConnector once, passing IleQueryRequest and request xml returned from ILEMapper" in {
-        when(ileMapper.buildIleQuery(any[UcrBlock])).thenReturn(queryXml)
-
         ileQueryService.submit(ileQueryRequest).futureValue
+
+        val queryXml = ileMapper.buildIleQuery(ileQueryRequest.ucrBlock)
 
         verify(ileConnector).submit(meq(ileQueryRequest), meq(queryXml))(any())
       }
@@ -132,30 +123,6 @@ class IleQueryServiceSpec extends AnyWordSpec with Matchers with ScalaFutures wi
       }
     }
 
-    "ILEMapper throws an exception" should {
-
-      "return failed Future" in {
-        val exceptionMsg = "Test Exception message"
-        when(ileMapper.buildIleQuery(any[UcrBlock]))
-          .thenThrow(new RuntimeException(exceptionMsg))
-
-        the[Exception] thrownBy {
-          ileQueryService.submit(ileQueryRequest).futureValue
-        } must have message exceptionMsg
-      }
-
-      "not call IleConnector nor IleQueryRepository" in {
-        when(ileMapper.buildIleQuery(any[UcrBlock])).thenThrow(new RuntimeException("Test Exception message"))
-
-        an[Exception] mustBe thrownBy {
-          ileQueryService.submit(ileQueryRequest).futureValue
-        }
-
-        verifyNoMoreInteractions(ileConnector)
-        verifyNoMoreInteractions(ileQuerySubmissionRepository)
-      }
-    }
-
     "IleConnector returns CustomsInventoryLinkingResponse without Conversation ID" should {
 
       "return failed Future" in {
@@ -173,7 +140,7 @@ class IleQueryServiceSpec extends AnyWordSpec with Matchers with ScalaFutures wi
 
         ileQueryService.submit(ileQueryRequest).failed.futureValue
 
-        verifyNoMoreInteractions(ileQuerySubmissionRepository)
+        verifyZeroInteractions(ileQuerySubmissionRepository)
       }
     }
 
@@ -194,7 +161,7 @@ class IleQueryServiceSpec extends AnyWordSpec with Matchers with ScalaFutures wi
 
         ileQueryService.submit(ileQueryRequest).failed.futureValue
 
-        verifyNoMoreInteractions(ileQuerySubmissionRepository)
+        verifyZeroInteractions(ileQuerySubmissionRepository)
       }
     }
   }
@@ -290,8 +257,8 @@ class IleQueryServiceSpec extends AnyWordSpec with Matchers with ScalaFutures wi
 
         ileQueryService.fetchResponses(searchParameters).futureValue
 
-        verifyNoMoreInteractions(ileQueryTimeoutCalculator)
-        verifyNoMoreInteractions(notificationRepository)
+        verifyZeroInteractions(ileQueryTimeoutCalculator)
+        verifyZeroInteractions(notificationRepository)
       }
     }
 
@@ -314,7 +281,7 @@ class IleQueryServiceSpec extends AnyWordSpec with Matchers with ScalaFutures wi
 
         ileQueryService.fetchResponses(searchParameters).futureValue
 
-        verifyNoMoreInteractions(notificationRepository)
+        verifyZeroInteractions(notificationRepository)
       }
     }
 
