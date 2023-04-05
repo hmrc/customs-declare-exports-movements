@@ -54,8 +54,8 @@ class IleMapper @Inject() (clock: Clock) {
     }
 
     val movementReference: Option[String] = request.choice match {
-      case Arrival | RetrospectiveArrival | CreateEmptyMucr => Some(generateRandomReference)
-      case _                                                => None
+      case Arrival | RetrospectiveArrival | CreateEmptyMucr | Departure => Some(generateRandomReference)
+      case _                                                            => None
     }
 
     InventoryLinkingMovementRequest(

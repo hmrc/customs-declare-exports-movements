@@ -56,9 +56,11 @@ class IleMapperSpec extends UnitSpec {
 
     "create correct XML for Departure" in {
       val input = exampleDepartureRequest
-      val expectedXml = exampleDepartureRequestXML
+      val xml = ileMapper.buildInventoryLinkingMovementRequestXml(input)
+      val reference = (xml \ "movementReference").text
+      val expectedXml = exampleDepartureRequestXML(reference)
 
-      ileMapper.buildInventoryLinkingMovementRequestXml(input) shouldBe expectedXml
+      xml shouldBe expectedXml
     }
 
     "create correct XML for Create Empty MUCR" in {

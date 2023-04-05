@@ -17,6 +17,7 @@
 package uk.gov.hmrc.exports.movements.api
 
 import com.github.tomakehurst.wiremock.client.WireMock.verify
+import com.github.tomakehurst.wiremock.client.WireMock
 import play.api.libs.json.Json
 import play.api.test.Helpers._
 import uk.gov.hmrc.exports.movements.base.ApiSpec
@@ -59,9 +60,13 @@ class DepartureISpec extends ApiSpec {
       submissions.head.ucrBlocks mustBe Seq(UcrBlock(ucr = "UCR", ucrType = Mucr.codeValue))
       submissions.head.actionType mustBe MovementType.Departure
 
+      val ignore = s"$${xmlunit.ignore}"
+
       verify(
         postRequestedToILE()
-          .withRequestBody(equalToXml(<inventoryLinkingMovementRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
+          .withRequestBody(
+            WireMock.equalToXml(
+              s"""<inventoryLinkingMovementRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
               <messageCode>EDL</messageCode>
               <ucrBlock>
                 <ucr>UCR</ucr>
@@ -69,12 +74,16 @@ class DepartureISpec extends ApiSpec {
               </ucrBlock>
               <goodsLocation>abc</goodsLocation>
               <goodsDepartureDateTime>2020-01-01T00:00:00Z</goodsDepartureDateTime>
+              <movementReference>${ignore}</movementReference>
               <transportDetails>
                 <transportID>transportId</transportID>
                 <transportMode>mode</transportMode>
                 <transportNationality>nationality</transportNationality>
               </transportDetails>
-            </inventoryLinkingMovementRequest>))
+            </inventoryLinkingMovementRequest>""",
+              true
+            )
+          )
       )
     }
   }
