@@ -81,7 +81,7 @@ object MovementsTestData {
 
   val exampleRetrospectiveArrivalRequestJson: JsValue = Json.toJson(exampleRetrospectiveArrivalRequest)
 
-  val exampleDepartureRequestXML: Node =
+  def exampleDepartureRequestXML(reference: String): Node =
     scala.xml.Utility.trim {
       <inventoryLinkingMovementRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
       <messageCode>{MessageCodes.EDL}</messageCode>
@@ -91,6 +91,7 @@ object MovementsTestData {
       </ucrBlock>
       <goodsLocation>GBAUlocation</goodsLocation>
       <goodsDepartureDateTime>{dateTimeString}</goodsDepartureDateTime>
+        <movementReference>{reference}</movementReference>
       <transportDetails>
         <transportID>{transportId}</transportID>
         <transportMode>{transportMode}</transportMode>
