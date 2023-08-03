@@ -1,6 +1,5 @@
 import sbt._
 import uk.gov.hmrc.DefaultBuildSettings._
-import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin.publishingSettings
 import uk.gov.hmrc.SbtAutoBuildPlugin
 
 val appName = "customs-declare-exports-movements"
@@ -15,7 +14,6 @@ lazy val allTest = Seq(testAll := (IntegrationTest / test).dependsOn(Test / test
 lazy val microservice = Project(appName, file("."))
   .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtDistributablesPlugin)
   .settings(commonSettings: _*)
-  .settings(publishingSettings: _*)
   .configs(IntegrationTest)
   .settings(inConfig(IntegrationTest)(Defaults.itSettings): _*)
   .settings(unitTestSettings, integrationTestSettings, scoverageSettings)
