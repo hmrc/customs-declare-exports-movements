@@ -33,7 +33,7 @@ class NotificationFactory @Inject() (responseValidator: ResponseValidator, respo
     Try(scala.xml.XML.loadString(xml)) match {
       case Success(xmlElem) => buildMovementNotification(conversationId, xmlElem)
       case Failure(exc) =>
-        logWarnings(conversationId, exc)
+        logWarnings(conversationId, exc, xml)
         Notification(conversationId = conversationId, payload = xml, data = None)
     }
 
@@ -43,14 +43,15 @@ class NotificationFactory @Inject() (responseValidator: ResponseValidator, respo
         Notification(conversationId = conversationId, payload = Utility.trim(xml.head).toString, data = Some(notificationData))
 
       case Failure(exc) =>
-        logWarnings(conversationId, exc)
+        logWarnings(conversationId, exc, xml.toString())
         Notification(conversationId = conversationId, payload = Utility.trim(xml.head).toString, data = None)
     }
 
-  private def logWarnings(conversationId: String, exc: Throwable): Unit = {
+  private def logWarnings(conversationId: String, exc: Throwable, xml: String): Unit = {
     MDC.put("conversationId", conversationId)
-    logger.warn(s"There was a problem during parsing notification with conversationId=[$conversationId] : ${exc.getMessage}")
+    logger.warn(
+      s"There was a problem during parsing notification with conversationId=[$conversationId] : ${exc.getClass} ${exc.getMessage} For notification:\n ${xml.toString()}"
+    )
     MDC.remove("conversationId")
   }
-
 }
