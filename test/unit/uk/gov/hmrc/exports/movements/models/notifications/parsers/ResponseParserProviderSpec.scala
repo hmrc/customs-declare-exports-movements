@@ -73,9 +73,6 @@ class ResponseParserProviderSpec extends AnyWordSpec with Matchers {
         val parser = parserFactory.provideResponseParser(responseXml)
 
         parser mustBe a[IleQueryResponseParser]
-
-        val out = parser.parse(responseXml)
-        println(out)
       }
     }
 
