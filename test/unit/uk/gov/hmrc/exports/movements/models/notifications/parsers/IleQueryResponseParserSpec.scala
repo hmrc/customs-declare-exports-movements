@@ -42,37 +42,29 @@ class IleQueryResponseParserSpec extends AnyWordSpec with Matchers {
       "provided with inventoryLinkingQueryResponse" which {
 
         "contains only queriedDUCR element" in {
-
           executeTest(ExampleInventoryLinkingQueryResponse.Correct.QueriedDucr)
         }
 
         "contains only queriedMUCR element" in {
-
           executeTest(ExampleInventoryLinkingQueryResponse.Correct.QueriedMucr)
         }
 
         "contains only parentMUCR element" in {
-
           executeTest(ExampleInventoryLinkingQueryResponse.Correct.ParentMucr)
         }
 
         "contains only 2 childDUCR elements" in {
-
           executeTest(ExampleInventoryLinkingQueryResponse.Correct.ChildDucrs)
         }
 
         "contains only 2 childMUCR elements" in {
-
           executeTest(ExampleInventoryLinkingQueryResponse.Correct.ChildMucrs)
         }
 
         "contains no elements" in {
-
           executeTest(ExampleInventoryLinkingQueryResponse.Correct.Empty)
         }
       }
     }
-
   }
-
 }

@@ -52,6 +52,16 @@ object ExampleInventoryLinkingQueryResponse {
               <soe>14</soe>
             </entryStatus>
             <movement>
+              <messageCode>EAA</messageCode>
+              <goodsLocation>{goodsLocation}</goodsLocation>
+              <movementReference>{movementReference}</movementReference>
+              <transportDetails>
+                <transportID>{transportId}</transportID>
+                <transportMode>{transportMode}</transportMode>
+                <transportNationality>{transportNationality}</transportNationality>
+              </transportDetails>
+            </movement>
+            <movement>
               <messageCode>{MessageCodes.EAL}</messageCode>
               <goodsLocation>{goodsLocation}</goodsLocation>
               <goodsArrivalDateTime>2019-12-23T11:30:00.000Z</goodsArrivalDateTime>
@@ -89,6 +99,13 @@ object ExampleInventoryLinkingQueryResponse {
             declarationId = declarationId,
             entryStatus = Some(EntryStatus(ics = Some("2"), roe = Some("H"), soe = Some("14"))),
             movements = Seq(
+              MovementInfo(
+                messageCode = MessageCodes.EAA,
+                goodsLocation = goodsLocation,
+                movementReference = Some(movementReference),
+                transportDetails =
+                  Some(Transport(transportId = Some(transportId), modeOfTransport = Some(transportMode), nationality = Some(transportNationality)))
+              ),
               MovementInfo(
                 messageCode = MessageCodes.EAL,
                 goodsLocation = goodsLocation,
@@ -131,6 +148,16 @@ object ExampleInventoryLinkingQueryResponse {
             </entryStatus>
             <shut>true</shut>
             <movement>
+              <messageCode>EAA</messageCode>
+              <goodsLocation>{goodsLocation}</goodsLocation>
+              <movementReference>{movementReference}</movementReference>
+              <transportDetails>
+                <transportID>{transportId}</transportID>
+                <transportMode>{transportMode}</transportMode>
+                <transportNationality>{transportNationality}</transportNationality>
+              </transportDetails>
+            </movement>
+            <movement>
               <messageCode>{MessageCodes.EAL}</messageCode>
               <goodsLocation>{goodsLocation}</goodsLocation>
               <goodsArrivalDateTime>2019-12-23T11:30:00.000Z</goodsArrivalDateTime>
@@ -148,6 +175,13 @@ object ExampleInventoryLinkingQueryResponse {
             entryStatus = Some(EntryStatus(ics = Some("7"), roe = Some("6"), soe = Some("3"))),
             isShut = Some(true),
             movements = Seq(
+              MovementInfo(
+                messageCode = MessageCodes.EAA,
+                goodsLocation = goodsLocation,
+                movementReference = Some(movementReference),
+                transportDetails =
+                  Some(Transport(transportId = Some(transportId), modeOfTransport = Some(transportMode), nationality = Some(transportNationality)))
+              ),
               MovementInfo(
                 messageCode = MessageCodes.EAL,
                 goodsLocation = goodsLocation,
@@ -175,6 +209,16 @@ object ExampleInventoryLinkingQueryResponse {
             </entryStatus>
             <shut>true</shut>
             <movement>
+              <messageCode>EAA</messageCode>
+              <goodsLocation>{goodsLocation}</goodsLocation>
+              <movementReference>{movementReference}</movementReference>
+              <transportDetails>
+                <transportID>{transportId}</transportID>
+                <transportMode>{transportMode}</transportMode>
+                <transportNationality>{transportNationality}</transportNationality>
+              </transportDetails>
+            </movement>
+            <movement>
               <messageCode>{MessageCodes.EAL}</messageCode>
               <goodsLocation>{goodsLocation}</goodsLocation>
               <goodsArrivalDateTime>2019-12-23T11:30:00.000Z</goodsArrivalDateTime>
@@ -192,6 +236,13 @@ object ExampleInventoryLinkingQueryResponse {
             entryStatus = Some(EntryStatus(ics = Some("7"), roe = Some("6"), soe = Some("3"))),
             isShut = Some(true),
             movements = Seq(
+              MovementInfo(
+                messageCode = MessageCodes.EAA,
+                goodsLocation = goodsLocation,
+                movementReference = Some(movementReference),
+                transportDetails =
+                  Some(Transport(transportId = Some(transportId), modeOfTransport = Some(transportMode), nationality = Some(transportNationality)))
+              ),
               MovementInfo(
                 messageCode = MessageCodes.EAL,
                 goodsLocation = goodsLocation,

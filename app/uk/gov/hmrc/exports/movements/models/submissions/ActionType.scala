@@ -69,6 +69,8 @@ object ActionType {
 
     case object Arrival extends MovementType("Arrival", "EAL")
 
+    case object AnticipatedArrival extends MovementType("Anticipated Arrival", "EAA")
+
     case object RetrospectiveArrival extends MovementType("RetrospectiveArrival", "RET")
 
     case object Departure extends MovementType("Departure", "EDL")
