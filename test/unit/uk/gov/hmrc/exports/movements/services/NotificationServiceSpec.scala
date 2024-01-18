@@ -31,6 +31,7 @@ import testdata.notifications.{ExampleInventoryLinkingControlResponse, Notificat
 import uk.gov.hmrc.exports.movements.models.notifications.exchange.NotificationFrontendModel
 import uk.gov.hmrc.exports.movements.models.notifications.{Notification, NotificationFactory}
 import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, SearchParameters, SubmissionRepository}
+import uk.gov.hmrc.exports.movements.services.audit.AuditService
 
 import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.xml.{Elem, NodeSeq, Utility}
@@ -40,8 +41,9 @@ class NotificationServiceSpec extends AnyWordSpec with ScalaFutures with Matcher
   val notificationFactory: NotificationFactory = mock[NotificationFactory]
   val notificationRepository: NotificationRepository = mock[NotificationRepository]
   val submissionRepository: SubmissionRepository = mock[SubmissionRepository]
+  val auditService: AuditService = mock[AuditService]
   val notificationService =
-    new NotificationService(notificationFactory, notificationRepository, submissionRepository)(ExecutionContext.global)
+    new NotificationService(notificationFactory, notificationRepository, submissionRepository, auditService)(ExecutionContext.global)
 
   def conversationIdsPassed: Seq[String] = {
     val captor: ArgumentCaptor[Seq[String]] = ArgumentCaptor.forClass(classOf[Seq[String]])
@@ -51,7 +53,7 @@ class NotificationServiceSpec extends AnyWordSpec with ScalaFutures with Matcher
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    reset(notificationFactory, notificationRepository, submissionRepository)
+    reset(notificationFactory, notificationRepository, submissionRepository, auditService)
 
     when(notificationRepository.insertOne(any())).thenReturn(Future.successful(Right(notification_1)))
     when(notificationRepository.findByConversationIds(any[Seq[String]])).thenReturn(Future.successful(Seq.empty))
@@ -107,6 +109,14 @@ class NotificationServiceSpec extends AnyWordSpec with ScalaFutures with Matcher
 
         verify(notificationRepository).insertOne(meq(notification_1))
       }
+
+      "call AuditService to audit processing" in {
+        when(notificationFactory.buildMovementNotification(anyString, any[NodeSeq])).thenReturn(notification_1)
+
+        notificationService.save(conversationId, requestBody).futureValue
+
+        verify(auditService).auditNotificationProcessed(any(), any())
+      }
     }
 
     "MovementNotificationFactory throws an Exception" should {
@@ -133,6 +143,18 @@ class NotificationServiceSpec extends AnyWordSpec with ScalaFutures with Matcher
         }
 
         verifyZeroInteractions(notificationRepository)
+      }
+
+      "not audit notification processed" in {
+        val exceptionMsg = "Unknown Inventory Linking Response: UnknownLabel"
+        when(notificationFactory.buildMovementNotification(any(), any[NodeSeq])).thenThrow(new IllegalArgumentException(exceptionMsg))
+
+        val requestBody = NotificationTestData.unknownFormatResponseXML
+        the[IllegalArgumentException] thrownBy {
+          Await.result(notificationService.save(conversationId, requestBody), patienceConfig.timeout)
+        }
+
+        verifyZeroInteractions(auditService)
       }
     }
   }

@@ -33,6 +33,15 @@ object ExampleResponseCommonTypes {
       asDomainModel = UcrBlock(ucr = ucr, ucrType = "D")
     )
 
+    lazy val DucrPartBlock = ExampleUcrBlockPair(
+      asXml = <ucrBlock>
+        <ucr>{ucr}</ucr>
+        <ucrType>D</ucrType>
+        <ucrPartNo>123</ucrPartNo>
+      </ucrBlock>,
+      asDomainModel = UcrBlock(ucr = ucr, ucrPartNo = Some("123"), ucrType = "D")
+    )
+
     lazy val MucrBlock = ExampleUcrBlockPair(
       asXml = <ucrBlock>
         <ucr>{mucr}</ucr>

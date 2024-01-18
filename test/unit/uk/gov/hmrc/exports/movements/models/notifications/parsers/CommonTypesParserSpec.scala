@@ -54,14 +54,26 @@ class CommonTypesParserSpec extends AnyWordSpec with Matchers {
     }
 
     "provided with correct xml" should {
-      "return UcrBlock with correct values" in {
+      "return UcrBlock with correct values" when {
+        "DUCR has no part number" in {
 
-        val inputXml = ExampleResponseCommonTypes.Correct.DucrBlock.asXml
-        val expectedResult = ExampleResponseCommonTypes.Correct.DucrBlock.asDomainModel
+          val inputXml = ExampleResponseCommonTypes.Correct.DucrBlock.asXml
+          val expectedResult = ExampleResponseCommonTypes.Correct.DucrBlock.asDomainModel
 
-        val result = parser.parseUcrBlock(inputXml)
+          val result = parser.parseUcrBlock(inputXml)
 
-        result mustBe expectedResult
+          result mustBe expectedResult
+        }
+
+        "DUCR has a part number" in {
+
+          val inputXml = ExampleResponseCommonTypes.Correct.DucrPartBlock.asXml
+          val expectedResult = ExampleResponseCommonTypes.Correct.DucrPartBlock.asDomainModel
+
+          val result = parser.parseUcrBlock(inputXml)
+
+          result mustBe expectedResult
+        }
       }
     }
   }

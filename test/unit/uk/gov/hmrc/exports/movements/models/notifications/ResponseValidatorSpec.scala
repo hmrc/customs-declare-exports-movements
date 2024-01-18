@@ -40,7 +40,7 @@ class ResponseValidatorSpec extends AnyWordSpec with Matchers {
   )
 
   private def appConfig(conf: Configuration = DefaultConfiguration): AppConfig =
-    new AppConfig(conf, new ServicesConfig(conf))
+    new AppConfig(conf, new ServicesConfig(conf), "customs-declare-esports-movements")
 
   "ResponseValidator on validate" should {
 

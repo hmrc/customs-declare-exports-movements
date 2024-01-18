@@ -34,10 +34,20 @@ class ControlResponseParserSpec extends AnyWordSpec with Matchers {
   "MovementResponseParser on parse" when {
 
     "provided with correct inventoryLinkingControlResponse" should {
-      "return NotificationData" in new Test {
+      "return NotificationData for MUCR" in new Test {
         val xml = ExampleInventoryLinkingControlResponse.Correct.Rejected.asXml
         val expectedNotificationData =
           ExampleInventoryLinkingControlResponse.Correct.Rejected.asDomainModel
+
+        val resultNotificationData = parser.parse(xml)
+
+        resultNotificationData must equal(expectedNotificationData)
+      }
+
+      "return NotificationData for DUCR Part" in new Test {
+        val xml = ExampleInventoryLinkingControlResponse.Correct.RejectedWithDucrPart.asXml
+        val expectedNotificationData =
+          ExampleInventoryLinkingControlResponse.Correct.RejectedWithDucrPart.asDomainModel
 
         val resultNotificationData = parser.parse(xml)
 

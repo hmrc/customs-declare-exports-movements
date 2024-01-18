@@ -51,7 +51,7 @@ object ExampleInventoryLinkingControlResponse {
           <messageCode>{MessageCodes.CST}</messageCode>
           <actionCode>{actionCode_rejected}</actionCode>
           <ucr>
-            <ucr>{ucr}</ucr>
+            <ucr>{mucr}</ucr>
             <ucrType>M</ucrType>
           </ucr>
           <movementReference>{movementReference}</movementReference>
@@ -67,7 +67,36 @@ object ExampleInventoryLinkingControlResponse {
         messageCode = Some(MessageCodes.CST),
         actionCode = Some(actionCode_rejected),
         movementReference = Some(movementReference),
-        entries = Seq(Entry(ucrBlock = Some(UcrBlock(ucr = ucr, ucrType = "M")))),
+        entries = Seq(Entry(ucrBlock = Some(UcrBlock(ucr = mucr, ucrType = "M")))),
+        errorCodes = Seq(errorCode_1, validatedErrorCodeDescriptive)
+      )
+    )
+
+    lazy val RejectedWithDucrPart = ExampleStandardResponse(
+      asXml = <inventoryLinkingControlResponse
+      xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
+      xmlns="http://gov.uk/customs/inventoryLinking/v1">
+        <messageCode>{MessageCodes.CST}</messageCode>
+        <actionCode>{actionCode_rejected}</actionCode>
+        <ucr>
+          <ucr>{ucr}</ucr>
+          <ucrType>D</ucrType>
+          <ucrPartNo>123</ucrPartNo>
+        </ucr>
+        <movementReference>{movementReference}</movementReference>
+        <error>
+          <errorCode>{errorCode_1}</errorCode>
+        </error>
+        <error>
+          <errorCode>{errorCodeDescriptive}</errorCode>
+        </error>
+      </inventoryLinkingControlResponse>,
+      asDomainModel = StandardNotificationData(
+        responseType = "inventoryLinkingControlResponse",
+        messageCode = Some(MessageCodes.CST),
+        actionCode = Some(actionCode_rejected),
+        movementReference = Some(movementReference),
+        entries = Seq(Entry(ucrBlock = Some(UcrBlock(ucr = ucr, ucrPartNo = Some("123"), ucrType = "D")))),
         errorCodes = Seq(errorCode_1, validatedErrorCodeDescriptive)
       )
     )
