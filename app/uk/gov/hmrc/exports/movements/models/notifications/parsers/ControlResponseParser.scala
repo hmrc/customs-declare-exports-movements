@@ -30,7 +30,15 @@ class ControlResponseParser @Inject() (errorValidator: ErrorValidator) extends R
     messageCode = StringOption((responseXml \ XmlTags.messageCode).text),
     actionCode = StringOption((responseXml \ XmlTags.actionCode).text),
     entries = (responseXml \ XmlTags.ucr).map { ucrNode =>
-      Entry(ucrBlock = Some(UcrBlock(ucr = (ucrNode \ XmlTags.ucr).text, ucrType = (ucrNode \ XmlTags.ucrType).text)))
+      Entry(ucrBlock =
+        Some(
+          UcrBlock(
+            ucr = (ucrNode \ XmlTags.ucr).text,
+            ucrPartNo = StringOption((ucrNode \ XmlTags.ucrPartNo).text),
+            ucrType = (ucrNode \ XmlTags.ucrType).text
+          )
+        )
+      )
     },
     movementReference = StringOption((responseXml \ XmlTags.movementReference).text),
     errorCodes = (responseXml \ XmlTags.error \ XmlTags.errorCode)

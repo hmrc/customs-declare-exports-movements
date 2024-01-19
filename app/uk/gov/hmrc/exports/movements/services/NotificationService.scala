@@ -21,6 +21,7 @@ import uk.gov.hmrc.exports.movements.models.notifications.exchange.NotificationF
 import uk.gov.hmrc.exports.movements.models.notifications.standard.StandardNotificationData
 import uk.gov.hmrc.exports.movements.models.notifications.{Notification, NotificationFactory}
 import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, SearchParameters, SubmissionRepository}
+import uk.gov.hmrc.exports.movements.services.audit.{AuditNotifications, AuditService}
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
@@ -30,7 +31,8 @@ import scala.xml.NodeSeq
 class NotificationService @Inject() (
   notificationFactory: NotificationFactory,
   notificationRepository: NotificationRepository,
-  submissionRepository: SubmissionRepository
+  submissionRepository: SubmissionRepository,
+  auditService: AuditService
 )(implicit executionContext: ExecutionContext) {
 
   private val logger: Logger = Logger(this.getClass)
@@ -39,7 +41,9 @@ class NotificationService @Inject() (
     val notification = notificationFactory.buildMovementNotification(conversationId, body)
     logger.info(s"Notification created with conversation-id=[${notification.conversationId}] and payload=[${notification.payload}]")
 
-    notificationRepository.insertOne(notification).map(_ => (): Unit)
+    notificationRepository
+      .insertOne(notification)
+      .map(_ => AuditNotifications.audit(notification, notification.conversationId, auditService))
   }
 
   def getAllNotifications(searchParameters: SearchParameters): Future[Seq[NotificationFrontendModel]] =
@@ -64,8 +68,10 @@ class NotificationService @Inject() (
 
       logger.info(s"Updating ${parsedNotifications.size} previously unparsed Notifications.")
       Future.sequence(parsedNotifications.map { parsedNotification =>
-        notificationRepository.update(parsedNotification)
+        notificationRepository.update(parsedNotification).map { result =>
+          AuditNotifications.audit(parsedNotification, parsedNotification.conversationId, auditService)
+          result
+        }
       })
     }
-
 }

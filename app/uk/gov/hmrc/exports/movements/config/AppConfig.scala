@@ -18,15 +18,16 @@ package uk.gov.hmrc.exports.movements.config
 
 import java.time.Duration
 import java.time.temporal.ChronoUnit
-
 import com.google.inject.{Inject, Singleton}
 import play.api.{Configuration, Logger}
 import uk.gov.hmrc.exports.movements.exceptions.MissingClientIDException
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
+import javax.inject.Named
+
 @Singleton
-class AppConfig @Inject() (runModeConfiguration: Configuration, servicesConfig: ServicesConfig) {
+class AppConfig @Inject() (runModeConfiguration: Configuration, servicesConfig: ServicesConfig, @Named("appName") val appName: String) {
 
   lazy val mongodbUri: String = runModeConfiguration.get[String]("mongodb.uri")
 

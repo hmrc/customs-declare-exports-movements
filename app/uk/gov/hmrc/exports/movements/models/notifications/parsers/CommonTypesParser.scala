@@ -33,7 +33,11 @@ class CommonTypesParser {
     if (ucrBlockXml.head.label != UcrBlockLabel)
       throw new IllegalArgumentException(s"UcrBlock parser was provided with incorrect node type: ${ucrBlockXml.head.label}")
 
-    UcrBlock(ucr = (ucrBlockXml \ XmlTags.ucr).text, ucrType = (ucrBlockXml \ XmlTags.ucrType).text)
+    UcrBlock(
+      ucr = (ucrBlockXml \ XmlTags.ucr).text,
+      ucrPartNo = StringOption((ucrBlockXml \ XmlTags.ucrPartNo).text),
+      ucrType = (ucrBlockXml \ XmlTags.ucrType).text
+    )
   }
 
   def parseEntryStatus(entryStatusXml: Node): EntryStatus = {
