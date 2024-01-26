@@ -41,10 +41,14 @@ class ControlResponseParser @Inject() (errorValidator: ErrorValidator) extends R
       )
     },
     movementReference = StringOption((responseXml \ XmlTags.movementReference).text),
-    errorCodes = (responseXml \ XmlTags.error \ XmlTags.errorCode)
-      .map(_.text)
-      .filter(errorValidator.hasErrorMessage)
-      .flatMap(errorValidator.retrieveCode),
+    errorCodes = (responseXml \ XmlTags.error \ XmlTags.errorCode).flatMap { error =>
+      val errorTxt = error.text
+
+      if (errorValidator.hasErrorMessage(errorTxt))
+        errorValidator.retrieveCode(errorTxt)
+      else
+        Some(errorTxt)
+    },
     responseType = responseTypeIle
   )
 }
