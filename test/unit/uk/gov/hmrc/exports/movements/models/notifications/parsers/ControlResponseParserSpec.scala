@@ -67,8 +67,8 @@ class ControlResponseParserSpec extends AnyWordSpec with Matchers {
       }
     }
 
-    "provided with inventoryLinkingControlResponse containing only mandatory data" should {
-      "return NotificationData" in new Test {
+    "provided with inventoryLinkingControlResponse" when {
+      "containing only mandatory data should return NotificationData" in new Test {
         val xml =
           <inventoryLinkingControlResponse>
             <messageCode>{MessageCodes.ERS}</messageCode>
@@ -78,6 +78,48 @@ class ControlResponseParserSpec extends AnyWordSpec with Matchers {
         val expectedNotificationData =
           StandardNotificationData(responseType = "inventoryLinkingControlResponse")
             .copy(messageCode = Some(MessageCodes.ERS), actionCode = Some(actionCode_acknowledgedAndProcessed))
+
+        val resultNotificationData = parser.parse(xml)
+
+        resultNotificationData must equal(expectedNotificationData)
+      }
+
+      "containing a known error code should return populated NotificationData" in new Test {
+        val xml =
+          <inventoryLinkingControlResponse>
+            <messageCode>{MessageCodes.ERS}</messageCode>
+            <actionCode>{actionCode_acknowledgedAndProcessed}</actionCode>
+            <error>
+              <errorCode>6 E3303 Inventory System not valid for Freight Location</errorCode>
+            </error>
+          </inventoryLinkingControlResponse>
+
+        val expectedNotificationData =
+          StandardNotificationData(responseType = "inventoryLinkingControlResponse")
+            .copy(messageCode = Some(MessageCodes.ERS), actionCode = Some(actionCode_acknowledgedAndProcessed), errorCodes = Seq("E3303"))
+
+        val resultNotificationData = parser.parse(xml)
+
+        resultNotificationData must equal(expectedNotificationData)
+      }
+
+      "containing an unknown error code should return populated NotificationData" in new Test {
+        val xml =
+          <inventoryLinkingControlResponse>
+            <messageCode>{MessageCodes.ERS}</messageCode>
+            <actionCode>{actionCode_acknowledgedAndProcessed}</actionCode>
+            <error>
+              <errorCode>6 E533 Inventory System not valid for Freight Location</errorCode>
+            </error>
+          </inventoryLinkingControlResponse>
+
+        val expectedNotificationData =
+          StandardNotificationData(responseType = "inventoryLinkingControlResponse")
+            .copy(
+              messageCode = Some(MessageCodes.ERS),
+              actionCode = Some(actionCode_acknowledgedAndProcessed),
+              errorCodes = Seq("6 E533 Inventory System not valid for Freight Location")
+            )
 
         val resultNotificationData = parser.parse(xml)
 
@@ -96,5 +138,4 @@ class ControlResponseParserSpec extends AnyWordSpec with Matchers {
       }
     }
   }
-
 }
