@@ -18,15 +18,15 @@ package uk.gov.hmrc.exports.movements.models.notifications
 
 import uk.gov.hmrc.exports.movements.config.AppConfig
 
-import java.io.StringReader
+import java.io._
 import javax.inject.{Inject, Singleton}
 import javax.xml.XMLConstants
 import javax.xml.parsers.SAXParserFactory
 import javax.xml.transform.stream.StreamSource
 import javax.xml.validation.{SchemaFactory, ValidatorHandler}
 import scala.util.Try
-import scala.xml.parsing.NoBindingFactoryAdapter
-import scala.xml.{InputSource, NodeSeq}
+import scala.xml.parsing._
+import scala.xml._
 
 @Singleton
 class ResponseValidator @Inject() (appConfig: AppConfig) {
