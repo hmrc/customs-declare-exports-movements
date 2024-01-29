@@ -21,7 +21,7 @@ lazy val microservice = Project(appName, file("."))
 
 lazy val commonSettings = Seq(
   majorVersion := 0,
-  scalaVersion := "2.13.8",
+  scalaVersion := "2.13.12",
   scalacOptions ++= scalacFlags,
   dependencyOverrides += "commons-codec" % "commons-codec" % "1.15",
   libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test
@@ -35,7 +35,9 @@ lazy val scalacFlags = Seq(
   "-unchecked",              // warn about unchecked type parameters
   "-Ywarn-numeric-widen",
   "-Xfatal-warnings",        // warnings are fatal!!
-  "-Wconf:cat=unused-imports&src=routes/.*:s"       // silent "unused import" warnings from Play routes
+  "-Wconf:cat=unused-imports&src=routes/.*:s",  // silent "unused import" warnings from Play routes
+  "-Wconf:cat=unused&src=.*routes.*:s",  // silence private val defaultPrefix in class Routes is never used
+  "-Wconf:msg=eq not selected from this instance:s" // silence eq not selected from this instance warning
 )
 
 def onPackageName(rootPackage: String): String => Boolean = {
