@@ -17,7 +17,7 @@
 package uk.gov.hmrc.exports.movements.models.notifications.exchange
 
 import java.time.Instant
-import play.api.libs.json.{Format, Json}
+import play.api.libs.json.{Format, Json, OFormat}
 import uk.gov.hmrc.exports.movements.models.notifications.Notification
 import uk.gov.hmrc.exports.movements.models.notifications.standard.{Entry, EntryStatus, StandardNotificationData, UcrBlock}
 import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
@@ -35,7 +35,7 @@ final case class NotificationFrontendModel(
 
 object NotificationFrontendModel {
   implicit private val formatInstant: Format[Instant] = MongoJavatimeFormats.instantFormat
-  implicit val format = Json.format[NotificationFrontendModel]
+  implicit val format: OFormat[NotificationFrontendModel] = Json.format[NotificationFrontendModel]
 
   def apply(notification: Notification): NotificationFrontendModel = notification.data match {
     case Some(standardNotificationData: StandardNotificationData) =>

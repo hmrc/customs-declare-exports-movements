@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.exports.movements.models.notifications.queries
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.exports.movements.models.notifications.standard.EntryStatus
 
 case class DucrInfo(
@@ -29,5 +29,5 @@ case class DucrInfo(
 )
 
 object DucrInfo {
-  implicit val format = Json.format[DucrInfo]
+  implicit val format: OFormat[DucrInfo] = Json.format[DucrInfo]
 }

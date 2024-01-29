@@ -40,7 +40,7 @@ class NotificationRepository @Inject() (mongoComponent: MongoComponent)(implicit
     ) with RepositoryOps[Notification] {
 
   override def classTag: ClassTag[Notification] = implicitly[ClassTag[Notification]]
-  implicit val executionContext = ec
+  implicit val executionContext: ExecutionContext = ec
 
   def findByConversationIds(conversationIds: Seq[String]): Future[Seq[Notification]] =
     conversationIds match {

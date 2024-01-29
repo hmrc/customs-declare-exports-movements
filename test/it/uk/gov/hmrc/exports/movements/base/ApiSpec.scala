@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.exports.movements.base
 
+import com.codahale.metrics.MetricRegistry
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder
 import connector.{AuditWiremockTestServer, IleApiWiremockTestServer}
@@ -55,7 +56,7 @@ abstract class ApiSpec
 
   override def fakeApplication(): Application =
     new GuiceApplicationBuilder()
-      .disable[com.kenshoo.play.metrics.PlayModule]
+      .disable[MetricRegistry]
       .configure(ileApieConfiguration)
       .configure(mongoConfiguration)
       .configure(auditConfiguration)

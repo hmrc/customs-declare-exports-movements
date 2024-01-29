@@ -17,8 +17,7 @@
 package uk.gov.hmrc.exports.movements.models.notifications.queries
 
 import java.time.Instant
-
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.exports.movements.models.movements.Transport
 
 case class MovementInfo(
@@ -30,5 +29,5 @@ case class MovementInfo(
 )
 
 object MovementInfo {
-  implicit val format = Json.format[MovementInfo]
+  implicit val format: OFormat[MovementInfo] = Json.format[MovementInfo]
 }

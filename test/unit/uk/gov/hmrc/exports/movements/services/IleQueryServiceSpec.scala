@@ -46,7 +46,7 @@ import scala.xml.NodeSeq
 
 class IleQueryServiceSpec extends AnyWordSpec with Matchers with ScalaFutures with BeforeAndAfterEach with IntegrationPatience {
 
-  implicit private val hc = mock[HeaderCarrier]
+  implicit private val hc: HeaderCarrier = mock[HeaderCarrier]
 
   private val ileQuerySubmissionRepository = mock[IleQuerySubmissionRepository]
   private val notificationRepository = mock[NotificationRepository]
