@@ -24,6 +24,7 @@ lazy val commonSettings = Seq(
   scalaVersion := "2.13.12",
   scalacOptions ++= scalacFlags,
   dependencyOverrides += "commons-codec" % "commons-codec" % "1.15",
+  dependencyOverrides += "org.scala-lang.modules" %% "scala-xml" % "2.1.0",
   libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test
 )
 
