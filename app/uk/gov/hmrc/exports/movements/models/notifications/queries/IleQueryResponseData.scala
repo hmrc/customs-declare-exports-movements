@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.exports.movements.models.notifications.queries
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.exports.movements.models.notifications.{NotificationData, NotificationType}
 
 final case class IleQueryResponseData(
@@ -31,5 +31,5 @@ final case class IleQueryResponseData(
 }
 
 object IleQueryResponseData {
-  implicit val format = Json.format[IleQueryResponseData]
+  implicit val format: OFormat[IleQueryResponseData] = Json.format[IleQueryResponseData]
 }

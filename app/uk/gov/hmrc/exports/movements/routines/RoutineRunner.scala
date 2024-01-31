@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.exports.movements.routines
 
-import akka.actor.{ActorSystem, Cancellable}
+import org.apache.pekko.actor.{ActorSystem, Cancellable}
 import javax.inject.{Inject, Singleton}
 import play.api.inject.ApplicationLifecycle
 

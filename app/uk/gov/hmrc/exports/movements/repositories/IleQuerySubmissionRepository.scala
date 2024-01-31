@@ -37,7 +37,7 @@ class IleQuerySubmissionRepository @Inject() (mongoComponent: MongoComponent)(im
     ) with RepositoryOps[IleQuerySubmission] {
 
   override def classTag: ClassTag[IleQuerySubmission] = implicitly[ClassTag[IleQuerySubmission]]
-  implicit val executionContext = ec
+  implicit val executionContext: ExecutionContext = ec
 }
 
 object IleQuerySubmissionRepository {

@@ -16,7 +16,6 @@
 
 package testdata
 
-import org.joda.time.{DateTime, DateTimeZone}
 import play.api.libs.json.{JsValue, Json}
 import testdata.CommonTestData._
 import uk.gov.hmrc.exports.movements.models.movements.{MovementsExchange, _}
@@ -24,12 +23,12 @@ import uk.gov.hmrc.exports.movements.models.notifications.standard.{UcrBlock => 
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType.MovementType
 import uk.gov.hmrc.exports.movements.models.submissions.{ActionType, IleQuerySubmission, Submission}
 
-import java.time.Instant
+import java.time.{Instant, ZonedDateTime}
 import scala.xml.Node
 
 object MovementsTestData {
 
-  val now: DateTime = DateTime.now.withZone(DateTimeZone.UTC)
+  val now: ZonedDateTime = ZonedDateTime.now()
   val dateTimeString: String = "2019-07-12T13:14:54Z"
 
   def exampleArrivalRequestXML(reference: String): Node =

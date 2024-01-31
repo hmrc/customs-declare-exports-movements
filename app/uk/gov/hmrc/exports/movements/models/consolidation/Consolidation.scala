@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.exports.movements.models.consolidation
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.exports.movements.controllers.util.JSONResponses
 import uk.gov.hmrc.exports.movements.models.UserIdentification
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType.ConsolidationType
@@ -32,15 +32,15 @@ sealed abstract class Consolidation(
 ) extends UserIdentification
 
 object Consolidation extends JSONResponses {
-  implicit val associateDucrFormat = Json.format[AssociateDucrRequest]
-  implicit val disassociateDucrFormat = Json.format[DisassociateDucrRequest]
-  implicit val associateMucrFormat = Json.format[AssociateMucrRequest]
-  implicit val disassociateMucrFormat = Json.format[DisassociateMucrRequest]
-  implicit val associateDucrPartFormat = Json.format[AssociateDucrPartRequest]
-  implicit val disassociateDucrPartRequest = Json.format[DisassociateDucrPartRequest]
-  implicit val shutMucrFormat = Json.format[ShutMucrRequest]
+  implicit val associateDucrFormat: OFormat[AssociateDucrRequest] = Json.format[AssociateDucrRequest]
+  implicit val disassociateDucrFormat: OFormat[DisassociateDucrRequest] = Json.format[DisassociateDucrRequest]
+  implicit val associateMucrFormat: OFormat[AssociateMucrRequest] = Json.format[AssociateMucrRequest]
+  implicit val disassociateMucrFormat: OFormat[DisassociateMucrRequest] = Json.format[DisassociateMucrRequest]
+  implicit val associateDucrPartFormat: OFormat[AssociateDucrPartRequest] = Json.format[AssociateDucrPartRequest]
+  implicit val disassociateDucrPartRequest: OFormat[DisassociateDucrPartRequest] = Json.format[DisassociateDucrPartRequest]
+  implicit val shutMucrFormat: OFormat[ShutMucrRequest] = Json.format[ShutMucrRequest]
 
-  implicit val format = Union
+  implicit val format: OFormat[Consolidation] = Union
     .from[Consolidation](typeField = "consolidationType")
     .and[AssociateDucrRequest](typeTag = DucrAssociation.typeName)
     .and[DisassociateDucrRequest](typeTag = DucrDisassociation.typeName)

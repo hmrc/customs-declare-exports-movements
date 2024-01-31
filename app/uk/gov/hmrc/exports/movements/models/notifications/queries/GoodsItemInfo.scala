@@ -16,10 +16,10 @@
 
 package uk.gov.hmrc.exports.movements.models.notifications.queries
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
 case class GoodsItemInfo(totalPackages: Option[Int])
 
 object GoodsItemInfo {
-  implicit val format = Json.format[GoodsItemInfo]
+  implicit val format: OFormat[GoodsItemInfo] = Json.format[GoodsItemInfo]
 }

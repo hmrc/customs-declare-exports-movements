@@ -42,7 +42,7 @@ class ResponseValidator @Inject() (appConfig: AppConfig) {
     validatorHandler.setContentHandler(new NoBindingFactoryAdapter)
 
     val parserFactory = SAXParserFactory.newInstance
-    parserFactory.setNamespaceAware(true);
+    parserFactory.setNamespaceAware(true)
     val xmlReader = parserFactory.newSAXParser.getXMLReader
     xmlReader.setFeature("http://xml.org/sax/features/namespace-prefixes", true)
     xmlReader.setContentHandler(validatorHandler)

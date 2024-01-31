@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.exports.movements.models.movements
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.exports.movements.controllers.util.JSONResponses
 import uk.gov.hmrc.exports.movements.models.UserIdentification
 import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
@@ -25,5 +25,5 @@ case class IleQueryRequest(override val eori: String, override val providerId: O
 
 object IleQueryRequest extends JSONResponses {
 
-  implicit val format = Json.format[IleQueryRequest]
+  implicit val format: OFormat[IleQueryRequest] = Json.format[IleQueryRequest]
 }
