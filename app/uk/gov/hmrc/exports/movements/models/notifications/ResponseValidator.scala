@@ -36,7 +36,7 @@ class ResponseValidator @Inject() (appConfig: AppConfig) {
     SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI).newSchema(new StreamSource(XSDFilePath))
 
   def validate(xml: NodeSeq): Try[Unit] = {
-    implicit def toInputSource(xml: NodeSeq) = new InputSource(new StringReader(xml.toString))
+    implicit def toInputSource(xml: NodeSeq): InputSource = new InputSource(new StringReader(xml.toString))
 
     val validatorHandler: ValidatorHandler = schema.newValidatorHandler()
     validatorHandler.setContentHandler(new NoBindingFactoryAdapter)

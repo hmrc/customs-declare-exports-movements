@@ -18,6 +18,7 @@ package uk.gov.hmrc.exports.movements.api
 
 import play.api.libs.json.{Format, Json}
 import play.api.test.Helpers._
+import testdata.notifications.ExampleXmlAndDomainModelPair.ExampleStandardResponse
 import uk.gov.hmrc.exports.movements.base.ApiSpec
 import uk.gov.hmrc.exports.movements.controllers.routes.NotificationController
 import uk.gov.hmrc.exports.movements.models.common.UcrType.Mucr
@@ -28,6 +29,7 @@ import uk.gov.hmrc.exports.movements.models.submissions.Submission
 import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 
 import java.time.Instant
+import scala.xml.Elem
 
 /*
  * API Tests are Intentionally Explicit with the JSON input, XML & DB output and DONT use TestData helpers.
@@ -171,6 +173,36 @@ class NotificationISpec extends ApiSpec {
         val expected = Json.arr(notificationJson)
         actual mustBe expected
       }
+    }
+  }
+
+  "POST /notifyMovement" should {
+
+    val payloadUnit =
+      """
+        |<messageCode>{MessageCodes.CST}</messageCode>
+        |<actionCode>{actionCode_acknowledgedAndProcessed}</actionCode>
+        |<ucr>
+        |  <ucr>{ucr}</ucr>
+        |  <ucrType>M</ucrType>
+        |</ucr>
+        |<movementReference>{movementReference}</movementReference>
+        |""".stripMargin
+
+    def genPayload(units: Int): Elem = ExampleStandardResponse(<inventoryLinkingControlResponse
+        xmlns:ns2="http://gov.uk/customs/inventoryLinking/gatewayHeader/v1"
+        xmlns="http://gov.uk/customs/inventoryLinking/v1">
+        {payloadUnit * units}
+      </inventoryLinkingControlResponse>).asXml
+
+    "return ACCEPTED (202) status on payload with size within the Play default (100KB)" in {
+      val result = post(NotificationController.saveNotification(), genPayload(1))
+      status(result) mustBe ACCEPTED
+    }
+
+    "return REQUEST_ENTITY_TOO_LARGE (413) status on payload with size over the Play default (100KB)" in {
+      val result = post(NotificationController.saveNotification(), genPayload(1000))
+      status(result) mustBe REQUEST_ENTITY_TOO_LARGE
     }
   }
 }

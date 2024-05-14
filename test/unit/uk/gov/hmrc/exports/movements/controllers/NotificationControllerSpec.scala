@@ -29,6 +29,7 @@ import testdata.CommonTestData._
 import testdata.notifications.NotificationTestData._
 import testdata.notifications.{ExampleInventoryLinkingControlResponse, ExampleInventoryLinkingMovementTotalsResponse}
 import uk.gov.hmrc.exports.movements.base.UnitTestMockBuilder._
+import uk.gov.hmrc.exports.movements.config.AppConfig
 import uk.gov.hmrc.exports.movements.controllers.FakeRequestFactory._
 import uk.gov.hmrc.exports.movements.controllers.util.HeaderValidator
 import uk.gov.hmrc.exports.movements.models.notifications.exchange.NotificationFrontendModel
@@ -41,11 +42,16 @@ import scala.xml.{Elem, NodeSeq, Utility}
 
 class NotificationControllerSpec extends AnyWordSpec with Matchers with ScalaFutures with BeforeAndAfterEach {
 
+  private val appConfig = mock[AppConfig]
   private val headerValidator = mock[HeaderValidator]
   private val notificationService = mock[NotificationService]
   private val movementsMetrics = buildMovementsMetricsMock
 
-  private val controller = new NotificationController(headerValidator, movementsMetrics, notificationService, stubControllerComponents())(global)
+  when(appConfig.maxNotificationPayloadSize).thenReturn(1024L * 100)
+
+  private val controller = new NotificationController(headerValidator, movementsMetrics, notificationService, stubControllerComponents(), appConfig)(
+    global
+  )
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -54,7 +60,7 @@ class NotificationControllerSpec extends AnyWordSpec with Matchers with ScalaFut
   }
 
   override def afterEach(): Unit = {
-    reset(headerValidator, notificationService)
+    reset(appConfig, headerValidator, notificationService)
     super.afterEach()
   }
 
@@ -118,6 +124,7 @@ class NotificationControllerSpec extends AnyWordSpec with Matchers with ScalaFut
         }
       }
     }
+
   }
 
   "NotificationController on getNotificationsForSubmission" should {
