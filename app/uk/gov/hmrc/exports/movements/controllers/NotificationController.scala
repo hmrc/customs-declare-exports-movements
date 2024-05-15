@@ -17,10 +17,10 @@
 package uk.gov.hmrc.exports.movements.controllers
 
 import com.google.inject.Singleton
-import javax.inject.Inject
-import play.api.Logger
+import play.api.Logging
 import play.api.libs.json.Json
 import play.api.mvc._
+import uk.gov.hmrc.exports.movements.config.AppConfig
 import uk.gov.hmrc.exports.movements.controllers.util.HeaderValidator
 import uk.gov.hmrc.exports.movements.metrics.MetricIdentifiers._
 import uk.gov.hmrc.exports.movements.metrics.MovementsMetrics
@@ -28,6 +28,7 @@ import uk.gov.hmrc.exports.movements.repositories.SearchParameters
 import uk.gov.hmrc.exports.movements.services.NotificationService
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Success
 import scala.xml.NodeSeq
@@ -37,13 +38,12 @@ class NotificationController @Inject() (
   headerValidator: HeaderValidator,
   metrics: MovementsMetrics,
   notificationService: NotificationService,
-  cc: ControllerComponents
+  cc: ControllerComponents,
+  appConfig: AppConfig
 )(implicit executionContext: ExecutionContext)
-    extends BackendController(cc) {
+    extends BackendController(cc) with Logging {
 
-  private val logger = Logger(this.getClass)
-
-  val saveNotification: Action[NodeSeq] = Action.async(parse.xml) { implicit request =>
+  val saveNotification: Action[NodeSeq] = Action.async(parse.xml(appConfig.maxNotificationPayloadSize)) { implicit request =>
     val timer = metrics.startTimer(movementMetric)
 
     val result = headerValidator.extractConversationIdHeader(request.headers.toSimpleMap) match {

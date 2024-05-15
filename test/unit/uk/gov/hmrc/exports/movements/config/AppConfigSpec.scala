@@ -52,7 +52,7 @@ class AppConfigSpec extends UnitSpec {
   private val invalidServicesConfiguration = Configuration(invalidAppConfig)
 
   private def servicesConfig(conf: Configuration) = new ServicesConfig(conf)
-  private def appConfig(conf: Configuration) = new AppConfig(conf, servicesConfig(conf), "customs-declare-esports-movements")
+  private def appConfig(conf: Configuration) = new AppConfig(conf, servicesConfig(conf), "customs-declare-exports-movements")
 
   "AppConfig" should {
 

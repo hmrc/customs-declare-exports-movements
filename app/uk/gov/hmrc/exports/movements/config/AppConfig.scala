@@ -16,22 +16,20 @@
 
 package uk.gov.hmrc.exports.movements.config
 
-import java.time.Duration
-import java.time.temporal.ChronoUnit
 import com.google.inject.{Inject, Singleton}
-import play.api.{Configuration, Logger}
+import play.api.{Configuration, Logging}
 import uk.gov.hmrc.exports.movements.exceptions.MissingClientIDException
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
+import java.time.Duration
+import java.time.temporal.ChronoUnit
 import javax.inject.Named
 
 @Singleton
-class AppConfig @Inject() (runModeConfiguration: Configuration, servicesConfig: ServicesConfig, @Named("appName") val appName: String) {
+class AppConfig @Inject() (configuration: Configuration, servicesConfig: ServicesConfig, @Named("appName") val appName: String) extends Logging {
 
-  lazy val mongodbUri: String = runModeConfiguration.get[String]("mongodb.uri")
-
-  private val logger: Logger = Logger(classOf[AppConfig])
+  lazy val mongodbUri: String = configuration.get[String]("mongodb.uri")
 
   lazy val authUrl: String = servicesConfig.baseUrl("auth")
 
@@ -44,6 +42,8 @@ class AppConfig @Inject() (runModeConfiguration: Configuration, servicesConfig: 
     "customs-inventory-linking-exports.sendArrival",
     throw new IllegalStateException("Missing configuration for Customs Inventory Linking send arrival URI")
   )
+
+  lazy val maxNotificationPayloadSize: Long = configuration.get[Long]("max.notification.payload.size")
 
   def clientIdInventory(implicit hc: HeaderCarrier): String = {
     val userAgent = hc.headers(Seq("user-agent")).headOption.map(_._2).getOrElse {
