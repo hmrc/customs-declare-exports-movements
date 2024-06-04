@@ -28,3 +28,4 @@
 32,Cannot retrospectively arrive this MUCR because it contains a previously arrived DUCR or MUCR
 33,Cannot retrospectively arrive this MUCR/DUCR because it has already arrived at the frontier
 34,Cannot retrospectively arrive this DUCR/MUCR as it does not exist
+35,Submitter ID must match last EAL/CST submitter
