@@ -43,7 +43,9 @@ class NotificationController @Inject() (
 )(implicit executionContext: ExecutionContext)
     extends BackendController(cc) with Logging {
 
-  val saveNotification: Action[NodeSeq] = Action.async(parse.xml(appConfig.maxNotificationPayloadSize)) { implicit request =>
+  val action: BodyLoggingAction = BodyLoggingAction(parse.xml(appConfig.maxNotificationPayloadSize))
+
+  val saveNotification: Action[NodeSeq] = action.async { implicit request =>
     val timer = metrics.startTimer(movementMetric)
 
     val result = headerValidator.extractConversationIdHeader(request.headers.toSimpleMap) match {

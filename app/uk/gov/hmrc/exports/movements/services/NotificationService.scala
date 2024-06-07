@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.exports.movements.services
 
-import play.api.Logger
+import play.api.Logging
 import uk.gov.hmrc.exports.movements.models.notifications.exchange.NotificationFrontendModel
 import uk.gov.hmrc.exports.movements.models.notifications.standard.StandardNotificationData
 import uk.gov.hmrc.exports.movements.models.notifications.{Notification, NotificationFactory}
@@ -33,13 +33,13 @@ class NotificationService @Inject() (
   notificationRepository: NotificationRepository,
   submissionRepository: SubmissionRepository,
   auditService: AuditService
-)(implicit executionContext: ExecutionContext) {
-
-  private val logger: Logger = Logger(this.getClass)
+)(implicit executionContext: ExecutionContext)
+    extends Logging {
 
   def save(conversationId: String, body: NodeSeq): Future[Unit] = {
+    logger.warn(s"Creating Notification with conversation-id=[$conversationId]")
     val notification = notificationFactory.buildMovementNotification(conversationId, body)
-    logger.info(s"Notification created with conversation-id=[${notification.conversationId}] and payload=[${notification.payload}]")
+    logger.warn(s"Notification created with conversation-id=[${notification.conversationId}]")
 
     notificationRepository
       .insertOne(notification)
@@ -48,6 +48,7 @@ class NotificationService @Inject() (
 
   def getAllNotifications(searchParameters: SearchParameters): Future[Seq[NotificationFrontendModel]] =
     submissionRepository.findAll(searchParameters).flatMap { submissions =>
+      if (submissions.size > 400) logger.warn(s"Movements Submissions retrieved for eori(${searchParameters.eori}): ${submissions.size}")
       getNotifications(submissions.map(_.conversationId))
     }
 
