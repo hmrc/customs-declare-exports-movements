@@ -48,17 +48,20 @@ class NotificationService @Inject() (
 
   def getAllNotifications(searchParameters: SearchParameters): Future[Seq[NotificationFrontendModel]] =
     submissionRepository.findAll(searchParameters).flatMap { submissions =>
-      if (submissions.size > 400) logger.warn(s"Movements Submissions retrieved for eori(${searchParameters.eori}): ${submissions.size}")
-      getNotifications(submissions.map(_.conversationId))
+      getNotifications(submissions.map(_.conversationId), searchParameters.eori)
     }
 
-  private def getNotifications(conversationIds: Seq[String]): Future[Seq[NotificationFrontendModel]] =
+  private def getNotifications(conversationIds: Seq[String], eori: Option[String]): Future[Seq[NotificationFrontendModel]] =
     notificationRepository
       .findByConversationIds(conversationIds)
-      .map(
-        _.filter(notification => notification.data.isDefined && notification.data.exists(_.isInstanceOf[StandardNotificationData]))
+      .map { notifications =>
+        if (notifications.size > 100)
+          logger.warn(s"Movements Notifications retrieved(${notifications.size}) for ${conversationIds.size} conversationIds for Eori($eori)")
+
+        notifications
+          .filter(notification => notification.data.isDefined && notification.data.exists(_.isInstanceOf[StandardNotificationData]))
           .map(NotificationFrontendModel(_))
-      )
+      }
 
   def parseUnparsedNotifications: Future[Seq[Option[Notification]]] =
     notificationRepository.findUnparsedNotifications().flatMap { unparsedNotifications =>
