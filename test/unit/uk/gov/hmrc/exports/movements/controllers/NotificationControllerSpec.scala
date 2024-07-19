@@ -130,7 +130,7 @@ class NotificationControllerSpec extends AnyWordSpec with Matchers with ScalaFut
   "NotificationController on getNotificationsForSubmission" should {
 
     "return Accepted (200) status" in {
-      when(notificationService.getAllNotifications(any[SearchParameters])).thenReturn(Future.successful(Seq.empty))
+      when(notificationService.getAllStandardNotifications(any[SearchParameters])).thenReturn(Future.successful(Seq.empty))
 
       val result = controller.getNotificationsForSubmission(Some(validEori), None, conversationId)(getRequest())
 
@@ -138,7 +138,7 @@ class NotificationControllerSpec extends AnyWordSpec with Matchers with ScalaFut
     }
 
     "call NotificationService once, passing SearchParameters" in {
-      when(notificationService.getAllNotifications(any[SearchParameters])).thenReturn(Future.successful(Seq.empty))
+      when(notificationService.getAllStandardNotifications(any[SearchParameters])).thenReturn(Future.successful(Seq.empty))
       val searchParameters =
         SearchParameters(eori = Some(validEori), providerId = Some(validProviderId), conversationId = Some(conversationId))
 
@@ -151,7 +151,7 @@ class NotificationControllerSpec extends AnyWordSpec with Matchers with ScalaFut
 
     "return list of notifications returned by NotificationService" in {
       val notificationsToReturn = Seq(notification_1, notification_2).map(NotificationFrontendModel(_))
-      when(notificationService.getAllNotifications(any[SearchParameters])).thenReturn(Future.successful(notificationsToReturn))
+      when(notificationService.getAllStandardNotifications(any[SearchParameters])).thenReturn(Future.successful(notificationsToReturn))
 
       val notifications = controller.getNotificationsForSubmission(Some(validEori), None, conversationId)(getRequest())
 
@@ -162,7 +162,7 @@ class NotificationControllerSpec extends AnyWordSpec with Matchers with ScalaFut
   "NotificationController on getAllNotificationsForUser" should {
 
     "return Accepted (200) status" in {
-      when(notificationService.getAllNotifications(any[SearchParameters])).thenReturn(Future.successful(Seq.empty))
+      when(notificationService.getAllStandardNotifications(any[SearchParameters])).thenReturn(Future.successful(Seq.empty))
 
       val result = controller.getAllNotificationsForUser(Some(validEori), None)(getRequest())
 
@@ -170,7 +170,7 @@ class NotificationControllerSpec extends AnyWordSpec with Matchers with ScalaFut
     }
 
     "call NotificationService once, passing SearchParameters" in {
-      when(notificationService.getAllNotifications(any[SearchParameters])).thenReturn(Future.successful(Seq.empty))
+      when(notificationService.getAllStandardNotifications(any[SearchParameters])).thenReturn(Future.successful(Seq.empty))
       val searchParameters =
         SearchParameters(eori = Some(validEori), providerId = Some(validProviderId), conversationId = None)
 
@@ -183,7 +183,7 @@ class NotificationControllerSpec extends AnyWordSpec with Matchers with ScalaFut
 
     "return list of notifications returned by NotificationService" in {
       val notificationsToReturn = Seq(notification_1, notification_2).map(NotificationFrontendModel(_))
-      when(notificationService.getAllNotifications(any[SearchParameters])).thenReturn(Future.successful(notificationsToReturn))
+      when(notificationService.getAllStandardNotifications(any[SearchParameters])).thenReturn(Future.successful(notificationsToReturn))
 
       val notifications = controller.getAllNotificationsForUser(Some(validEori), None)(getRequest())
 
@@ -193,7 +193,7 @@ class NotificationControllerSpec extends AnyWordSpec with Matchers with ScalaFut
 
   private def searchParametersPassed: SearchParameters = {
     val captor: ArgumentCaptor[SearchParameters] = ArgumentCaptor.forClass(classOf[SearchParameters])
-    verify(notificationService).getAllNotifications(captor.capture())
+    verify(notificationService).getAllStandardNotifications(captor.capture())
     captor.getValue
   }
 }

@@ -22,7 +22,7 @@ import play.api.Logger
 import uk.gov.hmrc.exports.movements.models.notifications.parsers.ResponseParserProvider
 
 import scala.util.{Failure, Success, Try}
-import scala.xml.{NodeSeq, Utility}
+import scala.xml.{NodeSeq, Utility, XML}
 
 @Singleton
 class NotificationFactory @Inject() (responseValidator: ResponseValidator, responseParserProvider: ResponseParserProvider) {
@@ -30,7 +30,7 @@ class NotificationFactory @Inject() (responseValidator: ResponseValidator, respo
   private val logger = Logger(this.getClass)
 
   def buildMovementNotification(conversationId: String, xml: String): Notification =
-    Try(scala.xml.XML.loadString(xml)) match {
+    Try(XML.loadString(xml)) match {
       case Success(xmlElem) => buildMovementNotification(conversationId, xmlElem)
       case Failure(exc) =>
         logWarnings(conversationId, exc, xml)
@@ -49,9 +49,8 @@ class NotificationFactory @Inject() (responseValidator: ResponseValidator, respo
 
   private def logWarnings(conversationId: String, exc: Throwable, xml: String): Unit = {
     MDC.put("conversationId", conversationId)
-    logger.warn(
-      s"There was a problem during parsing notification with conversationId=[$conversationId] : ${exc.getClass} ${exc.getMessage} For notification:\n ${xml.toString()}"
-    )
+    val message = s"There was a problem during parsing notification with conversationId=[$conversationId]"
+    logger.error(s"$message: ${exc.getClass} => ${exc.getMessage}.\nPayload was [$xml]")
     MDC.remove("conversationId")
   }
 }

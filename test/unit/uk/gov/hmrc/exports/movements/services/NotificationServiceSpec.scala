@@ -16,21 +16,22 @@
 
 package uk.gov.hmrc.exports.movements.services
 
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, anyString, eq => meq}
 import org.mockito.Mockito.never
 import org.mockito.MockitoSugar.{mock, reset, verify, verifyZeroInteractions, when}
-import org.mockito.{ArgumentCaptor, InOrder, Mockito}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import testdata.CommonTestData._
 import testdata.MovementsTestData.exampleSubmission
+import testdata.notifications.ExampleInventoryLinkingQueryResponse.Correct.ParentMucr
 import testdata.notifications.NotificationTestData._
 import testdata.notifications.{ExampleInventoryLinkingControlResponse, NotificationTestData}
 import uk.gov.hmrc.exports.movements.models.notifications.exchange.NotificationFrontendModel
 import uk.gov.hmrc.exports.movements.models.notifications.{Notification, NotificationFactory}
-import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, SearchParameters, SubmissionRepository}
+import uk.gov.hmrc.exports.movements.repositories._
 import uk.gov.hmrc.exports.movements.services.audit.AuditService
 
 import scala.concurrent.{Await, ExecutionContext, Future}
@@ -38,12 +39,21 @@ import scala.xml.{Elem, NodeSeq, Utility}
 
 class NotificationServiceSpec extends AnyWordSpec with ScalaFutures with Matchers with BeforeAndAfterEach {
 
-  val notificationFactory: NotificationFactory = mock[NotificationFactory]
-  val notificationRepository: NotificationRepository = mock[NotificationRepository]
-  val submissionRepository: SubmissionRepository = mock[SubmissionRepository]
-  val auditService: AuditService = mock[AuditService]
-  val notificationService =
-    new NotificationService(notificationFactory, notificationRepository, submissionRepository, auditService)(ExecutionContext.global)
+  private val notificationFactory = mock[NotificationFactory]
+  private val ileQueryResponseRepository = mock[IleQueryResponseRepository]
+  private val notificationRepository = mock[NotificationRepository]
+  private val unparsedNotificationRepository = mock[UnparsedNotificationRepository]
+  private val submissionRepository = mock[SubmissionRepository]
+  private val auditService = mock[AuditService]
+
+  private val notificationService = new NotificationService(
+    notificationFactory,
+    notificationRepository,
+    ileQueryResponseRepository,
+    unparsedNotificationRepository,
+    submissionRepository,
+    auditService
+  )(ExecutionContext.global)
 
   def conversationIdsPassed: Seq[String] = {
     val captor: ArgumentCaptor[Seq[String]] = ArgumentCaptor.forClass(classOf[Seq[String]])
@@ -53,21 +63,7 @@ class NotificationServiceSpec extends AnyWordSpec with ScalaFutures with Matcher
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    reset(notificationFactory, notificationRepository, submissionRepository, auditService)
-
-    when(notificationRepository.insertOne(any())).thenReturn(Future.successful(Right(notification_1)))
-    when(notificationRepository.findByConversationIds(any[Seq[String]])).thenReturn(Future.successful(Seq.empty))
-    when(notificationRepository.findUnparsedNotifications()).thenReturn(Future.successful(Seq.empty))
-    when(notificationRepository.update(any())).thenReturn(Future.successful(None))
-
-    when(notificationFactory.buildMovementNotification(anyString(), any[NodeSeq])).thenReturn(Notification.empty)
-    when(notificationFactory.buildMovementNotification(anyString(), anyString())).thenReturn(Notification.empty)
-    when(submissionRepository.findAll(any[SearchParameters])).thenReturn(Future.successful(Seq.empty))
-  }
-
-  override def afterEach(): Unit = {
-    reset(notificationFactory, notificationRepository, submissionRepository)
-    super.afterEach()
+    reset(notificationFactory, notificationRepository, ileQueryResponseRepository, unparsedNotificationRepository, submissionRepository, auditService)
   }
 
   "NotificationService on save" when {
@@ -75,114 +71,91 @@ class NotificationServiceSpec extends AnyWordSpec with ScalaFutures with Matcher
 
     "everything works correctly" should {
 
-      "return successful Future" in {
-        notificationService.save(conversationId, requestBody).futureValue must equal((): Unit)
+      "call NotificationFactory, passing conversationId from headers and request body and" should {
+        "call NotificationRepository afterwards and" should {
+          "call AuditService to audit processing" in {
+            when(notificationFactory.buildMovementNotification(anyString, any[NodeSeq])).thenReturn(notification_1)
+            when(notificationRepository.insertOne(any())).thenReturn(Future.successful(Right(notification_1)))
+
+            notificationService.save(conversationId, requestBody).futureValue must equal(())
+
+            val conversationIdCaptor: ArgumentCaptor[String] = ArgumentCaptor.forClass(classOf[String])
+            val requestBodyCaptor: ArgumentCaptor[Elem] = ArgumentCaptor.forClass(classOf[Elem])
+            verify(notificationFactory).buildMovementNotification(conversationIdCaptor.capture(), requestBodyCaptor.capture())
+
+            conversationIdCaptor.getValue must equal(conversationId)
+            Utility.trim(clearNamespaces(requestBodyCaptor.getValue)).toString must equal(
+              Utility
+                .trim(clearNamespaces(requestBody))
+                .toString
+            )
+
+            verify(notificationRepository).insertOne(meq(notification_1))
+            verify(auditService).auditNotificationProcessed(any(), any())
+
+            verifyZeroInteractions(ileQueryResponseRepository)
+            verifyZeroInteractions(unparsedNotificationRepository)
+          }
+        }
       }
 
-      "call MovementNotificationFactory and NotificationRepository afterwards" in {
-        notificationService.save(conversationId, requestBody).futureValue
+      "call NotificationFactory and IleQueryResponseRepository afterwards" when {
+        "the notification is a IleQueryResponse" in {
+          when(notificationFactory.buildMovementNotification(anyString, any[NodeSeq])).thenReturn(ileQueryResponse_1)
+          when(ileQueryResponseRepository.insertOne(any())).thenReturn(Future.successful(Right(ileQueryResponse_1)))
 
-        val inOrder: InOrder = Mockito.inOrder(notificationFactory, notificationRepository)
-        inOrder.verify(notificationFactory).buildMovementNotification(any(), any[NodeSeq])
-        inOrder.verify(notificationRepository).insertOne(any())
-      }
+          notificationService.save(conversationId, ParentMucr.asXml).futureValue
 
-      "call MovementNotificationFactory once, passing conversationId from headers and request body" in {
-        notificationService.save(conversationId, requestBody).futureValue
+          verify(ileQueryResponseRepository).insertOne(meq(ileQueryResponse_1))
 
-        val conversationIdCaptor: ArgumentCaptor[String] = ArgumentCaptor.forClass(classOf[String])
-        val requestBodyCaptor: ArgumentCaptor[Elem] = ArgumentCaptor.forClass(classOf[Elem])
-        verify(notificationFactory).buildMovementNotification(conversationIdCaptor.capture(), requestBodyCaptor.capture())
-
-        conversationIdCaptor.getValue must equal(conversationId)
-        Utility.trim(clearNamespaces(requestBodyCaptor.getValue)).toString must equal(
-          Utility
-            .trim(clearNamespaces(requestBody))
-            .toString
-        )
-      }
-
-      "call NotificationRepository, passing Notification returned by NotificationFactory" in {
-        when(notificationFactory.buildMovementNotification(anyString, any[NodeSeq])).thenReturn(notification_1)
-
-        notificationService.save(conversationId, requestBody).futureValue
-
-        verify(notificationRepository).insertOne(meq(notification_1))
-      }
-
-      "call AuditService to audit processing" in {
-        when(notificationFactory.buildMovementNotification(anyString, any[NodeSeq])).thenReturn(notification_1)
-
-        notificationService.save(conversationId, requestBody).futureValue
-
-        verify(auditService).auditNotificationProcessed(any(), any())
+          verifyZeroInteractions(auditService)
+          verifyZeroInteractions(notificationRepository)
+          verifyZeroInteractions(unparsedNotificationRepository)
+        }
       }
     }
 
-    "MovementNotificationFactory throws an Exception" should {
+    "NotificationFactory throws an Exception" should {
+      "return failed Future with the same exception and" should {
+        "not call NotificationRepository and" should {
+          "not audit notification processed" in {
+            val message = "Unknown Inventory Linking Response: UnknownLabel"
+            val exception = new IllegalArgumentException(message)
+            when(notificationFactory.buildMovementNotification(any(), any[NodeSeq])).thenThrow(exception)
 
-      "return failed Future with the same exception" in {
-        val exceptionMsg = "Unknown Inventory Linking Response: UnknownLabel"
-        when(notificationFactory.buildMovementNotification(any(), any[NodeSeq])).thenThrow(new IllegalArgumentException(exceptionMsg))
+            val requestBody = NotificationTestData.unknownFormatResponseXML
 
-        val requestBody = NotificationTestData.unknownFormatResponseXML
+            the[IllegalArgumentException] thrownBy {
+              Await.result(notificationService.save(conversationId, requestBody), patienceConfig.timeout)
+            } must have message message
 
-        the[IllegalArgumentException] thrownBy {
-          Await.result(notificationService.save(conversationId, requestBody), patienceConfig.timeout)
-        } must have message exceptionMsg
-      }
-
-      "not call NotificationRepository" in {
-        when(notificationFactory.buildMovementNotification(any(), any[NodeSeq]))
-          .thenThrow(new IllegalArgumentException("Unknown Inventory Linking Response: UnknownLabel"))
-
-        val requestBody = NotificationTestData.unknownFormatResponseXML
-
-        the[IllegalArgumentException] thrownBy {
-          Await.result(notificationService.save(conversationId, requestBody), patienceConfig.timeout)
+            verifyZeroInteractions(auditService)
+            verifyZeroInteractions(notificationRepository)
+            verifyZeroInteractions(ileQueryResponseRepository)
+            verifyZeroInteractions(unparsedNotificationRepository)
+          }
         }
-
-        verifyZeroInteractions(notificationRepository)
-      }
-
-      "not audit notification processed" in {
-        val exceptionMsg = "Unknown Inventory Linking Response: UnknownLabel"
-        when(notificationFactory.buildMovementNotification(any(), any[NodeSeq])).thenThrow(new IllegalArgumentException(exceptionMsg))
-
-        val requestBody = NotificationTestData.unknownFormatResponseXML
-        the[IllegalArgumentException] thrownBy {
-          Await.result(notificationService.save(conversationId, requestBody), patienceConfig.timeout)
-        }
-
-        verifyZeroInteractions(auditService)
       }
     }
   }
 
-  "NotificationService on getAllNotifications" when {
+  "NotificationService on getAllStandardNotifications" when {
 
     "provided with conversationId" should {
 
-      "call SubmissionRepository, passing SearchParameters provided" in {
-        val searchParameters = SearchParameters(eori = Some(validEori), conversationId = Some(conversationId))
+      "call SubmissionRepository, passing SearchParameters provided and" should {
+        "call NotificationRepository afterwards, passing ConversationID provided" in {
+          val searchParameters = SearchParameters(eori = Some(validEori), conversationId = Some(conversationId))
 
-        val submission = exampleSubmission()
-        when(submissionRepository.findAll(meq(searchParameters))).thenReturn(Future.successful(Seq(submission)))
+          val submission = exampleSubmission()
+          when(submissionRepository.findAll(meq(searchParameters))).thenReturn(Future.successful(List(submission)))
+          when(notificationRepository.findByConversationIds(any[Seq[String]])).thenReturn(Future.successful(List.empty))
 
-        notificationService.getAllNotifications(searchParameters).futureValue
+          notificationService.getAllStandardNotifications(searchParameters).futureValue
 
-        verify(submissionRepository).findAll(meq(searchParameters))
-      }
-
-      "call NotificationRepository, passing ConversationID provided" in {
-        val searchParameters = SearchParameters(eori = Some(validEori), conversationId = Some(conversationId))
-
-        val submission = exampleSubmission()
-        when(submissionRepository.findAll(meq(searchParameters))).thenReturn(Future.successful(Seq(submission)))
-
-        notificationService.getAllNotifications(searchParameters).futureValue
-
-        verify(notificationRepository).findByConversationIds(meq(Seq(conversationId)))
+          verify(submissionRepository).findAll(meq(searchParameters))
+          verify(notificationRepository).findByConversationIds(meq(List(conversationId)))
+        }
       }
 
       "return list of NotificationPresentationData converted from Notifications returned by repository" in {
@@ -191,11 +164,11 @@ class NotificationServiceSpec extends AnyWordSpec with ScalaFutures with Matcher
         val submission = exampleSubmission()
         val firstNotification = notification_1.copy(conversationId = conversationId)
         val secondNotification = notification_2.copy(conversationId = conversationId)
-        when(submissionRepository.findAll(meq(searchParameters))).thenReturn(Future.successful(Seq(submission)))
-        when(notificationRepository.findByConversationIds(meq(Seq(conversationId))))
-          .thenReturn(Future.successful(Seq(firstNotification, secondNotification)))
+        when(submissionRepository.findAll(meq(searchParameters))).thenReturn(Future.successful(List(submission)))
+        when(notificationRepository.findByConversationIds(meq(List(conversationId))))
+          .thenReturn(Future.successful(List(firstNotification, secondNotification)))
 
-        val returnedNotifications = notificationService.getAllNotifications(searchParameters).futureValue
+        val returnedNotifications = notificationService.getAllStandardNotifications(searchParameters).futureValue
 
         val expectedFirstNotificationPresentationData = NotificationFrontendModel(firstNotification)
         val expectedSecondNotificationPresentationData = NotificationFrontendModel(secondNotification)
@@ -208,10 +181,10 @@ class NotificationServiceSpec extends AnyWordSpec with ScalaFutures with Matcher
         val searchParameters = SearchParameters(eori = Some(validEori), conversationId = Some(conversationId))
 
         val submission = exampleSubmission()
-        when(submissionRepository.findAll(meq(searchParameters))).thenReturn(Future.successful(Seq(submission)))
-        when(notificationRepository.findByConversationIds(meq(Seq(conversationId)))).thenReturn(Future.successful(Seq.empty))
+        when(submissionRepository.findAll(meq(searchParameters))).thenReturn(Future.successful(List(submission)))
+        when(notificationRepository.findByConversationIds(meq(List(conversationId)))).thenReturn(Future.successful(List.empty))
 
-        val returnedNotifications = notificationService.getAllNotifications(searchParameters).futureValue
+        val returnedNotifications = notificationService.getAllStandardNotifications(searchParameters).futureValue
 
         returnedNotifications must be(empty)
       }
@@ -219,42 +192,35 @@ class NotificationServiceSpec extends AnyWordSpec with ScalaFutures with Matcher
 
     "provided with no conversationId" should {
 
-      "call SubmissionRepository, passing SearchParameters provided" in {
-        val searchParameters = SearchParameters(eori = Some(validEori))
+      "call SubmissionRepository, passing SearchParameters provided and" should {
+        "call NotificationRepository afterwards, passing ConversationIDs from Submissions" in {
+          val searchParameters = SearchParameters(eori = Some(validEori))
 
-        val submissions = Seq(exampleSubmission(), exampleSubmission(conversationId = conversationId_2))
-        when(submissionRepository.findAll(meq(searchParameters))).thenReturn(Future.successful(submissions))
+          val submissions = List(exampleSubmission(), exampleSubmission(conversationId = conversationId_2))
+          when(submissionRepository.findAll(meq(searchParameters))).thenReturn(Future.successful(submissions))
+          when(notificationRepository.findByConversationIds(any())).thenReturn(Future.successful(List.empty))
 
-        notificationService.getAllNotifications(searchParameters).futureValue
+          notificationService.getAllStandardNotifications(searchParameters).futureValue
 
-        verify(submissionRepository).findAll(meq(searchParameters))
-      }
-
-      "call NotificationRepository, passing ConversationIDs from Submissions" in {
-        val searchParameters = SearchParameters(eori = Some(validEori))
-
-        val submissions = Seq(exampleSubmission(), exampleSubmission(conversationId = conversationId_2))
-        when(submissionRepository.findAll(meq(searchParameters))).thenReturn(Future.successful(submissions))
-
-        notificationService.getAllNotifications(searchParameters).futureValue
-
-        conversationIdsPassed mustBe Seq(conversationId, conversationId_2)
+          verify(submissionRepository).findAll(meq(searchParameters))
+          conversationIdsPassed mustBe List(conversationId, conversationId_2)
+        }
       }
 
       "return list of NotificationPresentationData converted from Notifications returned by repository" in {
         val searchParameters = SearchParameters(eori = Some(validEori))
 
-        val submissions = Seq(exampleSubmission(), exampleSubmission(conversationId = conversationId_2))
-        val notifications = Seq(
+        val submissions = List(exampleSubmission(), exampleSubmission(conversationId = conversationId_2))
+        val notifications = List(
           notification_1.copy(conversationId = conversationId),
           notification_2.copy(conversationId = conversationId),
           notification_1.copy(conversationId = conversationId_2)
         )
         when(submissionRepository.findAll(meq(searchParameters))).thenReturn(Future.successful(submissions))
-        when(notificationRepository.findByConversationIds(meq(Seq(conversationId, conversationId_2))))
+        when(notificationRepository.findByConversationIds(meq(List(conversationId, conversationId_2))))
           .thenReturn(Future.successful(notifications))
 
-        val returnedNotifications = notificationService.getAllNotifications(searchParameters).futureValue
+        val returnedNotifications = notificationService.getAllStandardNotifications(searchParameters).futureValue
 
         val expectedNotifications = notifications.map(NotificationFrontendModel(_))
         returnedNotifications.length must equal(expectedNotifications.length)
@@ -266,12 +232,11 @@ class NotificationServiceSpec extends AnyWordSpec with ScalaFutures with Matcher
       "return empty list, if NotificationRepository returns empty list" in {
         val searchParameters = SearchParameters(eori = Some(validEori))
 
-        val submissions = Seq(exampleSubmission(), exampleSubmission(conversationId = conversationId_2))
+        val submissions = List(exampleSubmission(), exampleSubmission(conversationId = conversationId_2))
         when(submissionRepository.findAll(meq(searchParameters))).thenReturn(Future.successful(submissions))
-        when(notificationRepository.findByConversationIds(meq(Seq(conversationId)))).thenReturn(Future.successful(Seq.empty))
+        when(notificationRepository.findByConversationIds(any())).thenReturn(Future.successful(List.empty))
 
-        val returnedNotifications = notificationService.getAllNotifications(searchParameters).futureValue
-
+        val returnedNotifications = notificationService.getAllStandardNotifications(searchParameters).futureValue
         returnedNotifications mustBe empty
       }
     }
@@ -280,145 +245,113 @@ class NotificationServiceSpec extends AnyWordSpec with ScalaFutures with Matcher
       "return empty Sequence" in {
         val searchParameters = SearchParameters(eori = Some(validEori), conversationId = Some(conversationId))
 
-        when(submissionRepository.findAll(meq(searchParameters))).thenReturn(Future.successful(Seq.empty))
+        when(submissionRepository.findAll(meq(searchParameters))).thenReturn(Future.successful(List.empty))
+        when(notificationRepository.findByConversationIds(any[Seq[String]])).thenReturn(Future.successful(List.empty))
 
-        val returnedNotifications = notificationService.getAllNotifications(searchParameters).futureValue
+        val returnedNotifications = notificationService.getAllStandardNotifications(searchParameters).futureValue
 
         returnedNotifications mustBe empty
       }
     }
   }
 
-  "NotificationService on parseUnparsedNotifications" when {
+  "NotificationService on handleUnparsedNotifications" when {
 
     "there are no unparsed notifications" should {
+      "call UnparsedNotificationRepository.findAll and" should {
+        "not call NotificationFactory or the Notification Repositories" in {
+          when(unparsedNotificationRepository.findAll).thenReturn(Future.successful(List.empty))
 
-      "call NotificationRepository findUnparsedNotifications method" in {
-        when(notificationRepository.findUnparsedNotifications()).thenReturn(Future.successful(Seq.empty))
+          notificationService.handleUnparsedNotifications.futureValue
 
-        notificationService.parseUnparsedNotifications.futureValue
+          verify(unparsedNotificationRepository).findAll
 
-        verify(notificationRepository).findUnparsedNotifications()
-      }
-
-      "not call NotificationFactory" in {
-        when(notificationRepository.findUnparsedNotifications()).thenReturn(Future.successful(Seq.empty))
-
-        notificationService.parseUnparsedNotifications.futureValue
-
-        verifyZeroInteractions(notificationFactory)
-      }
-
-      "not call NotificationRepository update method" in {
-        when(notificationRepository.findUnparsedNotifications()).thenReturn(Future.successful(Seq.empty))
-
-        notificationService.parseUnparsedNotifications.futureValue
-
-        verify(notificationRepository, never()).update(any())
-      }
-
-      "return Future with empty Sequence" in {
-        when(notificationRepository.findUnparsedNotifications()).thenReturn(Future.successful(Seq.empty))
-
-        val result = notificationService.parseUnparsedNotifications.futureValue
-
-        result mustBe empty
+          verifyZeroInteractions(notificationFactory)
+          verifyZeroInteractions(notificationRepository)
+          verifyZeroInteractions(ileQueryResponseRepository)
+          verifyZeroInteractions(auditService)
+        }
       }
     }
 
-    "there is unparsed notification" which {
-
+    "there are unparsed notifications" which {
       val unparsedNotification = notification_1.copy(data = None)
       val parsedNotification = notification_1
 
       "cannot be parsed" should {
+        "call UnparsedNotificationRepository.findAll and" should {
+          "only call NotificationFactory afterwards" in {
+            when(unparsedNotificationRepository.findAll).thenReturn(Future.successful(List(unparsedNotification)))
+            when(notificationFactory.buildMovementNotification(anyString(), anyString())).thenReturn(unparsedNotification)
 
-        "call NotificationRepository findUnparsedNotifications method" in {
-          when(notificationRepository.findUnparsedNotifications()).thenReturn(Future.successful(Seq(unparsedNotification)))
-          when(notificationFactory.buildMovementNotification(anyString(), anyString())).thenReturn(unparsedNotification)
+            notificationService.handleUnparsedNotifications.futureValue
 
-          notificationService.parseUnparsedNotifications.futureValue
+            val expectedConversationId = unparsedNotification.conversationId
+            val xmlCaptor: ArgumentCaptor[String] = ArgumentCaptor.forClass(classOf[String])
+            verify(notificationFactory).buildMovementNotification(meq(expectedConversationId), xmlCaptor.capture())
+            xmlCaptor.getValue mustBe unparsedNotification.payload
 
-          verify(notificationRepository).findUnparsedNotifications()
-        }
+            verify(unparsedNotificationRepository).findAll
+            verify(unparsedNotificationRepository, never()).removeOne(any(), any())
 
-        "call NotificationFactory" in {
-          when(notificationRepository.findUnparsedNotifications()).thenReturn(Future.successful(Seq(unparsedNotification)))
-          when(notificationFactory.buildMovementNotification(anyString(), anyString())).thenReturn(unparsedNotification)
-
-          notificationService.parseUnparsedNotifications.futureValue
-
-          val expectedConversationId = unparsedNotification.conversationId
-          val xmlCaptor: ArgumentCaptor[String] = ArgumentCaptor.forClass(classOf[String])
-          verify(notificationFactory).buildMovementNotification(meq(expectedConversationId), xmlCaptor.capture())
-          xmlCaptor.getValue mustBe unparsedNotification.payload
-        }
-
-        "not call NotificationRepository update method" in {
-          when(notificationRepository.findUnparsedNotifications()).thenReturn(Future.successful(Seq(unparsedNotification)))
-          when(notificationFactory.buildMovementNotification(anyString(), anyString())).thenReturn(unparsedNotification)
-
-          notificationService.parseUnparsedNotifications.futureValue
-
-          verify(notificationRepository, never()).update(any())
-        }
-
-        "return Future with empty Sequence" in {
-          when(notificationRepository.findUnparsedNotifications()).thenReturn(Future.successful(Seq(unparsedNotification)))
-          when(notificationFactory.buildMovementNotification(anyString(), anyString())).thenReturn(unparsedNotification)
-
-          val result = notificationService.parseUnparsedNotifications.futureValue
-
-          result mustBe empty
+            verifyZeroInteractions(notificationRepository)
+            verifyZeroInteractions(ileQueryResponseRepository)
+            verifyZeroInteractions(auditService)
+          }
         }
       }
 
       "can be parsed" should {
 
-        "call NotificationRepository findUnparsedNotifications method" in {
-          when(notificationRepository.findUnparsedNotifications()).thenReturn(Future.successful(Seq(unparsedNotification)))
-          when(notificationFactory.buildMovementNotification(anyString(), anyString())).thenReturn(parsedNotification)
-          when(notificationRepository.update(any[Notification])).thenReturn(Future.successful(Some(parsedNotification)))
+        "call UnparsedNotificationRepository.findAll and NotificationFactory and" should {
+          "insert the Notification afterwards" in {
+            when(unparsedNotificationRepository.findAll).thenReturn(Future.successful(List(unparsedNotification)))
+            when(unparsedNotificationRepository.removeOne(any(), any())).thenReturn(Future.successful(()))
+            when(notificationFactory.buildMovementNotification(anyString(), anyString())).thenReturn(parsedNotification)
+            when(notificationRepository.insertOne(any[Notification])).thenReturn(Future.successful(Right(parsedNotification)))
 
-          notificationService.parseUnparsedNotifications.futureValue
+            notificationService.handleUnparsedNotifications.futureValue
 
-          verify(notificationRepository).findUnparsedNotifications()
+            verify(unparsedNotificationRepository).findAll
+
+            val expectedConversationId = unparsedNotification.conversationId
+            val xmlCaptor: ArgumentCaptor[String] = ArgumentCaptor.forClass(classOf[String])
+            verify(notificationFactory).buildMovementNotification(meq(expectedConversationId), xmlCaptor.capture())
+            xmlCaptor.getValue mustBe unparsedNotification.payload
+
+            verify(notificationRepository).insertOne(meq(parsedNotification))
+            verify(unparsedNotificationRepository).removeOne(any(), any())
+            verify(auditService).auditNotificationProcessed(any(), any())
+
+            verifyZeroInteractions(ileQueryResponseRepository)
+          }
         }
 
-        "call NotificationFactory" in {
-          when(notificationRepository.findUnparsedNotifications()).thenReturn(Future.successful(Seq(unparsedNotification)))
-          when(notificationFactory.buildMovementNotification(anyString(), anyString())).thenReturn(parsedNotification)
-          when(notificationRepository.update(any[Notification])).thenReturn(Future.successful(Some(parsedNotification)))
+        "call UnparsedNotificationRepository.findAll and NotificationFactory and" should {
+          "call IleQueryResponseRepository" when {
+            "the Notification is a IleQueryResponse" in {
+              val unparsedNotification = ileQueryResponse_1.copy(data = None)
+              when(unparsedNotificationRepository.findAll).thenReturn(Future.successful(List(unparsedNotification)))
+              when(unparsedNotificationRepository.removeOne(any(), any())).thenReturn(Future.successful(()))
+              when(notificationFactory.buildMovementNotification(anyString(), anyString())).thenReturn(ileQueryResponse_1)
+              when(ileQueryResponseRepository.insertOne(any[Notification])).thenReturn(Future.successful(Right(ileQueryResponse_1)))
 
-          notificationService.parseUnparsedNotifications.futureValue
+              notificationService.handleUnparsedNotifications.futureValue
 
-          val expectedConversationId = unparsedNotification.conversationId
-          val xmlCaptor: ArgumentCaptor[String] = ArgumentCaptor.forClass(classOf[String])
-          verify(notificationFactory).buildMovementNotification(meq(expectedConversationId), xmlCaptor.capture())
-          xmlCaptor.getValue mustBe unparsedNotification.payload
-        }
+              verify(unparsedNotificationRepository).findAll
 
-        "call NotificationRepository update method" in {
+              val expectedConversationId = unparsedNotification.conversationId
+              val xmlCaptor: ArgumentCaptor[String] = ArgumentCaptor.forClass(classOf[String])
+              verify(notificationFactory).buildMovementNotification(meq(expectedConversationId), xmlCaptor.capture())
+              xmlCaptor.getValue mustBe unparsedNotification.payload
 
-          when(notificationRepository.findUnparsedNotifications()).thenReturn(Future.successful(Seq(unparsedNotification)))
-          when(notificationFactory.buildMovementNotification(anyString(), anyString())).thenReturn(parsedNotification)
-          when(notificationRepository.update(any[Notification])).thenReturn(Future.successful(Some(parsedNotification)))
+              verify(ileQueryResponseRepository).insertOne(meq(ileQueryResponse_1))
+              verify(unparsedNotificationRepository).removeOne(any(), any())
 
-          notificationService.parseUnparsedNotifications.futureValue
-
-          verify(notificationRepository).update(meq(parsedNotification))
-        }
-
-        "return Future with Sequence containing " in {
-
-          when(notificationRepository.findUnparsedNotifications()).thenReturn(Future.successful(Seq(unparsedNotification)))
-          when(notificationFactory.buildMovementNotification(anyString(), anyString())).thenReturn(parsedNotification)
-          when(notificationRepository.update(any[Notification])).thenReturn(Future.successful(Some(parsedNotification)))
-
-          val result = notificationService.parseUnparsedNotifications.futureValue
-
-          val expectedResult = Seq(Some(parsedNotification))
-          result mustBe expectedResult
+              verifyZeroInteractions(auditService)
+              verifyZeroInteractions(notificationRepository)
+            }
+          }
         }
       }
     }

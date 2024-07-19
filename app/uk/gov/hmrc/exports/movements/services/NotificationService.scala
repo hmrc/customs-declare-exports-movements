@@ -16,11 +16,12 @@
 
 package uk.gov.hmrc.exports.movements.services
 
-import play.api.Logger
+import org.bson.types.ObjectId
+import play.api.Logging
 import uk.gov.hmrc.exports.movements.models.notifications.exchange.NotificationFrontendModel
-import uk.gov.hmrc.exports.movements.models.notifications.standard.StandardNotificationData
+import uk.gov.hmrc.exports.movements.models.notifications.queries.IleQueryResponseData
 import uk.gov.hmrc.exports.movements.models.notifications.{Notification, NotificationFactory}
-import uk.gov.hmrc.exports.movements.repositories.{NotificationRepository, SearchParameters, SubmissionRepository}
+import uk.gov.hmrc.exports.movements.repositories._
 import uk.gov.hmrc.exports.movements.services.audit.{AuditNotifications, AuditService}
 
 import javax.inject.{Inject, Singleton}
@@ -31,47 +32,55 @@ import scala.xml.NodeSeq
 class NotificationService @Inject() (
   notificationFactory: NotificationFactory,
   notificationRepository: NotificationRepository,
+  ileQueryResponseRepository: IleQueryResponseRepository,
+  unparsedNotificationRepository: UnparsedNotificationRepository,
   submissionRepository: SubmissionRepository,
   auditService: AuditService
-)(implicit executionContext: ExecutionContext) {
-
-  private val logger: Logger = Logger(this.getClass)
+)(implicit executionContext: ExecutionContext)
+    extends Logging {
 
   def save(conversationId: String, body: NodeSeq): Future[Unit] = {
     val notification = notificationFactory.buildMovementNotification(conversationId, body)
     logger.info(s"Notification created with conversation-id=[${notification.conversationId}] and payload=[${notification.payload}]")
 
-    notificationRepository
-      .insertOne(notification)
-      .map(_ => AuditNotifications.audit(notification, notification.conversationId, auditService))
+    insertNotification(notification)
   }
 
-  def getAllNotifications(searchParameters: SearchParameters): Future[Seq[NotificationFrontendModel]] =
+  def getAllStandardNotifications(searchParameters: SearchParameters): Future[Seq[NotificationFrontendModel]] =
     submissionRepository.findAll(searchParameters).flatMap { submissions =>
-      getNotifications(submissions.map(_.conversationId))
+      notificationRepository
+        .findByConversationIds(submissions.map(_.conversationId))
+        .map(_.map(NotificationFrontendModel(_)))
     }
 
-  private def getNotifications(conversationIds: Seq[String]): Future[Seq[NotificationFrontendModel]] =
-    notificationRepository
-      .findByConversationIds(conversationIds)
-      .map(
-        _.filter(notification => notification.data.isDefined && notification.data.exists(_.isInstanceOf[StandardNotificationData]))
-          .map(NotificationFrontendModel(_))
-      )
-
-  def parseUnparsedNotifications: Future[Seq[Option[Notification]]] =
-    notificationRepository.findUnparsedNotifications().flatMap { unparsedNotifications =>
+  def handleUnparsedNotifications: Future[Unit] =
+    unparsedNotificationRepository.findAll.flatMap { unparsedNotifications =>
       logger.info(s"Found ${unparsedNotifications.size} unparsed Notifications. Attempting to parse them.")
       val parsedNotifications = unparsedNotifications.map { notification =>
-        notificationFactory.buildMovementNotification(notification.conversationId, notification.payload).copy(_id = notification._id)
+        val result = notificationFactory.buildMovementNotification(notification.conversationId, notification.payload)
+        result.copy(_id = notification._id)
       }.filter(_.data.nonEmpty)
 
-      logger.info(s"Updating ${parsedNotifications.size} previously unparsed Notifications.")
-      Future.sequence(parsedNotifications.map { parsedNotification =>
-        notificationRepository.update(parsedNotification).map { result =>
-          AuditNotifications.audit(parsedNotification, parsedNotification.conversationId, auditService)
-          result
-        }
-      })
+      logger.info(s"Inserting ${parsedNotifications.size} previously unparsed Notifications.")
+      Future.sequence(parsedNotifications.map(insertNotification(_, wasUnparsed = true)))
+    }.map(_ => ())
+
+  private def insertNotification(notification: Notification, wasUnparsed: Boolean = false): Future[Unit] = {
+    val result = notification.data match {
+      case Some(_: IleQueryResponseData) => ileQueryResponseRepository.insertOne(notification)
+      case Some(_)                       => notificationRepository.insertOne(notification)
+      case _                             => unparsedNotificationRepository.insertOne(notification)
     }
+
+    result.map {
+      case Right(notification) =>
+        AuditNotifications.audit(notification, notification.conversationId, auditService)
+        if (wasUnparsed) unparsedNotificationRepository.removeOne[ObjectId]("_id", notification._id)
+
+      case Left(writeError) =>
+        val parsingType = notification.data.fold("unparsed")(_ => "parsed")
+        val message = s"Failed to save ($parsingType) Notification with conversation-id=[${notification.conversationId}]"
+        logger.error(s"$message: ${writeError.message}.\nPayload was [${notification.payload}]")
+    }
+  }
 }

@@ -120,6 +120,7 @@ object NotificationTestData {
       data = Some(standardNotificationDataArrival),
       timestampReceived = Instant.parse(dateTimeString)
     )
+
   val notification_2: Notification =
     Notification(
       conversationId = conversationId_2,
@@ -131,19 +132,19 @@ object NotificationTestData {
   val notificationUnparsed =
     Notification(conversationId = conversationId_3, payload = payload_3, data = None, timestampReceived = Instant.parse(dateTimeString))
 
-  val notificationIleQueryResponse_1: Notification =
+  val ileQueryResponse_1: Notification =
     Notification(
       conversationId = conversationId,
       payload = payload_1,
       data = Some(IleQueryResponseData(responseType = "QueryTestResponse_1")),
       timestampReceived = Instant.parse(dateTimeString)
     )
-  val notificationIleQueryResponse_2: Notification =
+
+  val ileQueryResponse_2: Notification =
     Notification(
       conversationId = conversationId_2,
       payload = payload_2,
       data = Some(IleQueryResponseData(responseType = "QueryTestResponse_2")),
       timestampReceived = Instant.parse(dateTimeString)
     )
-
 }

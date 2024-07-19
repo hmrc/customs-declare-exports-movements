@@ -33,8 +33,14 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import stubs.{FixedTime, TestMongoDB}
 import uk.gov.hmrc.exports.movements.models.notifications.Notification
+import uk.gov.hmrc.exports.movements.models.notifications.queries.IleQueryResponseData
 import uk.gov.hmrc.exports.movements.models.submissions.{IleQuerySubmission, Submission}
-import uk.gov.hmrc.exports.movements.repositories.{IleQuerySubmissionRepository, NotificationRepository, SubmissionRepository}
+import uk.gov.hmrc.exports.movements.repositories.{
+  IleQueryResponseRepository,
+  IleQuerySubmissionRepository,
+  NotificationRepository,
+  SubmissionRepository
+}
 
 import scala.concurrent.Future
 import scala.xml.NodeSeq
@@ -51,6 +57,7 @@ abstract class ApiSpec
     Intentionally NOT exposing the real Repository as we shouldn't test our production code using our production classes.
    */
   private lazy val notificationRepository = app.injector.instanceOf[NotificationRepository]
+  private lazy val ileQueryResponseRepository = app.injector.instanceOf[IleQueryResponseRepository]
   private lazy val submissionRepository = app.injector.instanceOf[SubmissionRepository]
   private lazy val ileQuerySubmissionRepository = app.injector.instanceOf[IleQuerySubmissionRepository]
 
@@ -65,6 +72,7 @@ abstract class ApiSpec
 
   override def beforeEach(): Unit = {
     super.beforeEach()
+    await(ileQueryResponseRepository.removeAll)
     await(notificationRepository.removeAll)
     await(submissionRepository.removeAll)
     await(ileQuerySubmissionRepository.removeAll)
@@ -75,7 +83,11 @@ abstract class ApiSpec
   protected def givenAnExisting(ileQuerySubmission: IleQuerySubmission): Unit =
     await(ileQuerySubmissionRepository.insertOne(ileQuerySubmission))
 
-  protected def givenAnExisting(notification: Notification): Unit = await(notificationRepository.insertOne(notification))
+  protected def givenAnExisting(notification: Notification): Unit =
+    notification.data match {
+      case Some(_: IleQueryResponseData) => await(ileQueryResponseRepository.insertOne(notification))
+      case _                             => await(notificationRepository.insertOne(notification))
+    }
 
   protected def theSubmissionsFor(eori: String): Seq[Submission] =
     await(submissionRepository.findAll("eori", eori))

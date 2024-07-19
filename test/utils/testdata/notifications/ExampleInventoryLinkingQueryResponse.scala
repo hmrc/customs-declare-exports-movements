@@ -335,5 +335,4 @@ object ExampleInventoryLinkingQueryResponse {
       )
     )
   }
-
 }

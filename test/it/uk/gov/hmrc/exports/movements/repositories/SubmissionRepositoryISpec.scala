@@ -16,44 +16,17 @@
 
 package uk.gov.hmrc.exports.movements.repositories
 
-import com.codahale.metrics.SharedMetricRegistries
-import org.scalatest.BeforeAndAfterEach
-import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
-import org.scalatest.matchers.must.Matchers
-import org.scalatest.wordspec.AnyWordSpec
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.Application
-import play.api.inject.bind
-import play.api.inject.guice.GuiceApplicationBuilder
-import stubs.TestMongoDB
 import testdata.CommonTestData._
 import testdata.MovementsTestData._
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType.{ConsolidationType, MovementType}
 
-import java.time.{Clock, Instant, ZoneOffset}
+class SubmissionRepositoryISpec extends RepositoryISpec {
 
-class SubmissionRepositoryISpec
-    extends AnyWordSpec with GuiceOneAppPerSuite with BeforeAndAfterEach with ScalaFutures with Matchers with IntegrationPatience with TestMongoDB {
-
-  private val clock = Clock.fixed(Instant.parse(dateTimeString), ZoneOffset.UTC)
-
-  override val fakeApplication: Application = {
-    SharedMetricRegistries.clear
-    GuiceApplicationBuilder()
-      .overrides(bind[Clock].to(clock))
-      .configure(mongoConfiguration)
-      .build()
-  }
   private val repo = app.injector.instanceOf[SubmissionRepository]
 
   override def beforeEach(): Unit = {
     super.beforeEach()
     repo.removeAll.futureValue
-  }
-
-  override def afterEach(): Unit = {
-    repo.removeAll.futureValue
-    super.afterEach()
   }
 
   "SubmissionRepository on insert" when {

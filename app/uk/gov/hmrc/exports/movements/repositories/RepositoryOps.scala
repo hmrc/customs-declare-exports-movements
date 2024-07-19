@@ -116,7 +116,7 @@ trait RepositoryOps[T] extends Logging {
   def size: Future[Long] = collection.countDocuments().toFuture()
 }
 
-sealed abstract class WriteError(message: String)
+sealed abstract class WriteError(val message: String)
 
-case class GenericError(message: String) extends WriteError(message)
-case class DuplicateKey(message: String) extends WriteError(message)
+case class GenericError(override val message: String) extends WriteError(message)
+case class DuplicateKey(override val message: String) extends WriteError(message)

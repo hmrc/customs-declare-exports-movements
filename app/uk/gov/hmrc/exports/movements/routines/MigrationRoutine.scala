@@ -21,7 +21,11 @@ import com.mongodb.client.{MongoClient, MongoClients}
 import play.api.Logging
 import uk.gov.hmrc.exports.movements.config.AppConfig
 import uk.gov.hmrc.exports.movements.migrations.changelogs.ileQuerySubmissions.ConvertIleQuerySubmissionTimestampToDateType
-import uk.gov.hmrc.exports.movements.migrations.changelogs.movementNotifications.{ConvertNotificationTimestampToDateType, MakeParsedDataOptional}
+import uk.gov.hmrc.exports.movements.migrations.changelogs.movementNotifications.{
+  ConvertNotificationTimestampToDateType,
+  MakeParsedDataOptional,
+  RemoveAnyIleQueryResponse
+}
 import uk.gov.hmrc.exports.movements.migrations.changelogs.movementSubmissions.ConvertSubmissionTimestampToDateType
 import uk.gov.hmrc.exports.movements.migrations.{ExportsMigrationTool, LockManagerConfig, MigrationsRegistry}
 
@@ -59,6 +63,7 @@ class MigrationRoutine @Inject() (appConfig: AppConfig)(implicit rec: RoutinesEx
       .register(new ConvertNotificationTimestampToDateType())
       .register(new ConvertSubmissionTimestampToDateType())
       .register(new ConvertIleQuerySubmissionTimestampToDateType())
+      .register(new RemoveAnyIleQueryResponse())
     val migrationTool = ExportsMigrationTool(db, migrationsRegistry, lockManagerConfig)
 
     migrationTool.execute()
