@@ -26,7 +26,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import play.api.libs.json.Json
 import play.api.test.Helpers._
 import testdata.CommonTestData._
-import testdata.notifications.NotificationTestData.{notificationIleQueryResponse_1, notificationIleQueryResponse_2}
+import testdata.notifications.NotificationTestData.{ileQueryResponse_1, ileQueryResponse_2}
 import uk.gov.hmrc.exports.movements.controllers.FakeRequestFactory._
 import uk.gov.hmrc.exports.movements.errors.TimeoutError
 import uk.gov.hmrc.exports.movements.models.common.UcrType.Ducr
@@ -78,10 +78,7 @@ class IleQueryControllerSpec extends AnyWordSpec with Matchers with ScalaFutures
 
       "call IleQueryService, passing SearchParameters" in {
         val ileQueryResponseExchanges =
-          Seq(
-            IleQueryResponseExchange(notificationIleQueryResponse_1),
-            IleQueryResponseExchange(notificationIleQueryResponse_2.copy(conversationId = conversationId))
-          )
+          Seq(IleQueryResponseExchange(ileQueryResponse_1), IleQueryResponseExchange(ileQueryResponse_2.copy(conversationId = conversationId)))
         when(ileQueryService.fetchResponses(any[SearchParameters])).thenReturn(Future.successful(Right(ileQueryResponseExchanges)))
 
         controller
@@ -94,10 +91,7 @@ class IleQueryControllerSpec extends AnyWordSpec with Matchers with ScalaFutures
 
       "return Ok status with Sequence containing IleQueryResponseExchange returned by IleQueryService" in {
         val ileQueryResponseExchanges =
-          Seq(
-            IleQueryResponseExchange(notificationIleQueryResponse_1),
-            IleQueryResponseExchange(notificationIleQueryResponse_2.copy(conversationId = conversationId))
-          )
+          Seq(IleQueryResponseExchange(ileQueryResponse_1), IleQueryResponseExchange(ileQueryResponse_2.copy(conversationId = conversationId)))
         when(ileQueryService.fetchResponses(any[SearchParameters])).thenReturn(Future.successful(Right(ileQueryResponseExchanges)))
 
         val result = controller

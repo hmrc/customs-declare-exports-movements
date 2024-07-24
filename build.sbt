@@ -1,6 +1,5 @@
 import sbt._
 import uk.gov.hmrc.DefaultBuildSettings._
-import uk.gov.hmrc.SbtAutoBuildPlugin
 
 val appName = "customs-declare-exports-movements"
 
@@ -12,12 +11,21 @@ lazy val testAll = TaskKey[Unit]("test-all")
 lazy val allTest = Seq(testAll := (IntegrationTest / test).dependsOn(Test / test).value)
 
 lazy val microservice = Project(appName, file("."))
-  .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtDistributablesPlugin)
-  .settings(commonSettings: _*)
+  .enablePlugins(PlayScala, SbtDistributablesPlugin)
+  .settings(commonSettings*)
   .configs(IntegrationTest)
   .settings(inConfig(IntegrationTest)(Defaults.itSettings): _*)
-  .settings(unitTestSettings, integrationTestSettings, scoverageSettings)
-  .disablePlugins(JUnitXmlReportPlugin) // Required to prevent https://github.com/scalatest/scalatest/issues/1427
+  .settings(unitTestSettings, scoverageSettings)
+  .settings(
+    IntegrationTest / Keys.fork := false,
+    IntegrationTest / unmanagedSourceDirectories := Seq(
+      (IntegrationTest / baseDirectory).value / "test/it",
+      (Test / baseDirectory).value / "test/util"
+    ),
+    addTestReportOption(IntegrationTest, "int-test-reports"),
+    IntegrationTest / parallelExecution := false
+  )
+  .disablePlugins(JUnitXmlReportPlugin) //Required to prevent https://github.com/scalatest/scalatest/issues/1427
 
 lazy val commonSettings = Seq(
   majorVersion := 0,
@@ -53,19 +61,6 @@ lazy val unitTestSettings =
         (Test / baseDirectory).value / "test/utils"
       ),
       addTestReportOption(Test, "test-reports")
-    )
-
-lazy val integrationTestSettings =
-  inConfig(IntegrationTest)(Defaults.testTasks) ++
-    Seq(
-      IntegrationTest / unmanagedSourceDirectories := Seq(
-        (IntegrationTest / baseDirectory).value / "test/it",
-        (Test / baseDirectory).value / "test/utils"
-      ),
-      IntegrationTest / fork := false,
-      IntegrationTest / parallelExecution := false,
-      addTestReportOption(IntegrationTest, "int-test-reports"),
-      IntegrationTest / testGrouping := oneForkedJvmPerTest((IntegrationTest / definedTests).value)
     )
 
 lazy val scoverageSettings: Seq[Setting[_]] = Seq(

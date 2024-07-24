@@ -24,19 +24,18 @@ import uk.gov.hmrc.exports.movements.models.notifications.Notification
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 
-import java.util.concurrent.TimeUnit.DAYS
+import java.util.concurrent.TimeUnit.HOURS
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.reflect.ClassTag
 
 @Singleton
-class NotificationRepository @Inject() (mongoComponent: MongoComponent)(implicit ec: ExecutionContext)
+class IleQueryResponseRepository @Inject() (mongoComponent: MongoComponent)(implicit ec: ExecutionContext)
     extends PlayMongoRepository[Notification](
       mongoComponent = mongoComponent,
-      collectionName = "movementNotifications",
+      collectionName = "ileQueryResponses",
       domainFormat = Notification.format,
-      indexes = NotificationRepository.indexes,
-      replaceIndexes = true
+      indexes = IleQueryResponseRepository.indexes
     ) with RepositoryOps[Notification] {
 
   override def classTag: ClassTag[Notification] = implicitly[ClassTag[Notification]]
@@ -52,12 +51,12 @@ class NotificationRepository @Inject() (mongoComponent: MongoComponent)(implicit
     }
 }
 
-object NotificationRepository {
+object IleQueryResponseRepository {
 
-  private val ttlDays = 122
+  private val ttlHours = 1L
 
   val indexes: Seq[IndexModel] = List(
     IndexModel(ascending("conversationId"), IndexOptions().name("conversationIdIdx")),
-    IndexModel(ascending("timestampReceived"), IndexOptions().name("ttl").expireAfter(ttlDays, DAYS))
+    IndexModel(ascending("timestampReceived"), IndexOptions().name("ttl").expireAfter(ttlHours, HOURS))
   )
 }

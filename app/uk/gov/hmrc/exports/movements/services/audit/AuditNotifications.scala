@@ -46,11 +46,10 @@ object AuditNotifications extends Logging {
           mergeErrorCodes(standardNoteData.errorCodes, Json.toJson(auditData).as[JsObject])
         )
 
-      case x =>
-        logger.debug("Query response notification. Not logging these type of events")
+      case _ => logger.debug("Query response notification. Not logging these type of events")
     }
 
-  private def mergeErrorCodes(errorCodes: Seq[String], payload: JsObject) =
+  private def mergeErrorCodes(errorCodes: Seq[String], payload: JsObject): JsObject =
     if (errorCodes.isEmpty) payload
     else {
       val arrayField = Json.toJson(Map(EventData.errorCodes.toString -> errorCodes)).as[JsObject]

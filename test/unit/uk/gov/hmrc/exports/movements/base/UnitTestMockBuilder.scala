@@ -17,7 +17,7 @@
 package uk.gov.hmrc.exports.movements.base
 
 import com.codahale.metrics.Timer
-import org.mockito.ArgumentMatchers.{any, anyString}
+import org.mockito.ArgumentMatchers.any
 import org.mockito.MockitoSugar.{mock, when}
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
 import uk.gov.hmrc.exports.movements.metrics.MovementsMetrics
@@ -25,26 +25,13 @@ import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
 import uk.gov.hmrc.exports.movements.models.notifications._
 import uk.gov.hmrc.exports.movements.models.notifications.parsers.{ResponseParser, ResponseParserProvider}
 import uk.gov.hmrc.exports.movements.models.notifications.standard.StandardNotificationData
-import uk.gov.hmrc.exports.movements.repositories.{GenericError, NotificationRepository, SubmissionRepository}
-import uk.gov.hmrc.exports.movements.services.NotificationService
+import uk.gov.hmrc.exports.movements.repositories.{GenericError, SubmissionRepository}
 
 import scala.concurrent.Future
 import scala.util.Failure
 import scala.xml.NodeSeq
 
 object UnitTestMockBuilder {
-
-  def buildNotificationRepositoryMock: NotificationRepository = {
-    val notificationRepositoryMock = mock[NotificationRepository]
-
-    when(notificationRepositoryMock.insertOne(any[Notification]))
-      .thenReturn(Future.successful(Left(GenericError("ERROR"))))
-
-    when(notificationRepositoryMock.findByConversationIds(any[Seq[String]]))
-      .thenReturn(Future.successful(Seq.empty))
-
-    notificationRepositoryMock
-  }
 
   def buildSubmissionRepositoryMock: SubmissionRepository = {
     val submissionRepositoryMock = mock[SubmissionRepository]
@@ -54,24 +41,6 @@ object UnitTestMockBuilder {
       .thenReturn(Future.successful(Left(GenericError("ERROR"))))
 
     submissionRepositoryMock
-  }
-
-  def buildNotificationServiceMock: NotificationService = {
-    val notificationServiceMock = mock[NotificationService]
-
-    when(notificationServiceMock.save(anyString, any[NodeSeq])).thenReturn(Future.failed(new Exception("")))
-    when(notificationServiceMock.getAllNotifications(any())).thenReturn(Future.successful(Seq.empty))
-
-    notificationServiceMock
-  }
-
-  def buildMovementNotificationFactoryMock: NotificationFactory = {
-    val movementNotificationFactoryMock = mock[NotificationFactory]
-
-    when(movementNotificationFactoryMock.buildMovementNotification(any[String], any[NodeSeq]))
-      .thenReturn(Notification.empty)
-
-    movementNotificationFactoryMock
   }
 
   def buildCustomsInventoryLinkingExportsConnectorMock: CustomsInventoryLinkingExportsConnector = {

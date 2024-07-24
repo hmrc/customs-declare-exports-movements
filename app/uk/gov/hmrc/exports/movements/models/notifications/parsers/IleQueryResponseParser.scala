@@ -28,7 +28,7 @@ import scala.xml.{Node, NodeSeq}
 
 class IleQueryResponseParser @Inject() (commonTypesParser: CommonTypesParser) extends ResponseParser[IleQueryResponseData] {
 
-  override val responseTypeIle: String = "inventoryLinkingQueryResponse"
+  override val responseTypeIle: String = IleQueryResponseParser.responseTypeIle
 
   override def parse(responseXml: NodeSeq): IleQueryResponseData = IleQueryResponseData(
     queriedDucr = buildQueriedDucr(responseXml \ XmlTags.queriedDucr),
@@ -86,5 +86,9 @@ class IleQueryResponseParser @Inject() (commonTypesParser: CommonTypesParser) ex
     GoodsItemInfo(totalPackages = (goodsItemXml \ XmlTags.totalPackages).map { totalPackagesNode =>
       totalPackagesNode.text.toInt
     }.headOption)
+}
 
+object IleQueryResponseParser {
+
+  val responseTypeIle: String = "inventoryLinkingQueryResponse"
 }

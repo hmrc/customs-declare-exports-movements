@@ -23,13 +23,13 @@ import uk.gov.hmrc.exports.movements.services.NotificationService
 import scala.concurrent.Future
 
 @Singleton
-class NotificationsParsingRoutine @Inject() (sotificationService: NotificationService)(implicit rec: RoutinesExecutionContext) extends Routine {
+class NotificationsParsingRoutine @Inject() (notificationService: NotificationService)(implicit rec: RoutinesExecutionContext) extends Routine {
 
   private val logger = Logger(this.getClass)
 
   override def execute(): Future[Unit] = {
     logger.info("Starting NotificationsParsingRoutine")
-    sotificationService.parseUnparsedNotifications
+    notificationService.handleUnparsedNotifications
       .map(_ => logger.info("Finished NotificationsParsingRoutine"))
   }
 

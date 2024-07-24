@@ -39,7 +39,7 @@ class MakeParsedDataOptionalISpec extends ChangeLogsBaseISpec {
     compareJson(result.toJson, expectedResult)
   }
 
-  "CacheChangeLog" should {
+  "MakeParsedDataOptional" should {
 
     "correctly migrate data" when {
 

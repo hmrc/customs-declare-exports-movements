@@ -26,7 +26,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import play.api.test.Helpers._
 import testdata.CommonTestData._
 import testdata.MovementsTestData.exampleIleQuerySubmission
-import testdata.notifications.NotificationTestData.notificationIleQueryResponse_1
+import testdata.notifications.NotificationTestData.ileQueryResponse_1
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
 import uk.gov.hmrc.exports.movements.misc.IleQueryTimeoutCalculator
 import uk.gov.hmrc.exports.movements.models.movements.IleQueryRequest
@@ -36,7 +36,7 @@ import uk.gov.hmrc.exports.movements.models.notifications.queries.IleQueryRespon
 import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
 import uk.gov.hmrc.exports.movements.models.submissions.IleQuerySubmission
 import uk.gov.hmrc.exports.movements.models.{CustomsInventoryLinkingResponse, UserIdentification}
-import uk.gov.hmrc.exports.movements.repositories.{IleQuerySubmissionRepository, NotificationRepository, SearchParameters}
+import uk.gov.hmrc.exports.movements.repositories.{IleQueryResponseRepository, IleQuerySubmissionRepository, SearchParameters}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import java.time.Clock
@@ -49,7 +49,7 @@ class IleQueryServiceSpec extends AnyWordSpec with Matchers with ScalaFutures wi
   implicit private val hc: HeaderCarrier = mock[HeaderCarrier]
 
   private val ileQuerySubmissionRepository = mock[IleQuerySubmissionRepository]
-  private val notificationRepository = mock[NotificationRepository]
+  private val ileQueryResponseRepository = mock[IleQueryResponseRepository]
   private val ileConnector = mock[CustomsInventoryLinkingExportsConnector]
   private val ileQueryTimeoutCalculator = mock[IleQueryTimeoutCalculator]
 
@@ -58,7 +58,7 @@ class IleQueryServiceSpec extends AnyWordSpec with Matchers with ScalaFutures wi
   private val ileMapper = new IleMapper(Clock.systemUTC())
 
   private val ileQueryService =
-    new IleQueryService(ileMapper, ileQuerySubmissionRepository, notificationRepository, ileConnector, ileQueryTimeoutCalculator)(global)
+    new IleQueryService(ileMapper, ileQuerySubmissionRepository, ileQueryResponseRepository, ileConnector, ileQueryTimeoutCalculator)(global)
 
   override protected def beforeEach(): Unit = {
     super.beforeEach()
@@ -67,12 +67,12 @@ class IleQueryServiceSpec extends AnyWordSpec with Matchers with ScalaFutures wi
       .thenReturn(Future.successful(CustomsInventoryLinkingResponse(ACCEPTED, Some(""))))
     when(ileQuerySubmissionRepository.insertOne(any[IleQuerySubmission])).thenReturn(Future.successful(ileQuerySubmission))
     when(ileQuerySubmissionRepository.findAll(any[SearchParameters])).thenReturn(Future.successful(Seq.empty))
-    when(notificationRepository.findByConversationIds(any[Seq[String]])).thenReturn(Future.successful(Seq.empty))
+    when(ileQueryResponseRepository.findByConversationIds(any[Seq[String]])).thenReturn(Future.successful(Seq.empty))
     when(ileQueryTimeoutCalculator.hasQueryTimedOut(any[IleQuerySubmission])).thenReturn(false)
   }
 
   override protected def afterEach(): Unit = {
-    reset(ileQuerySubmissionRepository, ileConnector, notificationRepository, ileQueryTimeoutCalculator)
+    reset(ileQuerySubmissionRepository, ileConnector, ileQueryResponseRepository, ileQueryTimeoutCalculator)
     super.afterEach()
   }
 
@@ -176,20 +176,20 @@ class IleQueryServiceSpec extends AnyWordSpec with Matchers with ScalaFutures wi
         when(ileQuerySubmissionRepository.findAll(any[SearchParameters]))
           .thenReturn(Future.successful(Seq(exampleIleQuerySubmission(providerId = Some(validProviderId)))))
         when(ileQueryTimeoutCalculator.hasQueryTimedOut(any[IleQuerySubmission])).thenReturn(false)
-        when(notificationRepository.findByConversationIds(any[Seq[String]])).thenReturn(Future.successful(Seq(notificationIleQueryResponse_1)))
+        when(ileQueryResponseRepository.findByConversationIds(any[Seq[String]])).thenReturn(Future.successful(Seq(ileQueryResponse_1)))
 
         ileQueryService.fetchResponses(searchParameters).futureValue
 
-        val inOrder: InOrder = Mockito.inOrder(ileQuerySubmissionRepository, notificationRepository)
+        val inOrder: InOrder = Mockito.inOrder(ileQuerySubmissionRepository, ileQueryResponseRepository)
         inOrder.verify(ileQuerySubmissionRepository).findAll(any())
-        inOrder.verify(notificationRepository).findByConversationIds(any())
+        inOrder.verify(ileQueryResponseRepository).findByConversationIds(any())
       }
 
       "call SubmissionRepository, passing SearchParameters provided" in {
         when(ileQuerySubmissionRepository.findAll(any[SearchParameters]))
           .thenReturn(Future.successful(Seq(exampleIleQuerySubmission(providerId = Some(validProviderId)))))
         when(ileQueryTimeoutCalculator.hasQueryTimedOut(any[IleQuerySubmission])).thenReturn(false)
-        when(notificationRepository.findByConversationIds(any[Seq[String]])).thenReturn(Future.successful(Seq(notificationIleQueryResponse_1)))
+        when(ileQueryResponseRepository.findByConversationIds(any[Seq[String]])).thenReturn(Future.successful(Seq(ileQueryResponse_1)))
 
         ileQueryService.fetchResponses(searchParameters).futureValue
 
@@ -200,7 +200,7 @@ class IleQueryServiceSpec extends AnyWordSpec with Matchers with ScalaFutures wi
         val submission = exampleIleQuerySubmission(providerId = Some(validProviderId))
         when(ileQuerySubmissionRepository.findAll(any[SearchParameters])).thenReturn(Future.successful(Seq(submission)))
         when(ileQueryTimeoutCalculator.hasQueryTimedOut(any[IleQuerySubmission])).thenReturn(false)
-        when(notificationRepository.findByConversationIds(any[Seq[String]])).thenReturn(Future.successful(Seq(notificationIleQueryResponse_1)))
+        when(ileQueryResponseRepository.findByConversationIds(any[Seq[String]])).thenReturn(Future.successful(Seq(ileQueryResponse_1)))
 
         ileQueryService.fetchResponses(searchParameters).futureValue
 
@@ -211,18 +211,18 @@ class IleQueryServiceSpec extends AnyWordSpec with Matchers with ScalaFutures wi
         when(ileQuerySubmissionRepository.findAll(any[SearchParameters]))
           .thenReturn(Future.successful(Seq(exampleIleQuerySubmission(providerId = Some(validProviderId)))))
         when(ileQueryTimeoutCalculator.hasQueryTimedOut(any[IleQuerySubmission])).thenReturn(false)
-        when(notificationRepository.findByConversationIds(any[Seq[String]])).thenReturn(Future.successful(Seq(notificationIleQueryResponse_1)))
+        when(ileQueryResponseRepository.findByConversationIds(any[Seq[String]])).thenReturn(Future.successful(Seq(ileQueryResponse_1)))
 
         ileQueryService.fetchResponses(searchParameters).futureValue
 
-        verify(notificationRepository).findByConversationIds(Seq(conversationId))
+        verify(ileQueryResponseRepository).findByConversationIds(Seq(conversationId))
       }
 
       "return converted IleQueryResponses returned by NotificationRepository" in {
         when(ileQuerySubmissionRepository.findAll(any[SearchParameters]))
           .thenReturn(Future.successful(Seq(exampleIleQuerySubmission(providerId = Some(validProviderId)))))
         when(ileQueryTimeoutCalculator.hasQueryTimedOut(any[IleQuerySubmission])).thenReturn(false)
-        when(notificationRepository.findByConversationIds(any[Seq[String]])).thenReturn(Future.successful(Seq(notificationIleQueryResponse_1)))
+        when(ileQueryResponseRepository.findByConversationIds(any[Seq[String]])).thenReturn(Future.successful(Seq(ileQueryResponse_1)))
 
         val result = ileQueryService.fetchResponses(searchParameters).futureValue
 
@@ -231,10 +231,10 @@ class IleQueryServiceSpec extends AnyWordSpec with Matchers with ScalaFutures wi
 
         val ileQueryResponseExchange: IleQueryResponseExchange = result.toOption.get.head
         val expectedIleQueryResponseExchange = IleQueryResponseExchange(
-          timestampReceived = notificationIleQueryResponse_1.timestampReceived,
-          conversationId = notificationIleQueryResponse_1.conversationId,
-          responseType = notificationIleQueryResponse_1.data.get.responseType,
-          data = Some(SuccessfulResponseExchangeData(IleQueryResponseData(responseType = notificationIleQueryResponse_1.data.get.responseType)))
+          timestampReceived = ileQueryResponse_1.timestampReceived,
+          conversationId = ileQueryResponse_1.conversationId,
+          responseType = ileQueryResponse_1.data.get.responseType,
+          data = Some(SuccessfulResponseExchangeData(IleQueryResponseData(responseType = ileQueryResponse_1.data.get.responseType)))
         )
 
         ileQueryResponseExchange mustBe expectedIleQueryResponseExchange
@@ -258,7 +258,7 @@ class IleQueryServiceSpec extends AnyWordSpec with Matchers with ScalaFutures wi
         ileQueryService.fetchResponses(searchParameters).futureValue
 
         verifyZeroInteractions(ileQueryTimeoutCalculator)
-        verifyZeroInteractions(notificationRepository)
+        verifyZeroInteractions(ileQueryResponseRepository)
       }
     }
 
@@ -281,7 +281,7 @@ class IleQueryServiceSpec extends AnyWordSpec with Matchers with ScalaFutures wi
 
         ileQueryService.fetchResponses(searchParameters).futureValue
 
-        verifyZeroInteractions(notificationRepository)
+        verifyZeroInteractions(ileQueryResponseRepository)
       }
     }
 
@@ -290,7 +290,7 @@ class IleQueryServiceSpec extends AnyWordSpec with Matchers with ScalaFutures wi
         when(ileQuerySubmissionRepository.findAll(any[SearchParameters]))
           .thenReturn(Future.successful(Seq(exampleIleQuerySubmission(providerId = Some(validProviderId)))))
         when(ileQueryTimeoutCalculator.hasQueryTimedOut(any[IleQuerySubmission])).thenReturn(false)
-        when(notificationRepository.findByConversationIds(any[Seq[String]])).thenReturn(Future.successful(Seq.empty))
+        when(ileQueryResponseRepository.findByConversationIds(any[Seq[String]])).thenReturn(Future.successful(Seq.empty))
 
         val result = ileQueryService.fetchResponses(searchParameters).futureValue
 

@@ -26,7 +26,7 @@ import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
 import uk.gov.hmrc.exports.movements.models.movements.IleQueryRequest
 import uk.gov.hmrc.exports.movements.models.notifications.exchange.IleQueryResponseExchange
 import uk.gov.hmrc.exports.movements.models.submissions.IleQuerySubmission
-import uk.gov.hmrc.exports.movements.repositories.{IleQuerySubmissionRepository, NotificationRepository, SearchParameters}
+import uk.gov.hmrc.exports.movements.repositories.{IleQueryResponseRepository, IleQuerySubmissionRepository, SearchParameters}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import javax.inject.{Inject, Singleton}
@@ -36,7 +36,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class IleQueryService @Inject() (
   ileMapper: IleMapper,
   ileQuerySubmissionRepository: IleQuerySubmissionRepository,
-  notificationRepository: NotificationRepository,
+  ileQueryResponseRepository: IleQueryResponseRepository,
   ileConnector: CustomsInventoryLinkingExportsConnector,
   ileQueryTimeoutCalculator: IleQueryTimeoutCalculator
 )(implicit ec: ExecutionContext) {
@@ -60,33 +60,28 @@ class IleQueryService @Inject() (
 
       case CustomsInventoryLinkingResponse(status, conversationId) =>
         logger.warn(s"ILE Query failed with conversation-id=[$conversationId] and status [$status]")
-        Future.failed(
-          new CustomsInventoryLinkingUpstreamException(status, conversationId, "Non Accepted status returned by Customs Inventory Linking Exports")
-        )
+        val msg = "Non Accepted status returned by Customs Inventory Linking Exports"
+        Future.failed(new CustomsInventoryLinkingUpstreamException(status, conversationId, msg))
     }
   }
 
   def fetchResponses(searchParameters: SearchParameters): Future[Either[TimeoutError, Seq[IleQueryResponseExchange]]] =
     ileQuerySubmissionRepository.findAll(searchParameters).flatMap {
-      case Nil => Future.successful(Right(Seq.empty))
+      case Nil => Future.successful(Right(List.empty))
 
       case submission :: Nil =>
         if (ileQueryTimeoutCalculator.hasQueryTimedOut(submission)) {
-          logger
-            .info(
-              s"Timeout occurred while waiting for ILE Query Response notification with Conversation ID = [${searchParameters.conversationId.getOrElse("")}]"
-            )
+          val id = searchParameters.conversationId.getOrElse("")
+          logger.info(s"Timeout occurred while waiting for ILE Query Response notification with conversation-id=[$id]")
           Future.successful(Left(TimeoutError("Timeout occurred while waiting for ILE Query Response notification")))
-        } else {
-          getNotificationsConverted(Seq(submission.conversationId))
-        }
+        } else getNotificationsConverted(List(submission.conversationId))
 
       case _ => throw new IllegalStateException(s"Found multiple Submissions for given searchParameters: ${searchParameters}")
     }
 
   private def getNotificationsConverted(conversationIds: Seq[String]): Future[Either[TimeoutError, Seq[IleQueryResponseExchange]]] =
     for {
-      notifications <- notificationRepository.findByConversationIds(conversationIds)
+      notifications <- ileQueryResponseRepository.findByConversationIds(conversationIds)
       result <- Future.successful(notifications.map(IleQueryResponseExchange(_)))
     } yield Right(result)
 }

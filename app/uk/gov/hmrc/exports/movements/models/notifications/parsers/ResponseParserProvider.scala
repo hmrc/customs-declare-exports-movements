@@ -38,5 +38,4 @@ class ResponseParserProvider @Inject() (
         .getOrElse(throw new IllegalArgumentException(s"Unknown Inventory Linking Response: $responseLabel"))
 
     } else throw new IllegalArgumentException(s"Cannot find root element in: $responseXml")
-
 }
