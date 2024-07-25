@@ -26,7 +26,7 @@ import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
 import uk.gov.hmrc.exports.movements.models.movements.IleQueryRequest
 import uk.gov.hmrc.exports.movements.models.notifications.exchange.IleQueryResponseExchange
 import uk.gov.hmrc.exports.movements.models.submissions.IleQuerySubmission
-import uk.gov.hmrc.exports.movements.repositories.{IleQueryResponseRepository, IleQuerySubmissionRepository, SearchParameters}
+import uk.gov.hmrc.exports.movements.repositories.{IleQueryResponseRepository, IleQuerySubmissionRepository, NotificationRepository, SearchParameters}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import javax.inject.{Inject, Singleton}
@@ -38,7 +38,8 @@ class IleQueryService @Inject() (
   ileQuerySubmissionRepository: IleQuerySubmissionRepository,
   ileQueryResponseRepository: IleQueryResponseRepository,
   ileConnector: CustomsInventoryLinkingExportsConnector,
-  ileQueryTimeoutCalculator: IleQueryTimeoutCalculator
+  ileQueryTimeoutCalculator: IleQueryTimeoutCalculator,
+  notificationRepository: NotificationRepository
 )(implicit ec: ExecutionContext) {
 
   private val logger = Logger(this.getClass)
@@ -80,8 +81,21 @@ class IleQueryService @Inject() (
     }
 
   private def getNotificationsConverted(conversationIds: Seq[String]): Future[Either[TimeoutError, Seq[IleQueryResponseExchange]]] =
-    for {
-      notifications <- ileQueryResponseRepository.findByConversationIds(conversationIds)
-      result <- Future.successful(notifications.map(IleQueryResponseExchange(_)))
-    } yield Right(result)
+    ileQueryResponseRepository.findByConversationIds(conversationIds).flatMap { notifications =>
+      if (notifications.nonEmpty) Future.successful(Right(notifications.map(IleQueryResponseExchange(_))))
+      else
+        /*
+        When the 'ucr' for a requested 'conversationId' is not found the upstream send a
+        'inventoryLinkingControlResponse' notification, to notify the error, that we store
+        in the "movementNotifications" collection.
+
+        Of course then the first lookup in the "ileQueryResponses" collection will always
+        be unsuccessful, as this collection only contains 'inventoryLinkingQueryResponse'
+        notifications. This is why when that is the case we need to do a further lookup in
+        the "movementNotifications" collection.
+         */
+        notificationRepository.findByConversationIds(conversationIds).map { notifications =>
+          Right(notifications.map(IleQueryResponseExchange(_)))
+        }
+    }
 }
