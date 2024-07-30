@@ -16,7 +16,7 @@ object AppDependencies {
     "com.fasterxml.jackson.module"         %% "jackson-module-scala"                % jacksonVersion,
     "com.fasterxml.jackson.dataformat"     % "jackson-dataformat-xml"               % jacksonVersion,
     "com.fasterxml.jackson.dataformat"     % "jackson-dataformat-properties"        % jacksonVersion,
-    // Used by the Migration tool. Try to keep it to the same version of mongo-scala-driver.
+    // To remove with the removal of 'DeleteMigrationCollectionsRoutine'
     "org.mongodb"                          %  "mongodb-driver-sync"                 % "4.11.1"
   )
 

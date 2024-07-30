@@ -24,6 +24,7 @@ import org.scalatest.concurrent.Eventually
 import play.api.inject.guice.GuiceableModule
 
 object IntegrationTestModule extends AbstractModule {
+
   override def configure(): Unit = ()
 
   def asGuiceableModule: GuiceableModule = GuiceableModule.guiceable(this)
@@ -31,13 +32,20 @@ object IntegrationTestModule extends AbstractModule {
 
 trait IntegrationTestSpec extends UnitSpec with BeforeAndAfterEach with BeforeAndAfterAll with WireMockRunner with Eventually {
 
-  override protected def beforeAll(): Unit =
+  override protected def beforeAll(): Unit = {
+    super.beforeAll()
     startMockServer()
+  }
 
-  override protected def afterEach(): Unit =
+  override protected def afterEach(): Unit = {
     resetMockServer()
+    super.afterEach()
+  }
 
-  override protected def afterAll(): Unit =
+  override protected def afterAll(): Unit = {
     stopMockServer()
+    super.afterAll()
+  }
+
   SharedMetricRegistries.clear()
 }
