@@ -25,7 +25,6 @@ import org.scalatest.wordspec.AnyWordSpec
 trait WiremockTestServer extends AnyWordSpec with BeforeAndAfterEach {
 
   val wireHost = "localhost"
-  val mongoDBUri = "mongodb://localhost:27017/customs-declare-exports-movements"
   val wirePort = 20001
   val downstreamURL: String = "http://" + wireHost + ":" + wirePort
   val wireMockServer = new WireMockServer(wirePort)

@@ -55,7 +55,7 @@ class CustomsInventoryLinkingExportsConnectorISpec extends ConnectorISpec {
             )
         )
 
-        val result: CustomsInventoryLinkingResponse = await(connector.submit(identification("eori", None), xml)(hc))
+        val result: CustomsInventoryLinkingResponse = await(connector.submit(identification(None), xml)(hc))
 
         result.status mustBe ACCEPTED
         result.conversationId mustBe Some("conv-id")
@@ -80,7 +80,7 @@ class CustomsInventoryLinkingExportsConnectorISpec extends ConnectorISpec {
             )
         )
 
-        val result: CustomsInventoryLinkingResponse = await(connector.submit(identification("eori", Some("id")), xml)(hc))
+        val result: CustomsInventoryLinkingResponse = await(connector.submit(identification(Some("id")), xml)(hc))
 
         result.status mustBe ACCEPTED
         result.conversationId mustBe Some("conv-id")
@@ -96,8 +96,8 @@ class CustomsInventoryLinkingExportsConnectorISpec extends ConnectorISpec {
     }
   }
 
-  private def identification(userEori: String, userProviderId: Option[String]): UserIdentification = new UserIdentification {
-    override val eori: String = userEori
+  private def identification(userProviderId: Option[String]): UserIdentification = new UserIdentification {
+    override val eori: String = "eori"
     override val providerId: Option[String] = userProviderId
   }
 }

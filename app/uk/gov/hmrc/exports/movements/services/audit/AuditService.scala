@@ -27,11 +27,11 @@ import uk.gov.hmrc.play.audit.http.connector.AuditResult.{Disabled, Failure, Suc
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.audit.model.ExtendedDataEvent
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class AuditService @Inject() (connector: AuditConnector, appConfig: AppConfig)(implicit ec: ExecutionContext) extends Logging {
 
-  def auditNotificationProcessed(audit: Audit, auditData: JsObject) = {
+  def auditNotificationProcessed(audit: Audit, auditData: JsObject): Future[AuditResult] = {
 
     val extendedEvent = ExtendedDataEvent(
       auditSource = appConfig.appName,

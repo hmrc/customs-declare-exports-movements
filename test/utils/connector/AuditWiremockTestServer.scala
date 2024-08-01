@@ -46,5 +46,4 @@ trait AuditWiremockTestServer extends WiremockTestServer with BeforeAndAfterEach
   }
 
   protected def postRequestedForAudit(): RequestPatternBuilder = postRequestedFor(urlEqualTo("/write/audit"))
-
 }
