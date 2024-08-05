@@ -32,5 +32,4 @@ class NotificationsParsingRoutine @Inject() (notificationService: NotificationSe
     notificationService.handleUnparsedNotifications
       .map(_ => logger.info("Finished NotificationsParsingRoutine"))
   }
-
 }

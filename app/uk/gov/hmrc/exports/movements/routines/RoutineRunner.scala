@@ -27,13 +27,11 @@ import scala.concurrent.duration._
 class RoutineRunner @Inject() (
   actorSystem: ActorSystem,
   applicationLifecycle: ApplicationLifecycle,
-  deleteMigrationCollectionsRoutine: DeleteMigrationCollectionsRoutine,
   notificationsParsingRoutine: NotificationsParsingRoutine
 )(implicit mec: RoutinesExecutionContext) {
 
   val routines: Cancellable = actorSystem.scheduler.scheduleOnce(0.seconds) {
     for {
-      _ <- deleteMigrationCollectionsRoutine.execute()
       _ <- notificationsParsingRoutine.execute()
     } yield ()
   }
