@@ -15,9 +15,7 @@ object AppDependencies {
     "com.github.tototoshi"                 %% "scala-csv"                           % "1.3.10",
     "com.fasterxml.jackson.module"         %% "jackson-module-scala"                % jacksonVersion,
     "com.fasterxml.jackson.dataformat"     % "jackson-dataformat-xml"               % jacksonVersion,
-    "com.fasterxml.jackson.dataformat"     % "jackson-dataformat-properties"        % jacksonVersion,
-    // To remove with the removal of 'DeleteMigrationCollectionsRoutine'
-    "org.mongodb"                          %  "mongodb-driver-sync"                 % "4.11.1"
+    "com.fasterxml.jackson.dataformat"     % "jackson-dataformat-properties"        % jacksonVersion
   )
 
   val test = Seq(

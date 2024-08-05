@@ -35,8 +35,7 @@ class NotificationRepository @Inject() (mongoComponent: MongoComponent)(implicit
       mongoComponent = mongoComponent,
       collectionName = "movementNotifications",
       domainFormat = Notification.format,
-      indexes = NotificationRepository.indexes,
-      replaceIndexes = true
+      indexes = NotificationRepository.indexes
     ) with RepositoryOps[Notification] {
 
   override def classTag: ClassTag[Notification] = implicitly[ClassTag[Notification]]
