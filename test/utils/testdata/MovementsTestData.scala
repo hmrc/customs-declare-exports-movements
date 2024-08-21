@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package testdata
+package utils.testdata
 
 import play.api.libs.json.{JsValue, Json}
-import testdata.CommonTestData._
+import utils.testdata.CommonTestData._
 import uk.gov.hmrc.exports.movements.models.movements.{MovementsExchange, _}
 import uk.gov.hmrc.exports.movements.models.notifications.standard.{UcrBlock => UcrBlockModel}
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType.MovementType

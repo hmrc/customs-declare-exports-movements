@@ -16,11 +16,11 @@
 
 package uk.gov.hmrc.exports.movements.models.notifications
 
-import javax.inject.{Inject, Singleton}
 import org.slf4j.MDC
 import play.api.Logger
 import uk.gov.hmrc.exports.movements.models.notifications.parsers.ResponseParserProvider
 
+import javax.inject.{Inject, Singleton}
 import scala.util.{Failure, Success, Try}
 import scala.xml.{NodeSeq, Utility, XML}
 
@@ -29,28 +29,33 @@ class NotificationFactory @Inject() (responseValidator: ResponseValidator, respo
 
   private val logger = Logger(this.getClass)
 
-  def buildMovementNotification(conversationId: String, xml: String): Notification =
-    Try(XML.loadString(xml)) match {
+  def buildMovementNotification(conversationId: String, payload: String): Notification =
+    Try(XML.loadString(payload)) match {
       case Success(xmlElem) => buildMovementNotification(conversationId, xmlElem)
-      case Failure(exc) =>
-        logWarnings(conversationId, exc, xml)
-        Notification(conversationId = conversationId, payload = xml, data = None)
+      case Failure(exc)     => onError(conversationId, exc, payload)
     }
 
-  def buildMovementNotification(conversationId: String, xml: NodeSeq): Notification =
-    responseValidator.validate(xml).map(_ => responseParserProvider.provideResponseParser(xml)).map(_.parse(xml)) match {
-      case Success(notificationData) =>
-        Notification(conversationId = conversationId, payload = Utility.trim(xml.head).toString, data = Some(notificationData))
+  def buildMovementNotification(conversationId: String, xml: NodeSeq): Notification = {
+    val payload = Utility.trim(xml.head).toString
+    responseValidator.validate(xml) match {
+      case Right(_) =>
+        Try(responseParserProvider.provideResponseParser(xml).parse(xml)) match {
+          case Success(notificationData) =>
+            Notification(conversationId = conversationId, payload = payload, data = Some(notificationData))
 
-      case Failure(exc) =>
-        logWarnings(conversationId, exc, xml.toString())
-        Notification(conversationId = conversationId, payload = Utility.trim(xml.head).toString, data = None)
+          case Failure(exc) => onError(conversationId, exc, payload)
+        }
+
+      case Left(exc) => onError(conversationId, exc, payload)
     }
+  }
 
-  private def logWarnings(conversationId: String, exc: Throwable, xml: String): Unit = {
+  private def onError(conversationId: String, exc: Throwable, payload: String): Notification = {
     MDC.put("conversationId", conversationId)
     val message = s"There was a problem during parsing notification with conversationId=[$conversationId]"
-    logger.error(s"$message: ${exc.getClass} => ${exc.getMessage}.\nPayload was [$xml]")
+    logger.error(s"$message: ${exc.getClass} =>\n${exc.getMessage}.\nPayload was [$payload]")
     MDC.remove("conversationId")
+
+    Notification(conversationId = conversationId, payload = payload, data = None)
   }
 }

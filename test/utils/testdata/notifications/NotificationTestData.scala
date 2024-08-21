@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package testdata.notifications
+package utils.testdata.notifications
 
 import play.api.http.{ContentTypes, HeaderNames}
 import play.api.mvc.Codec
-import testdata.CommonTestData._
-import testdata.MovementsTestData.dateTimeString
-import testdata.TestDataHelper
+import utils.testdata.CommonTestData._
+import utils.testdata.MovementsTestData.dateTimeString
+import utils.testdata.TestDataHelper
 import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames
 import uk.gov.hmrc.exports.movements.models.notifications._
 import uk.gov.hmrc.exports.movements.models.notifications.queries.IleQueryResponseData

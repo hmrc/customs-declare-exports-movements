@@ -1,39 +1,31 @@
-import sbt._
-import uk.gov.hmrc.DefaultBuildSettings._
+import uk.gov.hmrc.versioning.SbtGitVersioning.autoImport.majorVersion
 
 val appName = "customs-declare-exports-movements"
 
+ThisBuild / majorVersion := 0
+ThisBuild / scalaVersion := "2.13.12"
+
 PlayKeys.devSettings := Seq("play.server.http.port" -> "6797")
-
-lazy val IntegrationTest = config("it") extend Test
-
-lazy val testAll = TaskKey[Unit]("test-all")
-lazy val allTest = Seq(testAll := (IntegrationTest / test).dependsOn(Test / test).value)
 
 lazy val microservice = Project(appName, file("."))
   .enablePlugins(PlayScala, SbtDistributablesPlugin)
-  .settings(commonSettings*)
-  .configs(IntegrationTest)
-  .settings(inConfig(IntegrationTest)(Defaults.itSettings): _*)
-  .settings(unitTestSettings, scoverageSettings)
+  .disablePlugins(JUnitXmlReportPlugin) // Required to prevent https://github.com/scalatest/scalatest/issues/1427
+  .settings(commonSettings)
+  .settings(scoverageSettings)
+
+lazy val it = (project in file("it"))
+  .enablePlugins(PlayScala)
+  .dependsOn(microservice % "test->test")
   .settings(
-    IntegrationTest / Keys.fork := false,
-    IntegrationTest / unmanagedSourceDirectories := Seq(
-      (IntegrationTest / baseDirectory).value / "test/it",
-      (Test / baseDirectory).value / "test/util"
-    ),
-    addTestReportOption(IntegrationTest, "int-test-reports"),
-    IntegrationTest / parallelExecution := false
+    publish / skip := true,
+    Test / testOptions += Tests.Argument("-o", "-h", "it/target/html-report")
   )
-  .disablePlugins(JUnitXmlReportPlugin) //Required to prevent https://github.com/scalatest/scalatest/issues/1427
 
 lazy val commonSettings = Seq(
-  majorVersion := 0,
-  scalaVersion := "2.13.12",
   scalacOptions ++= scalacFlags,
-  dependencyOverrides += "commons-codec" % "commons-codec" % "1.15",
-  dependencyOverrides += "org.scala-lang.modules" %% "scala-xml" % "2.1.0",
-  libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test
+  retrieveManaged := true,
+  dependencyOverrides += "org.scala-lang.modules" %% "scala-xml" % "2.2.0",
+  libraryDependencies ++= Dependencies.compile ++ Dependencies.test
 )
 
 lazy val scalacFlags = Seq(
@@ -53,16 +45,6 @@ def onPackageName(rootPackage: String): String => Boolean = {
   testName => testName startsWith rootPackage
 }
 
-lazy val unitTestSettings =
-  inConfig(Test)(Defaults.testTasks) ++
-    Seq(
-      Test / unmanagedSourceDirectories := Seq(
-        (Test / baseDirectory).value / "test/unit",
-        (Test / baseDirectory).value / "test/utils"
-      ),
-      addTestReportOption(Test, "test-reports")
-    )
-
 lazy val scoverageSettings: Seq[Setting[_]] = Seq(
   coverageExcludedPackages := List(
     "<empty>"
@@ -77,3 +59,7 @@ lazy val scoverageSettings: Seq[Setting[_]] = Seq(
   coverageHighlighting := true,
   Test / parallelExecution := false
 )
+
+addCommandAlias("ucomp", "Test/compile")
+addCommandAlias("icomp", "it/Test/compile")
+addCommandAlias("precommit", ";clean;scalafmt;Test/scalafmt;it/Test/scalafmt;coverage;test;it/test;scalafmtCheckAll;coverageReport")

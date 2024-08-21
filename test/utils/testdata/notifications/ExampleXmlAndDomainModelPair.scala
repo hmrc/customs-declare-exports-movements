@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package testdata.notifications
+package utils.testdata.notifications
 
 import uk.gov.hmrc.exports.movements.models.notifications._
 import uk.gov.hmrc.exports.movements.models.notifications.queries.IleQueryResponseData

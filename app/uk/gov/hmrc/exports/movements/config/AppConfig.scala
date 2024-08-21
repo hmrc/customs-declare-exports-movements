@@ -29,8 +29,6 @@ import javax.inject.Named
 @Singleton
 class AppConfig @Inject() (configuration: Configuration, servicesConfig: ServicesConfig, @Named("appName") val appName: String) extends Logging {
 
-  lazy val mongodbUri: String = configuration.get[String]("mongodb.uri")
-
   lazy val authUrl: String = servicesConfig.baseUrl("auth")
 
   lazy val customsInventoryLinkingExportsRootUrl: String = servicesConfig.baseUrl("customs-inventory-linking-exports")

@@ -16,46 +16,51 @@
 
 package uk.gov.hmrc.exports.movements.connectors
 
-import javax.inject.{Inject, Singleton}
-import play.api.Logger
+import play.api.Logging
 import play.api.http.{ContentTypes, HeaderNames}
 import play.api.mvc.Codec
 import play.mvc.Http.Status
 import uk.gov.hmrc.exports.movements.config.AppConfig
 import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames
 import uk.gov.hmrc.exports.movements.models.{CustomsInventoryLinkingResponse, UserIdentification}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
+import uk.gov.hmrc.http.{HeaderCarrier, StringContextOps}
+import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.xml.NodeSeq
 
 @Singleton
-class CustomsInventoryLinkingExportsConnector @Inject() (appConfig: AppConfig, httpClient: HttpClient)(implicit ec: ExecutionContext) {
+class CustomsInventoryLinkingExportsConnector @Inject() (appConfig: AppConfig, httpClientV2: HttpClientV2)(implicit ec: ExecutionContext)
+    extends Logging {
 
-  private val logger = Logger(this.getClass)
-  private val contentHeaders = Seq(
+  private val contentHeaders = List(
     HeaderNames.ACCEPT -> s"application/vnd.hmrc.${appConfig.customsDeclarationsApiVersion}+xml",
     HeaderNames.CONTENT_TYPE -> ContentTypes.XML(Codec.utf_8)
   )
 
   def submit(identification: UserIdentification, body: NodeSeq)(implicit hc: HeaderCarrier): Future[CustomsInventoryLinkingResponse] =
-    httpClient
-      .POSTString[CustomsInventoryLinkingResponse](
-        s"${appConfig.customsInventoryLinkingExportsRootUrl}${appConfig.sendArrivalUrlSuffix}",
-        body.toString,
-        headers = headers(identification)
-      )
-      .recover { case error: Throwable =>
+    post(s"${appConfig.customsInventoryLinkingExportsRootUrl}${appConfig.sendArrivalUrlSuffix}", body.mkString, headers(identification)).recover {
+      case error: Throwable =>
         logger.warn(s"Error from Customs Inventory Linking. $error")
         CustomsInventoryLinkingResponse(Status.INTERNAL_SERVER_ERROR, None)
-      }
+    }
 
   private def headers(identification: UserIdentification)(implicit hc: HeaderCarrier): Seq[(String, String)] = {
-    val authHeaders =
-      if (identification.providerId.isDefined)
-        Seq(CustomsHeaderNames.SubmitterIdentifier -> appConfig.internalUserEori, CustomsHeaderNames.XClientIdName -> appConfig.clientIdInventory)
-      else Seq(CustomsHeaderNames.XClientIdName -> appConfig.clientIdInventory)
+    val authHeaders = List(
+      identification.providerId.map(_ => CustomsHeaderNames.SubmitterIdentifier -> appConfig.internalUserEori),
+      Some(CustomsHeaderNames.XClientIdName -> appConfig.clientIdInventory)
+    ).flatten
 
     contentHeaders ++ authHeaders
   }
+
+  private def post(url: String, body: String, additionalHeaders: Seq[(String, String)])(
+    implicit ec: ExecutionContext,
+    hc: HeaderCarrier
+  ): Future[CustomsInventoryLinkingResponse] =
+    transform(httpClientV2.post(url"$url"), additionalHeaders).withBody(body).execute[CustomsInventoryLinkingResponse]
+
+  private def transform(rb: RequestBuilder, additionalHeaders: Seq[(String, String)]): RequestBuilder =
+    rb.transform(_.addHttpHeaders(additionalHeaders: _*))
 }

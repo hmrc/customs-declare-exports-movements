@@ -36,5 +36,5 @@ object Notification {
   implicit val objectIdFormats: Format[ObjectId] = MongoFormats.objectIdFormat
   implicit val format: OFormat[Notification] = Json.format[Notification]
 
-  def empty = Notification(conversationId = "", payload = "", data = None)
+  def empty: Notification = Notification(conversationId = "", payload = "", data = None)
 }

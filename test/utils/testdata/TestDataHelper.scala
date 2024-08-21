@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package testdata
+package utils.testdata
 
 import scala.util.Random
 
