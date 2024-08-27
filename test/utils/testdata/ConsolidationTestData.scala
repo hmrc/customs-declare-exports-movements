@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package testdata
+package utils.testdata
 
 import play.api.http.{ContentTypes, HeaderNames}
 import play.api.libs.json.{JsObject, JsString, JsValue}
 import play.api.mvc.Codec
-import testdata.CommonTestData.{ucr, _}
+import utils.testdata.CommonTestData.{ucr, _}
 import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation._
 
 import scala.xml.{Elem, Node, NodeSeq}

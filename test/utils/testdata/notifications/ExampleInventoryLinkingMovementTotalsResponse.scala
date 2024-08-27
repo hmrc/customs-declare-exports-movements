@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package testdata.notifications
+package utils.testdata.notifications
 
 import java.time.Instant
 
-import testdata.CommonTestData._
-import testdata.notifications.ExampleXmlAndDomainModelPair.ExampleStandardResponse
-import testdata.notifications.NotificationTestData._
+import utils.testdata.CommonTestData._
+import utils.testdata.notifications.ExampleXmlAndDomainModelPair.ExampleStandardResponse
+import utils.testdata.notifications.NotificationTestData._
 import uk.gov.hmrc.exports.movements.models.notifications.standard._
 
 object ExampleInventoryLinkingMovementTotalsResponse {

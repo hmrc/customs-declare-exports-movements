@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package testdata.notifications
+package utils.testdata.notifications
 
 import play.api.http.{ContentTypes, HeaderNames}
 import play.api.mvc.Codec
-import testdata.CommonTestData._
-import testdata.MovementsTestData.dateTimeString
-import testdata.TestDataHelper
+import utils.testdata.CommonTestData._
+import utils.testdata.MovementsTestData.dateTimeString
+import utils.testdata.TestDataHelper
 import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames
 import uk.gov.hmrc.exports.movements.models.notifications._
 import uk.gov.hmrc.exports.movements.models.notifications.queries.IleQueryResponseData

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package stubs
+package utils.stubs
 
-import base.WireMockRunner
 import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.matching.StringValuePattern
 import play.api.http.Status
 import play.api.libs.json.{JsArray, Json}
 import play.api.test.Helpers.{AUTHORIZATION, OK}
@@ -25,9 +25,11 @@ import play.mvc.Http.Status._
 import uk.gov.hmrc.auth.core.Enrolment
 import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.exports.movements.models.Eori
-import testdata.CommonTestData.{authToken, validEori}
+import utils.testdata.CommonTestData.{authToken, validEori}
+import uk.gov.hmrc.exports.movements.base.WireMockRunner
 
 trait AuthService extends WireMockRunner {
+
   val authUrl = "/auth/authorise"
   private val authUrlMatcher = urlEqualTo(authUrl)
 
@@ -35,7 +37,7 @@ trait AuthService extends WireMockRunner {
 
   private val authorisationPredicate = Enrolment(customsEnrolmentName)
 
-  private def bearerTokenMatcher(bearerToken: String) = equalTo("Bearer " + bearerToken)
+  private def bearerTokenMatcher(bearerToken: String): StringValuePattern = equalTo("Bearer " + bearerToken)
 
   def stubUnauthorizedForAll(): Unit =
     stubFor(post(urlEqualTo(authUrl)).willReturn(aResponse().withStatus(UNAUTHORIZED)))
@@ -70,7 +72,7 @@ trait AuthService extends WireMockRunner {
         )
     )
 
-  private def authRequestJsonWithAuthorisedEnrolmentRetrievals(predicate: Predicate) = {
+  private def authRequestJsonWithAuthorisedEnrolmentRetrievals(predicate: Predicate): String = {
     val predicateJsArray: JsArray = predicateToJson(predicate)
     val js =
       s"""
@@ -82,7 +84,7 @@ trait AuthService extends WireMockRunner {
     js
   }
 
-  private def predicateToJson(predicate: Predicate) =
+  private def predicateToJson(predicate: Predicate): JsArray =
     predicate.toJson match {
       case arr: JsArray => arr
       case other        => Json.arr(other)
@@ -123,7 +125,8 @@ trait AuthService extends WireMockRunner {
 }
 
 object ExternalServicesConfig {
-  val Port = sys.env.getOrElse("WIREMOCK_SERVICE_LOCATOR_PORT", "11111").toInt
+
+  val Port: Int = sys.env.getOrElse("WIREMOCK_SERVICE_LOCATOR_PORT", "11111").toInt
   val Host = "localhost"
   val MdgSuppDecServiceContext = "/mdgSuppDecService/submitdeclaration"
   val AuditContext = "/write/audit.*"

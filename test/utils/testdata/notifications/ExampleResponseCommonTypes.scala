@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package testdata.notifications
+package utils.testdata.notifications
 
-import testdata.CommonTestData.{mucr, ucr}
-import testdata.notifications.ExampleXmlAndDomainModelPair.{ExampleEntryStatusPair, ExampleGoodsItemPair, ExampleUcrBlockPair}
-import testdata.notifications.NotificationTestData.{commodityCode_1, totalNetMass_1, totalPackages_1}
+import utils.testdata.CommonTestData.{mucr, ucr}
+import utils.testdata.notifications.ExampleXmlAndDomainModelPair.{ExampleEntryStatusPair, ExampleGoodsItemPair, ExampleUcrBlockPair}
+import utils.testdata.notifications.NotificationTestData.{commodityCode_1, totalNetMass_1, totalPackages_1}
 import uk.gov.hmrc.exports.movements.models.notifications.standard.{EntryStatus, GoodsItem, UcrBlock}
 
 object ExampleResponseCommonTypes {

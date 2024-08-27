@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-package stubs
+package utils.stubs
 
 import java.util.UUID
-
-import base.WireMockRunner
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.http.Fault
 import com.github.tomakehurst.wiremock.matching.UrlPattern
@@ -26,6 +24,7 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import play.api.http.ContentTypes
 import play.api.mvc.Codec
 import play.api.test.Helpers.{ACCEPTED, CONTENT_TYPE}
+import uk.gov.hmrc.exports.movements.base.WireMockRunner
 import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames
 
 trait CustomsMovementsAPIService extends WireMockRunner {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,5 +36,5 @@ object Notification {
   implicit val objectIdFormats: Format[ObjectId] = MongoFormats.objectIdFormat
   implicit val format: OFormat[Notification] = Json.format[Notification]
 
-  def empty = Notification(conversationId = "", payload = "", data = None)
+  def empty: Notification = Notification(conversationId = "", payload = "", data = None)
 }
