@@ -28,7 +28,7 @@ import utils.testdata.CommonTestData._
 import utils.testdata.MovementsTestData.exampleIleQuerySubmission
 import utils.testdata.notifications.NotificationTestData.ileQueryResponse_1
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
-import uk.gov.hmrc.exports.movements.misc.IleQueryTimeoutCalculator
+import uk.gov.hmrc.exports.movements.utils.IleQueryTimeoutCalculator
 import uk.gov.hmrc.exports.movements.models.movements.IleQueryRequest
 import uk.gov.hmrc.exports.movements.models.notifications.exchange.IleQueryResponseExchange
 import uk.gov.hmrc.exports.movements.models.notifications.exchange.IleQueryResponseExchangeData.SuccessfulResponseExchangeData

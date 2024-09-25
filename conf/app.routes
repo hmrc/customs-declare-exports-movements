@@ -11,11 +11,8 @@ GET         /submissions                                    uk.gov.hmrc.exports.
 GET         /submissions/:conversationId                    uk.gov.hmrc.exports.movements.controllers.SubmissionController.getSubmission(eori: Option[String], providerId: Option[String], conversationId: String)
 
 # Movements Consolidations
-
 POST        /consolidation                                  uk.gov.hmrc.exports.movements.controllers.ConsolidationController.submitConsolidation()
 
 # ILE Query
-
 POST        /consignment-query                              uk.gov.hmrc.exports.movements.controllers.IleQueryController.submitIleQuery()
-
 GET         /consignment-query/:conversationId              uk.gov.hmrc.exports.movements.controllers.IleQueryController.getIleQueryResponses(eori: Option[String], providerId: Option[String], conversationId: String)

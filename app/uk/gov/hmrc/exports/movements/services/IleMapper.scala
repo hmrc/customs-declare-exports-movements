@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.exports.movements.services
 
-import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation
-import uk.gov.hmrc.exports.movements.models.movements.{MovementsExchange, Transport}
+import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationRequest
+import uk.gov.hmrc.exports.movements.models.movements.{MovementsRequest, Transport}
 import uk.gov.hmrc.exports.movements.models.notifications.standard
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType.ConsolidationType
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType.MovementType._
@@ -37,10 +37,10 @@ class IleMapper @Inject() (clock: Clock) {
 
   private val dateTimeFormatter = DateTimeFormatter.ISO_INSTANT
 
-  def buildInventoryLinkingMovementRequestXml(request: MovementsExchange): Node =
+  def buildInventoryLinkingMovementRequestXml(request: MovementsRequest): Node =
     xml.XML.loadString(generateInventoryLinkingMovementRequest(request).toXml)
 
-  private def generateInventoryLinkingMovementRequest(request: MovementsExchange): InventoryLinkingMovementRequest = {
+  private def generateInventoryLinkingMovementRequest(request: MovementsRequest): InventoryLinkingMovementRequest = {
 
     val departureDetails: Option[String] = request.choice match {
       case Departure => request.movementDetails.map(movement => formatOutputDateTime(parseDateTime(movement.dateTime)))
@@ -81,7 +81,7 @@ class IleMapper @Inject() (clock: Clock) {
 
   private def generateRandomReference: String = Random.alphanumeric.take(25).toList.mkString("")
 
-  def buildConsolidationXml(consolidation: Consolidation): Node =
+  def buildConsolidationXml(consolidation: ConsolidationRequest): Node =
     scala.xml.Utility.trim {
       <inventoryLinkingConsolidationRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
         <messageCode>{buildMessageCode(consolidation.consolidationType)}</messageCode>

@@ -26,8 +26,8 @@ import play.api.test.CSRFTokenHelper.CSRFRequest
 import play.api.test.Helpers._
 import play.api.test._
 import utils.testdata.CommonTestData._
-import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation
-import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation._
+import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationRequest
+import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationRequest._
 import uk.gov.hmrc.exports.movements.services.SubmissionService
 
 import scala.concurrent.ExecutionContext.global
@@ -51,7 +51,7 @@ class ConsolidationControllerSpec extends AnyWordSpec with BeforeAndAfterEach wi
     super.afterEach()
   }
 
-  protected def postRequest(body: Consolidation): Request[Consolidation] =
+  protected def postRequest(body: ConsolidationRequest): Request[ConsolidationRequest] =
     FakeRequest("POST", "")
       .withHeaders(("Content-Type", "application/json"))
       .withBody(body)
@@ -63,13 +63,13 @@ class ConsolidationControllerSpec extends AnyWordSpec with BeforeAndAfterEach wi
 
       "consolidation submission ends with success" in {
         val conversationId = "conversationId"
-        when(submissionService.submit(any[Consolidation]())(any())).thenReturn(Future.successful(conversationId))
+        when(submissionService.submit(any[ConsolidationRequest]())(any())).thenReturn(Future.successful(conversationId))
 
         val result = controller.submitConsolidation()(postRequest(correctRequest))
 
         status(result) mustBe ACCEPTED
         contentAsString(result) mustBe conversationId
-        verify(submissionService).submit(any[Consolidation]())(any())
+        verify(submissionService).submit(any[ConsolidationRequest]())(any())
       }
     }
   }

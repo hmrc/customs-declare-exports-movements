@@ -23,7 +23,7 @@ import uk.gov.hmrc.exports.movements.models.submissions.ActionType.Consolidation
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType.ConsolidationType._
 import uk.gov.hmrc.play.json.Union
 
-sealed abstract class Consolidation(
+sealed abstract class ConsolidationRequest(
   val consolidationType: ConsolidationType,
   override val eori: String,
   override val providerId: Option[String],
@@ -31,7 +31,7 @@ sealed abstract class Consolidation(
   val ucrOpt: Option[String]
 ) extends UserIdentification
 
-object Consolidation extends JSONResponses {
+object ConsolidationRequest extends JSONResponses {
   implicit val associateDucrFormat: OFormat[AssociateDucrRequest] = Json.format[AssociateDucrRequest]
   implicit val disassociateDucrFormat: OFormat[DisassociateDucrRequest] = Json.format[DisassociateDucrRequest]
   implicit val associateMucrFormat: OFormat[AssociateMucrRequest] = Json.format[AssociateMucrRequest]
@@ -40,8 +40,8 @@ object Consolidation extends JSONResponses {
   implicit val disassociateDucrPartRequest: OFormat[DisassociateDucrPartRequest] = Json.format[DisassociateDucrPartRequest]
   implicit val shutMucrFormat: OFormat[ShutMucrRequest] = Json.format[ShutMucrRequest]
 
-  implicit val format: OFormat[Consolidation] = Union
-    .from[Consolidation](typeField = "consolidationType")
+  implicit val format: OFormat[ConsolidationRequest] = Union
+    .from[ConsolidationRequest](typeField = "consolidationType")
     .and[AssociateDucrRequest](typeTag = DucrAssociation.typeName)
     .and[DisassociateDucrRequest](typeTag = DucrDisassociation.typeName)
     .and[AssociateMucrRequest](typeTag = MucrAssociation.typeName)
@@ -52,23 +52,23 @@ object Consolidation extends JSONResponses {
     .format
 
   case class AssociateDucrRequest(override val eori: String, override val providerId: Option[String] = None, mucr: String, ucr: String)
-      extends Consolidation(DucrAssociation, eori, providerId, Some(mucr), Some(ucr))
+      extends ConsolidationRequest(DucrAssociation, eori, providerId, Some(mucr), Some(ucr))
 
   case class DisassociateDucrRequest(override val eori: String, override val providerId: Option[String] = None, ucr: String)
-      extends Consolidation(DucrDisassociation, eori, providerId, None, Some(ucr))
+      extends ConsolidationRequest(DucrDisassociation, eori, providerId, None, Some(ucr))
 
   case class AssociateMucrRequest(override val eori: String, override val providerId: Option[String] = None, mucr: String, ucr: String)
-      extends Consolidation(MucrAssociation, eori, providerId, Some(mucr), Some(ucr))
+      extends ConsolidationRequest(MucrAssociation, eori, providerId, Some(mucr), Some(ucr))
 
   case class DisassociateMucrRequest(override val eori: String, override val providerId: Option[String] = None, ucr: String)
-      extends Consolidation(MucrDisassociation, eori, providerId, None, Some(ucr))
+      extends ConsolidationRequest(MucrDisassociation, eori, providerId, None, Some(ucr))
 
   case class AssociateDucrPartRequest(override val eori: String, override val providerId: Option[String] = None, mucr: String, ucr: String)
-      extends Consolidation(DucrPartAssociation, eori, providerId, Some(mucr), Some(ucr))
+      extends ConsolidationRequest(DucrPartAssociation, eori, providerId, Some(mucr), Some(ucr))
 
   case class DisassociateDucrPartRequest(override val eori: String, override val providerId: Option[String] = None, ucr: String)
-      extends Consolidation(DucrPartDisassociation, eori, providerId, None, Some(ucr))
+      extends ConsolidationRequest(DucrPartDisassociation, eori, providerId, None, Some(ucr))
 
   case class ShutMucrRequest(override val eori: String, override val providerId: Option[String] = None, mucr: String)
-      extends Consolidation(ShutMucr, eori, providerId, Some(mucr), None)
+      extends ConsolidationRequest(ShutMucr, eori, providerId, Some(mucr), None)
 }

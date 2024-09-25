@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.exports.movements.models.common
+package uk.gov.hmrc.exports.movements.models
 
 sealed abstract class UcrType(val codeValue: String)
 

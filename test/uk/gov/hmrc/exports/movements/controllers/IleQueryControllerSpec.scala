@@ -29,7 +29,7 @@ import utils.testdata.CommonTestData._
 import utils.testdata.notifications.NotificationTestData.{ileQueryResponse_1, ileQueryResponse_2}
 import uk.gov.hmrc.exports.movements.controllers.FakeRequestFactory._
 import uk.gov.hmrc.exports.movements.errors.TimeoutError
-import uk.gov.hmrc.exports.movements.models.common.UcrType.Ducr
+import uk.gov.hmrc.exports.movements.models.UcrType.Ducr
 import uk.gov.hmrc.exports.movements.models.movements.IleQueryRequest
 import uk.gov.hmrc.exports.movements.models.notifications.exchange.IleQueryResponseExchange
 import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock

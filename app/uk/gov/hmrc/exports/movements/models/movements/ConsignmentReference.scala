@@ -17,7 +17,7 @@
 package uk.gov.hmrc.exports.movements.models.movements
 
 import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.exports.movements.models.common.UcrType
+import uk.gov.hmrc.exports.movements.models.UcrType
 
 case class ConsignmentReference(reference: String, referenceValue: String) {
 

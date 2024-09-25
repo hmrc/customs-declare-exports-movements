@@ -20,7 +20,7 @@ import utils.testdata.CommonTestData._
 import utils.testdata.ConsolidationTestData._
 import utils.testdata.MovementsTestData._
 import uk.gov.hmrc.exports.movements.base.UnitSpec
-import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation._
+import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationRequest._
 import uk.gov.hmrc.exports.movements.models.notifications.standard
 
 import java.time.{Clock, Instant, ZoneOffset}

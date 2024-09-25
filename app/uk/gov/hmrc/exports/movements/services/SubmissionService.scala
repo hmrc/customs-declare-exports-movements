@@ -21,8 +21,8 @@ import play.api.http.Status.ACCEPTED
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
 import uk.gov.hmrc.exports.movements.exceptions.CustomsInventoryLinkingUpstreamException
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse
-import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation
-import uk.gov.hmrc.exports.movements.models.movements.MovementsExchange
+import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationRequest
+import uk.gov.hmrc.exports.movements.models.movements.MovementsRequest
 import uk.gov.hmrc.exports.movements.models.submissions.Submission
 import uk.gov.hmrc.exports.movements.repositories.{SearchParameters, SubmissionRepository}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -40,7 +40,7 @@ class SubmissionService @Inject() (
 
   private val logger = Logger(this.getClass)
 
-  def submit(movement: MovementsExchange)(implicit hc: HeaderCarrier): Future[String] = {
+  def submit(movement: MovementsRequest)(implicit hc: HeaderCarrier): Future[String] = {
     val requestXml: Node = ileMapper.buildInventoryLinkingMovementRequestXml(movement)
 
     customsInventoryLinkingExportsConnector.submit(movement, requestXml).flatMap {
@@ -58,7 +58,7 @@ class SubmissionService @Inject() (
     }
   }
 
-  def submit(consolidation: Consolidation)(implicit hc: HeaderCarrier): Future[String] = {
+  def submit(consolidation: ConsolidationRequest)(implicit hc: HeaderCarrier): Future[String] = {
     val requestXml = ileMapper.buildConsolidationXml(consolidation)
 
     customsInventoryLinkingExportsConnector.submit(consolidation, requestXml).flatMap {
