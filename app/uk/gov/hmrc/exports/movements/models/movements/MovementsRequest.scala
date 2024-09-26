@@ -21,7 +21,7 @@ import uk.gov.hmrc.exports.movements.controllers.util.JSONResponses
 import uk.gov.hmrc.exports.movements.models.UserIdentification
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType.MovementType
 
-case class MovementsExchange(
+case class MovementsRequest(
   override val eori: String,
   override val providerId: Option[String] = None,
   choice: MovementType,
@@ -31,6 +31,6 @@ case class MovementsExchange(
   transport: Option[Transport] = None
 ) extends UserIdentification
 
-object MovementsExchange extends JSONResponses {
-  implicit val format: Format[MovementsExchange] = Json.format[MovementsExchange]
+object MovementsRequest extends JSONResponses {
+  implicit val format: Format[MovementsRequest] = Json.format[MovementsRequest]
 }

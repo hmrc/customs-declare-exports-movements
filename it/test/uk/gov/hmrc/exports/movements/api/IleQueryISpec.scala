@@ -22,7 +22,7 @@ import play.api.libs.json.Json
 import play.api.test.Helpers._
 import uk.gov.hmrc.exports.movements.base.ApiSpec
 import uk.gov.hmrc.exports.movements.controllers.routes
-import uk.gov.hmrc.exports.movements.models.common.UcrType.Ducr
+import uk.gov.hmrc.exports.movements.models.UcrType.Ducr
 import uk.gov.hmrc.exports.movements.models.movements.Transport
 import uk.gov.hmrc.exports.movements.models.notifications.Notification
 import uk.gov.hmrc.exports.movements.models.notifications.queries._

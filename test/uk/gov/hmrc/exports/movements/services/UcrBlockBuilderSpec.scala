@@ -19,7 +19,7 @@ package uk.gov.hmrc.exports.movements.services
 import utils.testdata.CommonTestData._
 import utils.testdata.{CommonTestData, ConsolidationTestData}
 import uk.gov.hmrc.exports.movements.base.UnitSpec
-import uk.gov.hmrc.exports.movements.models.common.UcrType._
+import uk.gov.hmrc.exports.movements.models.UcrType._
 import uk.gov.hmrc.exports.movements.models.movements.ConsignmentReference
 import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType.ConsolidationType._

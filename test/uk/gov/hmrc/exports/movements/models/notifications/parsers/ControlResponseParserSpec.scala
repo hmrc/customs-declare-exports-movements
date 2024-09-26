@@ -43,16 +43,6 @@ class ControlResponseParserSpec extends AnyWordSpec with Matchers {
 
         resultNotificationData must equal(expectedNotificationData)
       }
-
-      "return NotificationData for DUCR Part" in new Test {
-        val xml = ExampleInventoryLinkingControlResponse.Correct.RejectedWithDucrPart.asXml
-        val expectedNotificationData =
-          ExampleInventoryLinkingControlResponse.Correct.RejectedWithDucrPart.asDomainModel
-
-        val resultNotificationData = parser.parse(xml)
-
-        resultNotificationData must equal(expectedNotificationData)
-      }
     }
 
     "provided with multiple errorCodes" should {
@@ -85,18 +75,19 @@ class ControlResponseParserSpec extends AnyWordSpec with Matchers {
       }
 
       "containing a known error code should return populated NotificationData" in new Test {
+        val error = "6 E3303 Inventory System not valid for Freight Location"
         val xml =
           <inventoryLinkingControlResponse>
             <messageCode>{MessageCodes.ERS}</messageCode>
             <actionCode>{actionCode_acknowledgedAndProcessed}</actionCode>
             <error>
-              <errorCode>6 E3303 Inventory System not valid for Freight Location</errorCode>
+              <errorCode>{error}</errorCode>
             </error>
           </inventoryLinkingControlResponse>
 
         val expectedNotificationData =
           StandardNotificationData(responseType = "inventoryLinkingControlResponse")
-            .copy(messageCode = Some(MessageCodes.ERS), actionCode = Some(actionCode_acknowledgedAndProcessed), errorCodes = Seq("E3303"))
+            .copy(messageCode = Some(MessageCodes.ERS), actionCode = Some(actionCode_acknowledgedAndProcessed), errorCodes = Seq(error))
 
         val resultNotificationData = parser.parse(xml)
 

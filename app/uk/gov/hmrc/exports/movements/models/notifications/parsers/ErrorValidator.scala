@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.exports.movements.models.notifications.parsers
 
-import java.util.regex.Pattern
 import javax.inject.{Inject, Singleton}
 
 import com.github.tototoshi.csv._
@@ -44,33 +43,14 @@ class ErrorValidator @Inject() () {
   private val logger = Logger(this.getClass)
 
   def hasErrorMessage(error: String): Boolean = {
-
-    val isChiefError =
-      retrieveChiefErrorCode(error).isDefined && errors.map(_.code).contains(retrieveChiefErrorCode(error).get)
-
-    val result = errors.map(_.code).contains(error) || isChiefError
-
+    val result = errors.map(_.code).contains(error)
     if (!result) logUnknownErrors(error)
 
     result
   }
 
-  def retrieveCode(error: String): Option[String] = {
-
-    val chiefErrorCodeOpt = retrieveChiefErrorCode(error)
-
-    if (chiefErrorCodeOpt.isDefined) {
-      errors.map(_.code).find(_ == chiefErrorCodeOpt.get)
-    } else {
-      errors.map(_.code).find(_ == error)
-    }
-  }
-
-  /**
-   * CHIEF errors start with capital E following by 3-5 digits.
-   * Error is inside whole error message e.g. "6 E408 Unique Consignment reference does not exist"
-   */
-  private val chiefErrorPattern = Pattern.compile(s"^[E][0-9]{3,5}$$")
+  def retrieveCode(error: String): Option[String] =
+    errors.map(_.code).find(_ == error)
 
   private def readErrorsFromFile(source: Source): List[Error] = {
     val reader = CSVReader.open(source)
@@ -86,16 +66,7 @@ class ErrorValidator @Inject() () {
     readErrorsFromFile(source)
   }
 
-  private val chiefErrors: List[Error] = {
-    val source = Source.fromURL(getClass.getClassLoader.getResource("chief_errors.csv"), "UTF-8")
-
-    readErrorsFromFile(source)
-  }
-
-  private val errors: List[Error] = ileErrors ++ chiefErrors
-
-  private def retrieveChiefErrorCode(errorMessage: String): Option[String] =
-    errorMessage.split(" ").find(chiefErrorPattern.matcher(_).matches)
+  private val errors: List[Error] = ileErrors
 
   private def logUnknownErrors(unknownError: String): Unit =
     logger.warn(s"Error code $unknownError is unknown")

@@ -21,7 +21,7 @@ import play.api.test.Helpers._
 import utils.testdata.notifications.ExampleXmlAndDomainModelPair.ExampleStandardResponse
 import uk.gov.hmrc.exports.movements.base.ApiSpec
 import uk.gov.hmrc.exports.movements.controllers.routes.NotificationController
-import uk.gov.hmrc.exports.movements.models.common.UcrType.Mucr
+import uk.gov.hmrc.exports.movements.models.UcrType.Mucr
 import uk.gov.hmrc.exports.movements.models.notifications.Notification
 import uk.gov.hmrc.exports.movements.models.notifications.standard.{Entry, StandardNotificationData, UcrBlock}
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType.MovementType

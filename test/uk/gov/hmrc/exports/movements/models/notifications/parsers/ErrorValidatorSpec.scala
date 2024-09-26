@@ -21,36 +21,20 @@ import uk.gov.hmrc.exports.movements.base.UnitSpec
 class ErrorValidatorSpec extends UnitSpec {
 
   val errorValidator = new ErrorValidator
-  val chiefErrorCode = "E3481"
   val ileErrorCode = "10"
   val incorrectCode = "incorrect"
 
   "Error parser" should {
-
-    "correctly check if CHIEF error exists" in {
-
-      errorValidator.hasErrorMessage(chiefErrorCode) shouldBe true
-      errorValidator.hasErrorMessage(incorrectCode) shouldBe false
-    }
-
     "correct check if ILE error exists" in {
-
       errorValidator.hasErrorMessage(ileErrorCode) shouldBe true
       errorValidator.hasErrorMessage(incorrectCode) shouldBe false
     }
 
-    "correctly retrieve CHIEF error" in {
-
-      errorValidator.retrieveCode(chiefErrorCode) shouldBe Some(chiefErrorCode)
-    }
-
     "correctly retrieve ILE error" in {
-
       errorValidator.retrieveCode(ileErrorCode) shouldBe Some(ileErrorCode)
     }
 
     "return None if incorrect code" in {
-
       errorValidator.retrieveCode(incorrectCode) shouldBe None
     }
   }

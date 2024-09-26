@@ -17,7 +17,7 @@
 package uk.gov.hmrc.exports.movements.services
 
 import uk.gov.hmrc.exports.movements.models.XmlTags
-import uk.gov.hmrc.exports.movements.models.common.UcrType.{Ducr, DucrPart, Mucr}
+import uk.gov.hmrc.exports.movements.models.UcrType.{Ducr, DucrPart, Mucr}
 import uk.gov.hmrc.exports.movements.models.movements.ConsignmentReference
 import uk.gov.hmrc.exports.movements.models.notifications.parsers.StringOption
 import uk.gov.hmrc.exports.movements.models.notifications.standard.UcrBlock

@@ -19,10 +19,10 @@ package uk.gov.hmrc.exports.movements.models.consolidation
 import play.api.libs.json.{JsObject, JsString, JsSuccess, JsValue}
 import utils.testdata.CommonTestData._
 import uk.gov.hmrc.exports.movements.base.UnitSpec
-import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation._
+import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationRequest._
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType.ConsolidationType._
 
-class ConsolidationSpec extends UnitSpec {
+class ConsolidationRequestSpec extends UnitSpec {
 
   private val mucr = ucr
   private val ducr = ucr_2
@@ -43,7 +43,7 @@ class ConsolidationSpec extends UnitSpec {
 
       val expectedResult = AssociateDucrRequest(eori = validEori, mucr = mucr, ucr = ducr)
 
-      Consolidation.format.reads(associateDucrJson) shouldBe JsSuccess(expectedResult)
+      ConsolidationRequest.format.reads(associateDucrJson) shouldBe JsSuccess(expectedResult)
     }
 
     "correct read Associate Mucr request" in {
@@ -60,7 +60,7 @@ class ConsolidationSpec extends UnitSpec {
 
       val expectedResult = AssociateMucrRequest(eori = validEori, mucr = mucr, ucr = mucr)
 
-      Consolidation.format.reads(associateMucrJson) shouldBe JsSuccess(expectedResult)
+      ConsolidationRequest.format.reads(associateMucrJson) shouldBe JsSuccess(expectedResult)
     }
 
     "correct read Associate Ducr Part request" in {
@@ -77,7 +77,7 @@ class ConsolidationSpec extends UnitSpec {
 
       val expectedResult = AssociateDucrPartRequest(eori = validEori, mucr = mucr, ucr = mucr)
 
-      Consolidation.format.reads(associateDucrPartJson) shouldBe JsSuccess(expectedResult)
+      ConsolidationRequest.format.reads(associateDucrPartJson) shouldBe JsSuccess(expectedResult)
     }
 
     "correct read Disassociate Ducr request" in {
@@ -87,7 +87,7 @@ class ConsolidationSpec extends UnitSpec {
 
       val expectedResult = DisassociateDucrRequest(eori = validEori, ucr = ducr)
 
-      Consolidation.format.reads(disassociateDucrJson) shouldBe JsSuccess(expectedResult)
+      ConsolidationRequest.format.reads(disassociateDucrJson) shouldBe JsSuccess(expectedResult)
     }
 
     "correct read Disassociate Mucr request" in {
@@ -97,7 +97,7 @@ class ConsolidationSpec extends UnitSpec {
 
       val expectedResult = DisassociateMucrRequest(eori = validEori, ucr = mucr)
 
-      Consolidation.format.reads(disassociateMucrJson) shouldBe JsSuccess(expectedResult)
+      ConsolidationRequest.format.reads(disassociateMucrJson) shouldBe JsSuccess(expectedResult)
     }
 
     "correct read Disassociate Ducr Part request" in {
@@ -107,7 +107,7 @@ class ConsolidationSpec extends UnitSpec {
 
       val expectedResult = DisassociateDucrPartRequest(eori = validEori, ucr = ducr)
 
-      Consolidation.format.reads(disassociateDucrPartJson) shouldBe JsSuccess(expectedResult)
+      ConsolidationRequest.format.reads(disassociateDucrPartJson) shouldBe JsSuccess(expectedResult)
     }
 
     "correct read Shut Mucr request" in {
@@ -117,7 +117,7 @@ class ConsolidationSpec extends UnitSpec {
 
       val expectedResult = ShutMucrRequest(eori = validEori, mucr = mucr)
 
-      Consolidation.format.reads(shutMucrJson) shouldBe JsSuccess(expectedResult)
+      ConsolidationRequest.format.reads(shutMucrJson) shouldBe JsSuccess(expectedResult)
     }
   }
 }

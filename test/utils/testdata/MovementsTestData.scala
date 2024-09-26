@@ -18,7 +18,7 @@ package utils.testdata
 
 import play.api.libs.json.{JsValue, Json}
 import utils.testdata.CommonTestData._
-import uk.gov.hmrc.exports.movements.models.movements.{MovementsExchange, _}
+import uk.gov.hmrc.exports.movements.models.movements._
 import uk.gov.hmrc.exports.movements.models.notifications.standard.{UcrBlock => UcrBlockModel}
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType.MovementType
 import uk.gov.hmrc.exports.movements.models.submissions.{ActionType, IleQuerySubmission, Submission}
@@ -45,7 +45,7 @@ object MovementsTestData {
       </inventoryLinkingMovementRequest>
     }
 
-  val exampleArrivalRequest = MovementsExchange(
+  val exampleArrivalRequest = MovementsRequest(
     eori = validEori,
     providerId = Some(validProviderId),
     choice = MovementType.Arrival,
@@ -70,7 +70,7 @@ object MovementsTestData {
       </inventoryLinkingMovementRequest>
     }
 
-  val exampleRetrospectiveArrivalRequest = MovementsExchange(
+  val exampleRetrospectiveArrivalRequest = MovementsRequest(
     eori = validEori,
     providerId = Some(validProviderId),
     choice = MovementType.RetrospectiveArrival,
@@ -99,7 +99,7 @@ object MovementsTestData {
     </inventoryLinkingMovementRequest>
     }
 
-  val exampleDepartureRequest: MovementsExchange = MovementsExchange(
+  val exampleDepartureRequest: MovementsRequest = MovementsRequest(
     eori = validEori,
     providerId = Some(validProviderId),
     choice = MovementType.Departure,
@@ -125,7 +125,7 @@ object MovementsTestData {
       </inventoryLinkingMovementRequest>
     }
 
-  val exampleCreateEmptyMucrRequest: MovementsExchange = MovementsExchange(
+  val exampleCreateEmptyMucrRequest: MovementsRequest = MovementsRequest(
     eori = validEori,
     providerId = Some(validProviderId),
     choice = MovementType.CreateEmptyMucr,

@@ -26,7 +26,7 @@ import play.api.test.Helpers._
 import play.api.test._
 import utils.testdata.CommonTestData._
 import uk.gov.hmrc.exports.movements.base.UnitSpec
-import uk.gov.hmrc.exports.movements.models.movements.{ConsignmentReference, MovementDetails, MovementsExchange}
+import uk.gov.hmrc.exports.movements.models.movements.{ConsignmentReference, MovementDetails, MovementsRequest}
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType.MovementType
 import uk.gov.hmrc.exports.movements.services.SubmissionService
 
@@ -39,7 +39,7 @@ class MovementsControllerSpec extends UnitSpec with BeforeAndAfterEach {
 
   private val controller = new MovementsController(submissionService, stubControllerComponents())(global)
 
-  private val correctJson = MovementsExchange(
+  private val correctJson = MovementsRequest(
     eori = validEori,
     choice = MovementType.Arrival,
     consignmentReference = ConsignmentReference("reference", "value"),
@@ -52,7 +52,7 @@ class MovementsControllerSpec extends UnitSpec with BeforeAndAfterEach {
     super.afterEach()
   }
 
-  protected def postRequest(body: MovementsExchange): Request[MovementsExchange] =
+  protected def postRequest(body: MovementsRequest): Request[MovementsRequest] =
     FakeRequest("POST", "")
       .withHeaders(JsonContentTypeHeader)
       .withBody(body)
@@ -64,13 +64,13 @@ class MovementsControllerSpec extends UnitSpec with BeforeAndAfterEach {
 
       "consolidation submission ends with success" in {
         val conversationId = "conversationId"
-        when(submissionService.submit(any[MovementsExchange]())(any())).thenReturn(Future.successful(conversationId))
+        when(submissionService.submit(any[MovementsRequest]())(any())).thenReturn(Future.successful(conversationId))
 
         val result = controller.createMovement()(postRequest(correctJson))
 
         status(result) shouldBe ACCEPTED
         contentAsString(result) mustBe conversationId
-        verify(submissionService).submit(any[MovementsExchange]())(any())
+        verify(submissionService).submit(any[MovementsRequest]())(any())
       }
     }
   }

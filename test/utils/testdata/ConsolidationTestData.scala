@@ -19,8 +19,8 @@ package utils.testdata
 import play.api.http.{ContentTypes, HeaderNames}
 import play.api.libs.json.{JsObject, JsString, JsValue}
 import play.api.mvc.Codec
-import utils.testdata.CommonTestData.{ucr, _}
-import uk.gov.hmrc.exports.movements.models.consolidation.Consolidation._
+import utils.testdata.CommonTestData._
+import uk.gov.hmrc.exports.movements.models.consolidation.ConsolidationRequest._
 
 import scala.xml.{Elem, Node, NodeSeq}
 
