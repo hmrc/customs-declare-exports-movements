@@ -17,11 +17,12 @@
 package uk.gov.hmrc.exports.movements.models.notifications.parsers
 
 import javax.inject.{Inject, Singleton}
-
 import com.github.tototoshi.csv._
-import play.api.Logger
+import play.api.{Environment, Logger}
+import play.api.libs.json.{JsArray, Json, Reads}
 
 import scala.io.Source
+import scala.util.{Failure, Success, Try}
 
 case class Error(code: String, description: String)
 
@@ -38,7 +39,7 @@ object Error {
 }
 
 @Singleton
-class ErrorValidator @Inject() () {
+class ErrorValidator @Inject() (environment: Environment) {
 
   private val logger = Logger(this.getClass)
 
@@ -61,10 +62,34 @@ class ErrorValidator @Inject() () {
   }
 
   private val ileErrors: List[Error] = {
-    val source = Source.fromURL(getClass.getClassLoader.getResource("inventory_linking_exports_errors.csv"), "UTF-8")
+    val source = Source.fromURL(getClass.getClassLoader.getResource("inventory_linking_exports_errors.json"), "UTF-8")
 
     readErrorsFromFile(source)
   }
+
+  private def getJsonArrayFromFile[T](file: String, reader: Reads[T]): List[T] = {
+    val maybeInputStream = environment.resourceAsStream(file)
+    val jsonInputStream = maybeInputStream.getOrElse(throw new Exception(s"$file could not be read!"))
+
+    Try(Json.parse(jsonInputStream)) match {
+      case Success(JsArray(jsValues)) =>
+        val items = jsValues.toList.map { jsValue =>
+          reader.reads(jsValue).asOpt
+        }
+
+        if (items.contains(None)) {
+          throw new IllegalArgumentException(s"One or more entries could not be parsed in JSON file: '$file'")
+        }
+
+        items.flatten
+
+      case Success(_)  => throwError(file)
+      case Failure(ex) => throw new IllegalArgumentException(s"Failed to read JSON file: '$file'", ex)
+    }
+  }
+
+  private def throwError(jsonFile: String) =
+    throw new IllegalArgumentException(s"Could not read JSON array from file: '$jsonFile'")
 
   private val errors: List[Error] = ileErrors
 
