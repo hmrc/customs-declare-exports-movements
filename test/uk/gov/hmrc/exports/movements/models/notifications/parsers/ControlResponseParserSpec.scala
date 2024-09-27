@@ -18,16 +18,19 @@ package uk.gov.hmrc.exports.movements.models.notifications.parsers
 
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+import play.api.{Environment, Mode}
+import uk.gov.hmrc.exports.movements.models.notifications.standard.StandardNotificationData
+import uk.gov.hmrc.exports.movements.utils.JsonFile
 import utils.testdata.CommonTestData.MessageCodes
 import utils.testdata.notifications.ExampleInventoryLinkingControlResponse
 import utils.testdata.notifications.NotificationTestData._
-import uk.gov.hmrc.exports.movements.models.notifications.standard.StandardNotificationData
 
 class ControlResponseParserSpec extends AnyWordSpec with Matchers {
 
   private trait Test {
 
-    val errorValidator = new ErrorValidator
+    private lazy val jsonFile = new JsonFile(Environment.simple(mode = Mode.Test))
+    val errorValidator = new ErrorValidator(jsonFile)
     val parser = new ControlResponseParser(errorValidator)
   }
 

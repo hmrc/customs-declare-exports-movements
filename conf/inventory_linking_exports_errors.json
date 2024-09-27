@@ -1,33 +1,126 @@
 [
-{"01":"\"Invalid UCR Format, DUCR or MUCR\""},
-{"02":"Client ID validation fails"},
-{"03":"UCR is not at the top of its' consolidation"},
-{"04":"Cannot consolidate the MUCR as it is not shut"},
-{"05":"Immediate parent MUCR cannot already be within it's same tree/consolidation"},
-{"06":"Cannot find the consolidation"},
-{"07":"Consolidation already shut"},
-{"08":"UCR Type does not match UCR Format"},
-{"10":"Declaration does not exist"},
-{"11":"UCR is already associated to given MUCR"},
-{"13":"No prior EAL can be found for the UCR at the location given on the EDL"},
-{"14":"Not all declaration(s) have P2P"},
-{"15":"Declaration is cancelled/terminated"},
-{"16":"\"Unknown Declaration ID, DUCR or MUCR\""},
-{"17":"Consolidation has reached maximum number of levels/items within a level"},
-{"18":"Goods Departure/Arrival Date/Time is invalid"},
-{"19":"Cannot depart the MUCR from UK as MUCR is not Shut"},
-{"20":"Message sent with a future date/time (greater than 25hours in the future)""},
-{"21":"UCR is not for a MUCR"},
-{"22":"UCR to be disassociated does not exist"},
-{"23":"UCR to be disassociated is not already associated"},
-{"25":"MUCR is empty"},
-{"27":"Location-Based Permission failed"},
-{"28":"Goods Location is invalid"},
-{"29":"MUCR has been departed"},
-{"30":"UCR cannot be associated as it has been rejected upon arrival"},
-{"31":"Already retrospectively arrived"},
-{"32":"Cannot retrospectively arrive this MUCR because it contains a previously arrived DUCR or MUCR"},
-{"33":"Cannot retrospectively arrive this MUCR/DUCR because it has already arrived at the frontier"},
-{"34":"Cannot retrospectively arrive this DUCR/MUCR as it does not exist"},
-{"35":"Submitter ID must match last EAL/CST submitter"}
-  ]
+  {
+    "code": "01",
+    "description": "Invalid UCR Format, DUCR or MUCR"
+  },
+  {
+    "code": "02",
+    "description": "Client ID validation fails"
+  },
+  {
+    "code": "03",
+    "description": "UCR is not at the top of its' consolidation"
+  },
+  {
+    "code": "04",
+    "description": "Cannot consolidate the MUCR as it is not shut"
+  },
+  {
+    "code": "05",
+    "description": "Immediate parent MUCR cannot already be within its same tree/consolidation"
+  },
+  {
+    "code": "06",
+    "description": "Cannot find the consolidation"
+  },
+  {
+    "code": "07",
+    "description": "Consolidation already shut"
+  },
+  {
+    "code": "08",
+    "description": "UCR Type does not match UCR Format"
+  },
+  {
+    "code": "10",
+    "description": "Declaration does not exist"
+  },
+  {
+    "code": "11",
+    "description": "UCR is already associated to given MUCR"
+  },
+  {
+    "code": "13",
+    "description": "No prior EAL can be found for the UCR at the location given on the EDL"
+  },
+  {
+    "code": "14",
+    "description": "Not all declaration(s) have P2P"
+  },
+  {
+    "code": "15",
+    "description": "Declaration is cancelled/terminated"
+  },
+  {
+    "code": "16",
+    "description": "Unknown Declaration ID, DUCR or MUCR"
+  },
+  {
+    "code": "17",
+    "description": "Consolidation has reached maximum number of levels/items within a level"
+  },
+  {
+    "code": "18",
+    "description": "Goods Departure/Arrival Date/Time is invalid"
+  },
+  {
+    "code": "19",
+    "description": "Cannot depart the MUCR from UK as MUCR is not Shut"
+  },
+  {
+    "code": "20",
+    "description": "Message sent with a future date/time (greater than 25 hours in the future)"
+  },
+  {
+    "code": "21",
+    "description": "UCR is not for a MUCR"
+  },
+  {
+    "code": "22",
+    "description": "UCR to be disassociated does not exist"
+  },
+  {
+    "code": "23",
+    "description": "UCR to be disassociated is not already associated"
+  },
+  {
+    "code": "25",
+    "description": "MUCR is empty"
+  },
+  {
+    "code": "27",
+    "description": "Location-Based Permission failed"
+  },
+  {
+    "code": "28",
+    "description": "Goods Location is invalid"
+  },
+  {
+    "code": "29",
+    "description": "MUCR has been departed"
+  },
+  {
+    "code": "30",
+    "description": "UCR cannot be associated as it has been rejected upon arrival"
+  },
+  {
+    "code": "31",
+    "description": "Already retrospectively arrived"
+  },
+  {
+    "code": "32",
+    "description": "Cannot retrospectively arrive this MUCR because it contains a previously arrived DUCR or MUCR"
+  },
+  {
+    "code": "33",
+    "description": "Cannot retrospectively arrive this MUCR/DUCR because it has already arrived at the frontier"
+  },
+  {
+    "code": "34",
+    "description": "Cannot retrospectively arrive this DUCR/MUCR as it does not exist"
+  },
+  {
+    "code": "35",
+    "description": "Submitter ID must match last EAL/CST submitter"
+  }
+]

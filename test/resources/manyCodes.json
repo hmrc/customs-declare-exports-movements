@@ -1,17 +1,14 @@
 [
   {
     "code": "001",
-    "en": "English",
-    "cy": "Welsh"
+    "description": "English"
   },
   {
     "code": "002",
-    "en": "English",
-    "cy": "Welsh"
+    "description": "English"
   },
   {
     "code": "003",
-    "en": "English",
-    "cy": "Welsh"
+    "description": "English"
   }
 ]

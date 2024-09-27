@@ -16,11 +16,14 @@
 
 package uk.gov.hmrc.exports.movements.models.notifications.parsers
 
+import play.api.{Environment, Mode}
 import uk.gov.hmrc.exports.movements.base.UnitSpec
+import uk.gov.hmrc.exports.movements.utils.JsonFile
 
 class ErrorValidatorSpec extends UnitSpec {
 
-  val errorValidator = new ErrorValidator
+  private lazy val jsonFile = new JsonFile(Environment.simple(mode = Mode.Test))
+  val errorValidator = new ErrorValidator(jsonFile)
   val ileErrorCode = "10"
   val incorrectCode = "incorrect"
 
