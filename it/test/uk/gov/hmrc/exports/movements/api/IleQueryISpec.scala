@@ -138,7 +138,7 @@ class IleQueryISpec extends ApiSpec {
     "return 201" in {
 
       // Given
-      givenIleApiAcceptsTheSubmission("conversation-id")
+      givenIleApiAcceptsTheSubmission()
 
       // When
       val request = post(
@@ -155,22 +155,16 @@ class IleQueryISpec extends ApiSpec {
       submissions.head.conversationId mustBe "conversation-id"
       submissions.head.ucrBlock mustBe UcrBlock(ucr = "UCR-123", ucrType = Ducr.codeValue)
 
-      verify(
-        postRequestedToILE()
-          .withRequestBody(
-            WireMock.equalToXml(
-              """
-            |<inventoryLinkingQueryRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
-            |      <queryUCR>
-            |        <ucr>UCR-123</ucr>
-            |        <ucrType>D</ucrType>
-            |      </queryUCR>
-            |    </inventoryLinkingQueryRequest>
-            |""".stripMargin,
-              true
-            )
-          )
-      )
+      val body =
+        s"""<inventoryLinkingQueryRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
+           |  <queryUCR>
+           |    <ucr>UCR-123</ucr>
+           |    <ucrType>D</ucrType>
+           |  </queryUCR>
+           |</inventoryLinkingQueryRequest>
+           |""".stripMargin.replaceAll("\\n *", "")
+
+      verify(postRequestedToILE().withRequestBody(WireMock.equalTo(body)))
     }
   }
 

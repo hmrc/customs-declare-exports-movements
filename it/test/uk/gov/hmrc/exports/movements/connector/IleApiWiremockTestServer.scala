@@ -17,13 +17,15 @@
 package uk.gov.hmrc.exports.movements.connector
 
 import com.github.tomakehurst.wiremock.client.WireMock
-import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, post, postRequestedFor, urlEqualTo}
-import com.github.tomakehurst.wiremock.matching.{RequestPatternBuilder, StringValuePattern}
+import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.matching.{RequestPatternBuilder, UrlPattern}
+import com.github.tomakehurst.wiremock.verification.LoggedRequest
 import play.api.Configuration
 import play.api.http.Status
 import uk.gov.hmrc.exports.movements.base.WiremockTestServer
 
-import scala.xml.NodeSeq
+import java.nio.charset.StandardCharsets
+import scala.jdk.CollectionConverters.ListHasAsScala
 
 trait IleApiWiremockTestServer extends WiremockTestServer {
 
@@ -38,18 +40,28 @@ trait IleApiWiremockTestServer extends WiremockTestServer {
       )
     )
 
-  protected def givenIleApiAcceptsTheSubmission(conversationId: String): Unit =
+  val urlOfILE: UrlPattern = urlEqualTo("/")
+
+  protected def givenIleApiAcceptsTheSubmission(): Unit =
     stubFor(
-      post("/")
+      post(urlOfILE)
         .willReturn(
           aResponse()
             .withStatus(Status.ACCEPTED)
-            .withHeader("X-Conversation-ID", conversationId)
+            .withHeader("X-Conversation-ID", "conversation-id")
         )
     )
 
-  protected def postRequestedToILE(): RequestPatternBuilder = postRequestedFor(urlEqualTo("/"))
+  protected def postRequestedToILE(): RequestPatternBuilder = postRequestedFor(urlOfILE)
 
-  protected def equalToXml(nodeSeq: NodeSeq): StringValuePattern = WireMock.equalToXml(nodeSeq.toString())
+  def bodyOfGetRequest(url: UrlPattern): String =
+    bodyOfRequest(WireMock.findAll(getRequestedFor(url)).asScala.toList)
 
+  def bodyOfPostRequest(url: UrlPattern): String =
+    bodyOfRequest(WireMock.findAll(postRequestedFor(url)).asScala.toList)
+
+  private def bodyOfRequest(requests: List[LoggedRequest]): String = {
+    assert(requests.length == 1)
+    new String(requests.head.getBody, StandardCharsets.UTF_8)
+  }
 }

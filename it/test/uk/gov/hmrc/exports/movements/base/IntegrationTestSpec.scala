@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.exports.movements.base
 
-import com.codahale.metrics.SharedMetricRegistries
 import com.google.inject.AbstractModule
 import org.scalatest._
 import org.scalatest.concurrent.Eventually
@@ -45,6 +44,4 @@ trait IntegrationTestSpec extends UnitSpec with BeforeAndAfterEach with BeforeAn
     stopMockServer()
     super.afterAll()
   }
-
-  SharedMetricRegistries.clear()
 }

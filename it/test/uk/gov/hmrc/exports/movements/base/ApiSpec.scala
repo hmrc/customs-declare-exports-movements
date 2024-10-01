@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.exports.movements.base
 
-import com.codahale.metrics.MetricRegistry
+import com.codahale.metrics.{MetricRegistry, SharedMetricRegistries}
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder
 import org.scalatest.BeforeAndAfterEach
@@ -61,7 +61,8 @@ abstract class ApiSpec
   private lazy val submissionRepository = app.injector.instanceOf[SubmissionRepository]
   private lazy val ileQuerySubmissionRepository = app.injector.instanceOf[IleQuerySubmissionRepository]
 
-  override def fakeApplication(): Application =
+  override def fakeApplication(): Application = {
+    SharedMetricRegistries.clear()
     new GuiceApplicationBuilder()
       .disable[MetricRegistry]
       .configure(ileApieConfiguration)
@@ -69,9 +70,11 @@ abstract class ApiSpec
       .configure(auditConfiguration)
       .overrides(fixedTimeBinding)
       .build()
+  }
 
   override def beforeEach(): Unit = {
     super.beforeEach()
+
     await(ileQueryResponseRepository.removeAll)
     await(notificationRepository.removeAll)
     await(submissionRepository.removeAll)

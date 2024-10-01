@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.exports.movements.api
 
+import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.verify
 import play.api.libs.json.Json
 import play.api.test.Helpers._
@@ -37,7 +38,7 @@ class DissociateUcrISpec extends ApiSpec {
 
       "used for DUCR dissociation" in {
         // Given
-        givenIleApiAcceptsTheSubmission("conversation-id")
+        givenIleApiAcceptsTheSubmission()
 
         // When
         val response = post(
@@ -54,21 +55,22 @@ class DissociateUcrISpec extends ApiSpec {
         submissions.head.ucrBlocks mustBe Seq(UcrBlock(ucr = "DUCR", ucrType = Ducr.codeValue))
         submissions.head.actionType mustBe ConsolidationType.DucrDisassociation
 
-        verify(
-          postRequestedToILE()
-            .withRequestBody(equalToXml(<inventoryLinkingConsolidationRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
-              <messageCode>EAC</messageCode>
-              <ucrBlock>
-                <ucr>DUCR</ucr>
-                <ucrType>D</ucrType>
-              </ucrBlock>
-            </inventoryLinkingConsolidationRequest>))
-        )
+        val body =
+          s"""<inventoryLinkingConsolidationRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
+             |  <messageCode>EAC</messageCode>
+             |  <ucrBlock>
+             |    <ucr>DUCR</ucr>
+             |    <ucrType>D</ucrType>
+             |  </ucrBlock>
+             |</inventoryLinkingConsolidationRequest>
+             |""".stripMargin.replaceAll("\\n *", "")
+
+        verify(postRequestedToILE().withRequestBody(WireMock.equalTo(body)))
       }
 
       "used for MUCR dissociation" in {
         // Given
-        givenIleApiAcceptsTheSubmission("conversation-id")
+        givenIleApiAcceptsTheSubmission()
 
         // When
         val response = post(
@@ -85,16 +87,17 @@ class DissociateUcrISpec extends ApiSpec {
         submissions.head.ucrBlocks mustBe Seq(UcrBlock(ucr = "MUCR", ucrType = Mucr.codeValue))
         submissions.head.actionType mustBe ConsolidationType.MucrDisassociation
 
-        verify(
-          postRequestedToILE()
-            .withRequestBody(equalToXml(<inventoryLinkingConsolidationRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
-              <messageCode>EAC</messageCode>
-              <ucrBlock>
-                <ucr>MUCR</ucr>
-                <ucrType>M</ucrType>
-              </ucrBlock>
-            </inventoryLinkingConsolidationRequest>))
-        )
+        val body =
+          s"""<inventoryLinkingConsolidationRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
+             |  <messageCode>EAC</messageCode>
+             |  <ucrBlock>
+             |    <ucr>MUCR</ucr>
+             |    <ucrType>M</ucrType>
+             |  </ucrBlock>
+             |</inventoryLinkingConsolidationRequest>
+             |""".stripMargin.replaceAll("\\n *", "")
+
+        verify(postRequestedToILE().withRequestBody(WireMock.equalTo(body)))
       }
     }
   }
