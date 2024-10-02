@@ -13,8 +13,7 @@ object Dependencies {
     "uk.gov.hmrc.mongo"                %% "hmrc-mongo-play-30"            % hmrcMongoVersion,
     "com.fasterxml.jackson.module"     %% "jackson-module-scala"          % jacksonVersion,
     "com.fasterxml.jackson.dataformat" %  "jackson-dataformat-xml"        % jacksonVersion,
-    "com.fasterxml.jackson.dataformat" %  "jackson-dataformat-properties" % jacksonVersion,
-    "com.github.tototoshi"             %% "scala-csv"                     % "1.4.1",
+    "com.fasterxml.jackson.dataformat" %  "jackson-dataformat-properties" % jacksonVersion
 )
 
   val test: Seq[ModuleID] = List(
