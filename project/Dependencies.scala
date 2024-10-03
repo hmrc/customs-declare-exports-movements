@@ -2,14 +2,14 @@ import sbt._
 
 object Dependencies {
 
-  val bootstrapPlayVersion = "9.3.0"
+  val bootstrapPlayVersion = "9.5.0"
   val hmrcMongoVersion = "2.2.0"
-  val jacksonVersion = "2.17.2"
+  val jacksonVersion = "2.18.0"
 
   val compile: Seq[ModuleID] = List(
     "uk.gov.hmrc"                      %% "bootstrap-backend-play-30"     % bootstrapPlayVersion,
-    "uk.gov.hmrc"                      %% "wco-dec"                       % "0.39.0" excludeAll ExclusionRule("com.fasterxml.jackson.dataformat"),
-    "uk.gov.hmrc"                      %% "play-json-union-formatter"     % "1.21.0",
+    "uk.gov.hmrc"                      %% "wco-dec"                       % "0.40.0",
+    "uk.gov.hmrc"                      %% "play-json-union-formatter"     % "1.22.0",
     "uk.gov.hmrc.mongo"                %% "hmrc-mongo-play-30"            % hmrcMongoVersion,
     "com.fasterxml.jackson.module"     %% "jackson-module-scala"          % jacksonVersion,
     "com.fasterxml.jackson.dataformat" %  "jackson-dataformat-xml"        % jacksonVersion,

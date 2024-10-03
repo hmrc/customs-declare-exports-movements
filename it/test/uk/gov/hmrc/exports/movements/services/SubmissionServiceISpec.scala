@@ -54,7 +54,7 @@ class SubmissionServiceISpec
         Map(
           "mongodb.uri" -> mongoDBUri,
           "microservice.services.customs-inventory-linking-exports.host" -> Host,
-          "microservice.services.customs-inventory-linking-exports.port" -> Port,
+          "microservice.services.customs-inventory-linking-exports.port" -> Port.toString,
           "microservice.services.customs-inventory-linking-exports.sendArrival" -> CustomsMovementsAPIConfig.submitMovementServiceContext,
           "microservice.services.customs-inventory-linking-exports.client-id.customs-movements-frontend" -> CustomsMovementsAPIConfig.clientId
         )

@@ -3,7 +3,7 @@ import uk.gov.hmrc.versioning.SbtGitVersioning.autoImport.majorVersion
 val appName = "customs-declare-exports-movements"
 
 ThisBuild / majorVersion := 0
-ThisBuild / scalaVersion := "2.13.12"
+ThisBuild / scalaVersion := "2.13.15"
 
 PlayKeys.devSettings := Seq("play.server.http.port" -> "6797")
 
@@ -24,7 +24,6 @@ lazy val it = (project in file("it"))
 lazy val commonSettings = Seq(
   scalacOptions ++= scalacFlags,
   retrieveManaged := true,
-  dependencyOverrides += "org.scala-lang.modules" %% "scala-xml" % "2.2.0",
   libraryDependencies ++= Dependencies.compile ++ Dependencies.test
 )
 

@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.exports.movements.api
 
+import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.verify
 import play.api.libs.json.Json
 import play.api.test.Helpers._
@@ -35,7 +36,7 @@ class ShutMucrISpec extends ApiSpec {
   "POST" should {
     "return 201" in {
       // Given
-      givenIleApiAcceptsTheSubmission("conversation-id")
+      givenIleApiAcceptsTheSubmission()
 
       // When
       val response = post(
@@ -52,13 +53,14 @@ class ShutMucrISpec extends ApiSpec {
       submissions.head.ucrBlocks mustBe Seq(UcrBlock(ucr = "UCR", ucrType = Mucr.codeValue))
       submissions.head.actionType mustBe ConsolidationType.ShutMucr
 
-      verify(
-        postRequestedToILE()
-          .withRequestBody(equalToXml(<inventoryLinkingConsolidationRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
-            <messageCode>CST</messageCode>
-            <masterUCR>UCR</masterUCR>
-          </inventoryLinkingConsolidationRequest>))
-      )
+      val body =
+        s"""<inventoryLinkingConsolidationRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
+             |  <messageCode>CST</messageCode>
+             |  <masterUCR>UCR</masterUCR>
+             |</inventoryLinkingConsolidationRequest>
+             |""".stripMargin.replaceAll("\\n *", "")
+
+      verify(postRequestedToILE().withRequestBody(WireMock.equalTo(body)))
     }
   }
 }

@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.exports.movements.api
 
+import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.verify
 import play.api.libs.json.Json
 import play.api.test.Helpers._
@@ -37,7 +38,7 @@ class AssociateUcrISpec extends ApiSpec {
 
       "used for DUCR Association" in {
         // Given
-        givenIleApiAcceptsTheSubmission("conversation-id")
+        givenIleApiAcceptsTheSubmission()
 
         // When
         val response = post(
@@ -54,22 +55,23 @@ class AssociateUcrISpec extends ApiSpec {
         submissions.head.ucrBlocks mustBe Seq(UcrBlock(ucr = "MUCR", ucrType = Mucr.codeValue), UcrBlock(ucr = "DUCR", ucrType = Ducr.codeValue))
         submissions.head.actionType mustBe ConsolidationType.DucrAssociation
 
-        verify(
-          postRequestedToILE()
-            .withRequestBody(equalToXml(<inventoryLinkingConsolidationRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
-              <messageCode>EAC</messageCode>
-              <masterUCR>MUCR</masterUCR>
-              <ucrBlock>
-                <ucr>DUCR</ucr>
-                <ucrType>D</ucrType>
-              </ucrBlock>
-            </inventoryLinkingConsolidationRequest>))
-        )
+        val body =
+          s"""<inventoryLinkingConsolidationRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
+             |    <messageCode>EAC</messageCode>
+             |    <masterUCR>MUCR</masterUCR>
+             |    <ucrBlock>
+             |        <ucr>DUCR</ucr>
+             |        <ucrType>D</ucrType>
+             |    </ucrBlock>
+             |</inventoryLinkingConsolidationRequest>
+             |""".stripMargin.replaceAll("\\n *", "")
+
+        verify(postRequestedToILE().withRequestBody(WireMock.equalTo(body)))
       }
 
       "used for MUCR Association" in {
         // Given
-        givenIleApiAcceptsTheSubmission("conversation-id")
+        givenIleApiAcceptsTheSubmission()
 
         // When
         val response = post(
@@ -86,17 +88,18 @@ class AssociateUcrISpec extends ApiSpec {
         submissions.head.ucrBlocks mustBe Seq(UcrBlock(ucr = "MUCR", ucrType = Mucr.codeValue), UcrBlock(ucr = "MUCR_2", ucrType = Mucr.codeValue))
         submissions.head.actionType mustBe ConsolidationType.MucrAssociation
 
-        verify(
-          postRequestedToILE()
-            .withRequestBody(equalToXml(<inventoryLinkingConsolidationRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
-              <messageCode>EAC</messageCode>
-              <masterUCR>MUCR</masterUCR>
-              <ucrBlock>
-                <ucr>MUCR_2</ucr>
-                <ucrType>M</ucrType>
-              </ucrBlock>
-            </inventoryLinkingConsolidationRequest>))
-        )
+        val body =
+          s"""<inventoryLinkingConsolidationRequest xmlns="http://gov.uk/customs/inventoryLinking/v1">
+             |  <messageCode>EAC</messageCode>
+             |  <masterUCR>MUCR</masterUCR>
+             |  <ucrBlock>
+             |    <ucr>MUCR_2</ucr>
+             |    <ucrType>M</ucrType>
+             |  </ucrBlock>
+             |</inventoryLinkingConsolidationRequest>
+             |""".stripMargin.replaceAll("\\n *", "")
+
+        verify(postRequestedToILE().withRequestBody(WireMock.equalTo(body)))
       }
     }
   }
