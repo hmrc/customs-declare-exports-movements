@@ -16,13 +16,10 @@
 
 package uk.gov.hmrc.exports.movements.repositories
 
-import com.mongodb.client.model.Indexes.ascending
-import org.mongodb.scala.model.{IndexModel, IndexOptions}
 import uk.gov.hmrc.exports.movements.models.notifications.Notification
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 
-import java.util.concurrent.TimeUnit.DAYS
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 import scala.reflect.ClassTag
@@ -38,11 +35,4 @@ class UnparsedNotificationRepository @Inject() (mongoComponent: MongoComponent)(
 
   override def classTag: ClassTag[Notification] = implicitly[ClassTag[Notification]]
   implicit val executionContext: ExecutionContext = ec
-}
-
-object UnparsedNotificationRepository {
-
-  private val ttlDays = 122
-
-  val indexes: Seq[IndexModel] = List(IndexModel(ascending("timestampReceived"), IndexOptions().name("ttl").expireAfter(ttlDays, DAYS)))
 }

@@ -18,7 +18,8 @@ package uk.gov.hmrc.exports.movements.base
 
 import com.codahale.metrics.Timer
 import org.mockito.ArgumentMatchers.any
-import org.mockito.MockitoSugar.{mock, when}
+import org.mockito.Mockito.when
+import org.scalatestplus.mockito.MockitoSugar.mock
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
 import uk.gov.hmrc.exports.movements.metrics.MovementsMetrics
 import uk.gov.hmrc.exports.movements.models.CustomsInventoryLinkingResponse

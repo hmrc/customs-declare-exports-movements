@@ -16,13 +16,14 @@
 
 package uk.gov.hmrc.exports.movements.connector
 
-import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.client.WireMock.*
+import com.github.tomakehurst.wiremock.http.Fault.CONNECTION_RESET_BY_PEER
 import org.mockito.ArgumentMatchers
-import org.mockito.BDDMockito.`given`
-import org.mockito.MockitoSugar.mock
+import org.mockito.Mockito.when
+import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.http.Status
 import play.api.http.Status.ACCEPTED
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.exports.movements.config.AppConfig
 import uk.gov.hmrc.exports.movements.connectors.CustomsInventoryLinkingExportsConnector
 import uk.gov.hmrc.exports.movements.controllers.util.CustomsHeaderNames
@@ -38,11 +39,11 @@ class CustomsInventoryLinkingExportsConnectorISpec extends ConnectorISpec {
   private def connector = new CustomsInventoryLinkingExportsConnector(config, httpClientV2)
 
   "Customs Inventory Linking Exports Connector" should {
-    given(config.customsInventoryLinkingExportsRootUrl).willReturn(downstreamURL)
-    given(config.sendArrivalUrlSuffix).willReturn("/path")
-    given(config.customsDeclarationsApiVersion).willReturn("1.0")
-    given(config.clientIdInventory(ArgumentMatchers.any[HeaderCarrier]())).willReturn("client-id")
-    given(config.internalUserEori).willReturn("ABC123")
+    when(config.customsInventoryLinkingExportsRootUrl).thenReturn(downstreamURL)
+    when(config.sendArrivalUrlSuffix).thenReturn("/path")
+    when(config.customsDeclarationsApiVersion).thenReturn("1.0")
+    when(config.clientIdInventory(ArgumentMatchers.any[HeaderCarrier]())).thenReturn("client-id")
+    when(config.internalUserEori).thenReturn("ABC123")
 
     "POST to ILE" when {
       "EORI only request" in {
@@ -84,6 +85,29 @@ class CustomsInventoryLinkingExportsConnectorISpec extends ConnectorISpec {
 
         result.status mustBe ACCEPTED
         result.conversationId mustBe Some("conv-id")
+        verify(
+          postRequestedFor(urlEqualTo("/path"))
+            .withRequestBody(equalTo("<Xml></Xml>"))
+            .withHeader("Accept", equalTo("application/vnd.hmrc.1.0+xml"))
+            .withHeader("Content-Type", equalTo("application/xml; charset=utf-8"))
+            .withHeader("X-Client-ID", equalTo("client-id"))
+            .withHeader("X-Submitter-Identifier", equalTo("ABC123"))
+        )
+      }
+
+      "handle upstream error" in {
+        stubFor(
+          post("/path")
+            .willReturn(
+              aResponse()
+                .withFault(CONNECTION_RESET_BY_PEER)
+            )
+        )
+
+        val result: CustomsInventoryLinkingResponse = await(connector.submit(identification(Some("id")), xml)(hc))
+
+        result.status mustBe INTERNAL_SERVER_ERROR
+        result.conversationId mustBe None
         verify(
           postRequestedFor(urlEqualTo("/path"))
             .withRequestBody(equalTo("<Xml></Xml>"))

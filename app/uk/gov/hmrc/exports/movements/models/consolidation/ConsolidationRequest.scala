@@ -21,7 +21,7 @@ import uk.gov.hmrc.exports.movements.controllers.util.JSONResponses
 import uk.gov.hmrc.exports.movements.models.UserIdentification
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType.ConsolidationType
 import uk.gov.hmrc.exports.movements.models.submissions.ActionType.ConsolidationType._
-import uk.gov.hmrc.play.json.Union
+import uk.gov.hmrc.exports.movements.utils.Union
 
 sealed abstract class ConsolidationRequest(
   val consolidationType: ConsolidationType,

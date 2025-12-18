@@ -18,7 +18,7 @@ package uk.gov.hmrc.exports.movements.models
 
 import play.api.libs.json.{Json, OFormat}
 
-case class Eori(value: String) extends AnyVal
+case class Eori(value: String)
 
 object Eori {
   implicit val format: OFormat[Eori] = Json.format[Eori]

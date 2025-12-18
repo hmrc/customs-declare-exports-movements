@@ -69,6 +69,18 @@ class ExportStatusSpec extends AnyWordSpec with Matchers {
 
   "Retrieve from Response method" should {
 
+    "correctly retrieve Pending status" in {
+      val response = Response("Pending")
+
+      ExportStatus.retrieveFromResponse(response) must be(Pending)
+    }
+
+    "correctly retrieve Cancellation Requested status" in {
+      val response = Response("Cancellation Requested")
+
+      ExportStatus.retrieveFromResponse(response) must be(RequestedCancellation)
+    }
+
     "correctly retrieve Accepted status" in {
       val acceptedResponse = Response("01")
 

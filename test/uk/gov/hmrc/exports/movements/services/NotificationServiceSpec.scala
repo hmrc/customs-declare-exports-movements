@@ -19,7 +19,8 @@ package uk.gov.hmrc.exports.movements.services
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, anyString, eq => meq}
 import org.mockito.Mockito.never
-import org.mockito.MockitoSugar.{mock, reset, verify, verifyZeroInteractions, when}
+import org.mockito.Mockito.{reset, verify, verifyNoInteractions, when}
+import org.scalatestplus.mockito.MockitoSugar.mock
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers
@@ -93,8 +94,8 @@ class NotificationServiceSpec extends AnyWordSpec with ScalaFutures with Matcher
             verify(notificationRepository).insertOne(meq(notification_1))
             verify(auditService).auditNotificationProcessed(any(), any())
 
-            verifyZeroInteractions(ileQueryResponseRepository)
-            verifyZeroInteractions(unparsedNotificationRepository)
+            verifyNoInteractions(ileQueryResponseRepository)
+            verifyNoInteractions(unparsedNotificationRepository)
           }
         }
       }
@@ -108,9 +109,9 @@ class NotificationServiceSpec extends AnyWordSpec with ScalaFutures with Matcher
 
           verify(ileQueryResponseRepository).insertOne(meq(ileQueryResponse_1))
 
-          verifyZeroInteractions(auditService)
-          verifyZeroInteractions(notificationRepository)
-          verifyZeroInteractions(unparsedNotificationRepository)
+          verifyNoInteractions(auditService)
+          verifyNoInteractions(notificationRepository)
+          verifyNoInteractions(unparsedNotificationRepository)
         }
       }
     }
@@ -129,10 +130,10 @@ class NotificationServiceSpec extends AnyWordSpec with ScalaFutures with Matcher
               Await.result(notificationService.save(conversationId, requestBody), patienceConfig.timeout)
             } must have message message
 
-            verifyZeroInteractions(auditService)
-            verifyZeroInteractions(notificationRepository)
-            verifyZeroInteractions(ileQueryResponseRepository)
-            verifyZeroInteractions(unparsedNotificationRepository)
+            verifyNoInteractions(auditService)
+            verifyNoInteractions(notificationRepository)
+            verifyNoInteractions(ileQueryResponseRepository)
+            verifyNoInteractions(unparsedNotificationRepository)
           }
         }
       }
@@ -266,10 +267,10 @@ class NotificationServiceSpec extends AnyWordSpec with ScalaFutures with Matcher
 
           verify(unparsedNotificationRepository).findAll
 
-          verifyZeroInteractions(notificationFactory)
-          verifyZeroInteractions(notificationRepository)
-          verifyZeroInteractions(ileQueryResponseRepository)
-          verifyZeroInteractions(auditService)
+          verifyNoInteractions(notificationFactory)
+          verifyNoInteractions(notificationRepository)
+          verifyNoInteractions(ileQueryResponseRepository)
+          verifyNoInteractions(auditService)
         }
       }
     }
@@ -294,9 +295,9 @@ class NotificationServiceSpec extends AnyWordSpec with ScalaFutures with Matcher
             verify(unparsedNotificationRepository).findAll
             verify(unparsedNotificationRepository, never()).removeOne(any(), any())
 
-            verifyZeroInteractions(notificationRepository)
-            verifyZeroInteractions(ileQueryResponseRepository)
-            verifyZeroInteractions(auditService)
+            verifyNoInteractions(notificationRepository)
+            verifyNoInteractions(ileQueryResponseRepository)
+            verifyNoInteractions(auditService)
           }
         }
       }
@@ -323,7 +324,7 @@ class NotificationServiceSpec extends AnyWordSpec with ScalaFutures with Matcher
             verify(unparsedNotificationRepository).removeOne(any(), any())
             verify(auditService).auditNotificationProcessed(any(), any())
 
-            verifyZeroInteractions(ileQueryResponseRepository)
+            verifyNoInteractions(ileQueryResponseRepository)
           }
         }
 
@@ -348,8 +349,8 @@ class NotificationServiceSpec extends AnyWordSpec with ScalaFutures with Matcher
               verify(ileQueryResponseRepository).insertOne(meq(ileQueryResponse_1))
               verify(unparsedNotificationRepository).removeOne(any(), any())
 
-              verifyZeroInteractions(auditService)
-              verifyZeroInteractions(notificationRepository)
+              verifyNoInteractions(auditService)
+              verifyNoInteractions(notificationRepository)
             }
           }
         }

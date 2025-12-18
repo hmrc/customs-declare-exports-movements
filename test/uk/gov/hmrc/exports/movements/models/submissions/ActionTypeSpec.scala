@@ -19,8 +19,9 @@ package uk.gov.hmrc.exports.movements.models.submissions
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.libs.json.{JsError, JsString}
-import uk.gov.hmrc.exports.movements.models.submissions.ActionType.ConsolidationType._
-import uk.gov.hmrc.exports.movements.models.submissions.ActionType.MovementType._
+import uk.gov.hmrc.exports.movements.models.submissions.ActionType.ConsolidationType.*
+import uk.gov.hmrc.exports.movements.models.submissions.ActionType.IleQuery
+import uk.gov.hmrc.exports.movements.models.submissions.ActionType.MovementType.*
 
 class ActionTypeSpec extends AnyWordSpec with Matchers {
 
@@ -90,6 +91,13 @@ class ActionTypeSpec extends AnyWordSpec with Matchers {
 
         json must equal(expectedJson)
       }
+
+      "it is IleQuery" in {
+        val json = ActionType.format.writes(IleQuery)
+        val expectedJson = JsString("IleQuery")
+
+        json must equal(expectedJson)
+      }
     }
 
     "read from Json format" when {
@@ -153,6 +161,13 @@ class ActionTypeSpec extends AnyWordSpec with Matchers {
       "it is Shut MUCR" in {
         val actionType = ActionType.format.reads(JsString("ShutMucr")).get
         val expectedActionType = ShutMucr
+
+        actionType must equal(expectedActionType)
+      }
+
+      "it is IleQuery" in {
+        val actionType = ActionType.format.reads(JsString("IleQuery")).get
+        val expectedActionType = IleQuery
 
         actionType must equal(expectedActionType)
       }

@@ -48,6 +48,6 @@ object SubmissionRepository {
     IndexModel(ascending("eori"), IndexOptions().name("eoriIdx")),
     IndexModel(ascending("providerId"), IndexOptions().name("providerIdIdx")),
     IndexModel(ascending("conversationId"), IndexOptions().name("conversationIdIdx").unique(true)),
-    IndexModel(ascending("requestTimestamp"), IndexOptions().name("ttl").expireAfter(ttlDays, DAYS))
+    IndexModel(ascending("requestTimestamp"), IndexOptions().name("ttl").expireAfter(ttlDays.toLong, DAYS))
   )
 }

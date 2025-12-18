@@ -21,7 +21,7 @@ import uk.gov.hmrc.exports.movements.models.notifications.NotificationData
 import uk.gov.hmrc.exports.movements.models.notifications.exchange.IleQueryResponseExchangeType._
 import uk.gov.hmrc.exports.movements.models.notifications.queries.{DucrInfo, IleQueryResponseData, MucrInfo}
 import uk.gov.hmrc.exports.movements.models.notifications.standard.{StandardNotificationData, UcrBlock}
-import uk.gov.hmrc.play.json.Union
+import uk.gov.hmrc.exports.movements.utils.Union
 
 sealed trait IleQueryResponseExchangeData {
   val typ: IleQueryResponseExchangeType

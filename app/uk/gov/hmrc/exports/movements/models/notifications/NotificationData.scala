@@ -19,7 +19,7 @@ package uk.gov.hmrc.exports.movements.models.notifications
 import play.api.libs.json.Format
 import uk.gov.hmrc.exports.movements.models.notifications.queries.IleQueryResponseData
 import uk.gov.hmrc.exports.movements.models.notifications.standard.StandardNotificationData
-import uk.gov.hmrc.play.json.Union
+import uk.gov.hmrc.exports.movements.utils.Union
 
 trait NotificationData {
   val typ: NotificationType

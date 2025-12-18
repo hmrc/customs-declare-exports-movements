@@ -21,7 +21,7 @@ import com.mongodb.client.model.ReturnDocument
 import org.mongodb.scala.bson.BsonDocument
 import org.mongodb.scala.model.Filters.equal
 import org.mongodb.scala.model.{FindOneAndReplaceOptions, FindOneAndUpdateOptions}
-import org.mongodb.scala.{Document, MongoCollection, MongoWriteException}
+import org.mongodb.scala.{Document, MongoCollection, MongoWriteException, ObservableFuture, SingleObservableFuture}
 import play.api.Logging
 import play.api.libs.json.{Json, Writes}
 
@@ -33,7 +33,7 @@ trait RepositoryOps[T] extends Logging {
   implicit def classTag: ClassTag[T]
   implicit val executionContext: ExecutionContext
 
-  val collection: MongoCollection[T]
+  def collection: MongoCollection[T]
 
   def findAll: Future[Seq[T]] =
     collection.find().toFuture()

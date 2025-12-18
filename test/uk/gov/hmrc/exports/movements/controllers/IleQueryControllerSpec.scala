@@ -17,7 +17,8 @@
 package uk.gov.hmrc.exports.movements.controllers
 
 import org.mockito.ArgumentMatchers.any
-import org.mockito.MockitoSugar.{mock, reset, verify, when}
+import org.mockito.Mockito.{reset, verify, when}
+import org.scalatestplus.mockito.MockitoSugar.mock
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers

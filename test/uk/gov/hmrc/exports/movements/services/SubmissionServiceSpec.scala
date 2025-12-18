@@ -18,7 +18,8 @@ package uk.gov.hmrc.exports.movements.services
 
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq => meq}
-import org.mockito.MockitoSugar.{mock, verify, when}
+import org.mockito.Mockito.{verify, when}
+import org.scalatestplus.mockito.MockitoSugar.mock
 import org.scalatest.OptionValues
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers

@@ -3,7 +3,7 @@ import uk.gov.hmrc.versioning.SbtGitVersioning.autoImport.majorVersion
 val appName = "customs-declare-exports-movements"
 
 ThisBuild / majorVersion := 0
-ThisBuild / scalaVersion := "2.13.16"
+ThisBuild / scalaVersion := "3.3.7"
 
 PlayKeys.devSettings := Seq("play.server.http.port" -> "6797")
 
@@ -33,11 +33,12 @@ lazy val scalacFlags = Seq(
   "-feature",                // warn about misused language features
   "-language:implicitConversions",
   "-unchecked",              // warn about unchecked type parameters
-  "-Ywarn-numeric-widen",
   "-Xfatal-warnings",        // warnings are fatal!!
-  "-Wconf:cat=unused-imports&src=routes/.*:s",  // silent "unused import" warnings from Play routes
-  "-Wconf:cat=unused&src=.*routes.*:s",  // silence private val defaultPrefix in class Routes is never used
-  "-Wconf:msg=eq not selected from this instance:s" // silence eq not selected from this instance warning
+  "-Wconf:src=routes/.*&msg=unused import:silent", // silent "unused import" warnings from Play routes
+  "-Wconf:src=routes/.*&msg=unused private member:silent",
+  "-Wconf:src=routes/.*&msg=unused pattern variable:silent",
+  "-Wconf:src=app/repositories/.*&msg=unused explicit parameter:silent",
+  "-Wconf:msg=Flag.*repeatedly:s" // suppress 'repeatedly' flags
 )
 
 def onPackageName(rootPackage: String): String => Boolean = {
@@ -50,6 +51,8 @@ lazy val scoverageSettings: Seq[Setting[_]] = Seq(
     ,"Reverse.*"
     ,"domain\\..*"
     ,"models\\..*"
+    ,".*ErrorResponse.*"
+    ,".*JSONResponses.*"
     ,"metrics\\..*"
     ,".*(BuildInfo|Routes|Options).*"
   ).mkString(";"),

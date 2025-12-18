@@ -17,9 +17,10 @@
 package uk.gov.hmrc.exports.movements.controllers
 
 import org.mockito.ArgumentMatchers.any
-import org.mockito.MockitoSugar.{mock, reset, verify, when}
+import org.mockito.Mockito.{reset, verify, when}
+import org.scalatestplus.mockito.MockitoSugar.mock
 import org.scalatest.BeforeAndAfterEach
-import org.scalatest.matchers.must.Matchers.convertToAnyMustWrapper
+import org.scalatest.matchers.must.Matchers.mustBe
 import play.api.mvc.Request
 import play.api.test.CSRFTokenHelper.CSRFRequest
 import play.api.test.Helpers._

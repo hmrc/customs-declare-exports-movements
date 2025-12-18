@@ -37,7 +37,7 @@ trait RepositoryISpec
     extends AnyWordSpec with GuiceOneAppPerSuite with BeforeAndAfterEach with ScalaFutures with Matchers with IntegrationPatience with TestMongoDB {
   private val clock = Clock.fixed(Instant.parse(dateTimeString), ZoneOffset.UTC)
 
-  override val fakeApplication: Application = {
+  override def fakeApplication(): Application = {
     SharedMetricRegistries.clear()
     GuiceApplicationBuilder()
       .overrides(bind[Clock].to(clock))

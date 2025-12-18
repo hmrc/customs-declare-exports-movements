@@ -17,7 +17,8 @@
 package uk.gov.hmrc.exports.movements.models.notifications
 
 import org.mockito.ArgumentMatchers.{any, eq => meq}
-import org.mockito.MockitoSugar.{mock, reset, verify, verifyZeroInteractions, when}
+import org.mockito.Mockito.{reset, verify, verifyNoInteractions, when}
+import org.scalatestplus.mockito.MockitoSugar.mock
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -144,7 +145,7 @@ class NotificationFactorySpec extends AnyWordSpec with Matchers with BeforeAndAf
 
         notificationFactory.buildMovementNotification(conversationId, responseXml)
 
-        verifyZeroInteractions(responseParserProvider)
+        verifyNoInteractions(responseParserProvider)
       }
 
       "return Notification containing correct conversationId" in {
