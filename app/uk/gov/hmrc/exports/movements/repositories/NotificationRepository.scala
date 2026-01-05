@@ -39,14 +39,14 @@ class NotificationRepository @Inject() (mongoComponent: MongoComponent)(implicit
     ) with RepositoryOps[Notification] {
 
   override def classTag: ClassTag[Notification] = implicitly[ClassTag[Notification]]
-  implicit val executionContext: ExecutionContext = ec
+  val executionContext: ExecutionContext = ec
 
   def findByConversationIds(conversationIds: Seq[String]): Future[Seq[Notification]] =
     conversationIds match {
       case Nil => Future.successful(Seq.empty)
 
       case _ =>
-        val query = Json.obj("conversationId" -> Json.obj("$in" -> conversationIds.map(JsString)))
+        val query = Json.obj("conversationId" -> Json.obj("$in" -> conversationIds.map(id => JsString(id))))
         collection.find(BsonDocument(query.toString)).toFuture()
     }
 }
@@ -57,6 +57,6 @@ object NotificationRepository {
 
   val indexes: Seq[IndexModel] = List(
     IndexModel(ascending("conversationId"), IndexOptions().name("conversationIdIdx")),
-    IndexModel(ascending("timestampReceived"), IndexOptions().name("ttl").expireAfter(ttlDays, DAYS))
+    IndexModel(ascending("timestampReceived"), IndexOptions().name("ttl").expireAfter(ttlDays.toLong, DAYS))
   )
 }

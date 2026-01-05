@@ -17,7 +17,8 @@
 package uk.gov.hmrc.exports.movements.services
 
 import org.mockito.ArgumentMatchers.{any, eq => meq}
-import org.mockito.MockitoSugar.{mock, reset, verify, verifyZeroInteractions, when}
+import org.mockito.Mockito.{reset, verify, verifyNoInteractions, when}
+import org.scalatestplus.mockito.MockitoSugar.mock
 import org.mockito.{ArgumentCaptor, InOrder, Mockito}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
@@ -143,7 +144,7 @@ class IleQueryServiceSpec extends AnyWordSpec with Matchers with ScalaFutures wi
 
         ileQueryService.submit(ileQueryRequest).failed.futureValue
 
-        verifyZeroInteractions(ileQuerySubmissionRepository)
+        verifyNoInteractions(ileQuerySubmissionRepository)
       }
     }
 
@@ -164,7 +165,7 @@ class IleQueryServiceSpec extends AnyWordSpec with Matchers with ScalaFutures wi
 
         ileQueryService.submit(ileQueryRequest).failed.futureValue
 
-        verifyZeroInteractions(ileQuerySubmissionRepository)
+        verifyNoInteractions(ileQuerySubmissionRepository)
       }
     }
   }
@@ -303,9 +304,9 @@ class IleQueryServiceSpec extends AnyWordSpec with Matchers with ScalaFutures wi
 
         ileQueryService.fetchResponses(searchParameters).futureValue
 
-        verifyZeroInteractions(ileQueryTimeoutCalculator)
-        verifyZeroInteractions(ileQueryResponseRepository)
-        verifyZeroInteractions(notificationRepository)
+        verifyNoInteractions(ileQueryTimeoutCalculator)
+        verifyNoInteractions(ileQueryResponseRepository)
+        verifyNoInteractions(notificationRepository)
       }
     }
 
@@ -326,8 +327,8 @@ class IleQueryServiceSpec extends AnyWordSpec with Matchers with ScalaFutures wi
 
         ileQueryService.fetchResponses(searchParameters).futureValue
 
-        verifyZeroInteractions(ileQueryResponseRepository)
-        verifyZeroInteractions(notificationRepository)
+        verifyNoInteractions(ileQueryResponseRepository)
+        verifyNoInteractions(notificationRepository)
       }
     }
 

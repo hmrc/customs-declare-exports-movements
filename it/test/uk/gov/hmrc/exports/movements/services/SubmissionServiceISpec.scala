@@ -44,7 +44,7 @@ class SubmissionServiceISpec
   private val submissionRepository: SubmissionRepository = buildSubmissionRepositoryMock
   private val clock = Clock.fixed(Instant.parse(dateTimeString), ZoneOffset.UTC)
 
-  override val fakeApplication: Application = {
+  override def fakeApplication(): Application = {
     SharedMetricRegistries.clear()
     GuiceApplicationBuilder()
       .overrides(overrideModules: _*)
@@ -80,18 +80,20 @@ class SubmissionServiceISpec
         startInventoryLinkingService(ACCEPTED, conversationId = false)
         withMovementSubmissionPersisted(false)
 
-        the[CustomsInventoryLinkingUpstreamException] thrownBy {
-          Await.result(movementsService.submit(exampleArrivalRequest), patienceConfig.timeout)
-        } should have message "Status: 202. ConverstationId: Not preset . Non Accepted status returned by Customs Inventory Linking Exports"
+        val exception =
+          intercept[CustomsInventoryLinkingUpstreamException](Await.result(movementsService.submit(exampleArrivalRequest), patienceConfig.timeout))
+        exception shouldBe a[CustomsInventoryLinkingUpstreamException]
+        exception.getMessage shouldBe "Status: 202. ConverstationId: Not preset . Non Accepted status returned by Customs Inventory Linking Exports"
       }
 
       "Departure is not persisted (ACCEPTED but, no conversationID)" in {
         startInventoryLinkingService(ACCEPTED, conversationId = false)
         withMovementSubmissionPersisted(false)
 
-        the[CustomsInventoryLinkingUpstreamException] thrownBy {
-          Await.result(movementsService.submit(exampleDepartureRequest), patienceConfig.timeout)
-        } should have message "Status: 202. ConverstationId: Not preset . Non Accepted status returned by Customs Inventory Linking Exports"
+        val exception =
+          intercept[CustomsInventoryLinkingUpstreamException](Await.result(movementsService.submit(exampleDepartureRequest), patienceConfig.timeout))
+        exception shouldBe a[CustomsInventoryLinkingUpstreamException]
+        exception.getMessage shouldBe "Status: 202. ConverstationId: Not preset . Non Accepted status returned by Customs Inventory Linking Exports"
       }
 
       "it is Not Accepted (BAD_REQUEST)" in {

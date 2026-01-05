@@ -39,14 +39,14 @@ class IleQueryResponseRepository @Inject() (mongoComponent: MongoComponent)(impl
     ) with RepositoryOps[Notification] {
 
   override def classTag: ClassTag[Notification] = implicitly[ClassTag[Notification]]
-  implicit val executionContext: ExecutionContext = ec
+  val executionContext: ExecutionContext = ec
 
   def findByConversationIds(conversationIds: Seq[String]): Future[Seq[Notification]] =
     conversationIds match {
       case Nil => Future.successful(Seq.empty)
 
       case _ =>
-        val query = Json.obj("conversationId" -> Json.obj("$in" -> conversationIds.map(JsString)))
+        val query = Json.obj("conversationId" -> Json.obj("$in" -> conversationIds.map(id => JsString(id))))
         collection.find(BsonDocument(query.toString)).toFuture()
     }
 }

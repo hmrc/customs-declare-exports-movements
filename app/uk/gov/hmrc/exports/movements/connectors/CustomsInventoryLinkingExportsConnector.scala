@@ -18,6 +18,7 @@ package uk.gov.hmrc.exports.movements.connectors
 
 import play.api.Logging
 import play.api.http.{ContentTypes, HeaderNames}
+import play.api.libs.ws.writeableOf_String
 import play.api.mvc.Codec
 import play.mvc.Http.Status
 import uk.gov.hmrc.exports.movements.config.AppConfig
