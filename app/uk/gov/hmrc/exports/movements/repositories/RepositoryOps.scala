@@ -33,7 +33,7 @@ trait RepositoryOps[T] extends Logging {
   implicit def classTag: ClassTag[T]
   implicit val executionContext: ExecutionContext
 
-  def collection: MongoCollection[T]
+  lazy val collection: MongoCollection[T]
 
   def findAll: Future[Seq[T]] =
     collection.find().toFuture()
