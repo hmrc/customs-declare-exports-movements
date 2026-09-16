@@ -4,4 +4,4 @@ serviceNowMapping: SNSVC0019201
 test-repositories:
   - movements-ui-acceptance-tests
   - movements-internal-ui-acceptance-tests
-  - exports-movements-performance-tests
+  - cds-movements-performance-tests
